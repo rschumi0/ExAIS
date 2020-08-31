@@ -1,3 +1,58 @@
+
+% copy one list to another (Ayesha)
+ copyList(L,R) :- 
+	copy(L,R).
+	copy([],[]).
+	copy([H|T1],[H|T2]) :- 
+	copy(T1,T2).
+
+% print a list element one by one (Ayesha)
+  printlist([]).
+  printlist([H|Tail]) :-
+   write(H),nl,
+   printlist(Tail).
+
+% get first element of a list (Ayesha)
+ get_first_elem(X,Y):-  
+   X = [Z|_], Y = Z.
+
+% get tail of a list (Ayesha)
+ get_tail(X,Y):-  
+   X = [_|W], Y = W.
+ 
+ % get second element of a list (Ayesha)
+ get_second_elem(X,Y):- 
+   X= [_,S|_], Y = S.
+ 
+ % get second last elem of a list (Ayesha)
+ get_secondlast_elem(X,Y):- 
+    X= [_,_,_,P|_], Y = P.
+ 
+ % if parameter is a list (Ayesha)
+ is_list(X):- 
+   X = [ ]; X = [_|_].
+ 
+ % if list has single elem (Ayesha)
+ has_single_elem(X):- 
+    X = [_|Z], Z = [ ]. 
+ 
+ cons(X,Y,Z):- Z = [X|Y].
+
+% search given elem in a list (Ayesha)
+  elem_of_list(Elem,[Head|Tail]).
+  elem_of_list((Elem,[_|Tail]):-
+     elem_of_list((Elem,Tail).
+
+% generate K random numbers in the range [1,N] (Ayesha)
+	randseq(K,N,List):-
+	  randset(K,N,Set),
+	  random_permutation(Set,List).
+
+% get Transponse of an array (Ayesha)
+	get_transpose(X,Res):-
+	   transpose(X,Res).
+//////////////////////
+
 reverse([],[]).
 reverse([X|Xs], Zs) :- reverse(Xs,Ys), append(Ys, [X],Zs). 
 
@@ -5,14 +60,13 @@ flatten([],[]).
 flatten(X,[X]) :- atomic(X), X \== [].
 flatten([X|Xs], Zs) :- flatten(X, Ys1), flatten(Xs, Ys2), append(Ys1,Ys2,Zs).
 
-
-
 isort([],[]).
 isort([X|Xs],Ys) :- isort(Xs,Zs), insert(X,Zs,Ys).
 
 insert(X,[],[X]).
 insert(X,[Y|Ys],[Y|Zs]) :- X > Y, insert(X, Ys, Zs).
 insert(X,[Y|_],[X,Y|_]) :- X =< Y.
+
 
 sum_list(Xs, Sum) :- sum_list(Xs, 0, Sum).
 sum_list([], Sum, Sum).
@@ -52,3 +106,5 @@ list_butlast([X|Xs], Ys) :-
 list_butlast([], [], _).
 list_butlast([X1|Xs], [X0|Ys], X0) :-  
    list_butlast(Xs, Ys, X1). 
+
+
