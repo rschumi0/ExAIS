@@ -1,3 +1,4 @@
+
 %This is a dense layer that accepts random inputs
 
 % ?- dense_layer_randIs(2,10,[[1,2],[3,4]],[2,4],X).
@@ -19,6 +20,7 @@
 % bias value as 0
 
 :- [util].
+:- [denselayer].
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
 
@@ -27,17 +29,3 @@ dense_layer_randIs(K,N,IWs,OWs,Os) :-
        transpose(IWs,IWs1), 
        copyList(List,Is),
        dense_layer(Is,IWs1,OWs,[],Os).
-
-dense_layer(_,[],_,Os,Os).
-dense_layer(Is,[IW|IWs],[OW|OWs],Os1,Os) :-
-  apply_activ_func(Is,IW,OW,O),
-  append(Os1,[O],Os2),
-  dense_layer(Is,IWs,OWs,Os2,Os).
-
- apply_activ_func(Is,IWs,OW,Res) :- 
-   output_comp(Is,IWs,OW,OW,Res).
-   output_comp([],[],_,Res,Res). 
-
-   output_comp([I|Is],[IW|IWs],OW,Res0,Res) :- 
-   Res1 is Res0 + I * IW,
-   output_comp(Is,IWs,OW,Res1,Res).
