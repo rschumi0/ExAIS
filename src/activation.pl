@@ -97,7 +97,7 @@ calc_exp_LL([[I|Is]|Xs], Y0, Y):-
 
 %?- calc_exp_SL([5,0],[],Y).
 %Y = [148.4131591025766, 1].
-% calculate exponent of elements in a list of lists
+% calculate exponent of elements in a single list
 calc_exp_SL([],Y,Y).
 calc_exp_SL([I|Is], Y0, L):-
  (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
