@@ -103,3 +103,15 @@ calc_exp_SL([I|Is], Y0, L):-
  (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
  append(Y0, [O], Ys),
  calc_exp_SL(Is, Ys, L).
+ 
+%elu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
+elu_layer([],_,[]).
+elu_layer([I|Is],Alpha,[O|Os]) :-
+	atomic(I),
+	(I < 0 -> O is Alpha * ((e ^ I) - 1);O is I),
+	elu_layer(Is,Alpha,Os).
+elu_layer([I|Is],Alpha,[O|Os]) :-
+	is_list(I),
+	elu_layer(I,Alpha,O),
+	elu_layer(Is,Alpha,Os).
+	
