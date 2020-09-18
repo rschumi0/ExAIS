@@ -10,8 +10,11 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Add|   |  
  |  Average|   |   
  |  Conv1D|   |  
+ |  Conv2D|   |  
+ |  Conv3D|   |  
  |  Cropping1D|   |  
  |  Dense|   |  
+ |  ELU|   |  
  |  Flatten|   | 
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
@@ -23,6 +26,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
  |  ZeroPadding1D|   |  
+ |  ZeroPadding2D|   |  
+ |  ZeroPadding3D|   | 
 
 
 # Layers under development
@@ -40,12 +45,9 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  AveragePooling3D|   |    
  |  BatchNormalization|   |  
  |  Bidirectional|   |  
- |  Concatenate|   |  
- |  Conv1D|   |  
+ |  Concatenate|   |   
  |  Conv1DTranspose|   |  
- |  Conv2D|   |  
  |  Conv2DTranspose|   |  
- |  Conv3D|   |  
  |  Conv3DTranspose|   |  
  |  ConvLSTM2D|   |  
  |  Cropping2D|   |  
@@ -53,8 +55,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  DenseFeatures|   |  
  |  DepthwiseConv2D|   |  
  |  Dot|   |  
- |  Dropout|   |  
- |  ELU|   |  
+ |  Dropout|   | 
  |  Embedding|   |   
  |  GRU|   |  
  |  GRUCell|   |  
@@ -96,5 +97,3 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  UpSampling2D|   |  
  |  UpSampling3D|   |  
  |  Wrapper|   |   
- |  ZeroPadding2D|   |  
- |  ZeroPadding3D|   | 

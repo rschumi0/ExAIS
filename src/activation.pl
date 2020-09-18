@@ -119,4 +119,14 @@ calc_exp_LL([[I|Is]|Xs], Y0, Y):-
  Y = [L|T],
  calc_exp_LL(Xs, [], T).
 
-
+% elu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
+elu_layer([],_,[]).
+elu_layer([I|Is],Alpha,[O|Os]) :-
+	atomic(I),
+	(I < 0 -> O is Alpha * ((e ^ I) - 1);O is I),
+	elu_layer(Is,Alpha,Os).
+elu_layer([I|Is],Alpha,[O|Os]) :-
+	is_list(I),
+	elu_layer(I,Alpha,O),
+	elu_layer(Is,Alpha,Os).
+	
