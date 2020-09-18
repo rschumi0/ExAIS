@@ -166,6 +166,8 @@ sum_first_items([[X|_]|Xs], Sum0, Sum) :-
     sum_first_items(Xs, Sum1, Sum).
 
 % sum of the last items in a list of list
+% sum_last_items([[8,1],[4,2],[2,4],[6,7]],0,X).
+% X = 14.
 sum_last_items(Ys, Sum) :- sum_last_items(Ys, 0, Sum).
 sum_last_items([],Sum,Sum).
 sum_last_items([[_|Y]|Ys], Sum0, Sum) :-
@@ -173,6 +175,8 @@ sum_last_items([[_|Y]|Ys], Sum0, Sum) :-
     sum_last_items(Ys, Sum1, Sum).
 
 % reduce_sum along all directions, If axis is None (0), all dimensions are reduced, and a tensor with a single element is returned.
+% sum_all_items([[8,1],[4,2]],0,X).
+% X = 15.
 sum_all_items(X, Sum) :- sum_all_items(X, 0, Sum).
 sum_all_items([], Sum, Sum).
 sum_all_items(X, Sum0, Sum) :-
@@ -181,6 +185,10 @@ sum_all_items(X, Sum0, Sum) :-
     Sum is Sum1 + Sum2.
 
 % reduce one and two-dimension tensor along the first dimension (row)
+% ?- reduce_sum_one([[8,1],[4,2],[2,4],[6,7]],[],X).
+% Correct to: "activation:reduce_sum_one([[8,1],[4,2],[2,4],[6,7]],[],X)"? yes
+% X = [20, 14].
+
 reduce_sum_one(X, 0, Y) :- reduce_sum_one(X, [], Y).
 reduce_sum_one([], Y, Y).
 reduce_sum_one(X, Y0, Y) :-
