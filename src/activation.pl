@@ -69,13 +69,7 @@ softmax_layer([I|Is], Y0, R2):-
  calc_sum([I|Is], 0, Sum),   %  calc sum of exponential values for all the list elements
  reduce_sum(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
 
-% softmax layer for multi-dimensional input tensor
-softmax_layer_LL([],Y,Y).
-softmax_layer_LL([[I|Is]|Xs], Y0, Y):-
- softmax_layer([I|Is], Y0, Y1),
- Y = [Y1|T],
- softmax_layer_LL(Xs,[],T).
-
+% calculate exponential of a one-dimension list
 % ?- calc_exp_SL([5,0],[],Y).
 % Y = [148.4131591025766, 1].
 % calculate exponent of elements in a one-dimensional input tensor
@@ -85,7 +79,7 @@ calc_exp_SL([I|Is], Y0, L):-
  append(Y0, [O], Ys),
  calc_exp_SL(Is, Ys, L).
 
-% calculate exponential sum of a one-dimension list
+ % calculate exponential sum of a one-dimension list
 calc_sum([], Sum1, Sum1).
 calc_sum([I|Is], Sum0, Sum):-
  (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
@@ -93,6 +87,7 @@ calc_sum([I|Is], Sum0, Sum):-
  Sum1 is Sum0 + S,
  calc_sum(Is, Sum1, Sum).
 
+ 
 % calculate reduce sum for a one-dimension list
 reduce_sum([],_,Y,Y).
 reduce_sum([Y|Ys], Sum1, R1, R2):-
@@ -101,6 +96,16 @@ reduce_sum([Y|Ys], Sum1, R1, R2):-
    S is float(O),
    append(R1, [S], Z),
    reduce_sum(Ys, Sum1, Z, R2).
+
+% softmax layer for multi-dimensional input tensor
+% ?- softmax_layer_LL([[0,1,0],[0,1,0]],[],Y).
+% Y = [[0.21194155761708547, 0.5761168847658291, 0.21194155761708547], [0.21194155761708547, 0.5761168847658291, 0.21194155761708547]].
+
+softmax_layer_LL([],Y,Y).
+softmax_layer_LL([[I|Is]|Xs], Y0, Y):-
+ softmax_layer([I|Is], Y0, Y1),
+ Y = [Y1|T],
+ softmax_layer_LL(Xs,[],T).
 
 % calculate exponential sum of multi-dimension list
   calc_sum_LL([], Y, Y).
