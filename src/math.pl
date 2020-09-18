@@ -26,7 +26,6 @@ tmpadd_lists([I|Is],Os0,Os) :-
 	add_lists(I,Os0,Os1),
 	tmpadd_lists(Is,Os1,Os).
 	
-	
 multiply_lists(Xs,Ys,Zs) :- multiply_lists(Xs,Ys,[],Zs).
 multiply_lists([],[],Zs,Zs).
 multiply_lists([X|Xs],[],Z0s,Zs) :-
@@ -55,7 +54,6 @@ tmpmultiply_lists([I|Is],Os0,Os) :-
 	multiply_lists(I,Os0,Os1),
 	tmpmultiply_lists(Is,Os1,Os).
 	
-	
 substract_lists(Xs,Ys,Zs) :- substract_lists(Xs,Ys,[],Zs).
 substract_lists([],[],Zs,Zs).
 substract_lists([X|Xs],[],Z0s,Zs) :-
@@ -79,7 +77,6 @@ substract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	
 substract_layer(Is1,Is2,Os) :- substract_lists(Is1,Is2,Os).
 	
-
 %minimum_list([1,2,3,4],[4,3,2,1],X).
 %minimum_layer([[[1,2,3,4],[5,2,3,4]],[[4,3,2,1],[6,4,3,4]],[[7,8,9,0],[3,2,8,4]]],X).
 %minimum_layer([[1,2,3,4],[4,3,2,1],[7,8,9,0]],X).
@@ -167,3 +164,27 @@ sum_first_items([[X|_]|Xs], Sum0, Sum) :-
     atomic(X),
     Sum1 is Sum0 + X,
     sum_first_items(Xs, Sum1, Sum).
+
+% sum of the last items in a list of list
+sum_last_items(Ys, Sum) :- sum_last_items(Ys, 0, Sum).
+sum_last_items([],Sum,Sum).
+sum_last_items([[_|Y]|Ys], Sum0, Sum) :-
+    Sum1 is Sum0 + Y,
+    sum_last_items(Ys, Sum1, Sum).
+
+% reduce_sum along all directions, If axis is None (0), all dimensions are reduced, and a tensor with a single element is returned.
+sum_all_items(X, Sum) :- sum_all_items(X, 0, Sum).
+sum_all_items([], Sum, Sum).
+sum_all_items(X, Sum0, Sum) :-
+    sum_first_items(X, Sum1),
+    sum_last_items(X, Sum2),
+    Sum is Sum1 + Sum2.
+
+% reduce one and two-dimension tensor along the first dimension (row)
+reduce_sum_one(X, 0, Y) :- reduce_sum_one(X, [], Y).
+reduce_sum_one([], Y, Y).
+reduce_sum_one(X, Y0, Y) :-
+    sum_first_items(X, 0, Sum),
+    append(Y0, [Sum], Ys),
+    sum_last_items(X, 0, Sum1),
+    append(Ys, [Sum1], Y).
