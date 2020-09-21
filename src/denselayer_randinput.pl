@@ -44,13 +44,13 @@
    % ?- dense_layer_randIs(4,10,6,X).
    % X = [69, 130, 160, 140, 129, 71] 
    
-  dense_layer_randIs(K,N,U,Y):-
+  dense_layer_randIs(K,N,U,Y):- % activation function needs to be added
        randseq(K,N,List), % generate random input features
        copyList(List,Is),
        generate_weights(K,N,U,Ws), % generate random input weights
        copyList(Ws,IWs),
        transpose(IWs,IWs1),
-       generateRL(U, N, BW), % generate random bias
+       generateRL(U, N, BW), % generate random biases
        copyList(BW,BWs),
        dense_layer_rand(Is,IWs1,BWs,[],Y).  
 
@@ -59,6 +59,7 @@
   dense_layer_rand(Is,[IW|IWs],[BWs|BWs1],Os1,Y) :-
   weighted_sum(Is,IW,BWs,PY),
   append(Os1,[PY],Os2),
+  %calc_relu(Os2),
   dense_layer_rand(Is,IWs,BWs1,Os2,Y).
 
  weighted_sum(Is,IWs,BWs,PY) :- 

@@ -42,6 +42,10 @@ randseq(K,N,List):-
   randset(K,N,Set),
   random_permutation(Set,List).
 
+% calculate activation functions
+
+ calc_relu(X, Y):- Y is max(0,X).   
+
 reverse([],[]).
 reverse([X|Xs], Zs) :- reverse(Xs,Ys), append(Ys, [X],Zs). 
 
