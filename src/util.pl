@@ -129,4 +129,11 @@ add_to_each_list_element([X|Xs],A,[Y|Ys]) :-
 %:- use_module(library(lambda)).
 %list_sum(L1, L2, L3) :-
 %    maplist(\X^Y^Z^(Z is X + Y), L1, L2, L3).
+
+concatinate_sub_lists([],[],[]).
+concatinate_sub_lists([],Ys,Ys).
+concatinate_sub_lists(Xs,[],Xs).
+concatinate_sub_lists([X|Xs],[Y|Ys],[Z|Zs]):-
+	append(X,Y,Z),
+	concatinate_sub_lists(Xs,Ys,Zs).
 	
