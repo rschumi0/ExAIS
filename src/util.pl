@@ -37,13 +37,12 @@ has_single_elem(X):-
  
 cons(X,Y,Z):- Z = [X|Y].
 
-% generate K random numbers in the range [1,N] (Ayesha)
-randseq(K,N,List):-
-  randset(K,N,Set),
-  random_permutation(Set,List).
+% generate K random numbers in the range [1, N]
+randseq(K, N, List):-
+  randset(K, N, Set),
+  random_permutation(Set, List).
 
 % calculate activation functions
-
  calc_relu(X, Y):- Y is max(0,X).   
 
 reverse([],[]).
@@ -131,7 +130,7 @@ add_to_each_list_element([X|Xs],A,[Y|Ys]) :-
 	add_to_each_list_element(Xs,A,Ys).
 	
 %:- use_module(library(lambda)).
-%list_sum(L1, L2, L3) :-
+% list_sum(L1, L2, L3) :-
 %    maplist(\X^Y^Z^(Z is X + Y), L1, L2, L3).
 
 concatinate_sub_lists([],[],[]).
