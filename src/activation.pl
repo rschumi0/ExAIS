@@ -1,7 +1,6 @@
 :- module(activation,
           []).
 
-:- [math].
 
 %relu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
 
@@ -64,7 +63,7 @@ sigmoid_layer([I|Is],Y0,Y):-
 
 % softmax layer for one-dimensional input tensor
 softmax_layer([],Y,Y).
-softmax_layer([I|Is], Y0, R2):-
+softmax_layer([I|Is], _, R2):-
  calc_exp_SL([I|Is], [], Y), % calc exponential for a single list
  calc_sum([I|Is], 0, Sum),   %  calc sum of exponential values for all the list elements
  reduce_sum(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.

@@ -116,12 +116,12 @@ fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os) :- fill_field_up_to_index_and_
 fill_field_up_to_index_and_add4D([],_,_,_,_,_,Os,Os).
 fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
-	W > L,
-	append(Os0,[[]],Os1),
+	W >= L,
+	append(Os0,[[[[]]]],Os1),
 	fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os1,Os).
 fill_field_up_to_index_and_add4D(_,I,W,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
-	W =< L,
+	W < L,
 	nth0(W,Os0,Os1),
 	fill_field_up_to_index_and_add(Os1,I,X,Y,Z,Os2),
 	replace(Os0,W,Os2,Os3),
@@ -240,7 +240,7 @@ max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSize
 	length([[[[I|Is0]|Is1]|Is2]|Is],LW),
 	length([[[I|Is0]|Is1]|Is2],LX), 
 	length([[I|Is0]|Is1],LY), 
-	length([I|Is0],LZ), 
+	%length([I|Is0],LZ), 
 	W+PoolSizeD1 =< LW,X+PoolSizeD2 =< LX,Y+PoolSizeD3 =< LY,
 /*	writeln(''),
 	write('LW'),
@@ -319,26 +319,43 @@ get_pool_max([I|Is],W,X,Y,Z,W1,X1,Y1,PoolSizeD1,PoolSizeD2,PoolSizeD3,O1,O) :-
 	
 	
 	
-average_pool1D_layer(Is,PoolSize,Os):- average_pool1D_layer(Is,PoolSize,PoolSize,false,[],Os).
-average_pool1D_layer(Is,PoolSize,Strides,Padding,Os):- average_pool1D_layer(Is,PoolSize,Strides,Padding,[],Os).
-average_pool1D_layer([],_,_,_,Os,Os).
-average_pool1D_layer([[I|Is0]|Is],PoolSize,Strides,Padding,Os0,Os) :-
+average_pooling1D_layer(Is,PoolSize,Os):- average_pooling1D_layer(Is,PoolSize,PoolSize,false,[],Os).
+average_pooling1D_layer([[I|Is0]|Is],PoolSize,Strides,Padding,Os):- 
+	atomic(I),
+	Padding,
+	length([[I|Is0]|Is],L),
+	OutLen is ceil(L / Strides),
+	writeln(OutLen),
+	Pad is max((OutLen - 1) * Strides + PoolSize - L, 0),
+	writeln(Pad),
+	writeln(Pad),
+	LeftP is Pad // 2,
+	RightP is Pad - LeftP,
+	writeln(LeftP),
+	writeln(RightP),
+	padding1D([[I|Is0]|Is], x,LeftP, RightP, Is1),
+	average_pooling1D_layer(Is1,PoolSize,Strides,Padding,[],Os).
+average_pooling1D_layer(Is,PoolSize,Strides,Padding,Os):- 
+	average_pooling1D_layer(Is,PoolSize,Strides,Padding,[],Os).
+average_pooling1D_layer([],_,_,_,Os,Os).
+average_pooling1D_layer([[I|Is0]|Is],PoolSize,Strides,Padding,Os0,Os) :-
 	is_list(I),
-	average_pool1D_layer([I|Is0],PoolSize,Strides,Padding,O),
+	average_pooling1D_layer([I|Is0],PoolSize,Strides,Padding,O),
 	append(Os0,[O],Os1),
-	average_pool1D_layer(Is,PoolSize,Strides,Padding,Os1,Os).
-average_pool1D_layer([[I|Is0]|Is],PoolSize,Strides,Padding,Os0,Os) :-
+	average_pooling1D_layer(Is,PoolSize,Strides,Padding,Os1,Os).
+average_pooling1D_layer([[I|Is0]|Is],PoolSize,Strides,Padding,Os0,Os) :-
 	atomic(I),
 	del_first_items([[I|Is0]|Is],F,R),
-	get_average_pools(F,PoolSize,Strides,Padding,O),
+	get_average_poolings(F,PoolSize,Strides,O),
 	transpose([O],T),
 	concatinate_sub_lists(Os0,T,Os1),
-	average_pool1D_layer(R,PoolSize,Strides,Padding,Os1,Os).
+	average_pooling1D_layer(R,PoolSize,Strides,Padding,Os1,Os).
 	
 list_sum([Item], Item).
 list_sum([Item1,Item2 | Tail], Total) :-
     list_sum([Item1+Item2|Tail], Total).
     
+avg( [], 0 ).
 avg( List, Avg ):- 
     list_sum( List, Sum ),
     length( List, Length), 
@@ -346,48 +363,72 @@ avg( List, Avg ):-
     -> Avg is Sum / Length
     ;  Avg is 0
     ).
+    
+remove_non_numbers([],[]).
+remove_non_numbers([H|T], NewT):- 
+    not(number(H)),
+    remove_non_numbers(T, NewT).
+remove_non_numbers([H|T1], [H|T2]):-         
+    number(H),                   
+    remove_non_numbers(T1, T2).
 
-get_average_pools(Is,PoolSize,Strides,Padding,Os) :-get_average_pools(Is,PoolSize,Strides,Padding,[],Os).
-get_average_pools([],_,_,_,Os,Os).
-get_average_pools(Is,PoolSize,_,Padding,Os,Os) :-
-	not(Padding),
+
+get_average_poolings(Is,PoolSize,Strides,Os) :- get_average_poolings(Is,PoolSize,Strides,[],Os).
+get_average_poolings([],_,_,Os,Os).
+get_average_poolings(Is,PoolSize,_,Os,Os) :-
 	length(Is,N), N < PoolSize.
-get_average_pools(Is,PoolSize,Strides,Padding,Os0,Os) :-
-	Padding,
-	length(Is,N), N < PoolSize,
-	avg(Is,A),
-	append(Os0,[A],Os1),
-	split_at(Strides,Is,_,R),
-	get_average_pools(R,PoolSize,Strides,Padding,Os1,Os).
-get_average_pools(Is,PoolSize,Strides,Padding,Os0,Os) :-
+get_average_poolings(Is,PoolSize,Strides,Os0,Os) :-
 	length(Is,N), N >= PoolSize,
 	split_at(PoolSize,Is,L,_),
-	avg(L,A),
+	remove_non_numbers(L,L1),
+	avg(L1,A),
 	append(Os0,[A],Os1),
 	split_at(Strides,Is,_,R),
-	get_average_pools(R,PoolSize,Strides,Padding,Os1,Os).
+	get_average_poolings(R,PoolSize,Strides,Os1,Os).
 	
 	
-average_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,Os):- average_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD1,PoolSizeD2,false,Os).
-average_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os):- average_pool2D_layer(Is,0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,[],Os).
-average_pool2D_layer([],_,_,_,_,_,_,_,_,Os,Os).
-average_pool2D_layer([[[I|Is0]|Is1]|Is],0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os0,Os) :-
+calc_padding(InLen,PoolSize,Strides,LeftP,RightP) :-
+	OutLen is ceil(InLen / Strides),
+	Pad is max((OutLen - 1) * Strides + PoolSize - InLen, 0),
+	LeftP is Pad // 2,
+	RightP is Pad - LeftP.
+
+%average_pooling2D_layer([[[[8,3,5],[5,4,-2],[2,1,-1]]]],1,4,1,1,true,X).
+%average_pooling2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],4,3,1,1,true,X).
+average_pooling2D_layer(Is,PoolSizeD1,PoolSizeD2,Os):- average_pooling2D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD1,PoolSizeD2,false,Os).
+average_pooling2D_layer([[[I|Is0]|Is1]|Is],PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os) :-
+	%atomic(I),
+	Padding,
+	length([[[I|Is0]|Is1]|Is],LX),
+	length([[I|Is0]|Is1],LY),
+	calc_padding(LX,PoolSizeD1,StridesD1,LeftPD1,RightPD1),
+	calc_padding(LY,PoolSizeD2,StridesD2,LeftPD2,RightPD2),
+	writeln(LeftPD1),
+	writeln(RightPD2),
+	writeln(LeftPD2),
+	writeln(RightPD2),
+	writeln([[[I|Is0]|Is1]|Is]),
+	padding2D([[[I|Is0]|Is1]|Is], x,LeftPD1,RightPD1,LeftPD2,RightPD2, Is2),
+	writeln("Paddding applied"),
+	writeln(Is2),
+	average_pooling2D_layer(Is2,0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,false,[],Os).
+average_pooling2D_layer(Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os):- average_pooling2D_layer(Is,0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,[],Os).
+average_pooling2D_layer([],_,_,_,_,_,_,_,_,Os,Os).
+average_pooling2D_layer([[[I|Is0]|Is1]|Is],0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os0,Os) :-
 	is_list(I),
-	average_pool2D_layer([[I|Is0]|Is1],PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,O),
+	average_pooling2D_layer([[I|Is0]|Is1],PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,O),
 	append(Os0,[O],Os1),
-	average_pool2D_layer(Is,0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os1,Os).
-average_pool2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,_,_,_,_,_,Os,Os) :-
+	average_pooling2D_layer(Is,0,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os1,Os).
+average_pooling2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,_,_,_,_,_,Os,Os) :-
 	atomic(I),
-	%Padding,
 	(length([[[I|Is0]|Is1]|Is],LX), 
 	X >= LX; 
 	length([[I|Is0]|Is1],LY), 
 	Y >= LY;
 	length([I|Is0],LZ), 
 	Z >= LZ).
-average_pool2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os0,Os) :-
+average_pooling2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os0,Os) :-
 	atomic(I),
-	not(Padding),
 	length([[[I|Is0]|Is1]|Is],LX), 
 	length([[I|Is0]|Is1],LY), 
 	%length([I|Is0],LZ), 
@@ -395,24 +436,186 @@ average_pool2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,St
 	get_pool_avg([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,O),
 	insert_pool_field(Os0,O,X,Y,Z,StridesD1,StridesD2,Os1),
 	(X+StridesD1+PoolSizeD1 =< LX -> X1 is X + StridesD1,Y1 is Y, Z1 is Z; (Y+StridesD2+PoolSizeD2 =< LY -> X1 is 0,Y1 is Y+StridesD2, Z1 is Z; X1 is 0, Y1 is 0, Z1 is Z + 1)),
-	average_pool2D_layer([[[I|Is0]|Is1]|Is],X1,Y1,Z1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os1,Os).
-average_pool2D_layer([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os0,Os) :-
-	atomic(I),
-	Padding,
-	length([[[I|Is0]|Is1]|Is],LX), 
-	length([[I|Is0]|Is1],LY), 
-	%X+PoolSizeD1 > LX,Y+PoolSizeD2 > LY,
-	get_pool_avg([[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,O),
-	insert_pool_field(Os0,O,X,Y,Z,StridesD1,StridesD2,Os1),
-	(X < LX-1 -> X1 is X + StridesD1,Y1 is Y, Z1 is Z; (Y < LY-1 -> X1 is 0,Y1 is Y+StridesD2, Z1 is Z; X1 is 0, Y1 is 0, Z1 is Z + 1)),
-	average_pool2D_layer([[[I|Is0]|Is1]|Is],X1,Y1,Z1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os1,Os).
+	average_pooling2D_layer([[[I|Is0]|Is1]|Is],X1,Y1,Z1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os1,Os).
 	
 get_pool_avg(Is,X,Y,Z,PoolSizeD1,PoolSizeD2,O) :- get_pool_avg(Is,X,Y,Z,X,Y,PoolSizeD1,PoolSizeD2, [],O).
 get_pool_avg(_, X,Y,_,X1,Y1,PoolSizeD1,PoolSizeD2, Os,O) :-
 	(X1 >= X + PoolSizeD1;Y1 >= Y + PoolSizeD2),
-	avg(Os,O).
+	remove_non_numbers(Os,Os1),
+	avg(Os1,O).
 get_pool_avg(Is,X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,Os0,O) :-
 	nth0_3Dtemp(X1,Y1,Z,Is,O1),
 	append(Os0,[O1],Os1),
 	((X1 < X+PoolSizeD1-1) -> X2 is X1 + 1,Y2 is Y1;X2 is X,Y2 is Y1+1),
 	get_pool_avg(Is, X,Y,Z,X2,Y2,PoolSizeD1,PoolSizeD2, Os1,O).
+	
+	
+	
+%average_pooling3D_layer([[[[[1]]]]],1,1,1,X).
+%average_pooling3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,X).
+%average_pooling3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,1,1,1,true,X).
+average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os):- average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,PoolSizeD1,PoolSizeD2,PoolSizeD3,false,Os).
+average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os):- 
+	Padding,
+	atomic(I),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LW), 
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	length([[I|Is0]|Is1],LY), 
+	writeln(LW),
+	writeln(LX),
+	writeln(LY),
+	writeln("----"),
+	writeln(PoolSizeD1),
+	writeln(PoolSizeD2),
+	writeln(PoolSizeD3),
+	calc_padding(LW,PoolSizeD1,StridesD1,LeftPD1,RightPD1),
+	calc_padding(LX,PoolSizeD2,StridesD2,LeftPD2,RightPD2),
+	calc_padding(LY,PoolSizeD3,StridesD3,LeftPD3,RightPD3),
+	writeln(LeftPD1),
+	writeln(RightPD1),
+	writeln(LeftPD2),
+	writeln(RightPD2),
+	writeln(LeftPD3),
+	writeln(RightPD3),
+	padding3D([[[[I|Is0]|Is1]|Is2]|Is], x,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3, Is3),
+	writeln("Paddding applied"),
+	writeln(Is3),
+	average_pooling3D_layer(Is3,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,false,[],Os).
+average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os):- average_pooling3D_layer(Is,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,[],Os).
+average_pooling3D_layer([],_,_,_,_,_,_,_,_,_,_,_,Os,Os).
+average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	is_list(I),
+	average_pooling3D_layer([[[I|Is0]|Is1]|Is2],PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,O),
+	writeln("iterate List"),
+	writeln([[[I|Is0]|Is1]|Is2]),
+	append(Os0,[O],Os1),
+	writeln(O),
+	average_pooling3D_layer(Is,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,_,_,_,_,_,_,_,Os,Os) :-
+	atomic(I),
+	(length([[[[I|Is0]|Is1]|Is2]|Is],LW), 
+	W >= LW; 
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	X >= LX; 
+	length([[I|Is0]|Is1],LY), 
+	Y >= LY;
+	length([I|Is0],LZ), 
+	Z >= LZ).
+average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	atomic(I),
+	%not(Padding),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LW),
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	length([[I|Is0]|Is1],LY), 
+	%length([I|Is0],LZ), 
+	W+PoolSizeD1 =< LW,X+PoolSizeD2 =< LX,Y+PoolSizeD3 =< LY,
+	get_pool_avg([[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,O),
+	writeln("avg pool"),
+	writeln(O),
+	writeln(W),
+	writeln(X),
+	writeln(Y),
+	writeln(Z),
+
+	writeln("strides"),
+	writeln(StridesD1),
+	writeln(StridesD2),
+	writeln(StridesD3),
+	writeln("ins----------------"),
+	writeln(Os0),
+	insert_pool_field4D(Os0,O,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
+	writeln(Os1),
+	writeln("ins---------------- completed --------"),
+	(W+StridesD1+PoolSizeD1 =< LW -> W1 is W + StridesD1, X1 is X, Y1 is Y, Z1 is Z; 
+	(X+StridesD2+PoolSizeD2 =< LX -> W1 is 0, X1 is X + StridesD2,Y1 is Y, Z1 is Z; 
+	(Y+StridesD3+PoolSizeD3 =< LY -> W1 is 0, X1 is 0,Y1 is Y+StridesD3, Z1 is Z; 
+	W1 is 0, X1 is 0, Y1 is 0, Z1 is Z + 1))),
+	writeln(W1),
+	writeln(X1),
+	writeln(Y1),
+	writeln(Z1),
+	average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],W1,X1,Y1,Z1,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+	
+
+get_pool_avg(Is,W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,O) :- get_pool_avg(Is,W,X,Y,Z,W,X,Y,PoolSizeD1,PoolSizeD2,PoolSizeD3, [],O).
+get_pool_avg(_, W,X,Y,_,W1,X1,Y1,PoolSizeD1,PoolSizeD2,PoolSizeD3, Os,O) :-
+	W1 >= W + PoolSizeD1; X1 >= X + PoolSizeD2;Y1 >= Y + PoolSizeD3,
+	remove_non_numbers(Os,Os1),
+	avg(Os1,O).
+get_pool_avg([I|Is],W,X,Y,Z,W1,X1,Y1,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os0,O) :-
+	length([I|Is],LW),
+	length(I,LX),
+	nth0_4Dtemp(W1,X1,Y1,Z,[I|Is],O1),
+	append(Os0,[O1],Os1),
+	(W1 < W+PoolSizeD1-1, W1< LW-1 -> W2 is W1 +1, X2 is X1,Y2 is Y1;((X1 < X+PoolSizeD2-1, X1< LX-1) -> W2 is W, X2 is X1 + 1,Y2 is Y1; W2 is W, X2 is X,Y2 is Y1+1)),
+	get_pool_avg([I|Is], W,X,Y,Z,W2,X2,Y2,PoolSizeD1,PoolSizeD2,PoolSizeD3, Os1,O).
+	
+	
+	
+
+pool3D_layer(Poolfunc,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os):- pool3D_layer(Poolfunc,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,PoolSizeD1,PoolSizeD2,PoolSizeD3,false,Os).
+pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os):- 
+	Padding,
+	atomic(I),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LW), 
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	length([[I|Is0]|Is1],LY), 
+	calc_padding(LW,PoolSizeD1,StridesD1,LeftPD1,RightPD1),
+	calc_padding(LX,PoolSizeD2,StridesD2,LeftPD2,RightPD2),
+	calc_padding(LY,PoolSizeD3,StridesD3,LeftPD3,RightPD3),
+	padding3D([[[[I|Is0]|Is1]|Is2]|Is], x,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3, Is3),
+	pool3D_layer(Poolfunc,Is3,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,false,[],Os).
+pool3D_layer(Poolfunc,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os):- pool3D_layer(Poolfunc,Is,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,[],Os).
+pool3D_layer(_,[],_,_,_,_,_,_,_,_,_,_,_,Os,Os).
+pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	is_list(I),
+	pool3D_layer(Poolfunc,[[[I|Is0]|Is1]|Is2],PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,O),
+	append(Os0,[O],Os1),
+	pool3D_layer(Poolfunc,Is,0,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+pool3D_layer(_,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,_,_,_,_,_,_,_,Os,Os) :-
+	atomic(I),
+	(length([[[[I|Is0]|Is1]|Is2]|Is],LW), 
+	W >= LW; 
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	X >= LX; 
+	length([[I|Is0]|Is1],LY), 
+	Y >= LY;
+	length([I|Is0],LZ), 
+	Z >= LZ).
+pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	atomic(I),
+	%not(Padding),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LW),
+	length([[[I|Is0]|Is1]|Is2],LX), 
+	length([[I|Is0]|Is1],LY), 
+	%length([I|Is0],LZ), 
+	W+PoolSizeD1 =< LW,X+PoolSizeD2 =< LX,Y+PoolSizeD3 =< LY,
+	get_pool_res(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,O),
+	insert_pool_field4D(Os0,O,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
+	(W+StridesD1+PoolSizeD1 =< LW -> W1 is W + StridesD1, X1 is X, Y1 is Y, Z1 is Z; 
+	(X+StridesD2+PoolSizeD2 =< LX -> W1 is 0, X1 is X + StridesD2,Y1 is Y, Z1 is Z; 
+	(Y+StridesD3+PoolSizeD3 =< LY -> W1 is 0, X1 is 0,Y1 is Y+StridesD3, Z1 is Z; 
+	W1 is 0, X1 is 0, Y1 is 0, Z1 is Z + 1))),
+	pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W1,X1,Y1,Z1,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+
+
+get_pool_res(Poolfunc,Is,W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,O) :- get_pool_res(Poolfunc,Is,W,X,Y,Z,W,X,Y,PoolSizeD1,PoolSizeD2,PoolSizeD3, [],O).
+get_pool_res(Poolfunc,_, W,X,Y,_,W1,X1,Y1,PoolSizeD1,PoolSizeD2,PoolSizeD3, Os,O) :-
+	W1 >= W + PoolSizeD1; X1 >= X + PoolSizeD2;Y1 >= Y + PoolSizeD3,
+	remove_non_numbers(Os,Os1),
+	call(Poolfunc,Os1,O).
+get_pool_res(Poolfunc,[I|Is],W,X,Y,Z,W1,X1,Y1,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os0,O) :-
+	length([I|Is],LW),
+	length(I,LX),
+	nth0_4Dtemp(W1,X1,Y1,Z,[I|Is],O1),
+	append(Os0,[O1],Os1),
+	(W1 < W+PoolSizeD1-1, W1< LW-1 -> W2 is W1 +1, X2 is X1,Y2 is Y1;((X1 < X+PoolSizeD2-1, X1< LX-1) -> W2 is W, X2 is X1 + 1,Y2 is Y1; W2 is W, X2 is X,Y2 is Y1+1)),
+	get_pool_res(Poolfunc,[I|Is], W,X,Y,Z,W2,X2,Y2,PoolSizeD1,PoolSizeD2,PoolSizeD3, Os1,O).
+	
+	
+%[[[8,3],[5,4],[2,1],[2,1]],[[8,3],[5,4],[2,1],[2,1]]]
+global_average_pooling1D_layer([[I|Is0]|Is],Os):- atomic(I), length([[I|Is0]|Is],L), average_pooling1D_layer([[I|Is0]|Is],L,Os).
+global_average_pooling1D_layer([[I|Is0]|Is],Os):- is_list(I), length([I|Is0],L), average_pooling1D_layer([[I|Is0]|Is],L,[Os|_]).
+
+global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- atomic(I), length([[[I|Is0]|Is1]|Is],L1), length([[I|Is0]|Is1],L2), average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,Os).
+global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- is_list(I), length([[I|Is0]|Is1],L1), length([I|Is0],L2), average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,[Os|_]).

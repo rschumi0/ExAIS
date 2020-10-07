@@ -179,7 +179,7 @@ sum_last_items([[_|Y]|Ys], Sum0, Sum) :-
 % X = 15.
 sum_all_items(X, Sum) :- sum_all_items(X, 0, Sum).
 sum_all_items([], Sum, Sum).
-sum_all_items(X, Sum0, Sum) :-
+sum_all_items(X, _, Sum) :-
     sum_first_items(X, Sum1),
     sum_last_items(X, Sum2),
     Sum is Sum1 + Sum2.

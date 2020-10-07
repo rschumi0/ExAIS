@@ -87,8 +87,9 @@ comp_locallyconnected2D_temp([R0|R0s], Is, X,Y, [W|Ws], R1s, R2s) :-
 	
 locallyconnected3D_layer(Is,KX,KY,KZ,IWs,OWs,Os) :- 
 	locallyconnected3D_layer(Is,0,0,0,KX,KY,KZ,IWs,OWs,[],Os).
-	
-locallyconnected3D_layer([[I|I1s]|Is],X,Y,Z,KX,KY,KZ,[],_,Os,Os). /*:-
+locallyconnected3D_layer(_,_,_,_,_,_,_,[],_,Os,Os).
+%locallyconnected3D_layer([[I|I1s]|Is],X,Y,Z,KX,KY,KZ,[],_,Os,Os). 
+/*:-
 	length([[I|I1s]|Is],LX), 
 	X+KX > LX; 
 	length([I|I1s],LY), 
@@ -106,7 +107,8 @@ locallyconnected3D_layer([[I|I1s]|Is],X,Y,Z,KX,KY,KZ,[IW|IWs],OWs,Os0,Os) :-
 	
 	
 apply_locallyconnected3Dkernel(Is,X,Y,Z,KX,KY,KZ,IWs,O) :- apply_locallyconnected3Dkernel(Is,X,Y,Z,X,Y,Z,KX,KY,KZ,IWs,[],O).
-apply_locallyconnected3Dkernel(_,X,Y,Z,X1,Y1,Z1,KX,KY,KZ,[],Res,Res).
+apply_locallyconnected3Dkernel(_,_,_,_,_,_,_,_,_,_,[],Res,Res).
+%apply_locallyconnected3Dkernel(_,X,Y,Z,X1,Y1,Z1,KX,KY,KZ,[],Res,Res).
 	%X1 >= X+KX;Y1 >= Y+KY; Z1 >= Z+KZ.
 apply_locallyconnected3Dkernel(Is,X,Y,Z,X1,Y1,Z1,KX,KY,KZ,[W|Ws],Res0,Res) :-
 	KX1 is X1 - X,
