@@ -9,10 +9,14 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  | --- | --- |
  |  Add|   |  
  |  Average|   |   
+ |  AveragePooling1D|   |  
+ |  AveragePooling2D|   | 
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
- |  Cropping1D|   |  
+ |  Cropping1D|   |
+ |  Cropping2D|   |  
+ |  Cropping3D|   |    
  |  Dense|   |  
  |  ELU|   |  
  |  Flatten|   | 
@@ -20,11 +24,18 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
  |  Maximum|   |  
+ |  MaxPool1D|   |  
+ |  MaxPool2D|   |  
+ |  MaxPool3D|   |   
  |  Minimum|   |  
  |  Multiply|   |   
  |  ReLU|   |  
+ |  Softmax|   |  
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
+ |  UpSampling1D|   |  
+ |  UpSampling2D|   |  
+ |  UpSampling3D|   |  
  |  ZeroPadding1D|   |  
  |  ZeroPadding2D|   |  
  |  ZeroPadding3D|   | 
@@ -40,8 +51,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  AlphaDropout|   |  
  |  Attention|   |  
  |  Average|   |  
- |  AveragePooling1D|   |  
- |  AveragePooling2D|   |  
  |  AveragePooling3D|   |    
  |  BatchNormalization|   |  
  |  Bidirectional|   |  
@@ -50,8 +59,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Conv2DTranspose|   |  
  |  Conv3DTranspose|   |  
  |  ConvLSTM2D|   |  
- |  Cropping2D|   |  
- |  Cropping3D|   |  
  |  DenseFeatures|   |  
  |  DepthwiseConv2D|   |  
  |  Dot|   |  
@@ -75,9 +82,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Layer|   |  
  |  LayerNormalization|   |    
  |  Masking|   |  
- |  MaxPool1D|   |  
- |  MaxPool2D|   |  
- |  MaxPool3D|   |   
  |  PReLU|   |  
  |  Permute|   |  
  |  RNN|   |  
@@ -87,13 +91,9 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  SeparableConv2D|   |  
  |  SimpleRNN|   |  
  |  SimpleRNNCell|   |  
- |  Softmax|   |  
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
  |  SpatialDropout3D|   |  
  |  StackedRNNCells|   |   
  |  TimeDistributed|   |  
- |  UpSampling1D|   |  
- |  UpSampling2D|   |  
- |  UpSampling3D|   |  
  |  Wrapper|   |   

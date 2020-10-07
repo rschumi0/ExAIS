@@ -4,6 +4,7 @@
 :- [conv].
 :- [locallyconnected].
 :- [activation].
+:- [pooling].
 
 %dense_layer([1,2],[[3,4],[5,6]],[2,3],X).
 %dense_layer([1,2,4],[[3,4],[5,6],[3,4]],[2,3],X).
