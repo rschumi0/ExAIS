@@ -57,7 +57,7 @@ sigmoid_layer([I|Is],Y0,Y):-
    sigmoid_layer(Is,Ys,Y).
 
 % Sample data run for the softmax layer
-% ?- softmax_layer([8,5,0], [], Y).
+% ?- softmax_layer_SL([8,5,0], [], Y).
 % Y = [0.9522698261237778, 0.04741072293787844, 0.0003194509383437505].
 % Softmax activation function = exp(x) / tf.reduce_sum(exp(x)).
 
@@ -65,8 +65,8 @@ sigmoid_layer([I|Is],Y0,Y):-
 softmax_layer([],Y,Y).
 softmax_layer([I|Is], _, R2):-
  calc_exp_SL([I|Is], [], Y), % calc exponential for a single list
- calc_sum([I|Is], 0, Sum),   %  calc sum of exponential values for all the list elements
- reduce_sum(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
+ calc_sum_SL([I|Is], 0, Sum),   %  calc sum of exponential values for all the list elements
+ reduce_sum_SL(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
 
 % calculate exponential of a one-dimension list
 % ?- calc_exp_SL([5,0],[],Y).
@@ -79,22 +79,21 @@ calc_exp_SL([I|Is], Y0, L):-
  calc_exp_SL(Is, Ys, L).
 
  % calculate exponential sum of a one-dimension list
-calc_sum([], Sum1, Sum1).
-calc_sum([I|Is], Sum0, Sum):-
+calc_sum_SL([], Sum1, Sum1).
+calc_sum_SL([I|Is], Sum0, Sum):-
  (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
  S is float(O),
  Sum1 is Sum0 + S,
- calc_sum(Is, Sum1, Sum).
+ calc_sum_SL(Is, Sum1, Sum).
 
- 
 % calculate reduce sum for a one-dimension list
-reduce_sum([],_,Y,Y).
-reduce_sum([Y|Ys], Sum1, R1, R2):-
+reduce_sum_SL([],_,Y,Y).
+reduce_sum_SL([Y|Ys], Sum1, R1, R2):-
   O is rdiv(rational(Y), rational(Sum1)),
   % format('~5e~n', O),
    S is float(O),
    append(R1, [S], Z),
-   reduce_sum(Ys, Sum1, Z, R2).
+   reduce_sum_SL(Ys, Sum1, Z, R2).
 
 % softmax layer for multi-dimensional input tensor
 % ?- softmax_layer_LL([[0,1,0],[0,1,0]],[],Y).
@@ -122,6 +121,7 @@ calc_exp_LL([[I|Is]|Xs], Y0, Y):-
  calc_exp_SL([I|Is], Y0, L),
  Y = [L|T],
  calc_exp_LL(Xs, [], T).
+
 
 % elu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
 elu_layer([],_,[]).
