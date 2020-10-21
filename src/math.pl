@@ -137,6 +137,9 @@ tmpmaximum_layer([I|Is],Os0,Os) :-
 	maximum_list(I,Os0,Os1),
 	tmpmaximum_layer(Is,Os1,Os).
 	
+	
+average_layer(Is1,Is2,[Os]):- average_list([Is1,Is2],Os).
+average_layer(Is,[Os]) :- average_list(Is,Os).
 %average_list([[1,2,3],[3,2,2]],X).
 %average_list([[[1,2,3]],[[3,2,2]]],X).
 %average_list([[[1,2,3],[4,6,3]],[[3,2,2],[8,2,4]]],X).

@@ -45,12 +45,12 @@ randseq(K, N, List):-
 % calculate activation functions
  calc_relu(X, Y):- Y is max(0,X).   
 
-reverse([],[]).
-reverse([X|Xs], Zs) :- reverse(Xs,Ys), append(Ys, [X],Zs). 
+%reverse([],[]).
+%reverse([X|Xs], Zs) :- reverse(Xs,Ys), append(Ys, [X],Zs). 
 
-flatten([],[]).
-flatten(X,[X]) :- atomic(X), X \== [].
-flatten([X|Xs], Zs) :- flatten(X, Ys1), flatten(Xs, Ys2), append(Ys1,Ys2,Zs).
+%flatten([],[]).
+%flatten(X,[X]) :- atomic(X), X \== [].
+%flatten([X|Xs], Zs) :- flatten(X, Ys1), flatten(Xs, Ys2), append(Ys1,Ys2,Zs).
 
 isort([],[]).
 isort([X|Xs],Ys) :- isort(Xs,Zs), insert(X,Zs,Ys).
@@ -60,11 +60,11 @@ insert(X,[Y|Ys],[Y|Zs]) :- X > Y, insert(X, Ys, Zs).
 insert(X,[Y|_],[X,Y|_]) :- X =< Y.
 
 
-sum_list(Xs, Sum) :- sum_list(Xs, 0, Sum).
-sum_list([], Sum, Sum).
-sum_list([X|Xs], Sum0, Sum) :-
-  Sum1 is Sum0 + X,
-  sum_list(Xs, Sum1, Sum).
+%sum_list(Xs, Sum) :- sum_list(Xs, 0, Sum).
+%sum_list([], Sum, Sum).
+%sum_list([X|Xs], Sum0, Sum) :-
+%  Sum1 is Sum0 + X,
+%  sum_list(Xs, Sum1, Sum).
 
 invert_2Dlist(Xs,Ys) :- invert_2Dlist(Xs,[],Ys).
 invert_2Dlist([],Ys,Ys).

@@ -1,4 +1,5 @@
 %conv1D_layer([1,2,3,4],2,[[1,2,5],[2,3,6]],[4,3,2],X).
+%conv1D_layer([[0.713, 0.315, 0.805]], 2,[[[0.171, 0.841]], [[0.26, 0.334]]],[0.528, 0.495], X)
 conv1D_layer(Is,K,IWs,OWs,Os) :- 
 	invert_2Dlist(IWs,IWs1), 
 	conv1D_layer(Is,K,IWs1,OWs,[],Os).

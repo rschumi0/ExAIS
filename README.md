@@ -11,6 +11,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Average|   |   
  |  AveragePooling1D|   |  
  |  AveragePooling2D|   | 
+ |  AveragePooling3D|   | 
+ |  Concatenate|   |     
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
@@ -20,6 +22,12 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Dense|   |  
  |  ELU|   |  
  |  Flatten|   | 
+ |  GlobalAveragePooling1D|   |  
+ |  GlobalAveragePooling2D|   |  
+ |  GlobalAveragePooling3D|   |  
+ |  GlobalMaxPool1D|   |  
+ |  GlobalMaxPool2D|   |  
+ |  GlobalMaxPool3D|   |   
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
@@ -49,12 +57,9 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  ActivityRegularization|   |  
  |  AdditiveAttention|   |  
  |  AlphaDropout|   |  
- |  Attention|   |  
- |  Average|   |  
- |  AveragePooling3D|   |    
+ |  Attention|   |    
  |  BatchNormalization|   |  
  |  Bidirectional|   |  
- |  Concatenate|   |   
  |  Conv1DTranspose|   |  
  |  Conv2DTranspose|   |  
  |  Conv3DTranspose|   |  
@@ -68,12 +73,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  GRUCell|   |  
  |  GaussianDropout|   |  
  |  GaussianNoise|   |  
- |  GlobalAveragePooling1D|   |  
- |  GlobalAveragePooling2D|   |  
- |  GlobalAveragePooling3D|   |  
- |  GlobalMaxPool1D|   |  
- |  GlobalMaxPool2D|   |  
- |  GlobalMaxPool3D|   |   
  |  InputLayer|   |  
  |  InputSpec|   |  
  |  LSTM|   |  
