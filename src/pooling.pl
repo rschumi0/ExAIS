@@ -635,3 +635,23 @@ global_max_pool2D_layer([[[I|Is0]|Is1]|Is],Os):- is_list(I), length([[I|Is0]|Is1
 
 global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- atomic(I), length([[[[I|Is0]|Is1]|Is2]|Is],L1), length([[[I|Is0]|Is1]|Is2],L2), length([[I|Is0]|Is1],L3), max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,Os).
 global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- is_list(I), length([[[I|Is0]|Is1]|Is2],L1), length([[I|Is0]|Is1],L2), length([I|Is0],L3), max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,Os).
+
+
+encapsulate_atoms(Is,Os) :- encapsulate_atoms(Is,[],Os).
+encapsulate_atoms([],Os,Os).
+encapsulate_atoms([I|Is],Os0,Os) :-
+	is_list(I),
+	encapsulate_atoms(I,O),
+	append(Os0,[O],Os1),
+	encapsulate_atoms(Is,Os1,Os).
+encapsulate_atoms([I|Is],Os0,Os) :-
+	atomic(I),
+	append(Os0,[[I]],Os1),
+	encapsulate_atoms(Is,Os1,Os).
+
+conv_pool1D_layer([[[I|Is0]|Is1]|Is],KernelSize,Os):- atomic(I), length([I|Is0],L), encapsulate_atoms([[[I|Is0]|Is1]|Is],TIs),
+	pool2D_layer(sum_list,TIs,KernelSize,L,Os).
+conv_pool1D_layer(Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os):-
+	pool2D_layer(sum_list,Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os).	
+	
+	

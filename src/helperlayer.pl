@@ -92,8 +92,8 @@ apply_cropping_left_right(0,CroppingR, Os0, Os) :-
 
 
 
-zero_padding1D(Is,N,Os)	 :- padding1D(Is,0,N,N,Os).
-zero_padding1D(Is,L,R,Os) :- padding1D(Is,0,L,R,Os).
+zero_padding1D_layer(Is,N,Os)	 :- padding1D(Is,0,N,N,Os).
+zero_padding1D_layer(Is,L,R,Os) :- padding1D(Is,0,L,R,Os).
 /*zero_padding1D([[I|I0s]|Is],N,Os) :- atomic(I), zero_padding1D([[I|I0s]|Is],N,[[I|I0s]|Is],Os).
 zero_padding1D([[I|I0s]|Is],N,Os) :- is_list(I), zero_padding1D([[I|I0s]|Is],N,[],Os).
 zero_padding1D([],_,Os,Os).
@@ -143,11 +143,11 @@ padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os1,Os) :-
 
 
 
-%zero_padding2D([[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
-%zero_padding2D([[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
-zero_padding2D(Is,N,Os) :- padding2D(Is,0,N,N,N,N,Os).
-zero_padding2D(Is,D1,D2,Os) :- padding2D(Is,0,D1,D1,D2,D2,Os).
-zero_padding2D(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- padding2D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,Os).
+%zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
+%zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
+zero_padding2D_layer(Is,N,Os) :- padding2D(Is,0,N,N,N,N,Os).
+zero_padding2D_layer(Is,D1,D2,Os) :- padding2D(Is,0,D1,D1,D2,D2,Os).
+zero_padding2D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- padding2D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,Os).
 /*zero_padding2D([I|Is],N,Os) :- length([I|Is],L), L == 1, zero_padding1D(I,N,Os1), zero_padding2D(Os1,N,Os1,Os).
 zero_padding2D(Is,N,Os) :- length(Is,L), L > 1, zero_padding2D(Is,N,[],Os).
 zero_padding2D([],_,Os,Os).
@@ -196,10 +196,10 @@ padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os) :-
 	
 
 	
-%zero_padding3D([[[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]]],1,X).
-zero_padding3D(Is,N,Os) :- padding3D(Is,0,N,N,N,N,N,N,Os).
-zero_padding3D(Is,D1,D2,D3,Os) :- padding3D(Is,0,D1,D1,D2,D2,D3,D3,Os).
-zero_padding3D(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os) :- padding3D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os).
+%zero_padding3D_layer([[[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]]],1,X).
+zero_padding3D_layer(Is,N,Os) :- padding3D(Is,0,N,N,N,N,N,N,Os).
+zero_padding3D_layer(Is,D1,D2,D3,Os) :- padding3D(Is,0,D1,D1,D2,D2,D3,D3,Os).
+zero_padding3D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os) :- padding3D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os).
 /*zero_padding3D([I|Is],N,Os) :- length([I|Is],L), L == 1, zero_padding2D(I,N,Os1), zero_padding3D(Os1,N,Os1,Os).
 zero_padding3D(Is,N,Os) :- length(Is,L), L > 1, zero_padding3D(Is,N,[],Os).
 zero_padding3D([],_,Os,Os).
@@ -256,17 +256,17 @@ padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Left
 	append(Os1,[O],Os2),
 	padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD11,LeftPD2,RightPD2,LeftPD3,RightPD3,Os2,Os).
 	
-up_sampling1D(Is, Size, Os) :- up_sampling1D(Is, Size, [], Os).
-up_sampling1D([], _, Os,Os).
-up_sampling1D([[I|Is0]|Is], Size, Os0,Os):-
+up_sampling1D_layer(Is, Size, Os) :- up_sampling1D_layer(Is, Size, [], Os).
+up_sampling1D_layer([], _, Os,Os).
+up_sampling1D_layer([[I|Is0]|Is], Size, Os0,Os):-
 	is_list(I),
-	up_sampling1D([I|Is0],Size,O),
+	up_sampling1D_layer([I|Is0],Size,O),
 	append(Os0,[O],Os1),
-	up_sampling1D(Is,Size,Os1,Os).
-up_sampling1D([[I|Is0]|Is], Size, _,Os):-
+	up_sampling1D_layer(Is,Size,Os1,Os).
+up_sampling1D_layer([[I|Is0]|Is], Size, _,Os):-
 	atomic(I),
 	multiply_entries([[I|Is0]|Is],Size,Os1),
-	up_sampling1D([],Size,Os1,Os).
+	up_sampling1D_layer([],Size,Os1,Os).
 
 
 
@@ -285,41 +285,41 @@ multiply_element(X,N,[X|Ys]):-
 	multiply_element(X,N1,Ys).
 	
 	
-up_sampling2D(Is, SizeD1, SizeD2, Os) :- up_sampling2D(Is, SizeD1, SizeD2, [], Os).
-up_sampling2D([], _, _, Os,Os).
-up_sampling2D([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, Os0,Os):-
+up_sampling2D_layer(Is, SizeD1, SizeD2, Os) :- up_sampling2D_layer(Is, SizeD1, SizeD2, [], Os).
+up_sampling2D_layer([], _, _, Os,Os).
+up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, Os0,Os):-
 	is_list(I),
-	up_sampling2D([[I|Is0]|Is1],SizeD1, SizeD2,O),
+	up_sampling2D_layer([[I|Is0]|Is1],SizeD1, SizeD2,O),
 	append(Os0,[O],Os1),
-	up_sampling2D(Is,SizeD1,SizeD2,Os1,Os).
-up_sampling2D([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, _,Os):-
+	up_sampling2D_layer(Is,SizeD1,SizeD2,Os1,Os).
+up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, _,Os):-
 	atomic(I),
 	SizeD1 > 0,
 	multiply_entries([[[I|Is0]|Is1]|Is],SizeD1,Os1),
-	up_sampling2D(Os1,0, SizeD2,[],Os).
-up_sampling2D([[[I|Is0]|Is1]|Is], 0, SizeD2, Os0,Os):-
+	up_sampling2D_layer(Os1,0, SizeD2,[],Os).
+up_sampling2D_layer([[[I|Is0]|Is1]|Is], 0, SizeD2, Os0,Os):-
 	atomic(I),
-	up_sampling1D([[I|Is0]|Is1],SizeD2,O),
+	up_sampling1D_layer([[I|Is0]|Is1],SizeD2,O),
 	append(Os0,[O],Os1),
-	up_sampling2D(Is,0, SizeD2,Os1,Os).
+	up_sampling2D_layer(Is,0, SizeD2,Os1,Os).
 	
-up_sampling3D(Is, SizeD1, SizeD2, SizeD3, Os) :- up_sampling3D(Is, SizeD1, SizeD2, SizeD3, [], Os).
-up_sampling3D([], _, _,_, Os,Os).
-up_sampling3D([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
+up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, Os) :- up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, [], Os).
+up_sampling3D_layer([], _, _,_, Os,Os).
+up_sampling3D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
 	is_list(I),
-	up_sampling3D([[I|Is0]|Is1],SizeD1, SizeD2, SizeD3,O),
+	up_sampling3D_layer([[I|Is0]|Is1],SizeD1, SizeD2, SizeD3,O),
 	append(Os0,[O],Os1),
-	up_sampling3D(Is,SizeD1,SizeD2, SizeD3,Os1,Os).
-up_sampling3D([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, _,Os):-
+	up_sampling3D_layer(Is,SizeD1,SizeD2, SizeD3,Os1,Os).
+up_sampling3D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, _,Os):-
 	atomic(I),
 	SizeD1 > 0,
-	up_sampling2D([[[I|Is0]|Is1]|Is],SizeD1,SizeD2,Os1),
-	up_sampling3D(Os1,0, 0, SizeD3,[],Os).
-up_sampling3D([[[I|Is0]|Is1]|Is], 0, 0, SizeD3, Os0,Os):-
+	up_sampling2D_layer([[[I|Is0]|Is1]|Is],SizeD1,SizeD2,Os1),
+	up_sampling3D_layer(Os1,0, 0, SizeD3,[],Os).
+up_sampling3D_layer([[[I|Is0]|Is1]|Is], 0, 0, SizeD3, Os0,Os):-
 	atomic(I),
 	multiply_sub_entries([[I|Is0]|Is1],SizeD3,O),
 	append(Os0,[O],Os1),
-	up_sampling3D(Is,0, 0, SizeD3,Os1,Os).
+	up_sampling3D_layer(Is,0, 0, SizeD3,Os1,Os).
 	
 	
 multiply_sub_entries(Is,N,Os) :- multiply_sub_entries(Is,N,[],Os).
