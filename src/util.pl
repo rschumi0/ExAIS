@@ -110,14 +110,7 @@ del_last_items([X|Xs], [Y|Ys]) :-
 	del_last_items(Xs, Ys).
    
    
-nth0_2D(X,Y,Is,Os) :-
-	nth0(Y,Is,I1s),
-	nth0(X,I1s,Os).	
-	
-nth0_3D(X,Y,Z,Is,Os) :-
-	nth0(X,Is,I1s),
-	nth0(Z,I1s,I2s),
-	nth0(Y,I2s,Os).
+
 	
 	
 list_butlast([X|Xs], Ys) :-         
@@ -132,6 +125,11 @@ add_to_each_list_element([X|Xs],A,[Y|Ys]) :-
 	Y is X + A,
 	add_to_each_list_element(Xs,A,Ys).
 	
+multiply_each_list_element_with([],_,[]).
+multiply_each_list_element_with([X|Xs],A,[Y|Ys]) :-
+	Y is X * A,
+	multiply_each_list_element_with(Xs,A,Ys).
+	
 %:- use_module(library(lambda)).
 % list_sum(L1, L2, L3) :-
 %    maplist(\X^Y^Z^(Z is X + Y), L1, L2, L3).
@@ -142,4 +140,88 @@ concatinate_sub_lists(Xs,[],Xs).
 concatinate_sub_lists([X|Xs],[Y|Ys],[Z|Zs]):-
 	append(X,Y,Z),
 	concatinate_sub_lists(Xs,Ys,Zs).
+	
+nth0_2DallY(X,Is,Os) :-
+	nth0(X,Is,Os).
+	
+nth0_3DallZ(X,Y,Is,Os) :-
+	nth0(X,Is,I1s),
+	nth0(Y,I1s,Os).
+	
+nth0_4DallZ(W,X,Y,Is,Os) :-
+	nth0(W,Is,I0s),
+	nth0(X,I0s,I1s),
+	nth0(Y,I1s,Os).
+
+nth0_2D(X,Y,Is,Os) :-
+	nth0(X,Is,I1s),
+	nth0(Y,I1s,Os).
+	
+nth0_3D(X,Y,Z,Is,Os) :-
+	nth0(X,Is,I1s),
+	nth0(Y,I1s,I2s),
+	nth0(Z,I2s,Os).
+	
+nth0_4D(W,X,Y,Z,Is,Os) :-
+	nth0(W,Is,I0s),
+	nth0(X,I0s,I1s),
+	nth0(Y,I1s,I2s),
+	nth0(Z,I2s,Os).	
+	
+list_sum([Item], Item).
+list_sum([Item1,Item2 | Tail], Total) :-
+    list_sum([Item1+Item2|Tail], Total).
+    
+avg( [], 0 ).
+avg( List, Avg ):- 
+    list_sum( List, Sum ),
+    length( List, Length), 
+    (  Length > 0
+    -> Avg is Sum / Length
+    ;  Avg is 0
+    ).
+    
+remove_non_numbers([],[]).
+remove_non_numbers([H|T], [H1|T1]):- 
+	is_list(H),
+	remove_non_numbers(H,H1),
+	remove_non_numbers(T,T1).
+remove_non_numbers([H|T], NewT):- 
+	atomic(H),
+	not(number(H)),
+	remove_non_numbers(T, NewT).
+remove_non_numbers([H|T1], [H|T2]):-  
+	atomic(H),
+    	number(H),                   
+    	remove_non_numbers(T1, T2).
+    	
+replace([_|T], 0, X, [X|T]).
+replace([H|T], I, X, [H|R]):- I > -1, NI is I-1, replace(T, NI, X, R), !.
+replace(L, _, _, L).	
+
+replace_atoms_with([],_,[]).
+replace_atoms_with([H|T],R,[H1|T1]):- 
+	is_list(H),
+	replace_atoms_with(H,R,H1),
+	replace_atoms_with(T,R,T1).
+replace_atoms_with([H|T1], R, [R|T2]):-  
+	atomic(H),                   
+    	replace_atoms_with(T1, R, T2).
+
+multiplicate(X,N,Xs) :- multiplicate(X,N,[],Xs).
+multiplicate(_,0,Xs,Xs).
+multiplicate(X,N,Xs0,Xs) :-
+	N1 is N-1,
+	multiplicate(X,N1,[X|Xs0],Xs).
+	
+compare_structure([H1|T1], [H2|T2]) :-
+    is_list(H1),
+    is_list(H2),
+    compare_structure(H1, H2),
+    compare_structure(T1, T2).
+compare_structure([H1|T1], [H2|T2]) :-
+    \+ is_list(H1),
+    \+ is_list(H2),
+    compare_structure(T1, T2).
+compare_structure([], []).
 	
