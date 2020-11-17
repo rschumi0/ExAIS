@@ -148,23 +148,7 @@ padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os1,Os) :-
 zero_padding2D_layer(Is,N,Os) :- padding2D(Is,0,N,N,N,N,Os).
 zero_padding2D_layer(Is,D1,D2,Os) :- padding2D(Is,0,D1,D1,D2,D2,Os).
 zero_padding2D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- padding2D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,Os).
-/*zero_padding2D([I|Is],N,Os) :- length([I|Is],L), L == 1, zero_padding1D(I,N,Os1), zero_padding2D(Os1,N,Os1,Os).
-zero_padding2D(Is,N,Os) :- length(Is,L), L > 1, zero_padding2D(Is,N,[],Os).
-zero_padding2D([],_,Os,Os).
-zero_padding2D([[[I|I0s]|I1s]|Is],N,Os1,Os) :-
-	is_list(I),
-	zero_padding2D([[[I|I0s]|I1s]],N,O),
-	append(Os1,[O],Os2),
-	zero_padding2D(Is,N,Os2,Os).
-zero_padding2D(_,0,Os,Os).
-zero_padding2D([[[I|I0s]|I1s]|Is],N,Os1,Os) :-
-	atomic(I),
-	N1 is N - 1,
-	length([I|I0s],LX),
-	length([[I|I0s]|I1s],LY),
-	empty_field(LX,LY,O),
-	append(Os1,[O],Os2),
-	zero_padding2D([[[I|I0s]|I1s]|Is],N1,[O|Os2],Os).*/
+
 	
 padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- atomic(I), padding1D([[[I|I0s]|I1s]|Is],PadSym,LeftPD2,RightPD2,Os1), padding2D(Os1,PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os).
 padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- is_list(I), padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,[],Os).
@@ -179,16 +163,16 @@ padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os) :-
 	atomic(I),
 	LeftPD1 >0,
 	LeftPD11 is LeftPD1 - 1,
-	length([I|I0s],LX),
-	length([[I|I0s]|I1s],LY),
+	length([I|I0s],LY),
+	length([[I|I0s]|I1s],LX),
 	empty_field2D(PadSym,LX,LY,O),
 	padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD11,RightPD1,LeftPD2,RightPD2,[O|Os1],Os).
 padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os) :-
 	atomic(I),
 	RightPD1 >0,
 	RightPD11 is RightPD1 - 1,
-	length([I|I0s],LX),
-	length([[I|I0s]|I1s],LY),
+	length([I|I0s],LY),
+	length([[I|I0s]|I1s],LX),
 	empty_field2D(PadSym,LX,LY,O),
 	append(Os1,[O],Os2),
 	padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD11,LeftPD2,RightPD2,Os2,Os).
@@ -240,18 +224,18 @@ padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Left
 	atomic(I),
 	LeftPD1 >0,
 	LeftPD11 is LeftPD1 - 1,
-	length([I|I0s],LX),
+	length([I|I0s],LZ),
 	length([[I|I0s]|I1s],LY),
-	length([[[I|I0s]|I1s]|I2s],LZ),
+	length([[[I|I0s]|I1s]|I2s],LX),
 	empty_field3D(PadSym,LX,LY,LZ,O),
 	padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD11,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,[O|Os1],Os).
 padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os1,Os) :-
 	atomic(I),
 	RightPD1 >0,
 	RightPD11 is RightPD1 - 1,
-	length([I|I0s],LX),
+	length([I|I0s],LZ),
 	length([[I|I0s]|I1s],LY),
-	length([[[I|I0s]|I1s]|I2s],LZ),
+	length([[[I|I0s]|I1s]|I2s],LX),
 	empty_field3D(PadSym,LX,LY,LZ,O),
 	append(Os1,[O],Os2),
 	padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD11,LeftPD2,RightPD2,LeftPD3,RightPD3,Os2,Os).
@@ -329,4 +313,21 @@ multiply_sub_entries([I|Is],N,Os0,Os) :-
 	append(Os0,[O],Os1),
 	multiply_sub_entries(Is,N,Os1,Os). 
 
+
+embedding_layer(Is,Ws,Os) :- embedding_layer(Is,Ws,[],Os).
+embedding_layer([],_,Os,Os).
+embedding_layer([I|Is],Ws,Os0,Os) :- 
+	is_list(I),
+	embedding_layer(I,Ws,O),
+	append(Os0,[O],Os1),
+	embedding_layer(Is,Ws,Os1,Os).
+embedding_layer([I|Is],Ws,Os0,Os) :- 
+	atomic(I),
+	I1 is floor(I),
+	nth0(I1,Ws,O),
+	append(Os0,[O],Os1),
+	embedding_layer(Is,Ws,Os1,Os).
+	
+	
+repeat_vector_layer(Is,N,[Os]) :- multiply_entries(Is,N,Os).
 	

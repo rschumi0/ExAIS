@@ -115,15 +115,23 @@ fill_field_up_to_index_and_add2D(Is,I,X,Y,Os0,Os) :-
 fill_field_up_to_index_and_add2D(Is,I,X,Y,Os0,Os) :-
 	nth0(X,Os0,Os1),
 	length(Os1,L),
-	Y > L,
+	Y >= L,
 	append(Os1,[0],Os2),
 	replace(Os0,X,Os2,Os3),
 	fill_field_up_to_index_and_add2D(Is,I,X,Y,Os3,Os).
-fill_field_up_to_index_and_add2D(_,I,X,Y,Os0,Os) :-
+/*fill_field_up_to_index_and_add2D(_,I,X,Y,Os0,Os) :-
 	nth0(X,Os0,Os1),
 	length(Os1,L),
 	Y = L,
 	(atomic(I) -> append(Os1,[I],Os2);append(Os1,I,Os2)),
+	replace(Os0,X,Os2,Os3),
+	fill_field_up_to_index_and_add2D([],I,X,Y,Os3,Os).*/
+fill_field_up_to_index_and_add2D(_,I,X,Y,Os0,Os) :-
+	nth0(X,Os0,Os1),
+	length(Os1,L),
+	Y < L,
+	replace(Os1,Y,I,Os2),
+	%(atomic(I) -> append(Os1,[I],Os2);append(Os1,I,Os2)),
 	replace(Os0,X,Os2,Os3),
 	fill_field_up_to_index_and_add2D([],I,X,Y,Os3,Os).
 	
@@ -200,9 +208,9 @@ fill_field_up_to_index_and_add3D(Is,I,X,Y,Z,Os0,Os) :-
 fill_field_up_to_index_and_add3D(_,I,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
 	X < L,
-	nth0(W,Os0,Os1),
+	nth0(X,Os0,Os1),
 	fill_field_up_to_index_and_add2D(Os1,I,Y,Z,Os2),
-	replace(Os0,W,Os2,Os3),
+	replace(Os0,X,Os2,Os3),
 	fill_field_up_to_index_and_add3D([],I,X,Y,Z,Os3,Os).
 
 

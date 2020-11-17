@@ -279,3 +279,174 @@ separable_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,[IWs1,IWs2],Bs,Os):-
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[[],IWs1,IWs2],Bs,false,Os).
 separable_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,[IWs1,IWs2],Bs,StridesD1,StridesD2,Padding,Os):- 
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,Padding,[[],IWs1,IWs2],Bs,false,Os).
+	
+
+nth0_from_sublist(N,Is,Os) :- nth0_from_sublist(N,Is,[],Os).
+nth0_from_sublist(_,[],Os,Os).
+nth0_from_sublist(N,[I|Is],Os0,Os) :-
+	nth0(N,I,O),
+	append(Os0,[O],Os1),
+	nth0_from_sublist(N,Is,Os1,Os).
+
+
+transpose_pool_res2D(Is,X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os) :- 
+	writeln(X),
+	writeln(Y),
+	transpose_pool_res2D(Is,X,Y,Z,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os).
+transpose_pool_res2D([[I|_]|_],_,_,Z,KX,KY,PoolSizeD1,PoolSizeD2,_,_,_,_,Os,Os) :-
+	(KX >= PoolSizeD1;KY >=  PoolSizeD2;(length(I,LZ), Z >= LZ)).
+transpose_pool_res2D(Is,X,Y,Z,KX,KY,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os) :-
+	OutX is (X * StridesD1) + KX,
+	OutY is (Y * StridesD2) + KY,
+	nth0_2D(OutX,OutY,Os0,OldO),
+	nth0_2D(KX,KY,IWs,Ws0),
+	nth0_from_sublist(Z,Ws0,Ws),
+	nth0_3D(X,Y,Z,Is,I),
+	multiply_each_list_element_with(Ws,I,Add),
+	add_lists(OldO,Add,NewO),
+	writeln(NewO),
+	insert_pool_field(Os0,NewO,OutX,OutY,1,Os1),
+	((KX < PoolSizeD1-1  -> KX1 is KX+1, KY1 is KY,   Z1 is Z);
+	((KY < PoolSizeD2-1  -> KX1 is 0,    KY1 is KY+1, Z1 is Z); 
+			       (KX1 is 0,    KY1 is 0,    Z1 is Z+1))),
+	transpose_pool_res2D(Is,X,Y,Z1,KX1,KY1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os1,Os).
+
+%transpose_pool_res2D([[[1],[2]],[[1],[1]]],1,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[[1]],[[1]],[[1]],[[1]],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
+
+%transpose_pool_res2D([[[1],[2]],[[1],[1]]],0,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
+
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os) :-
+	atomic(I),
+	length([[[I|Is0]|Is1]|Is],LX), 
+	length([[I|Is0]|Is1],LY), 
+	%length([B|Bs],NN),
+        %OutX is (LX - 1) * StridesD1 + KernelSizeD1,
+        OutX is LX * StridesD1 + max(KernelSizeD1 - StridesD1, 0),
+        %OutY is (LY - 1) * StridesD2 + KernelSizeD2,
+        OutY is LY * StridesD2 + max(KernelSizeD2 - StridesD2, 0),
+        %empty_field(OutX,OutY,NN,Os0),
+	empty_field2D([B|Bs],OutX,OutY,Os0),
+        conv2D_transpose_layer([[[I|Is0]|Is1]|Is],0,0,KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os0,Os).
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os) :-
+	is_list(I),
+        conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,[],Os).
+conv2D_transpose_layer([],_,_,_,_,_,_,_,Os,Os).
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
+	is_list(I),
+	conv2D_transpose_layer([[I|Is0]|Is1],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,O),
+	append(Os0,[O],Os1),
+        conv2D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,_,_,_,_,_,_,false,Os,Os) :-
+	atomic(I),
+	((length([[[I|Is0]|Is1]|Is],LX), X >= LX); 
+	(length([[I|Is0]|Is1],LY), Y >= LY)).
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,_,_,StridesD1,StridesD2,true,Os0,Os) :-
+	atomic(I),
+	length([[[I|Is0]|Is1]|Is],LX),
+	length([[I|Is0]|Is1],LY),
+	(X >= LX; Y >= LY),
+	CroppingL is floor((max(KernelSizeD1 - StridesD1, 0))/2),
+        CroppingR is max(KernelSizeD1 - StridesD1, 0) - CroppingL,
+        CroppingT is floor((max(KernelSizeD2 - StridesD2, 0))/2),
+        CroppingB is max(KernelSizeD2 - StridesD2, 0) - CroppingT,
+	apply_cropping_top_bottom(CroppingL, CroppingR,Os0, Os1),
+	apply_cropping_left_right(CroppingT, CroppingB,Os1, Os).
+conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
+	atomic(I),
+	length([[[I|Is0]|Is1]|Is],LX), 
+	%length([[I|Is0]|Is1],LY), 
+	transpose_pool_res2D([[[I|Is0]|Is1]|Is],X,Y,0,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os1),
+	(X < LX - 1 -> X1 is X + 1, Y1 is Y; X1 is 0, Y1 is Y + 1),
+	conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X1,Y1,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
+	
+	
+%conv2D_transpose_layer([[[[1], [2]], [[1], [1]]]],4,4,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],1,1,false,X).
+%conv2D_transpose_layer([[[[1]]]],1,1,[[[[1]]]],[0],1,1,false,X).
+
+
+
+
+
+
+transpose_pool_res3D(Is,X,Y,Z,Z1,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os) :- 
+	transpose_pool_res3D(Is,X,Y,Z,Z1,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os).
+transpose_pool_res3D([[[I|_]|_]|_],_,_,_,Z1,KX,KY,KZ,PoolSizeD1,PoolSizeD2,PoolSizeD3,_,_,_,_,_,Os,Os) :-
+	(KX >= PoolSizeD1;KY >=  PoolSizeD2;KZ >=PoolSizeD3;(length(I,LZ1), Z1 >= LZ1)).
+transpose_pool_res3D(Is,X,Y,Z,Z1,KX,KY,KZ,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os) :-
+	OutX is (X * StridesD1) + KX,
+	OutY is (Y * StridesD2) + KY,
+	OutZ is (Z * StridesD3) + KZ,
+	nth0_3D(OutX,OutY,OutZ,Os0,OldO),
+	nth0_3D(KX,KY,KZ,IWs,Ws0),
+	nth0_from_sublist(Z1,Ws0,Ws),
+	nth0_4D(X,Y,Z,Z1,Is,I),
+	multiply_each_list_element_with(Ws,I,Add),
+	add_lists(OldO,Add,NewO),
+	%writeln(NewO),
+	insert_pool_field(Os0,NewO,OutX,OutY,OutZ,1,1,Os1),
+	((KX < PoolSizeD1-1  -> KX1 is KX+1, KY1 is KY,   KZ1 is KZ,   Z2 is Z1);
+	((KY < PoolSizeD2-1  -> KX1 is 0,    KY1 is KY+1, KZ1 is KZ,   Z2 is Z1);
+	((KZ < PoolSizeD3-1  -> KX1 is 0,    KY1 is 0,    KZ1 is KZ+1, Z2 is Z1);  
+			       (KX1 is 0,    KY1 is 0,    KZ1 is 0,    Z2 is Z1+1)))),
+	transpose_pool_res3D(Is,X,Y,Z,Z2,KX1,KY1,KZ1,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os1,Os).
+
+%transpose_pool_res3D([[[1],[2]],[[1],[1]]],1,0,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[[1]],[[1]],[[1]],[[1]],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
+
+%transpose_pool_res3D([[[1],[2]],[[1],[1]]],0,0,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
+
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	atomic(I),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
+	length([[[I|Is0]|Is1]|Is2],LY), 
+	length([[I|Is0]|Is1],LZ),
+        %OutX is (LX - 1) * StridesD1 + KernelSizeD1,
+        OutX is LX * StridesD1 + max(KernelSizeD1 - StridesD1, 0),
+        %OutY is (LY - 1) * StridesD2 + KernelSizeD2,
+        OutY is LY * StridesD2 + max(KernelSizeD2 - StridesD2, 0),
+        OutZ is LZ * StridesD3 + max(KernelSizeD3 - StridesD3, 0),
+        %empty_field(OutX,OutY,NN,Os0),
+	empty_field3D([B|Bs],OutX,OutY,OutZ,Os0),
+        conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],0,0,0,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os0,Os).
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	is_list(I),
+        conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,[],Os).
+conv3D_transpose_layer([],_,_,_,_,_,_,_,_,_,Os,Os).
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	is_list(I),
+	conv3D_transpose_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,O),
+	append(Os0,[O],Os1),
+        conv3D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,_,_,_,_,_,_,_,_,false,Os,Os) :-
+	atomic(I),
+	((length([[[[I|Is0]|Is1]|Is2]|Is],LX), X >= LX); 
+	(length([[[I|Is0]|Is1]|Is2],LY), Y >= LY);
+	(length([[I|Is0]|Is1],LZ), Z >= LZ)).
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,_,_,StridesD1,StridesD2,StridesD3,true,Os0,Os) :-
+	atomic(I),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
+	length([[[I|Is0]|Is1]|Is2],LY), 
+	length([[I|Is0]|Is1],LZ),
+	(X >= LX; Y >= LY; Z >= LZ),
+	CroppingD1L is floor((max(KernelSizeD1 - StridesD1, 0))/2),
+        CroppingD1R is max(KernelSizeD1 - StridesD1, 0) - CroppingD1L,
+        CroppingD2L is floor((max(KernelSizeD2 - StridesD2, 0))/2),
+        CroppingD2R is max(KernelSizeD2 - StridesD2, 0) - CroppingD2L,
+        CroppingD3L is floor((max(KernelSizeD3 - StridesD3, 0))/2),
+        CroppingD3R is max(KernelSizeD3 - StridesD3, 0) - CroppingD3L,
+        cropping3D_layer(Os0, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os).
+        %apply_cropping_top_bottom(CroppingD1L, CroppingD1R,Os0, Os1),
+	%apply_cropping_top_bottom(CroppingD2L, CroppingD2R,Os1, Os2),
+	%apply_cropping_left_right(CroppingD3L, CroppingD3R,Os2, Os).
+conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+	atomic(I),
+	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
+	length([[[I|Is0]|Is1]|Is2],LY), 
+	transpose_pool_res3D([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,0,KernelSizeD1,KernelSizeD2,KernelSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os1),
+	(X < LX - 1 -> (X1 is X + 1, Y1 is Y, Z1 is Z); 
+	(Y < LY - 1 -> (X1 is 0, Y1 is Y + 1, Z1 is Z);
+		       (X1 is 0, Y1 is 0, Z1 is Z + 1))),
+	conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X1,Y1,Z1,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+
+	
+	
+%conv3D_transpose_layer([[[[[0.6734]]], [[[0.0437]]]]], 1, 1, 1,[[[[[0.0379]]]]],[0.2679], 1, 1, 1, false, X)

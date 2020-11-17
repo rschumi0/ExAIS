@@ -54,29 +54,30 @@ tmpmultiply_lists([I|Is],Os0,Os) :-
 	multiply_lists(I,Os0,Os1),
 	tmpmultiply_lists(Is,Os1,Os).
 	
-substract_lists(Xs,Ys,Zs) :- substract_lists(Xs,Ys,[],Zs).
-substract_lists([],[],Zs,Zs).
-substract_lists([X|Xs],[],Z0s,Zs) :-
+subtract_lists(Xs,Ys,Zs) :- subtract_lists(Xs,Ys,[],Zs).
+subtract_lists([],[],Zs,Zs).
+subtract_lists([X|Xs],[],Z0s,Zs) :-
 	append(Z0s,[X],Z1s),
-	substract_lists(Xs,[],Z1s,Zs).
-substract_lists([],[Y|Ys],Z0s,Zs) :-
+	subtract_lists(Xs,[],Z1s,Zs).
+subtract_lists([],[Y|Ys],Z0s,Zs) :-
 	append(Z0s,[Y],Z1s),
-	substract_lists([],Ys,Z1s,Zs).
-substract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
+	subtract_lists([],Ys,Z1s,Zs).
+subtract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	atomic(X),
 	atomic(Y),
 	Z is X - Y,
 	append(Z0s,[Z],Z1s),
-	substract_lists(Xs,Ys,Z1s,Zs).
-substract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
+	subtract_lists(Xs,Ys,Z1s,Zs).
+subtract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	is_list(X),
 	is_list(Y),
-	substract_lists(X,Y,Z),
+	subtract_lists(X,Y,Z),
 	append(Z0s,[Z],Z1s),
-	substract_lists(Xs,Ys,Z1s,Zs).	
+	subtract_lists(Xs,Ys,Z1s,Zs).	
 	
-substract_layer(Is1,Is2,Os) :- substract_lists(Is1,Is2,Os).
-substract_lists([Is1,Is2],[Os]) :- substract_lists(Is1,Is2,Os).
+
+subtract_layer(Is1,Is2,Os) :- subtract_lists(Is1,Is2,Os).
+subtract_layer([Is1,Is2],[Os]) :- subtract_lists(Is1,Is2,Os).
 	
 %minimum_list([1,2,3,4],[4,3,2,1],X).
 %minimum_layer([[[1,2,3,4],[5,2,3,4]],[[4,3,2,1],[6,4,3,4]],[[7,8,9,0],[3,2,8,4]]],X).
@@ -200,3 +201,24 @@ reduce_sum_one(X, Y0, Y) :-
     append(Y0, [Sum], Ys),
     sum_last_items(X, 0, Sum1),
     append(Ys, [Sum1], Y).
+  
+  
+/*  
+dimension_length(Is,0,O) :-
+	length(Is,O).	
+dimension_length([I|_],D,O):-
+	D1 is D - 1,
+	dimension_length(I,D1,O).
+	
+dot(Xs,Ys,Dim1,Dim2,Zs) :-
+	dimension_length(Xs,Dim1,L1),
+	dimension_length(Ys,Dim2,L2),
+	L1 = L2,
+	dot(Xs,Ys,Dim1,Dim2,[],Zs).
+dot([],[],_,_,Zs,Zs).
+dot(Xs,Ys,Dim1,Dim2,Zs) :-
+	
+*/
+	
+	
+

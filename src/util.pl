@@ -82,19 +82,27 @@ empty_list(I,N,Xs1,Xs) :-
 
 empty_field(X,Y,Fs) :- empty_field2D(0,X,Y,Fs).
 empty_field2D(I,X,Y,Fs) :- empty_field2D(I,X,Y,[],Fs).
-empty_field2D(_,_,0,Fs,Fs).
+empty_field2D(_,0,_,Fs,Fs).
 empty_field2D(I,X,Y,Fs0,Fs) :-
-	empty_list(I,X,F),
-	Y1 is Y -1,
-	empty_field2D(I,X,Y1,[F|Fs0],Fs).
+	empty_list(I,Y,F),
+	X1 is X -1,
+	empty_field2D(I,X1,Y,[F|Fs0],Fs).
 	
 empty_field(X,Y,Z,Fs) :- empty_field3D(0,X,Y,Z,Fs).
 empty_field3D(I,X,Y,Z,Fs) :- empty_field3D(I,X,Y,Z,[],Fs).
-empty_field3D(_,_,_,0,Fs,Fs).
+empty_field3D(_,0,_,_,Fs,Fs).
 empty_field3D(I,X,Y,Z,Fs0,Fs) :-
-	empty_field2D(I,X,Y,F),
-	Z1 is Z -1,
-	empty_field3D(I,X,Y,Z1,[F|Fs0],Fs).
+	empty_field2D(I,Y,Z,F),
+	X1 is X -1,
+	empty_field3D(I,X1,Y,Z,[F|Fs0],Fs).
+	
+empty_field(X,Y,Z,Z1,Fs) :- empty_field4D(0,X,Y,Z,Z1,Fs).
+empty_field4D(I,X,Y,Z,Z1,Fs) :- empty_field4D(I,X,Y,Z,Z1,[],Fs).
+empty_field3D(_,_,_,_,0,Fs,Fs).
+empty_field4D(I,X,Y,Z,Z1,Fs0,Fs) :-
+	empty_field3D(I,Y,Z,Z1,F),
+	X1 is X -1,
+	empty_field4D(I,X1,Y,Z,Z1,[F|Fs0],Fs).
 
 del_first_items([], [], []).
 del_first_items([[H|B]|T], [H|T1], [B|T2]) :-

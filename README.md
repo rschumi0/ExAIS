@@ -16,6 +16,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
+ |  Conv2DTranspose|   |  
+ |  Conv3DTranspose|   |  
  |  Cropping1D|   |
  |  Cropping2D|   |  
  |  Cropping3D|   |    
@@ -37,8 +39,10 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  MaxPool2D|   |  
  |  MaxPool3D|   |   
  |  Minimum|   |  
- |  Multiply|   |   
+ |  Multiply|   |
+ |  PReLU|   |  
  |  ReLU|   |  
+ |  RepeatVector|   |  
  |  SeparableConv1D|   |  
  |  SeparableConv2D|   | 
  |  Softmax|   |  
@@ -62,9 +66,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Attention|   |    
  |  BatchNormalization|   |  
  |  Bidirectional|   |  
- |  Conv1DTranspose|   |  
- |  Conv2DTranspose|   |  
- |  Conv3DTranspose|   |  
  |  ConvLSTM2D|   |  
  |  DenseFeatures|   |  
  |  DepthwiseConv2D|   |  
@@ -81,10 +82,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Lambda|   |   
  |  LayerNormalization|   |    
  |  Masking|   |  
- |  PReLU|   |  
  |  Permute|   |  
  |  RNN|   |  
- |  RepeatVector|   |  
  |  Reshape|   |   
  |  SimpleRNN|   |  
  |  SimpleRNNCell|   |  
@@ -92,5 +91,4 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  SpatialDropout2D|   |  
  |  SpatialDropout3D|   |  
  |  StackedRNNCells|   |   
- |  TimeDistributed|   |  
- |  Wrapper|   |   
+ |  TimeDistributed|   |    
