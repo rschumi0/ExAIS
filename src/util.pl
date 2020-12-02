@@ -1,3 +1,8 @@
+:-use_module(library(clpfd)).
+:-use_module(library(list_util)).
+:-use_module(library(lambda)).
+:-use_module(library(matrix)).
+
 % copy one list to another (Ayesha)
 copyList(L,R) :- 
 	copy(L,R).
@@ -233,3 +238,16 @@ compare_structure([H1|T1], [H2|T2]) :-
     compare_structure(T1, T2).
 compare_structure([], []).
 	
+tanh([],[]).	
+tanh(X,Y) :- atomic(X), Y is tanh(X).
+tanh([X|Xs],[Y|Ys]) :- tanh(X,Y), tanh(Xs,Ys). 
+
+dot(V1, V2, N) :- maplist(product,V1,V2,P), sumlist(P,N).
+product(N1,N2,N3) :- N3 is N1*N2.
+mm_helper(M2, I1, M3) :- maplist(dot(I1), M2, M3).
+mmult(M1, M2, M3) :- transpose(M2,MT), maplist(mm_helper(MT), M1, M3).
+
+one_minus_x([],[]). 	
+one_minus_x(X,Y) :- atomic(X), Y is 1 - X.
+one_minus_x([X|Xs],[Y|Ys]) :- one_minus_x(X,Y), one_minus_x(Xs,Ys).
+

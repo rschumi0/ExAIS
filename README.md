@@ -29,7 +29,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  GlobalAveragePooling3D|   |  
  |  GlobalMaxPool1D|   |  
  |  GlobalMaxPool2D|   |  
- |  GlobalMaxPool3D|   |   
+ |  GlobalMaxPool3D|   | 
+ |  GRU|   |    
  |  InputSpec|   | 
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
@@ -40,11 +41,13 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  MaxPool3D|   |   
  |  Minimum|   |  
  |  Multiply|   |
+ |  Permute|   |  
  |  PReLU|   |  
  |  ReLU|   |  
  |  RepeatVector|   |  
  |  SeparableConv1D|   |  
  |  SeparableConv2D|   | 
+ |  SimpleRNN|   |  
  |  Softmax|   |  
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
@@ -59,7 +62,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 # Layers under development
  | Layer | Comment |
  | --- | --- |
- |  AbstractRNNCell|   |  
  |  ActivityRegularization|   |  
  |  AdditiveAttention|   |  
  |  AlphaDropout|   |  
@@ -72,23 +74,14 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Dot|   |  
  |  Dropout|   | 
  |  Embedding|   |   
- |  GRU|   |  
- |  GRUCell|   |  
  |  GaussianDropout|   |  
- |  GaussianNoise|   |  
- |  InputLayer|   |   
+ |  GaussianNoise|   |    
  |  LSTM|   |  
- |  LSTMCell|   |  
  |  Lambda|   |   
  |  LayerNormalization|   |    
  |  Masking|   |  
- |  Permute|   |  
- |  RNN|   |  
  |  Reshape|   |   
- |  SimpleRNN|   |  
- |  SimpleRNNCell|   |  
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
- |  SpatialDropout3D|   |  
- |  StackedRNNCells|   |   
+ |  SpatialDropout3D|   |   
  |  TimeDistributed|   |    

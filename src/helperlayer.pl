@@ -289,21 +289,41 @@ up_sampling2D_layer([[[I|Is0]|Is1]|Is], 0, SizeD2, Os0,Os):-
 	
 up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, Os) :- up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, [], Os).
 up_sampling3D_layer([], _, _,_, Os,Os).
-up_sampling3D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
+up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
 	is_list(I),
-	up_sampling3D_layer([[I|Is0]|Is1],SizeD1, SizeD2, SizeD3,O),
+	up_sampling3D_layer([[[I|I0s]|I1s]|I2s],SizeD1, SizeD2, SizeD3,O),
 	append(Os0,[O],Os1),
 	up_sampling3D_layer(Is,SizeD1,SizeD2, SizeD3,Os1,Os).
-up_sampling3D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, SizeD3, _,Os):-
+up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, SizeD2, SizeD3, _,Os):-
 	atomic(I),
-	SizeD1 > 0,
-	up_sampling2D_layer([[[I|Is0]|Is1]|Is],SizeD1,SizeD2,Os1),
-	up_sampling3D_layer(Os1,0, 0, SizeD3,[],Os).
-up_sampling3D_layer([[[I|Is0]|Is1]|Is], 0, 0, SizeD3, Os0,Os):-
+	SizeD2 > 0,
+	up_sampling2D_layer([[[[I|I0s]|I1s]|I2s]|Is],SizeD2,SizeD3,Os1),
+	up_sampling3D_layer(Os1,SizeD1, 0, 0,[],Os).
+up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, 0, 0, _,Os):-
 	atomic(I),
-	multiply_sub_entries([[I|Is0]|Is1],SizeD3,O),
-	append(Os0,[O],Os1),
-	up_sampling3D_layer(Is,0, 0, SizeD3,Os1,Os).
+	%multiply_sub_entries([[[I|I0s]|I1s]|I2s],SizeD1,O),
+	%append(Os0,[O],Os1),
+	%up_sampling3D_layer(Is,SizeD1, 0, 0,Os1,Os).
+	multiply_entries([[[[I|I0s]|I1s]|I2s]|Is],SizeD1,Os1),
+	up_sampling3D_layer([],0, 0, 0,Os1,Os).
+
+/*
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+up_sampling3D_layer([[[[[0.5987], [0.4397]]]]], 2, 2, 1, X)
+-------------------------------------------------------------------------------------
+in[[[[0.5987],[0.4397]]]]out[[[[0.5987],[0.5987],[0.4397],[0.4397]],[[0.5987],[0.5987],[0.4397],[0.4397]]]]X = [[[[[0.5987], [0.5987], [0.4397], [0.4397]], [[0.5987], [0.5987], [0.4397], [0.4397]]]]] X = [[[[[0.5987], [0.5987], [0.4397], [0.4397]], [[0.5987], [0.5987], [0.4397], [0.4397]]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[0.5987], [0.4397]], [[0.5987], [0.4397]]], [[[0.5987], [0.4397]], [[0.5987], [0.4397]]]]]
+Expected (Unparsed): [[[[[0.5987], [0.5987], [0.4397], [0.4397]], [[0.5987], [0.5987], [0.4397], [0.4397]]]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[[[0.5987], [0.4397]], [[0.5987], [0.4397]]], [[[0.5987], [0.4397]], [[0.5987], [0.4397]]]]]
+Expected: [[[[[0.5987], [0.5987], [0.4397], [0.4397]], [[0.5987], [0.5987], [0.4397], [0.4397]]]]]
+-------------------------------------------------------------------------------------
+
+Test 3 failed!*/
 	
 	
 multiply_sub_entries(Is,N,Os) :- multiply_sub_entries(Is,N,[],Os).
@@ -330,4 +350,22 @@ embedding_layer([I|Is],Ws,Os0,Os) :-
 	
 	
 repeat_vector_layer(Is,N,[Os]) :- multiply_entries(Is,N,Os).
+
+
+permute_layer(Is,D1,D2,Os) :- permute_layer(Is,D1,D2,[],Os).
+permute_layer([],_,_,Os,Os).
+permute_layer([[I|Is1]|Is],D1,D2,Os0,Os) :- 
+ 	is_list(I),
+ 	permute_layer([I|Is1],D1,D2,O),
+ 	append(Os0,[O],Os1),
+ 	permute_layer(Is,D1,D2,Os1,Os).
+permute_layer([[I|Is1]|Is],1,2,_,Os) :-
+	atomic(I),
+	permute_layer([],1,2,[[I|Is1]|Is],Os).
+permute_layer([[I|Is1]|Is],2,1,_,Os) :-
+	atomic(I),
+	transpose([[I|Is1]|Is],Os1),
+	permute_layer([],2,1,Os1,Os).
+
+
 	

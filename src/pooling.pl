@@ -99,71 +99,78 @@ get_pool_max(Is,X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,O1,O) :-
 */	
 	
 
-insert_pool_field(Is,I,X,Y,Strides,Os) :- Is = [], insert_pool_field([[]],I,X,Y,Strides,Os).
-insert_pool_field(Is,I,X,Y,Strides,Os) :-
+insert_pool_field(Is,I,Append,X,Y,Strides,Os) :- Is = [], insert_pool_field([[]],I,Append,X,Y,Strides,Os).
+insert_pool_field(Is,I,Append,X,Y,Strides,Os) :-
 	X1 is X / Strides,
 	Y1 is Y,
-	fill_field_up_to_index_and_add2D(Is,I,X1,Y1,Os).
+	fill_field_up_to_index_and_add2D(Is,I,Append,X1,Y1,Os).
 
-fill_field_up_to_index_and_add2D(Is,I,X,Y,Os) :- fill_field_up_to_index_and_add2D(Is,I,X,Y,Is,Os). 
-fill_field_up_to_index_and_add2D([],_,_,_,Os,Os).
-fill_field_up_to_index_and_add2D(Is,I,X,Y,Os0,Os) :-
+fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Os) :- fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Is,Os). 
+fill_field_up_to_index_and_add2D([],_,_,_,_,Os,Os).
+fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Os0,Os) :-
 	length(Os0,L),
 	X >= L,
 	append(Os0,[[]],Os1),
-	fill_field_up_to_index_and_add2D(Is,I,X,Y,Os1,Os).
-fill_field_up_to_index_and_add2D(Is,I,X,Y,Os0,Os) :-
+	fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Os1,Os).
+fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Os0,Os) :-
 	nth0(X,Os0,Os1),
 	length(Os1,L),
-	Y >= L,
+	Y > L,
 	append(Os1,[0],Os2),
 	replace(Os0,X,Os2,Os3),
-	fill_field_up_to_index_and_add2D(Is,I,X,Y,Os3,Os).
-/*fill_field_up_to_index_and_add2D(_,I,X,Y,Os0,Os) :-
+	fill_field_up_to_index_and_add2D(Is,I,Append,X,Y,Os3,Os).
+fill_field_up_to_index_and_add2D(Is,I,false,X,Y,Os0,Os) :-
+	nth0(X,Os0,Os1),
+	length(Os1,L),
+	Y = L,
+	append(Os1,[0],Os2),
+	replace(Os0,X,Os2,Os3),
+	fill_field_up_to_index_and_add2D(Is,I,false,X,Y,Os3,Os).
+fill_field_up_to_index_and_add2D(_,I,true,X,Y,Os0,Os) :-
 	nth0(X,Os0,Os1),
 	length(Os1,L),
 	Y = L,
 	(atomic(I) -> append(Os1,[I],Os2);append(Os1,I,Os2)),
 	replace(Os0,X,Os2,Os3),
-	fill_field_up_to_index_and_add2D([],I,X,Y,Os3,Os).*/
-fill_field_up_to_index_and_add2D(_,I,X,Y,Os0,Os) :-
+	fill_field_up_to_index_and_add2D([],I,true,X,Y,Os3,Os).
+fill_field_up_to_index_and_add2D(_,I,false,X,Y,Os0,Os) :-
 	nth0(X,Os0,Os1),
 	length(Os1,L),
 	Y < L,
 	replace(Os1,Y,I,Os2),
 	%(atomic(I) -> append(Os1,[I],Os2);append(Os1,I,Os2)),
 	replace(Os0,X,Os2,Os3),
-	fill_field_up_to_index_and_add2D([],I,X,Y,Os3,Os).
+	fill_field_up_to_index_and_add2D([],I,false,X,Y,Os3,Os).
 	
-insert_pool_field(Is,I,X,Y,Z,StridesD1,StridesD2,Os) :- Is = [], insert_pool_field([[[]]],I,X,Y,Z,StridesD1,StridesD2,Os).
-insert_pool_field(Is,I,X,Y,Z,StridesD1,StridesD2,Os) :-
+insert_pool_field(Is,I,Append,X,Y,Z,StridesD1,StridesD2,Os) :- Is = [], insert_pool_field([[[]]],I,Append,X,Y,Z,StridesD1,StridesD2,Os).
+insert_pool_field(Is,I,Append,X,Y,Z,StridesD1,StridesD2,Os) :-
 	X1 is X / StridesD1,
 	Y1 is Y / StridesD2,
 	Z1 is Z,
-	fill_field_up_to_index_and_add3D(Is,I,X1,Y1,Z1,Os).
+	fill_field_up_to_index_and_add3D(Is,I,Append,X1,Y1,Z1,Os).
 
 
-insert_pool_field4D(Is,I,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os) :- Is = [], insert_pool_field4D([[[[]]]],I,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os).
-insert_pool_field4D(Is,I,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os) :-
+insert_pool_field4D(Is,I,Append,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os) :- Is = [], insert_pool_field4D([[[[]]]],I,Append,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os).
+insert_pool_field4D(Is,I,Append,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os) :-
 	W1 is W / StridesD1,
 	X1 is X / StridesD2,
 	Y1 is Y / StridesD3,
 	Z1 is Z,
-	fill_field_up_to_index_and_add4D(Is,I,W1,X1,Y1,Z1,Os).
-fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os) :- fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Is,Os).
-fill_field_up_to_index_and_add4D([],_,_,_,_,_,Os,Os).
-fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os0,Os) :-
+	fill_field_up_to_index_and_add4D(Is,I,Append,W1,X1,Y1,Z1,Os).
+fill_field_up_to_index_and_add4D(Is,I,Append,W,X,Y,Z,Os) :- fill_field_up_to_index_and_add4D(Is,I,Append,W,X,Y,Z,Is,Os).
+fill_field_up_to_index_and_add4D([],_,_,_,_,_,_,Os,Os).
+fill_field_up_to_index_and_add4D(Is,I,Append,W,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
 	W >= L,
 	append(Os0,[[[[]]]],Os1),
-	fill_field_up_to_index_and_add4D(Is,I,W,X,Y,Z,Os1,Os).
-fill_field_up_to_index_and_add4D(_,I,W,X,Y,Z,Os0,Os) :-
+	fill_field_up_to_index_and_add4D(Is,I,Append,W,X,Y,Z,Os1,Os).
+fill_field_up_to_index_and_add4D(_,I,Append,W,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
 	W < L,
 	nth0(W,Os0,Os1),
-	fill_field_up_to_index_and_add3D(Os1,I,X,Y,Z,Os2),
+	fill_field_up_to_index_and_add3D(Os1,I,Append,X,Y,Z,Os2),
 	replace(Os0,W,Os2,Os3),
-	fill_field_up_to_index_and_add4D([],I,W,X,Y,Z,Os3,Os).
+	fill_field_up_to_index_and_add4D([],I,Append,W,X,Y,Z,Os3,Os).
 
 /*fill_field_up_to_index_and_add(Is,I,X,Y,Z,Os) :- fill_field_up_to_index_and_add(Is,I,X,Y,Z,Is,Os). 
 fill_field_up_to_index_and_add([],_,_,_,_,Os,Os).
@@ -198,20 +205,20 @@ fill_field_up_to_index_and_add(_,I,X,Y,Z,Os0,Os) :-
 	replace(Os0,X,OsX,OsN),
 	fill_field_up_to_index_and_add([],I,X,Y,Z,OsN,Os).*/
 	
-fill_field_up_to_index_and_add3D(Is,I,X,Y,Z,Os) :- fill_field_up_to_index_and_add3D(Is,I,X,Y,Z,Is,Os).
-fill_field_up_to_index_and_add3D([],_,_,_,_,Os,Os).
-fill_field_up_to_index_and_add3D(Is,I,X,Y,Z,Os0,Os) :-
+fill_field_up_to_index_and_add3D(Is,I,Append,X,Y,Z,Os) :- fill_field_up_to_index_and_add3D(Is,I,Append,X,Y,Z,Is,Os).
+fill_field_up_to_index_and_add3D([],_,_,_,_,_,Os,Os).
+fill_field_up_to_index_and_add3D(Is,I,Append,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
 	X >= L,
 	append(Os0,[[[]]],Os1),
-	fill_field_up_to_index_and_add3D(Is,I,X,Y,Z,Os1,Os).
-fill_field_up_to_index_and_add3D(_,I,X,Y,Z,Os0,Os) :-
+	fill_field_up_to_index_and_add3D(Is,I,Append,X,Y,Z,Os1,Os).
+fill_field_up_to_index_and_add3D(_,I,Append,X,Y,Z,Os0,Os) :-
 	length(Os0,L),
 	X < L,
 	nth0(X,Os0,Os1),
-	fill_field_up_to_index_and_add2D(Os1,I,Y,Z,Os2),
+	fill_field_up_to_index_and_add2D(Os1,I,Append,Y,Z,Os2),
 	replace(Os0,X,Os2,Os3),
-	fill_field_up_to_index_and_add3D([],I,X,Y,Z,Os3,Os).
+	fill_field_up_to_index_and_add3D([],I,Append,X,Y,Z,Os3,Os).
 
 
 
@@ -352,7 +359,7 @@ pool1D_layer(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,Padding,IWs,Bs,true,Os0,
 	length([[I|Is0]|Is],LX), 
 	%length([I|Is0],LY), 
 	get_pool_res1D(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,IWs,Bs,true,O),
-	insert_pool_field(Os0,O,X,Y,Strides,Os1),
+	insert_pool_field(Os0,O,true,X,Y,Strides,Os1),
 	(X+Strides+PoolSize =< LX -> X1 is X + Strides,Y1 is Y; X1 is 0,Y1 is Y+1),
 	pool1D_layer(Poolfunc,[[I|Is0]|Is],X1,Y1,PoolSize,Strides,Padding,IWs,Bs,true,Os1,Os).
 pool1D_layer(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,Padding,IWs,Bs,false,Os0,Os) :-
@@ -364,8 +371,9 @@ pool1D_layer(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,Padding,IWs,Bs,false,Os0
 	%writeln(X),
 	%writeln(Y),
 	get_pool_res1D(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,IWs,Bs,false,O),
+	%writeln(Os0),
 	%writeln(O),
-	insert_pool_field(Os0,O,X,Y,Strides,Os1),
+	insert_pool_field(Os0,O,true,X,Y,Strides,Os1),
 	%writeln(Os1),
 	(X+Strides+PoolSize =< LX -> X1 is X + Strides; X1 is LX+1),
 	pool1D_layer(Poolfunc,[[I|Is0]|Is],X1,0,PoolSize,Strides,Padding,IWs,Bs,false,Os1,Os).
@@ -623,7 +631,7 @@ pool2D_layer(Poolfunc,[[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,S
 	length([[[I|Is0]|Is1]|Is],LX), 
 	length([[I|Is0]|Is1],LY), 
 	get_pool_res2D(Poolfunc,[[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,true,O),
-	insert_pool_field(Os0,O,X,Y,Z,StridesD1,StridesD2,Os1),
+	insert_pool_field(Os0,O,true,X,Y,Z,StridesD1,StridesD2,Os1),
 	(X+StridesD1+PoolSizeD1 =< LX -> X1 is X + StridesD1,Y1 is Y, Z1 is Z; 
 	(Y+StridesD2+PoolSizeD2 =< LY -> X1 is 0,Y1 is Y+StridesD2, Z1 is Z; 
 					 X1 is 0, Y1 is 0, Z1 is Z + 1)),
@@ -633,7 +641,7 @@ pool2D_layer(Poolfunc,[[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,S
 	length([[[I|Is0]|Is1]|Is],LX), 
 	length([[I|Is0]|Is1],LY), 
 	get_pool_res2D(Poolfunc,[[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,false,O),
-	insert_pool_field(Os0,O,X,Y,Z,StridesD1,StridesD2,Os1),
+	insert_pool_field(Os0,O,true,X,Y,Z,StridesD1,StridesD2,Os1),
 	(X+StridesD1+PoolSizeD1 =< LX -> X1 is X + StridesD1,Y1 is Y, Z1 is Z; 
 	(Y+StridesD2+PoolSizeD2 =< LY -> X1 is 0,Y1 is Y+StridesD2, Z1 is Z; 
 					X1 is LX +1, Y1 is LY + 1, Z1 is Z + 1)),
@@ -746,7 +754,7 @@ pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,Poo
 	%length([I|Is0],LZ), 
 	W+PoolSizeD1 =< LW,X+PoolSizeD2 =< LX,Y+PoolSizeD3 =< LY,
 	get_pool_res3D(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,IWs,Bs,true,O),
-	insert_pool_field4D(Os0,O,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
+	insert_pool_field4D(Os0,O,true,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
 	(W+StridesD1+PoolSizeD1 =< LW -> W1 is W + StridesD1, X1 is X, Y1 is Y, Z1 is Z; 
 	(X+StridesD2+PoolSizeD2 =< LX -> W1 is 0, X1 is X + StridesD2,Y1 is Y, Z1 is Z; 
 	(Y+StridesD3+PoolSizeD3 =< LY -> W1 is 0, X1 is 0,Y1 is Y+StridesD3, Z1 is Z; 
@@ -760,7 +768,7 @@ pool3D_layer(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,Poo
 	%length([I|Is0],LZ), 
 	W+PoolSizeD1 =< LW,X+PoolSizeD2 =< LX,Y+PoolSizeD3 =< LY,
 	get_pool_res3D(Poolfunc,[[[[I|Is0]|Is1]|Is2]|Is],W,X,Y,Z,PoolSizeD1,PoolSizeD2,PoolSizeD3,IWs,Bs,false,O),
-	insert_pool_field4D(Os0,O,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
+	insert_pool_field4D(Os0,O,true,W,X,Y,Z,StridesD1,StridesD2,StridesD3,Os1),
 	(W+StridesD1+PoolSizeD1 =< LW -> W1 is W + StridesD1, X1 is X, Y1 is Y, Z1 is Z; 
 	(X+StridesD2+PoolSizeD2 =< LX -> W1 is 0, X1 is X + StridesD2,Y1 is Y, Z1 is Z; 
 	(Y+StridesD3+PoolSizeD3 =< LY -> W1 is 0, X1 is 0,Y1 is Y+StridesD3, Z1 is Z; 

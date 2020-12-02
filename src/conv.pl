@@ -305,7 +305,7 @@ transpose_pool_res2D(Is,X,Y,Z,KX,KY,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IW
 	multiply_each_list_element_with(Ws,I,Add),
 	add_lists(OldO,Add,NewO),
 	writeln(NewO),
-	insert_pool_field(Os0,NewO,OutX,OutY,1,Os1),
+	insert_pool_field(Os0,NewO,false,OutX,OutY,1,Os1),
 	((KX < PoolSizeD1-1  -> KX1 is KX+1, KY1 is KY,   Z1 is Z);
 	((KY < PoolSizeD2-1  -> KX1 is 0,    KY1 is KY+1, Z1 is Z); 
 			       (KX1 is 0,    KY1 is 0,    Z1 is Z+1))),
@@ -365,9 +365,6 @@ conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,IWs,Bs,S
 
 
 
-
-
-
 transpose_pool_res3D(Is,X,Y,Z,Z1,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os) :- 
 	transpose_pool_res3D(Is,X,Y,Z,Z1,0,0,0,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,IWs,Bs,Os0,Os).
 transpose_pool_res3D([[[I|_]|_]|_],_,_,_,Z1,KX,KY,KZ,PoolSizeD1,PoolSizeD2,PoolSizeD3,_,_,_,_,_,Os,Os) :-
@@ -383,7 +380,7 @@ transpose_pool_res3D(Is,X,Y,Z,Z1,KX,KY,KZ,PoolSizeD1,PoolSizeD2,PoolSizeD3,Strid
 	multiply_each_list_element_with(Ws,I,Add),
 	add_lists(OldO,Add,NewO),
 	%writeln(NewO),
-	insert_pool_field(Os0,NewO,OutX,OutY,OutZ,1,1,Os1),
+	insert_pool_field(Os0,NewO,false,OutX,OutY,OutZ,1,1,Os1),
 	((KX < PoolSizeD1-1  -> KX1 is KX+1, KY1 is KY,   KZ1 is KZ,   Z2 is Z1);
 	((KY < PoolSizeD2-1  -> KX1 is 0,    KY1 is KY+1, KZ1 is KZ,   Z2 is Z1);
 	((KZ < PoolSizeD3-1  -> KX1 is 0,    KY1 is 0,    KZ1 is KZ+1, Z2 is Z1);  
