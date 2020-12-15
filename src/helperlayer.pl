@@ -366,6 +366,48 @@ permute_layer([[I|Is1]|Is],2,1,_,Os) :-
 	atomic(I),
 	transpose([[I|Is1]|Is],Os1),
 	permute_layer([],2,1,Os1,Os).
-
-
 	
+reshape_layer(Is,Ss,[Os]) :-
+	depth(Is,1),
+	recursive_split(Ss,Is,Os).
+reshape_layer(Is,Ss,Os) :-
+	depth(Is,D),
+	D > 1,
+	flatten(Is,Is1),
+	reshape_layer(Is1,Ss,Os).
+
+%recursive_split([3,3],[1,2,3,4,5,6,7,8,9],X).
+%recursive_split([],Is,Is).
+
+recursive_split([S|Ss],Is,Is) :-length([S|Ss],L), L = 1.
+recursive_split([S|Ss],Is,Os) :-length([S|Ss],L), L = 2, split_in_parts(S,Is,Os).
+recursive_split([S|Ss],Is,Os) :-length([S|Ss],L), L > 2, split_in_parts(S,Is,Os0), recursive_split(Ss,Os0,[],Os).
+%recursive_split([],_,Os,Os).
+recursive_split(_,[],Os,Os).
+recursive_split([S|Ss],[I|Is],Os0,Os) :-
+	%length([S|Ss],L),
+	%L > 1,
+	recursive_split([S|Ss],I,O),
+	%split_in_parts(S,I,O),
+	append(Os0,[O],Os2),
+	recursive_split([S|Ss],Is,Os2,Os).
+/*recursive_split(_,[],[],Os,Os).
+recursive_split([S|Ss],[],Os,_,Os) :-
+	length([S|Ss],L),
+	L < 3.
+recursive_split([S|Ss],[],[O|Os0],Os1,Os) :-
+	length([S|Ss],L),
+	L > 2,
+	recursive_split(Ss,O,O1),
+	append(Os1,[O1],Os2),
+	recursive_split([S|Ss],[],Os0,Os2,Os).*/
+	
+split_in_parts(P,Is,Os) :- length(Is,L), S is L / P, split_in_parts(P,Is,S,[],Os).	
+split_in_parts(_,[],_,Os,Os).
+split_in_parts(P,Is,S,Os0,Os) :-
+	Is \== [],
+	split_at(S,Is,I1,Rs),
+	append(Os0,[I1],Os1),
+	split_in_parts(P,Rs,S,Os1,Os).
+	
+

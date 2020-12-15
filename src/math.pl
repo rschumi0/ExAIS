@@ -1,3 +1,9 @@
+:-use_module(library(lambda)).
+:-use_module(library(clpfd)).
+:-use_module(library(list_util)).
+:-use_module(library(matrix)).
+:-[util].
+
 add_lists(Xs,Ys,Zs) :- add_lists(Xs,Ys,[],Zs).
 add_lists([],[],Zs,Zs).
 add_lists([X|Xs],[],Z0s,Zs) :-
@@ -76,7 +82,7 @@ subtract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	subtract_lists(Xs,Ys,Z1s,Zs).	
 	
 
-subtract_layer(Is1,Is2,Os) :- subtract_lists(Is1,Is2,Os).
+subtract_layer(Is1,Is2,[Os]) :- subtract_lists(Is1,Is2,Os).
 subtract_layer([Is1,Is2],[Os]) :- subtract_lists(Is1,Is2,Os).
 	
 %minimum_list([1,2,3,4],[4,3,2,1],X).
@@ -203,22 +209,263 @@ reduce_sum_one(X, Y0, Y) :-
     append(Ys, [Sum1], Y).
   
   
-/*  
+  
 dimension_length(Is,0,O) :-
 	length(Is,O).	
 dimension_length([I|_],D,O):-
 	D1 is D - 1,
 	dimension_length(I,D1,O).
-	
-dot(Xs,Ys,Dim1,Dim2,Zs) :-
-	dimension_length(Xs,Dim1,L1),
-	dimension_length(Ys,Dim2,L2),
-	L1 = L2,
-	dot(Xs,Ys,Dim1,Dim2,[],Zs).
-dot([],[],_,_,Zs,Zs).
-dot(Xs,Ys,Dim1,Dim2,Zs) :-
-	
-*/
-	
-	
 
+dot_layer(Xs,Ys,Dim,Zs) :- dot_layer(Xs,Ys,Dim,Dim,Zs).
+dot_layer(Xs,Ys,0,0,Zs) :-
+	depth(Xs,1),
+	transpose([Ys],Ys1),
+	mmmult([Xs],Ys1,Zs).
+dot_layer(Xs,Ys,1,1,Zs) :-
+	depth(Xs,1),
+	transpose([Ys],Ys1),
+	mmmult([Xs],Ys1,Zs).
+dot_layer(Xs,Ys,0,0,[Zs]) :-
+	depth(Xs,D),
+	D>1,
+	(D < 3 -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	mmmult(Xs1,Ys,Zs).
+dot_layer(Xs,Ys,1,1,[Zs]) :-
+	depth(Xs,D),
+	D>1,
+	(D < 3 -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	mmmult(Xs1,Ys,Zs).
+dot_layer(Xs,Ys,1,2,[Zs]) :-
+	depth(Xs,2),
+	transpose(Xs,Xs1),
+	transpose(Ys,Ys1),
+	mmmult(Xs1,Ys1,Zs).
+dot_layer(Xs,Ys,1,2,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Xs, Xs1),
+	mmmult(Xs1,Ys,Zs).
+dot_layer(Xs,Ys,1,3,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Xs, Xs1),
+	maplist(transpose, Ys, Ys1),
+	mmmult(Xs1,Ys1,Zs).
+dot_layer(Xs,Ys,2,1,[Zs]) :-
+	depth(Xs,2),
+	mmmult(Xs,Ys,Zs).
+dot_layer(Xs,Ys,2,1,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Xs, Xs1),
+	mmmult(Xs1,Ys,Zs).
+dot_layer(Xs,Ys,2,2,[Zs]) :-
+	depth(Xs,2),
+	transpose(Ys,Ys1),
+	mmmult(Xs,Ys1,Zs).
+dot_layer(Xs,Ys,2,2,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Xs, Xs1),
+	mmmult(Xs1,Ys,Zs).
+dot_layer(Xs,Ys,2,3,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Xs, Xs1),
+	maplist(transpose, Ys, Ys1),
+	mmmult(Xs1,Ys1,Zs).
+dot_layer(Xs,Ys,3,1,[Zs]) :-
+	depth(Xs,3),
+	mmmult(Xs,Ys,Zs).
+dot_layer(Xs,Ys,3,2,[Zs]) :-
+	depth(Xs,3),
+	mmmult(Xs,Ys,Zs).
+dot_layer(Xs,Ys,3,3,[Zs]) :-
+	depth(Xs,3),
+	maplist(transpose, Ys, Ys1),
+	mmmult(Xs,Ys1,Zs).
+
+mmmult([],[],[]).
+mmmult(Xs,Ys,Zs) :-
+	depth(Xs,2),
+	mmult(Xs,Ys,Zs).
+mmmult([X],[Y|Ys],[Z|Zs]) :-
+	depth([X],3),
+	length([X],1),
+	length([Y|Ys],L),
+	L>1,
+	mmult(X,Y,Z),
+	mmmult([X],Ys,Zs).
+mmmult([X|Xs],[Y],[Z|Zs]) :-
+	depth([X|Xs],3),
+	length([Y],1),
+	length([X|Xs],L),
+	L>1,
+	mmult(X,Y,Z),
+	mmmult([X|Xs],[Y],Zs).
+mmmult([X|Xs],[Y|Ys],[Z|Zs]) :-
+	depth([X|Xs],3),
+	mmult(X,Y,Z),
+	mmmult(Xs,Ys,Zs).
+mmmult(_,[],[]).
+mmmult([],_,[]).
+
+	
+matrix_rotated(Xss, Zss) :-
+   transpose(Xss, Yss),
+   maplist(reverse, Yss, Zss).
+  
+/* 
+temp_layer(Xs,Ys,1,1,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs,Ys,Zs).
+temp_layer(Xs,Ys,1,2,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs1,Ys,Zs).
+temp_layer(Xs,Ys,1,3,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs1,Ys,Zs).
+temp_layer(Xs,Ys,1,4,[Zs]) :-
+	transpose(Xs,Xs1),
+	(depth(Xs,2) -> transpose(Xs1,Xs2) ; maplist(transpose, Xs1, Xs2)),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs2,Ys,Zs).
+temp_layer(Xs,Ys,1,5,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs1,Xs2),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs2,Ys,Zs).
+temp_layer(Xs,Ys,2,1,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys,Ys1),
+	mmmult(Xs,Ys1,Zs).
+temp_layer(Xs,Ys,3,1,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs,Ys1,Zs).
+temp_layer(Xs,Ys,4,1,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	transpose(Ys,Ys1),
+	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
+	mmmult(Xs,Ys2,Zs).
+temp_layer(Xs,Ys,5,1,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys1,Ys2),
+	mmmult(Xs,Ys2,Zs).
+temp_layer(Xs,Ys,1,6,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys,Ys1),
+	mmmult(Xs1,Ys1,Zs).
+temp_layer(Xs,Ys,1,7,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs1,Ys1,Zs).
+temp_layer(Xs,Ys,1,8,[Zs]) :-
+	transpose(Xs,Xs1),	
+	(depth(Xs,2) -> transpose(Xs1,Xs2) ; maplist(transpose, Xs1, Xs2)),
+	transpose(Ys,Ys1),
+	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
+	mmmult(Xs2,Ys2,Zs).
+temp_layer(Xs,Ys,1,9,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs1,Xs2),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys1,Ys2),
+	mmmult(Xs2,Ys2,Zs).
+temp_layer(Xs,Ys,1,10,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs,Ys,Zs).
+temp_layer(Xs,Ys,1,11,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs,Xs1),
+	transpose(Ys,Ys1),
+	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
+	mmmult(Xs1,Ys2,Zs).
+temp_layer(Xs,Ys,1,12,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs1,Ys1,Zs).
+temp_layer(Xs,Ys,1,13,[Zs]) :-
+	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys1,Ys2),
+	mmmult(Xs1,Ys2,Zs).
+temp_layer(Xs,Ys,1,14,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys,Ys1),
+	mmmult(Xs1,Ys1,Zs).
+temp_layer(Xs,Ys,1,15,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	transpose(Ys,Ys1),	
+	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
+	mmmult(Xs1,Ys2,Zs).
+temp_layer(Xs,Ys,1,16,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	%transpose(Xs,Xs1),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys1,Ys2),
+	mmmult(Xs1,Ys2,Zs).
+temp_layer(Xs,Ys,1,17,[Zs]) :-
+	transpose(Xs,Xs1),	
+	(depth(Xs,2) -> transpose(Xs1,Xs2) ; maplist(transpose, Xs1, Xs2)),
+	%
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys,Ys1),
+	mmmult(Xs2,Ys1,Zs).
+temp_layer(Xs,Ys,1,18,[Zs]) :-
+	transpose(Xs,Xs1),	
+	(depth(Xs,2) -> transpose(Xs1,Xs2) ; maplist(transpose, Xs1, Xs2)),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs2,Ys1,Zs).
+temp_layer(Xs,Ys,1,19,[Zs]) :-
+	transpose(Xs,Xs1),	
+	(depth(Xs,2) -> transpose(Xs1,Xs2) ; maplist(transpose, Xs1, Xs2)),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys1,Ys2),
+	mmmult(Xs2,Ys2,Zs).
+temp_layer(Xs,Ys,1,20,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs1,Xs2),
+	%(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	transpose(Ys,Ys1),
+	mmmult(Xs2,Ys1,Zs).
+temp_layer(Xs,Ys,1,21,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs1,Xs2),
+	(depth(Ys,2) -> transpose(Ys,Ys1) ; maplist(transpose, Ys, Ys1)),
+	%transpose(Ys,Ys1),
+	mmmult(Xs2,Ys1,Zs).
+temp_layer(Xs,Ys,1,22,[Zs]) :-
+	(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
+	transpose(Xs1,Xs2),
+	transpose(Ys,Ys1),
+	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
+	mmmult(Xs2,Ys2,Zs).
+*/

@@ -22,6 +22,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Cropping2D|   |  
  |  Cropping3D|   |    
  |  Dense|   |  
+ |  Dot|   |  
+ |  Embedding|   |  
  |  ELU|   |  
  |  Flatten|   | 
  |  GlobalAveragePooling1D|   |  
@@ -35,6 +37,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
+ |  LSTM|   |  
  |  Maximum|   |  
  |  MaxPool1D|   |  
  |  MaxPool2D|   |  
@@ -44,7 +47,8 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Permute|   |  
  |  PReLU|   |  
  |  ReLU|   |  
- |  RepeatVector|   |  
+ |  RepeatVector|   | 
+ |  Reshape|   |    
  |  SeparableConv1D|   |  
  |  SeparableConv2D|   | 
  |  SimpleRNN|   |  
@@ -61,8 +65,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 
 # Layers under development
  | Layer | Comment |
- | --- | --- |
- |  ActivityRegularization|   |  
+ | --- | --- | 
  |  AdditiveAttention|   |  
  |  AlphaDropout|   |  
  |  Attention|   |    
@@ -71,16 +74,12 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  ConvLSTM2D|   |  
  |  DenseFeatures|   |  
  |  DepthwiseConv2D|   |  
- |  Dot|   |  
- |  Dropout|   | 
- |  Embedding|   |   
+ |  Dropout|   |  
  |  GaussianDropout|   |  
  |  GaussianNoise|   |    
- |  LSTM|   |  
  |  Lambda|   |   
  |  LayerNormalization|   |    
  |  Masking|   |  
- |  Reshape|   |   
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
  |  SpatialDropout3D|   |   
