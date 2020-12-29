@@ -650,14 +650,16 @@ pool2D_layer(Poolfunc,[[[I|Is0]|Is1]|Is],X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,S
 	
 get_pool_res2D(Poolfunc,Is,X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,MultiLayerPool,O) :- 
 	get_pool_res2D(Poolfunc,Is,X,Y,Z,X,Y,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,MultiLayerPool,[],O).
-get_pool_res2D(Poolfunc,[[I|_]|_], X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,_,_,_,_,_,[O1|Os],O) :-
+get_pool_res2D(Poolfunc,[[I|_]|_], X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,_,_,_,Bs,_,[O1|Os],O) :-
 	(X1 >= X + PoolSizeD1;Y1 >= Y + PoolSizeD2;(length(I,LZ), Z >= LZ)),
 	atomic(O1),
 	remove_non_numbers([O1|Os],Os1),
-	call(Poolfunc,Os1,O).
+	(Bs = [] -> 	(call(Poolfunc,Os1,O));
+			(call(Poolfunc,Os1,O0),nth0(Z,Bs,B),O is O0 + B)).
 get_pool_res2D(Poolfunc,Is,X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,true,Os0,O) :-
 	nth0_3D(X1,Y1,Z,Is,O1),
-	append(Os0,[O1],Os1),
+	(IWs = [] -> 	(append(Os0,[O1],Os1));
+			(XT is X1 - X,YT is Y1 - Y,nth0_4D(XT,YT,Z,0, IWs,W),O2 is O1*W,append(Os0,[O2],Os1))),
 	((X1 < X+PoolSizeD1-1) -> X2 is X1 + 1,Y2 is Y1;X2 is X,Y2 is Y1+1),
 	get_pool_res2D(Poolfunc,Is, X,Y,Z,X2,Y2,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,true,Os1,O).
 get_pool_res2D(Poolfunc,[[I|Is1]|Is],X,Y,Z,X1,Y1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,[B|Bs],false,Os0,O) :-

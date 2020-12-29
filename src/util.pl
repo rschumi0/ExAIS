@@ -103,7 +103,7 @@ empty_field3D(I,X,Y,Z,Fs0,Fs) :-
 	
 empty_field(X,Y,Z,Z1,Fs) :- empty_field4D(0,X,Y,Z,Z1,Fs).
 empty_field4D(I,X,Y,Z,Z1,Fs) :- empty_field4D(I,X,Y,Z,Z1,[],Fs).
-empty_field3D(_,_,_,_,0,Fs,Fs).
+empty_field4D(_,0,_,_,_,Fs,Fs).
 empty_field4D(I,X,Y,Z,Z1,Fs0,Fs) :-
 	empty_field3D(I,Y,Z,Z1,F),
 	X1 is X -1,
@@ -138,10 +138,20 @@ add_to_each_list_element([X|Xs],A,[Y|Ys]) :-
 	Y is X + A,
 	add_to_each_list_element(Xs,A,Ys).
 	
+subtract_from_each_list_element([],_,[]).
+subtract_from_each_list_element([X|Xs],A,[Y|Ys]) :-
+	Y is X - A,
+	subtract_from_each_list_element(Xs,A,Ys).
+	
 multiply_each_list_element_with([],_,[]).
 multiply_each_list_element_with([X|Xs],A,[Y|Ys]) :-
 	Y is X * A,
 	multiply_each_list_element_with(Xs,A,Ys).
+	
+divide_each_list_element_by([],_,[]).
+divide_each_list_element_by([X|Xs],A,[Y|Ys]) :-
+	Y is X / A,
+	divide_each_list_element_by(Xs,A,Ys).
 	
 %:- use_module(library(lambda)).
 % list_sum(L1, L2, L3) :-
@@ -239,7 +249,7 @@ compare_structure([H1|T1], [H2|T2]) :-
 compare_structure([], []).
 	
 tanh([],[]).	
-tanh(X,Y) :- atomic(X), Y is tanh(X).
+tanh(X,Y) :- number(X), Y is tanh(X).
 tanh([X|Xs],[Y|Ys]) :- tanh(X,Y), tanh(Xs,Ys). 
 
 dot(V1, V2, N) :- maplist(product,V1,V2,P), sumlist(P,N).
@@ -251,3 +261,33 @@ one_minus_x([],[]).
 one_minus_x(X,Y) :- atomic(X), Y is 1 - X.
 one_minus_x([X|Xs],[Y|Ys]) :- one_minus_x(X,Y), one_minus_x(Xs,Ys).
 
+replace( [L|Ls] , 0 , Y , Z , [R|Ls] ) :-
+  replace_column(L,Y,Z,R).                                     
+replace( [L|Ls] , X , Y , Z , [L|Rs] ) :- 
+  X > 0 ,                                 
+  X1 is X-1 ,                             
+  replace( Ls , X1 , Y , Z , Rs ).
+
+replace_column( [_|Cs] , 0 , Z , [Z|Cs] ) .  
+replace_column( [C|Cs] , Y , Z , [C|Rs] ) :-
+  Y > 0 ,                                   
+  Y1 is Y-1 ,                               
+  replace_column( Cs , Y1 , Z , Rs ).
+  
+  
+replace_all([],_,[]).
+replace_all([H|T], R, [H1|T1]):- 
+	is_list(H),
+	replace_all(H,R,H1),
+	replace_all(T,R,T1).
+replace_all([H|T1], R, [R|T2]):-  
+	atomic(H),                  
+    	replace_all(T1, R, T2).
+    	
+    	
+sub_length([I|_],L) :- length(I,L).
+
+sub_sub_length([I|_],L) :- sub_length(I,L).
+
+sub_sub_sub_length([I|_],L) :- sub_sub_length(I,L).
+    	

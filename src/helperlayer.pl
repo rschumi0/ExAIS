@@ -1,5 +1,6 @@
 :-use_module(library(clpfd)).
 :-use_module(library(list_util)).
+:-use_module(library(cplint_util)).
 :-[util].
 
 %cropping1D_layer([[[1,2],[2,2],[3,3],[4,4]],[[1,2],[2,2],[3,3],[4,4]]],1,1,X).
@@ -411,3 +412,21 @@ split_in_parts(P,Is,S,Os0,Os) :-
 	split_in_parts(P,Rs,S,Os1,Os).
 	
 
+
+%variance([],0).
+%variance([H|T], M, VO):-
+%    variance(T,M,Y),
+%    VO is( Y + ((H-M)*(H-M))).
+
+layer_normalization_layer([],_,_,[]).
+layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	variance(I,V),
+	avg(I,M),
+	VE is V + Epsilon,
+	sqrt(VE,Div),
+	subtract_from_each_list_element(I,M,O0),
+	divide_each_list_element_by(O0,Div,O),
+	layer_normalization_layer(Is, Axis, Epsilon, Os).
+	
+
+    

@@ -447,3 +447,22 @@ conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,
 	
 	
 %conv3D_transpose_layer([[[[[0.6734]]], [[[0.0437]]]]], 1, 1, 1,[[[[[0.0379]]]]],[0.2679], 1, 1, 1, false, X)
+/*depthwise_conv2D_layer([[[[0.8206, 0.89, 0.411, 0.0699], [0.9564, 0.4979, 0.3898, 0.587]], [[0.8515, 0.3972, 0.4986, 0.1093], [0.7436, 0.3204, 0.5208, 0.7627]]]], 2, 1,[[[[1], [1], [1], [1]]], [[[1], [1], [1], [1]]]],[0, 0, 0, 0], 1, 1, false, X)
+-------------------------------------------------------------------------------------
+X = [[[[1.6721, 1.2872, 0.9096, 0.1792], [1.7000000000000002, 0.8183, 0.9106000000000001, 1.3497]]]] X = [[[[1.6721, 1.2872, 0.9096, 0.1792], [1.7000000000000002, 0.8183, 0.9106000000000001, 1.3497]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[1.6721, 1.2872, 0.9096, 0.1792], [1.7 , 0.8183, 0.9106, 1.3497]]]]
+Expected (Unparsed): [[[[1.6721, 1.2872, 0.9096, 0.1792], [1.7000000000000002, 0.8183, 0.9106000000000001, 1.3497]]]]
+
+*/
+
+depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],true,Os).
+depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,true,Os).
+depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os):- 
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,Padding,IWs,Bs,true,Os).
+depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,DilationRateD1,DilationRateD2,Os):-
+ 	apply_dilation2D(IWs,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,KernelSize1D1,KernelSize1D2,IWs1),
+	pool2D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,StridesD1,StridesD2,Padding,IWs1,Bs,true,Os).

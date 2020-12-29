@@ -22,6 +22,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Cropping2D|   |  
  |  Cropping3D|   |    
  |  Dense|   |  
+ |  DepthwiseConv2D|   |  
  |  Dot|   |  
  |  Embedding|   |  
  |  ELU|   |  
@@ -34,6 +35,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  GlobalMaxPool3D|   | 
  |  GRU|   |    
  |  InputSpec|   | 
+  |  LayerNormalization|   |  
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
@@ -65,20 +67,13 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 
 # Layers under development
  | Layer | Comment |
- | --- | --- | 
- |  AdditiveAttention|   |  
+ | --- | --- |  
  |  AlphaDropout|   |  
- |  Attention|   |    
  |  BatchNormalization|   |  
- |  Bidirectional|   |  
  |  ConvLSTM2D|   |  
- |  DenseFeatures|   |  
- |  DepthwiseConv2D|   |  
  |  Dropout|   |  
  |  GaussianDropout|   |  
  |  GaussianNoise|   |    
- |  Lambda|   |   
- |  LayerNormalization|   |    
  |  Masking|   |  
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
