@@ -1,5 +1,4 @@
-:- module(activation,
-          []).
+%:- module(activation,[]).
 
 
 %relu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
@@ -27,18 +26,16 @@ thresholded_relu_layer([I|Is],Theta,[O|Os]) :-
 	thresholded_relu_layer(I,Theta,O),
 	thresholded_relu_layer(Is,Theta,Os).
 
-%leakyrelu_layer([-0.138821,-0.30971956,0.23123252,0.26585793,0.65178293,0.54254425,0.8526051,0.1260066,0.4059227],0.26,X).
-leakyrelu_layer([],_,[]).
-
-leakyrelu_layer([I|Is],Alpha,[O|Os]) :-
+%leaky_relu_layer([-0.138821,-0.30971956,0.23123252,0.26585793,0.65178293,0.54254425,0.8526051,0.1260066,0.4059227],0.26,X).
+leaky_relu_layer([],_,[]).
+leaky_relu_layer([I|Is],Alpha,[O|Os]) :-
 	atomic(I),
 	(I < 0 -> O is Alpha * I ; O is I),
-	leakyrelu_layer(Is,Alpha,Os).
-
-leakyrelu_layer([I|Is],Alpha,[O|Os]) :-
+	leaky_relu_layer(Is,Alpha,Os).
+leaky_relu_layer([I|Is],Alpha,[O|Os]) :-
 	is_list(I),
-	leakyrelu_layer(I,Alpha,O),
-	leakyrelu_layer(Is,Alpha,Os).
+	leaky_relu_layer(I,Alpha,O),
+	leaky_relu_layer(Is,Alpha,Os).
 
 % Sample data run
 % ?- sigmoid_layer([8,5,0],[],Y).
@@ -133,4 +130,40 @@ elu_layer([I|Is],Alpha,[O|Os]) :-
 	is_list(I),
 	elu_layer(I,Alpha,O),
 	elu_layer(Is,Alpha,Os).
+	
+prelu_layer([],_,[]).
+prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	atomic(I),
+	length([A|Alphas],LA),
+	length([I|Is],LI),
+	LA = LI,
+	(I < 0 -> O is A * I;O is I),
+	prelu_layer(Is,Alphas,Os).
+prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	atomic(I),
+	length([A|Alphas],LA),
+	length([I|Is],LI),
+	LA \= LI,
+	(I < 0 -> O is A * I;O is I),
+	prelu_layer(Is,[A|Alphas],Os).
+prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	%depth(Alphas,DA),
+	%depth([I|Is],DI),
+	%DI \= DA,
+	(atomic(A);(
+	depth([A|Alphas],DA),
+	depth([I|Is],DI),
+	DA \= DI)),
+	is_list(I),
+	prelu_layer(I,[A|Alphas],O),
+	prelu_layer(Is,[A|Alphas],Os).
+prelu_layer([I|Is],[A|Alphas],[O|Os]):-
+	%depth([A|Alphas],DA),
+	%depth([I|Is],DI),
+	%DI = DA,
+	is_list(A),
+	is_list(I),
+	prelu_layer(I,A,O),
+	prelu_layer(Is,Alphas,Os).
+
 	

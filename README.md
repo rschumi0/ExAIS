@@ -11,25 +11,49 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Average|   |   
  |  AveragePooling1D|   |  
  |  AveragePooling2D|   | 
+ |  AveragePooling3D|   | 
+ |  Concatenate|   |     
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
+ |  Conv2DTranspose|   |  
+ |  Conv3DTranspose|   |  
  |  Cropping1D|   |
  |  Cropping2D|   |  
  |  Cropping3D|   |    
  |  Dense|   |  
+ |  DepthwiseConv2D|   |  
+ |  Dot|   |  
+ |  Embedding|   |  
  |  ELU|   |  
  |  Flatten|   | 
+ |  GlobalAveragePooling1D|   |  
+ |  GlobalAveragePooling2D|   |  
+ |  GlobalAveragePooling3D|   |  
+ |  GlobalMaxPool1D|   |  
+ |  GlobalMaxPool2D|   |  
+ |  GlobalMaxPool3D|   | 
+ |  GRU|   |    
+ |  InputSpec|   | 
+  |  LayerNormalization|   |  
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
+ |  LSTM|   |  
  |  Maximum|   |  
  |  MaxPool1D|   |  
  |  MaxPool2D|   |  
  |  MaxPool3D|   |   
  |  Minimum|   |  
- |  Multiply|   |   
+ |  Multiply|   |
+ |  Permute|   |  
+ |  PReLU|   |  
  |  ReLU|   |  
+ |  RepeatVector|   | 
+ |  Reshape|   |    
+ |  SeparableConv1D|   |  
+ |  SeparableConv2D|   | 
+ |  SimpleRNN|   |  
  |  Softmax|   |  
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
@@ -43,57 +67,15 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 
 # Layers under development
  | Layer | Comment |
- | --- | --- |
- |  AbstractRNNCell|   |  
- |  Activation|   |  
- |  ActivityRegularization|   |  
- |  AdditiveAttention|   |  
+ | --- | --- |  
  |  AlphaDropout|   |  
- |  Attention|   |  
- |  Average|   |  
- |  AveragePooling3D|   |    
  |  BatchNormalization|   |  
- |  Bidirectional|   |  
- |  Concatenate|   |   
- |  Conv1DTranspose|   |  
- |  Conv2DTranspose|   |  
- |  Conv3DTranspose|   |  
  |  ConvLSTM2D|   |  
- |  DenseFeatures|   |  
- |  DepthwiseConv2D|   |  
- |  Dot|   |  
- |  Dropout|   | 
- |  Embedding|   |   
- |  GRU|   |  
- |  GRUCell|   |  
+ |  Dropout|   |  
  |  GaussianDropout|   |  
- |  GaussianNoise|   |  
- |  GlobalAveragePooling1D|   |  
- |  GlobalAveragePooling2D|   |  
- |  GlobalAveragePooling3D|   |  
- |  GlobalMaxPool1D|   |  
- |  GlobalMaxPool2D|   |  
- |  GlobalMaxPool3D|   |   
- |  InputLayer|   |  
- |  InputSpec|   |  
- |  LSTM|   |  
- |  LSTMCell|   |  
- |  Lambda|   |  
- |  Layer|   |  
- |  LayerNormalization|   |    
+ |  GaussianNoise|   |    
  |  Masking|   |  
- |  PReLU|   |  
- |  Permute|   |  
- |  RNN|   |  
- |  RepeatVector|   |  
- |  Reshape|   |  
- |  SeparableConv1D|   |  
- |  SeparableConv2D|   |  
- |  SimpleRNN|   |  
- |  SimpleRNNCell|   |  
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
- |  SpatialDropout3D|   |  
- |  StackedRNNCells|   |   
- |  TimeDistributed|   |  
- |  Wrapper|   |   
+ |  SpatialDropout3D|   |   
+ |  TimeDistributed|   |    
