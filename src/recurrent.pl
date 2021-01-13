@@ -94,7 +94,7 @@ gru_layer([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	add_lists(Z2,Bz,Z3),
 	%write('Z3: '),
 	%writeln(Z3),
-	sigmoid_matrix(Z3,Zt),
+	sigmoid_func(Z3,Zt),
 	%write('Zt: '),
 	%writeln(Zt),
 	
@@ -102,7 +102,7 @@ gru_layer([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	mmult(Os0,Ur,R1),
 	add_lists(R0,R1,R2),
 	add_lists(R2,Br,R3),
-	sigmoid_matrix(R3,Rt),
+	sigmoid_func(R3,Rt),
 	%write('Rt: '),
 	%writeln(Rt),
 	
@@ -160,7 +160,7 @@ gru_layer([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	add_lists(Z2,Bz,Z3),
 	%write('Z3: '),
 	%writeln(Z3),
-	sigmoid_matrix(Z3,Zt),
+	sigmoid_func(Z3,Zt),
 	%write('Zt: '),
 	%writeln(Zt),
 	
@@ -168,7 +168,7 @@ gru_layer([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	mmult(Os0,Ur,R1),
 	add_lists(R0,R1,R2),
 	add_lists(R2,Br,R3),
-	sigmoid_matrix(R3,Rt),
+	sigmoid_func(R3,Rt),
 	%write('Rt: '),
 	%writeln(Rt),
 	
@@ -229,14 +229,21 @@ split_weights([W|Ws], [Wr|Wrs],[Wz|Wzs],[Wh|Whs]) :-
 %one_minus_x_list(Xs,Ys) :- maplist(one_minus_x,Xs,Ys).
 %one_minus_x_matrix(Xs,Ys) :- maplist(one_minus_x_list,Xs,Ys).
 
-%sigmoid_matrix(Is,Is).
+%sigmoid_func(Is,Is).
 
 
-sigmoid_list(Is,Y) :- sigmoid_layer(Is,[],Y).
-sigmoid_matrix([],[]).
-sigmoid_matrix([X|Xs],[Y|Ys]) :-
-	sigmoid_list(X,Y),
-	sigmoid_matrix(Xs,Ys).
+%sigmoid_list(Is,Y) :- sigmoid_layer(Is,[],Y).
+sigmoid_func([],[]).
+sigmoid_func(X,Y) :-
+	atomic(X),
+	sigmoid_layer([X],[],[Y]).
+sigmoid_func([X|Xs],Y) :-
+	atomic(X),
+	sigmoid_layer([X|Xs],[],Y).
+sigmoid_func([X|Xs],[Y|Ys]) :-
+	is_list(X),
+	sigmoid_func(X,Y),
+	sigmoid_func(Xs,Ys).
 	
 /*
 
@@ -324,7 +331,7 @@ sig_gate(Is,HtPast,W,U,B,Os) :-
 	mmult(HtPast,U,Os1),
 	add_lists(Os0,Os1,Os2),
 	add_lists(Os2,B,Os3),
-	sigmoid_matrix(Os3,Os).
+	sigmoid_func(Os3,Os).
 	
 tanh_gate(Is,HtPast,W,U,B,Os) :-
 	mmult(Is,W,Os0),
@@ -360,6 +367,14 @@ Expected: [[0.8476]]
 
 */
 
+contains_only_zero([]).	
+contains_only_zero(X) :-
+	atomic(X),
+	X = 0.
+contains_only_zero([X|Xs]) :-
+	is_list([X|Xs]),
+	contains_only_zero(X),
+	contains_only_zero(Xs).
 
 tempdelX(Is,Os) :- tempdelX(Is,[],Os).
 tempdelX([],Os,Os).
@@ -378,13 +393,68 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os) :-
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os) :- 
 	atomic(I), %length(Bs,N), N1 is N /4, empty_list(N1,Os0), 
 	conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,[],[],Os).
-conv_lstm2D_layer([],_,_,_,Os,Os).
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os0,Os) :-
 	is_list(I),
 	conv_lstm2D_layer([[[I|Is0]|Is1]|Is2],Ws,Us,Bs,O),
 	append(Os0,[O],Os1),
-	conv_lstm2D_layer(Is,Ws,Us,Bs,Os1,Os).
+	conv_lstm2D_layer(Is,Ws,Us,Bs,Os1,Os).	
+conv_lstm2D_layer([],_,_,_,Os,Os).
 conv_lstm2D_layer([],_,_,_,_,Os,Os).
+/*conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
+	atomic(I),
+	length([[W|Ws0]|Ws], KernelSizeD1),
+	length([W|Ws0],KernelSizeD2),
+	%length(W,TempNodeNumb),
+	%length(Bs,N), TempNodeNumb is N /4,
+	writeln("before conv"),
+	writeln([[[I|Is0]|Is1]|Is2]),
+	writeln(KernelSizeD1),
+	writeln(KernelSizeD2),
+	length([I|Is0],LD3),
+	writeln(LD3),
+	empty_field4D(1,KernelSizeD1,KernelSizeD2,LD3,1,TW),
+	writeln(TW),
+	empty_list(LD3,TW1),
+	writeln(TW1),
+	depthwise_conv2D_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,TW,TW1,CO),
+	
+	write('conv donc CO: '),
+	writeln(CO),
+	flatten(CO,XI),
+	
+	
+	nth0_2D(0,0, [[W|Ws0]|Ws],WsM),
+	nth0_2D(0,0, Us,UsM),
+	
+	split_lstm_weights(WsM, Wi,Wf,Wc,Wo),
+	split_lstm_weights(UsM, Ui,Uf,Uc,Uo),
+	split_lstm_weights([Bs], Bi,Bf,Bc,Bo),
+		write('Wi: '),writeln(Wi),
+		write('Ui: '),writeln(Ui),
+		write('Bi: '),writeln(Bi),
+		write('Os0: '),writeln(Os0),
+	
+	sig_gate([XI],Os0,Wi,Ui,Bi,It),
+		write('It: '),writeln(It),
+	sig_gate([XI],Os0,Wf,Uf,Bf,Ft),
+			write('Ft: '),
+	writeln(Ft),
+	sig_gate([XI],Os0,Wo,Uo,Bo,Ot),
+	write('Ot: '),
+	writeln(Ot),
+	
+	tanh_gate([XI],Os0,Wc,Uc,Bc,Ctt),
+	write('Ctt: '),
+	writeln(Ctt),
+	
+	multiply_lists(Ft,Ct0,Ct1),
+	multiply_lists(It,Ctt,Ct2),
+	add_lists(Ct1,Ct2,Ct),
+	tanh(Ct,TanhCt),
+	multiply_lists(Ot,TanhCt,Os1),
+	write('Os1: '),
+	writeln(Os1),
+	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct,Os1,Os).*/
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	atomic(I),
 	length([[W|Ws0]|Ws], KernelSizeD1),
@@ -401,7 +471,10 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	writeln(TW),
 	empty_list(LD3,TW1),
 	writeln(TW1),
-	conv2D_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,TW,TW1,CO),
+	depthwise_conv2D_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,TW,TW1,CO),
+	%encapsulate_atoms([[[I|Is0]|Is1]|Is2],ITemp),
+	%conv3D_layer(ITemp,KernelSizeD1,KernelSizeD2,1,[TW],TW1,COTemp),
+	%decapsulate_atoms(COTemp,CO),
 	/*empty_field4D(1,KernelSizeD1,KernelSizeD2,LD3,1,TW),
 	writeln(TW),
 	empty_list(LD3,TW1),
@@ -409,12 +482,13 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	depthwise_conv2D_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,TW,TW1,CO),*/
 	writeln("after conv"),
 	writeln(CO),
-	(Ct0 = [] -> (length(CO,L1), sub_length(CO,L2), empty_field(L1,L2,TempNodeNumb,TOs), apply_lstm_step_conv(CO,[[W|Ws0]|Ws],Us,Bs,TOs,Ct1,TOs,Os1));
-			(apply_lstm_step_conv(CO,[[W|Ws0]|Ws],Us,Bs,Ct0,Ct1,Os0,Os1))),
+	(Ct0 = [] -> (length(CO,L1), sub_length(CO,L2), empty_field(L1,L2,TempNodeNumb,TOs), apply_lstm_step_conv1Test(CO,[[W|Ws0]|Ws],Us,Bs,TOs,Ct1,TOs,Os1));
+			(apply_lstm_step_conv1Test(CO,[[W|Ws0]|Ws],Us,Bs,Ct0,Ct1,Os0,Os1))),
 	writeln("aapply_lstm_step_conv done"),
 	write('Ct1: '),writeln(Ct1),
 	write('Os1: '),writeln(Os1),
-	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os). 
+	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os).
+
 	/*nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
 	nth0_2D(0,0, Us,UsT),
 	
@@ -442,7 +516,41 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	write('Os1: '),
 	writeln(Os1),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os). */
+
+
+temp_function(X,X).
 	
+apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
+		write('Ct0: '),writeln(Ct0),
+		write('Os0: '),writeln(Os0),
+	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
+	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
+	temp_function(It0,It),
+		write('It: '),writeln(It),
+	add_layer([Is,Os0],[Ft0]),%add_layer([Is,Ct0,Os0],[Ft0]),
+	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
+	temp_function(Ft0,Ft),
+		write('Ft: '),writeln(Ft),
+
+	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
+	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
+	temp_function(CtTemp0,Ctt),
+		write('Ctt: '),writeln(Ctt),
+	multiply_lists(Ft,Ct0,Ct1),
+	multiply_lists(It,Ctt,Ct2),
+	add_lists(Ct1,Ct2,Ct),
+		write('Ct: '),writeln(Ct),
+	temp_function(Ct,TanhCt),
+		write('TanhCt: '),writeln(TanhCt),
+		
+	add_layer([Is,Os0],[Ot0]),
+	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
+	temp_function(Ot0,Ot),
+	multiply_lists(Ot,TanhCt,Os),
+	write('Os1: '),writeln(Os).
+	
+	
+
 	
 apply_lstm_step_conv(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :- apply_lstm_step_conv(Is,0,0,Ws,Us,Bs,Ct0,Ct,Os0,Os).
 apply_lstm_step_conv([I|Is],X,Y,_,_,_,Ct,Ct,Os,Os) :-
@@ -454,6 +562,8 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 	length(Is,LX), 
 		write('x: '),writeln(X),
 		write('y: '),writeln(Y),
+		write('Os0: '),writeln(Os0),
+		write('Ct0: '),writeln(Ct0),
 	nth0_2D(0,0, Ws,WsM),
 	nth0_2D(0,0, Us,UsM),
 	nth0_2D(X,Y, Is,IsM),
@@ -467,9 +577,9 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 		write('Ui: '),writeln(Ui),
 		write('Bi: '),writeln(Bi),
 
-	sig_gate([IsM],[OsM],Wi,Ui,Bi,It),
-	sig_gate([IsM],[OsM],Wf,Uf,Bf,Ft),
-	sig_gate([IsM],[OsM],Wo,Uo,Bo,Ot),
+	sig_gate_conv([IsM],[OsM],Wi,Ui,Bi,[CtM],Wc,It),
+	sig_gate_conv([IsM],[OsM],Wf,Uf,Bf,[CtM],Wc,Ft),
+	%sig_gate_conv([IsM],[OsM],Wo,Uo,Bo,[CtM],Wc,Ot),
 		write('Ot: '),writeln(Ot),
 	
 	tanh_gate([IsM],[OsM],Wc,Uc,Bc,Ctt),
@@ -481,6 +591,9 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 		write('CtF: '),writeln(CtF),
 	tanh([CtF],TanhCt),
 		write('TanhCt: '),writeln(TanhCt),
+		
+		
+	sig_gate_conv([IsM],[OsM],Wo,Uo,Bo,[CtF],Wc,Ot),
 	multiply_lists(Ot,TanhCt,[Os1]),
 		write('Os1: '),writeln(Os1),
 
@@ -490,9 +603,155 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 		write('CtN: '),writeln(CtN),
 	((X < LX - 1) -> X1 is X + 1,Y1 is Y;X1 is 0,Y1 is Y+1),
 	apply_lstm_step_conv(Is,X1,Y1,Ws,Us,Bs,CtN,Ct,Os2,Os).
-		
+	
+
+sig_gate_conv(Is,HtPast,W,U,B,CtPast,C,Os) :-
+	mmult(Is,W,Os0),
+	mmult(HtPast,U,Os1),
+	multiply_lists(CtPast,C,Os2),
+	add_layer([Os0,Os1,Os2,B],[Os5]),
+	%add_lists(Os0,Os1,Os3),
+	%add_lists(Os3,Os2,Os4),
+	%add_lists(Os4,B,Os5),
+	sigmoid_func(Os5,Os).	
 	
 /*
+
+keras.layers.ConvLSTM2D(1, (2, 2),recurrent_activation='sigmoid', activation='tanh',  input_shape=(2, 3, 2, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[0.07], [0.8051]], [[0.589], [0.8446]], [[0.8147], [0.869]]], [[[0.9435], [0.2307]], [[0.4907], [0.6512]], [[0.6688], [0.455]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-01-13 05:10:40.359760: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-01-13 05:10:40.359775: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-01-13 05:10:41.158173: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 05:10:41.158290: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-01-13 05:10:41.158298: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-01-13 05:10:41.158314: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-01-13 05:10:41.158707: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 05:10:41.278142: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-01-13 05:10:41.298844: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[0.07], [0.8051]], [[0.589], [0.8446]], [[0.8147], [0.869]]], [[[0.9435], [0.2307]], [[0.4907], [0.6512]], [[0.6688], [0.455]]]]], [[[[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.07],[0.8051]],[[0.589],[0.8446]],[[0.8147],[0.869]]]221[[[[1]],[[1]]],[[[1]],[[1]]]][0]after conv[[[2.3087]],[[3.1173]]]Ct0: [[[0]],[[0]]]Os0: [[[0]],[[0]]]It: [[[0.9095950106986722]],[[0.9576007392791888]]]Ft: [[[0.9095950106986722]],[[0.9576007392791888]]]Ctt: [[[0.9804363650003088]],[[0.9960868449552862]]]Ct: [[[0.8918000259118232]],[[0.9538534991154568]]]TanhCt: [[[0.7122816607661794]],[[0.741522643630449]]]Os1: [[[0.647887844845081]],[[0.7100826317327763]]]aapply_lstm_step_conv doneCt1: [[[0.8918000259118232]],[[0.9538534991154568]]]Os1: [[[0.647887844845081]],[[0.7100826317327763]]]before conv[[[0.9435],[0.2307]],[[0.4907],[0.6512]],[[0.6688],[0.455]]]221[[[[1]],[[1]]],[[[1]],[[1]]]][0]after conv[[[2.3161]],[[2.2657]]]Ct0: [[[0.8918000259118232]],[[0.9538534991154568]]]Os0: [[[0.647887844845081]],[[0.7100826317327763]]]It: [[[0.9509204446648665]],[[0.9514679977309033]]]Ft: [[[0.9509204446648665]],[[0.9514679977309033]]]Ctt: [[[0.9946864166262805]],[[0.9948099734647711]]]Ct: [[[1.7938985267925758]],[[1.8540909325072583]]]TanhCt: [[[0.9461704907330338]],[[0.9521297432638247]]]Os1: [[[0.8997328637766314]],[[0.9059209804032703]]]aapply_lstm_step_conv doneCt1: [[[1.7938985267925758]],[[1.8540909325072583]]]Os1: [[[0.8997328637766314]],[[0.9059209804032703]]]X = [[[[0.8997328637766314]], [[0.9059209804032703]]]] X = [[[[0.8997328637766314]], [[0.9059209804032703]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.92761576]], [[0.905921 ]]]]
+Expected (Unparsed): [[[[0.8997328637766314]], [[0.9059209804032703]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.9277]], [[0.906]]]]
+Expected: [[[[0.8998]], [[0.906]]]]
+
+
+
+
+model = keras.Sequential([
+keras.layers.ConvLSTM2D(1, (1, 2),recurrent_activation='sigmoid', activation='tanh',  input_shape=(2, 1, 3, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[0.3533], [0.6746], [0.8438]]], [[[0.1289], [0.0789], [0.4247]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+conv_lstm2D_layer([[[[[0.3533], [0.6746], [0.8438]]], [[[0.1289], [0.0789], [0.4247]]]]], [[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.3533],[0.6746],[0.8438]]]121[[[[1]],[[1]]]][0]after conv[[[1.0279],[1.5184]]]Ct0: [[[0],[0]]]Os0: [[[0],[0]]]It: [[[0.7365085645238311],[0.8203027516146936]]]Ft: [[[0.7365085645238311],[0.8203027516146936]]]Ctt: [[[0.7730647317064894],[0.9084184229795329]]]Ct: [[[0.569368795833147],[0.7451781319875914]]]TanhCt: [[[0.5148955678463898],[0.6322634796629434]]]Os1: [[[0.3792249955542274],[0.5186474721129933]]]aapply_lstm_step_conv doneCt1: [[[0.569368795833147],[0.7451781319875914]]]Os1: [[[0.3792249955542274],[0.5186474721129933]]]before conv[[[0.1289],[0.0789],[0.4247]]]121[[[[1]],[[1]]]][0]after conv[[[0.20779999999999998],[0.5036]]]Ct0: [[[0.569368795833147],[0.7451781319875914]]]Os0: [[[0.3792249955542274],[0.5186474721129933]]]It: [[[0.6426822507710395],[0.735410148537774]]]Ft: [[[0.6426822507710395],[0.735410148537774]]]Ctt: [[[0.5277525806260718],[0.7707803610118106]]]Ct: [[[0.7051004355918317],[1.1148512605137904]]]TanhCt: [[[0.6075952487197132],[0.805770556312181]]]Os1: [[[0.3904906820049748],[0.5925718445049057]]]aapply_lstm_step_conv doneCt1: [[[0.7051004355918317],[1.1148512605137904]]]Os1: [[[0.3904906820049748],[0.5925718445049057]]]X = [[[[0.3904906820049748], [0.5925718445049057]]]] X = [[[[0.3904906820049748], [0.5925718445049057]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.5816753 ], [0.59257185]]]]
+Expected (Unparsed): [[[[0.3904906820049748], [0.5925718445049057]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.5817], [0.5926]]]]
+Expected: [[[[0.3905], [0.5926]]]]
+
+
+
+
+
+keras.layers.ConvLSTM2D(1, (1, 2),recurrent_activation='sigmoid', activation='tanh',  input_shape=(2, 3, 3, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[0.4609], [0.1127], [0.6412]], [[0.9091], [0.0442], [0.2777]], [[0.8949], [0.7041], [0.4194]]], [[[0.157], [0.4177], [0.0378]], [[0.2437], [0.7087], [0.943]], [[0.4343], [0.3117], [0.4831]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-01-13 04:38:40.102739: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-01-13 04:38:40.102758: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-01-13 04:38:40.902236: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 04:38:40.902333: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-01-13 04:38:40.902341: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-01-13 04:38:40.902382: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-01-13 04:38:40.902712: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 04:38:41.023737: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-01-13 04:38:41.042765: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[0.4609], [0.1127], [0.6412]], [[0.9091], [0.0442], [0.2777]], [[0.8949], [0.7041], [0.4194]]], [[[0.157], [0.4177], [0.0378]], [[0.2437], [0.7087], [0.943]], [[0.4343], [0.3117], [0.4831]]]]], [[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.4609],[0.1127],[0.6412]],[[0.9091],[0.0442],[0.2777]],[[0.8949],[0.7041],[0.4194]]]121[[[[1]],[[1]]]][0]after conv[[[0.5736],[0.7539]],[[0.9533],[0.3219]],[[1.599],[1.1235]]]Ct0: [[[0],[0]],[[0],[0]],[[0],[0]]]Os0: [[[0],[0]],[[0],[0]],[[0],[0]]]It: [[[0.6395934407075302],[0.6800278951591646]],[[0.7217783501750786],[0.5797872267914884]],[[0.8318785749340855],[0.7546373532360188]]]Ft: [[[0.6395934407075302],[0.6800278951591646]],[[0.7217783501750786],[0.5797872267914884]],[[0.8318785749340855],[0.7546373532360188]]]Ctt: [[[0.5179982279132685],[0.6374698761565406]],[[0.7412733869535948],[0.31122389983955184]],[[0.9215178885168622],[0.8087828938827835]]]Ct: [[[0.3313082688714509],[0.4334972981101056]],[[0.5350350822640583],[0.18044364179920572]],[[0.7665909878756748],[0.6103377823822715]]]TanhCt: [[[0.3196958243955492],[0.4082399028167504]],[[0.48922051790317506],[0.17851040683133573]],[[0.6449427966269341],[0.5443648288505605]]]Os1: [[[0.2044753523049797],[0.27761452183245666]],[[0.3531087782839512],[0.10349805373016051]],[[0.5365140945720176],[0.4107980336385653]]]aapply_lstm_step_conv doneCt1: [[[0.3313082688714509],[0.4334972981101056]],[[0.5350350822640583],[0.18044364179920572]],[[0.7665909878756748],[0.6103377823822715]]]Os1: [[[0.2044753523049797],[0.27761452183245666]],[[0.3531087782839512],[0.10349805373016051]],[[0.5365140945720176],[0.4107980336385653]]]before conv[[[0.157],[0.4177],[0.0378]],[[0.2437],[0.7087],[0.943]],[[0.4343],[0.3117],[0.4831]]]121[[[[1]],[[1]]]][0]after conv[[[0.5747],[0.4555]],[[0.9524],[1.6517]],[[0.746],[0.7948]]]Ct0: [[[0.3313082688714509],[0.4334972981101056]],[[0.5350350822640583],[0.18044364179920572]],[[0.7665909878756748],[0.6103377823822715]]]Os0: [[[0.2044753523049797],[0.27761452183245666]],[[0.3531087782839512],[0.10349805373016051]],[[0.5365140945720176],[0.4107980336385653]]]It: [[[0.6855023562711297],[0.6754883605111452]],[[0.7867606415227935],[0.8526072297285583]],[[0.782877427038306],[0.7695191452298357]]]Ft: [[[0.6855023562711297],[0.6754883605111452]],[[0.7867606415227935],[0.8526072297285583]],[[0.782877427038306],[0.7695191452298357]]]Ctt: [[[0.6522331248630457],[0.6249670849825476]],[[0.8631345873316975],[0.9419642538098467]],[[0.8571533140535699],[0.8353541698926285]]]Ct: [[[0.6742199428951883],[0.7149803707946971]],[[1.100024866208869],[0.9569730865006951]],[[1.2711927612624772],[1.1124876353802333]]]TanhCt: [[[0.587748903152244],[0.6137903975560117]],[[0.8005079535577908],[0.7429236622578348]],[[0.8541205976919417],[0.8049399727297785]]]Os1: [[[0.4029032580066353],[0.4146082693425944]],[[0.629808151085226],[0.6334220855774476]],[[0.6686717359014874],[0.6194167197763464]]]aapply_lstm_step_conv doneCt1: [[[0.6742199428951883],[0.7149803707946971]],[[1.100024866208869],[0.9569730865006951]],[[1.2711927612624772],[1.1124876353802333]]]Os1: [[[0.4029032580066353],[0.4146082693425944]],[[0.629808151085226],[0.6334220855774476]],[[0.6686717359014874],[0.6194167197763464]]]X = [[[[0.4029032580066353], [0.4146082693425944]], [[0.629808151085226], [0.6334220855774476]], [[0.6686717359014874], [0.6194167197763464]]]] X = [[[[0.4029032580066353], [0.4146082693425944]], [[0.629808151085226], [0.6334220855774476]], [[0.6686717359014874], [0.6194167197763464]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.5041533 ], [0.41460827]], [[0.6552774 ], [0.63342214]], [[0.7543414 ], [0.61941683]]]]
+Expected (Unparsed): [[[[0.4029032580066353], [0.4146082693425944]], [[0.629808151085226], [0.6334220855774476]], [[0.6686717359014874], [0.6194167197763464]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.5042], [0.4147]], [[0.6553], [0.6335]], [[0.7544], [0.6195]]]]
+Expected: [[[[0.403], [0.4147]], [[0.6299], [0.6335]], [[0.6687], [0.6195]]]]
+
+
+conv_lstm2D_layer([[[[[0.8236]]], [[[0.1255]]]]], [[[[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.8236]]]111[[[[1]]]][0]after conv[[[0.8236]]]Ct0: [[[0]]]Os0: [[[0]]]It: [[[0.6949999853827591]]]Ft: [[[0.6949999853827591]]]Ctt: [[[0.677024526490023]]]Ct: [[[0.47053203601433535]]]TanhCt: [[[0.4386290897781112]]]Os1: [[[0.3048472109842402]]]aapply_lstm_step_conv doneCt1: [[[0.47053203601433535]]]Os1: [[[0.3048472109842402]]]before conv[[[0.1255]]]111[[[[1]]]][0]after conv[[[0.1255]]]Ct0: [[[0.47053203601433535]]]Os0: [[[0.3048472109842402]]]It: [[[0.7111301546350611]]]Ft: [[[0.7111301546350611]]]Ctt: [[[0.7167257212553418]]]Ct: [[[0.8442947925188614]]]TanhCt: [[[0.6880771730472838]]]Os1: [[[0.5377573200798925]]]aapply_lstm_step_conv doneCt1: [[[0.8442947925188614]]]Os1: [[[0.5377573200798925]]]X = [[[[0.5377573200798925]]]] X = [[[[0.5377573200798925]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.2945388]]]]
+Expected (Unparsed): [[[[0.5377573200798925]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:522:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.2946]]]]
+Expected: [[[[0.5378]]]]
+
+
+keras.layers.ConvLSTM2D(1, (2, 1),recurrent_activation='sigmoid', activation='tanh',  input_shape=(3, 3, 1, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[0.6163]], [[0.6118]], [[0.3773]]], [[[0.6997]], [[1]], [[0.6291]]], [[[0.5918]], [[0.8288]], [[0.9397]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-01-13 00:33:02.336323: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-01-13 00:33:02.336341: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-01-13 00:33:03.107539: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 00:33:03.107636: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-01-13 00:33:03.107644: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-01-13 00:33:03.107659: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-01-13 00:33:03.107969: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-01-13 00:33:03.228083: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-01-13 00:33:03.246996: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[0.6163]], [[0.6118]], [[0.3773]]], [[[0.6997]], [[1]], [[0.6291]]], [[[0.5918]], [[0.8288]], [[0.9397]]]]], [[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.6163]],[[0.6118]],[[0.3773]]]211[[[[1]]],[[[1]]]][0]after conv[[[1.2281]],[[0.9891000000000001]]]x: 0y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.7734858568336082]]Ctt: [[0.842027328478536]]CtF: [0.6512962296455345]TanhCt: [[0.57254193276279]]Os1: [0.44285308743619667]Os2: [[[0.44285308743619667]],[[0]]]CtN: [[[0.6512962296455345]],[[0]]]x: 1y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.7289101188504873]]Ctt: [[0.756978300480743]]CtF: [0.5517691429706583]TanhCt: [[0.5018449731635023]]Os1: [0.36579987903312805]Os2: [[[0.44285308743619667]],[[0.36579987903312805]]]CtN: [[[0.6512962296455345]],[[0.5517691429706583]]]EXIT apply_lstm_step_convaapply_lstm_step_conv doneCt1: [[[0.6512962296455345]],[[0.5517691429706583]]]Os1: [[[0.44285308743619667]],[[0.36579987903312805]]]before conv[[[0.6997]],[[1]],[[0.6291]]]211[[[[1]]],[[[1]]]][0]after conv[[[1.6997]],[[1.6291]]]x: 0y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.8949708377990795]]Ctt: [[0.9728298729421162]]CtF: [1.4535454987242233]TanhCt: [[0.896391718232561]]Os1: [0.8022444470627516]Os2: [[[0.8022444470627516]],[[0.36579987903312805]]]CtN: [[[1.4535454987242233]],[[0.5517691429706583]]]x: 1y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.880260557171496]]Ctt: [[0.9636654751162667]]CtF: [1.33397732127417]TanhCt: [[0.8702180584621083]]Os1: [0.7660186330025529]Os2: [[[0.8022444470627516]],[[0.7660186330025529]]]CtN: [[[1.4535454987242233]],[[1.33397732127417]]]EXIT apply_lstm_step_convaapply_lstm_step_conv doneCt1: [[[1.4535454987242233]],[[1.33397732127417]]]Os1: [[[0.8022444470627516]],[[0.7660186330025529]]]before conv[[[0.5918]],[[0.8288]],[[0.9397]]]211[[[[1]]],[[[1]]]][0]after conv[[[1.4205999999999999]],[[1.7685]]]x: 0y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.9022822748072612]]Ctt: [[0.9768139038752246]]CtF: [2.1928702103766464]TanhCt: [[0.97539904449092]]Os1: [0.8800852687080962]Os2: [[[0.8800852687080962]],[[0.7660186330025529]]]CtN: [[[2.1928702103766464]],[[1.33397732127417]]]x: 1y: 0Wi: [[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.9265265532625876]]Ctt: [[0.9875016527931114]]CtF: [2.1509119123141263]TanhCt: [[0.9732742986994461]]Os1: [0.90176448135306]Os2: [[[0.8800852687080962]],[[0.90176448135306]]]CtN: [[[2.1928702103766464]],[[2.1509119123141263]]]EXIT apply_lstm_step_convaapply_lstm_step_conv doneCt1: [[[2.1928702103766464]],[[2.1509119123141263]]]Os1: [[[0.8800852687080962]],[[0.90176448135306]]]X = [[[[0.8800852687080962]], [[0.90176448135306]]]] X = [[[[0.8800852687080962]], [[0.90176448135306]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.9379821]], [[0.9017646]]]]
+Expected (Unparsed): [[[[0.8800852687080962]], [[0.90176448135306]]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.938]], [[0.9018]]]]
+Expected: [[[[0.8801]], [[0.9018]]]]
+
+conv_lstm2D_layer([[[[[0.6954, 0.6053]]]]], [[[[1, 1, 1, 1], [1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[0.6954,0.6053]]]112[[[[1,1],[1,1]]]][0,0]after conv[[[1.3007,1.3007]]]x: 0y: 0Wi: [[1],[1]]Ui: [[1]]Bi: [[0]]Ot: [[0.9309516269437087]]Ctt: [[0.9890579146492317]]CtF: [0.920765074784254]TanhCt: [[0.7262591500630224]]Os1: [0.6761121373339258]Os2: [[[0.6761121373339258]]]CtN: [[[0.920765074784254]]]EXIT apply_lstm_step_convaapply_lstm_step_conv doneCt1: [[[0.920765074784254]]]Os1: [[[0.6761121373339258]]]X = [[[[0.6761121373339258]]]] X = [[[[0.6761121373339258]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.46358365]]]]
+Expected (Unparsed): [[[[0.6761121373339258]]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.4636]]]]
+Expected: [[[[0.6762]]]]
+
+
+conv_lstm2D_layer([[[[[10]]]]], [[[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]]],[[[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]]],[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], X).
+conv_lstm2D_layer([[[[[2]]]]], [[[[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0], X).
+
+conv_lstm2D_layer([[[[[8, 5], [7, 9]], [[3, 1], [1, 9]]], [[[10, 5], [9, 6]], [[3, 6], [2, 1]]]]], [[[[1, 1, 1, 1], [1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
 
 apply_lstm_step_conv([[[0.3173,0.4853],[0.7123,0.6301]],[[0.5427,0.2192],[0.8144,0.5035]]],[[[[1, 1, 1, 1], [1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0],[[[[0]],[[0]]],[[[0]],[[0]]]],Y, [[[[0]],[[0]]],[[[0]],[[0]]]], X)
 
