@@ -12,12 +12,13 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  AveragePooling1D|   |  
  |  AveragePooling2D|   | 
  |  AveragePooling3D|   | 
- |  Concatenate|   |     
+ |  Concatenate|   |    
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
  |  Conv2DTranspose|   |  
  |  Conv3DTranspose|   |  
+ |  ConvLSTM2D|   |  
  |  Cropping1D|   |
  |  Cropping2D|   |  
  |  Cropping3D|   |    
@@ -70,7 +71,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  | --- | --- |  
  |  AlphaDropout|   |  
  |  BatchNormalization|   |  
- |  ConvLSTM2D|   |  
  |  Dropout|   |  
  |  GaussianDropout|   |  
  |  GaussianNoise|   |    

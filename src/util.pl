@@ -290,4 +290,7 @@ sub_length([I|_],L) :- length(I,L).
 sub_sub_length([I|_],L) :- sub_length(I,L).
 
 sub_sub_sub_length([I|_],L) :- sub_sub_length(I,L).
+
+
+
     	
