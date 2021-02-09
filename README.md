@@ -8,6 +8,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  | Layer | Comment |
  | --- | --- |
  |  Add|   |  
+ |  AlphaDropout|   |  
  |  Average|   |   
  |  AveragePooling1D|   |  
  |  AveragePooling2D|   | 
@@ -25,6 +26,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  Dense|   |  
  |  DepthwiseConv2D|   |  
  |  Dot|   |  
+ |  Dropout|   |  
  |  Embedding|   |  
  |  ELU|   |  
  |  Flatten|   | 
@@ -36,7 +38,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  GlobalMaxPool3D|   | 
  |  GRU|   |    
  |  InputSpec|   | 
-  |  LayerNormalization|   |  
+ |  LayerNormalization|   |  
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
@@ -56,6 +58,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  SeparableConv2D|   | 
  |  SimpleRNN|   |  
  |  Softmax|   |  
+ |  SpatialDropout1D|   |  
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
  |  UpSampling1D|   |  
@@ -69,13 +72,10 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 # Layers under development
  | Layer | Comment |
  | --- | --- |  
- |  AlphaDropout|   |  
  |  BatchNormalization|   |  
- |  Dropout|   |  
  |  GaussianDropout|   |  
  |  GaussianNoise|   |    
  |  Masking|   |  
- |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
  |  SpatialDropout3D|   |   
  |  TimeDistributed|   |    
