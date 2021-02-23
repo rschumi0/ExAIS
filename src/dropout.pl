@@ -117,4 +117,80 @@ spatial_dropout1D_feature_check([[I|Is0]|Is], [[O|Os0]|Os], SuccL, Succ) :-
 	append(SuccL,[SuccN],SuccL1),
 	spatial_dropout1D_feature_check(R,R1, SuccL1, Succ).
 	
+spatial_dropout2D_layer(Is, Os, Rate, Succ) :-
+	dropout_layer(Is, Os, Rate, Succ1),
+	spatial_dropout2D_feature_check(Is, Os, Succ2),
+	writeln(Succ1),
+	writeln(Succ2),
+	((Succ1 == true, Succ2 == true) ->  Succ = true; Succ = false).
+	
 
+spatial_dropout2D_feature_check(Is, Os, Succ) :- 
+	spatial_dropout2D_feature_check(Is, Os, [], Succ).
+spatial_dropout2D_feature_check([I|Is], [O|Os], SuccL, Succ) :-
+	depth([I|Is],4),
+	spatial_dropout2D_feature_check(I, O, SuccN),
+	append(SuccL,[SuccN],SuccL1), 
+	spatial_dropout2D_feature_check(Is, Os, SuccL1, Succ).
+spatial_dropout2D_feature_check([], [], SuccL, Succ) :- all_true(SuccL,Succ).
+spatial_dropout2D_feature_check([[[I|Is0]|Is1]|Is], [[[O|Os0]|Os1]|Os], SuccL, Succ) :- 
+	atomic(I),
+	del_first_items([[[I|Is0]|Is1]|Is],F,R),
+	del_first_items([[[O|Os0]|Os1]|Os],F1,R1),
+	spatial_dropout1D_feature_check(F,F1,SuccN),
+	%((I =\= 0, O == 0) -> (all_zero(F1) -> SuccN = true;SuccN =false);SuccN=true),
+	append(SuccL,[SuccN],SuccL1),
+	spatial_dropout2D_feature_check(R,R1, SuccL1, Succ).
+	
+	
+spatial_dropout3D_layer(Is, Os, Rate, Succ) :-
+	dropout_layer(Is, Os, Rate, Succ1),
+	spatial_dropout3D_feature_check(Is, Os, Succ2),
+	writeln(Succ1),
+	writeln(Succ2),
+	((Succ1 == true, Succ2 == true) ->  Succ = true; Succ = false).
+	
+
+spatial_dropout3D_feature_check(Is, Os, Succ) :- 
+	spatial_dropout3D_feature_check(Is, Os, [], Succ).
+spatial_dropout3D_feature_check([I|Is], [O|Os], SuccL, Succ) :-
+	depth([I|Is],4),
+	spatial_dropout3D_feature_check(I, O, SuccN),
+	append(SuccL,[SuccN],SuccL1), 
+	spatial_dropout3D_feature_check(Is, Os, SuccL1, Succ).
+spatial_dropout3D_feature_check([], [], SuccL, Succ) :- all_true(SuccL,Succ).
+spatial_dropout3D_feature_check([[[[I|Is0]|Is1]|Is2]|Is], [[[[O|Os0]|Os1]|Os2]|Os], SuccL, Succ) :- 
+	atomic(I),
+	del_first_items([[[[I|Is0]|Is1]|Is2]|Is],F,R),
+	del_first_items([[[[O|Os0]|Os1]|Os2]|Os],F1,R1),
+	spatial_dropout2D_feature_check(F,F1,SuccN),
+	append(SuccL,[SuccN],SuccL1),
+	spatial_dropout3D_feature_check(R,R1, SuccL1, Succ).
+
+
+	
+%gaussian_noise_layer([1,2,3,4,5,6,7,8,9,10],[1.0001044, 1.9990835, 2.9983914, 3.9985507, 5.0002775, 6.0013294,6.9997735, 7.99828  , 9.000185 , 9.999998 ],0.001,X).	
+gaussian_noise_layer(Is, Os, SD, Succ) :- 
+	flatten(Is,Is1), flatten(Os,Os1), length(Is1,N), SD2 is 2 * SD,
+	gaussian_noise_layer(Is1, Os1, SD2, 0, N, Succ).
+gaussian_noise_layer([], [], _, Within2SD, N, Succ) :-
+	R is Within2SD / N,
+	(R < 0.9 -> (write("Expected portion within 2SDs: "), writeln(R), write(" Actual portion: "), writeln(R),  Succ = false);(Succ = true)).
+gaussian_noise_layer([I|Is], [O|Os], SD2, Within2SD, N, Succ) :-
+	Diff is abs(O - I),
+	(Diff > SD2 -> Within2SD1 is Within2SD; Within2SD1 is Within2SD +1),
+	gaussian_noise_layer(Is, Os, SD2, Within2SD1, N, Succ).
+	
+
+%gaussian_dropout_layer([1,2,3,4,5,6,7,8,9,10],[0.99891865, 1.9996369 , 3.000546  , 4.000738  , 4.9984345 , 5.9959006 ,6.991423  , 7.994241  , 9.007317  , 9.977198],0.000001,X).	
+gaussian_dropout_layer(Is, Os, Rate, Succ) :- 
+	flatten(Is,Is1), flatten(Os,Os1), length(Is1,N), SD2 is 2 * sqrt(Rate/(1.0-Rate)),
+	gaussian_dropout_layer(Is1, Os1, SD2, 0, N, Succ).
+gaussian_dropout_layer([], [], _, Within2SD, N, Succ) :-
+	R is Within2SD / N,
+	(R < 0.9 -> (write("Expected portion within 2SDs: "), writeln(R), write(" Actual portion: "), writeln(R),  Succ = false);(Succ = true)).
+gaussian_dropout_layer([I|Is], [O|Os], SD2, Within2SD, N, Succ) :-
+	Mult is abs(O / I),
+	Diff is abs(1.0 - Mult),
+	(Diff > SD2 -> Within2SD1 is Within2SD; Within2SD1 is Within2SD +1),
+	gaussian_dropout_layer(Is, Os, SD2, Within2SD1, N, Succ).

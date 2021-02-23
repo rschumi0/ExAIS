@@ -413,13 +413,10 @@ split_in_parts(P,Is,S,Os0,Os) :-
 	
 
 
-%variance([],0).
-%variance([H|T], M, VO):-
-%    variance(T,M,Y),
-%    VO is( Y + ((H-M)*(H-M))).
 
 layer_normalization_layer([],_,_,[]).
 layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	depth([I|Is], 2),	
 	variance(I,V),
 	avg(I,M),
 	VE is V + Epsilon,
@@ -427,6 +424,60 @@ layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
 	subtract_from_each_list_element(I,M,O0),
 	divide_each_list_element_by(O0,Div,O),
 	layer_normalization_layer(Is, Axis, Epsilon, Os).
+layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	depth([I|Is], 3),
+	Axis == 1,
+	transpose(I,I1),
+	layer_normalization_layer(I1,Axis,Epsilon,O1),
+	transpose(O1,O),
+	layer_normalization_layer(Is, Axis, Epsilon, Os).
+layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	depth([I|Is], 3),
+	Axis == 2,
+	layer_normalization_layer(I,Axis,Epsilon,O),
+	layer_normalization_layer(Is, Axis, Epsilon, Os).
+layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	depth([I|Is], 4),
+	Axis > 1,
+	Axis1 is Axis -1,
+	layer_normalization_layer(I,Axis1,Epsilon,O),
+	layer_normalization_layer(Is, Axis, Epsilon, Os).
+layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	depth([I|Is], 4),
+	Axis == 1,
+	transpose(I,I1),
+	layer_normalization_layer(I1,Axis,Epsilon,O1),
+	transpose(O1,O),
+	layer_normalization_layer(Is, Axis, Epsilon, Os).
+	
+	
+	
+%batch_normalization_layer([[1,2,3]],1,0.001,[0,0,0],[1,1,1],[0,0,0],[1,1,1],X).
+batch_normalization_layer([],_,_,_,_,_,_,[]).
+batch_normalization_layer([I|Is], Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, [O|Os]) :-
+	batch_normalization(I, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, O),
+	batch_normalization_layer(Is, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, Os).
+batch_normalization([],_,_,_,_,_,_,[]).
+batch_normalization([I|Is], Axis, Epsilon, [G|Gammas], [B|Betas], [M|MovingMeans], [V|MovingVariances], [O|Os]) :-
+	Axis == 1,
+	apply_batch_normalization(I, Epsilon, G, B,M,V,O),
+	batch_normalization(Is, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, Os).
+batch_normalization([I|Is], Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, [O|Os]) :-
+	Axis == 2,
+	batch_normalization(I, 1, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, O),
+	batch_normalization(Is, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, Os).
+batch_normalization([I|Is], Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, [O|Os]) :-
+	Axis == 3,
+	batch_normalization(I, 2, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, O),
+	batch_normalization(Is, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, Os).
 	
 
+apply_batch_normalization([],_,_,_,_,_,[]). 
+apply_batch_normalization([I|Is],Epsilon, G, B,M,V,[O|Os]) :-
+	apply_batch_normalization(I, Epsilon, G, B,M,V,O),
+	apply_batch_normalization(Is, Epsilon, G, B,M,V,Os).
+apply_batch_normalization(I,Epsilon, G, B,M,V,O) :-
+	number(I),
+	X is (I - M)/(sqrt(V + Epsilon)), 
+	O is G * X + B.
     
