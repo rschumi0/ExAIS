@@ -469,3 +469,4 @@ temp_layer(Xs,Ys,1,22,[Zs]) :-
 	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
 	mmmult(Xs2,Ys2,Zs).
 
+

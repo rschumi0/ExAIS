@@ -480,4 +480,114 @@ apply_batch_normalization(I,Epsilon, G, B,M,V,O) :-
 	number(I),
 	X is (I - M)/(sqrt(V + Epsilon)), 
 	O is G * X + B.
-    
+	
+	
+all_x([], _).
+all_x([H|T],X) :-
+    H == X,
+    all_x(T,X).
+
+masking_layer([],_,[]).
+masking_layer([I|Is], MaskValue, [O|Os]):- 
+	is_list(I),
+	masking_layer(I,MaskValue,O),
+	masking_layer(Is,MaskValue,Os).
+masking_layer([I|Is], MaskValue, Os):-  
+	atomic(I),   
+	all_x([I|Is],MaskValue),        
+    	replace_all([I|Is], 0, Os).
+masking_layer([I|Is], MaskValue, [I|Is]):-  
+	atomic(I),
+	not(all_x([I|Is],MaskValue)).
+	
+time_distributed_layer([],_, []).	
+time_distributed_layer([I|Is], Layer, [O|Os]) :-
+	call(Layer,I,O),
+	time_distributed_layer(Is, Layer, Os).
+	
+time_distributed_layer(_,[] ,_, []).	
+time_distributed_layer([I|Is], Layer, A1, [O|Os]) :-
+	call(Layer,I, A1, O),
+	time_distributed_layer(Is, Layer, A1, Os).
+	
+time_distributed_layer([],_, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, [O|Os]) :-
+	call(Layer,I, A1, A2, O),
+	time_distributed_layer(Is, Layer, A1, A2, Os).
+	
+time_distributed_layer([],_, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, Os).
+	
+time_distributed_layer([],_, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, Os).
+		
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, Os).
+	
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, Os).
+
+time_distributed_layer([],_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, []).	
+time_distributed_layer([I|Is], Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, [O|Os]) :-
+	call(Layer,I, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, O),
+	time_distributed_layer(Is, Layer, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, Os).
+	
+    /*
+    time_distributed_layer(conv2D_layer,[[[[[0.5949]], [[0.2165]]]]], 1, 1,[[[[1]]]],[0], 2, 1, false, 1, 1, X)
+-------------------------------------------------------------------------------------
+X = [[[[[0.5949]]]]] X = [[[[[0.5949]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[-0.3640345]]]]]
+Expected (Unparsed): [[[[[0.5949]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[[-0.364]]]]]
+Expected: [[[[[0.5949]]]]] */

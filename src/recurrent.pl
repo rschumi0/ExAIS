@@ -489,7 +489,27 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	write('Os1: '),writeln(Os1),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os).
 
-	/*nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
+	/*
+[[[[[       1.0000000],
+    [     125.0000000],
+    [     125.0000000]]],
+
+
+  [[[      39.0000000],
+    [ 2400426.0000000],
+    [ 2454783.0000000]]],
+
+
+  [[[  104103.0000000],
+    [13941221400502075392.0000000],
+    [14908953261154238464.0000000]]]]]
+
+
+
+
+
+
+nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
 	nth0_2D(0,0, Us,UsT),
 	
 	split_lstm_weights(WsT, Wi,Wf,Wc,Wo),
@@ -520,32 +540,53 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 
 temp_function(X,X).
 	
+	
+ /*   i = self.recurrent_activation(x_i + h_i)
+    f = self.recurrent_activation(x_f + h_f)
+    o = self.recurrent_activation(x_o + h_o)
+    ctt =  self.activation(x_c + h_c)
+    
+    c1 = f * c_tm1 
+    c2 = i * ctt
+    
+    cF = c1 + c2
+
+    h = o * self.activation(cF)*/
+	
 apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
+%apply_lstm_step_conv1Test([I|IsT],Ws,Us,Bs,Ct0,Ct,[O0|Os0T],Os) :-
 		write('Ct0: '),writeln(Ct0),
 		write('Os0: '),writeln(Os0),
+	%TODO Check	
+	%(contains_only_zero([O0|Os0T]) -> (Is = [I|IsT], Os0 = [O0|Os0T]);(add_layer([I,O0],[I1]),Is = [I1|IsT], Os0 = [O0|Os0T]) ),
+		
+		
 	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
 	temp_function(It0,It),
-		write('It: '),writeln(It),
+		%write('It: '),writeln(It),
 	add_layer([Is,Os0],[Ft0]),%add_layer([Is,Ct0,Os0],[Ft0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
 	temp_function(Ft0,Ft),
-		write('Ft: '),writeln(Ft),
+		%write('Ft: '),writeln(Ft),
+
+	add_layer([Is,Os0],[Ot0]),
+	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
+	temp_function(Ot0,Ot),
 
 	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
 	temp_function(CtTemp0,Ctt),
-		write('Ctt: '),writeln(Ctt),
+		%write('Ctt: '),writeln(Ctt),
 	multiply_lists(Ft,Ct0,Ct1),
+		%write('Ct1: '),writeln(Ct1),
 	multiply_lists(It,Ctt,Ct2),
+		write('Ct2: '),writeln(Ct2),
 	add_lists(Ct1,Ct2,Ct),
 		write('Ct: '),writeln(Ct),
 	temp_function(Ct,TanhCt),
 		write('TanhCt: '),writeln(TanhCt),
 		
-	add_layer([Is,Os0],[Ot0]),
-	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
-	temp_function(Ot0,Ot),
 	multiply_lists(Ot,TanhCt,Os),
 	write('Os1: '),writeln(Os).
 	
@@ -616,6 +657,61 @@ sig_gate_conv(Is,HtPast,W,U,B,CtPast,C,Os) :-
 	sigmoid_func(Os5,Os).	
 	
 /*
+
+model = keras.Sequential([
+keras.layers.ConvLSTM2D(1, (1, 1),recurrent_activation='linear', activation='linear',  input_shape=(3, 1, 1, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[2]]], [[[5]]], [[[3]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-02-24 06:47:27.614278: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-02-24 06:47:27.614305: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-02-24 06:47:28.443538: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-02-24 06:47:28.443638: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-02-24 06:47:28.443645: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-02-24 06:47:28.443662: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-02-24 06:47:28.443996: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-02-24 06:47:28.569278: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-02-24 06:47:28.586440: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[2]]], [[[5]]], [[[3]]]]], [[[[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[2]]]111[[[[1]]]][0]after conv[[[2]]]Ct0: [[[0]]]Os0: [[[0]]]It: [[[2]]]Ft: [[[2]]]Ctt: [[[2]]]Ct: [[[4]]]TanhCt: [[[4]]]Os1: [[[8]]]aapply_lstm_step_conv doneCt1: [[[4]]]Os1: [[[8]]]before conv[[[5]]]111[[[[1]]]][0]after conv[[[5]]]Ct0: [[[4]]]Os0: [[[8]]]It: [[[13]]]Ft: [[[13]]]Ctt: [[[13]]]Ct: [[[221]]]TanhCt: [[[221]]]Os1: [[[2873]]]aapply_lstm_step_conv doneCt1: [[[221]]]Os1: [[[2873]]]before conv[[[3]]]111[[[[1]]]][0]after conv[[[3]]]Ct0: [[[221]]]Os0: [[[2873]]]It: [[[2876]]]Ft: [[[2876]]]Ctt: [[[2876]]]Ct: [[[8906972]]]TanhCt: [[[8906972]]]Os1: [[[25616451472]]]aapply_lstm_step_conv doneCt1: [[[8906972]]]Os1: [[[25616451472]]]X = [[[[25616451472]]]] X = [[[[25616451472]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[25616451584.0000000]]]]
+Expected (Unparsed): [[[[25616451472]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[25616451584]]]]
+Expected: [[[[25616451472]]]]
+
+
+model = keras.Sequential([
+keras.layers.ConvLSTM2D(1, (2, 3),recurrent_activation='linear', activation='linear',  input_shape=(2, 2, 3, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[3], [5], [5]], [[1], [5], [5]]], [[[4], [4], [2]], [[4], [4], [3]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-02-24 04:28:15.872170: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-02-24 04:28:15.872189: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-02-24 04:28:16.657072: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-02-24 04:28:16.657166: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-02-24 04:28:16.657173: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-02-24 04:28:16.657189: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-02-24 04:28:16.657488: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-02-24 04:28:16.774385: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-02-24 04:28:16.793595: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[3], [5], [5]], [[1], [5], [5]]], [[[4], [4], [2]], [[4], [4], [3]]]]], [[[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]], [[[1, 1, 1, 1]], [[1, 1, 1, 1]], [[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[3],[5],[5]],[[1],[5],[5]]]231[[[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]]]][0]after conv[[[24]]]Ct0: [[[0]]]Os0: [[[0]]]It: [[[24]]]Ft: [[[24]]]Ctt: [[[24]]]Ct: [[[576]]]TanhCt: [[[576]]]Os1: [[[13824]]]aapply_lstm_step_conv doneCt1: [[[576]]]Os1: [[[13824]]]before conv[[[4],[4],[2]],[[4],[4],[3]]]231[[[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]]]][0]after conv[[[21]]]Ct0: [[[576]]]Os0: [[[13824]]]It: [[[13845]]]Ft: [[[13845]]]Ctt: [[[13845]]]Ct: [[[199658745]]]TanhCt: [[[199658745]]]Os1: [[[2764275324525]]]aapply_lstm_step_conv doneCt1: [[[199658745]]]Os1: [[[2764275324525]]]X = [[[[2764275324525]]]] X = [[[[2764275324525]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[2764275449856.0000000]]]]
+Expected (Unparsed): [[[[2764275324525]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:523:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[2764275449856]]]]
+Expected: [[[[2764275324525]]]]
 
 keras.layers.ConvLSTM2D(1, (2, 2),recurrent_activation='sigmoid', activation='tanh',  input_shape=(2, 3, 2, 1))])
 w = model.get_weights()
@@ -781,4 +877,36 @@ conv_lstm2D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
 	(Y+StridesD2+PoolSizeD2 =< LY -> X1 is 0,Y1 is Y+StridesD2, Z1 is Z; 
 					X1 is LX +1, Y1 is LY + 1, Z1 is Z + 1)),
 	pool2D_layer(sum_list,[[[I|Is0]|Is1]|Is],X1,Y1,Z1,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,IWs,Bs,false,Os1,Os).
-	*/
+	
+tf.keras.backend.set_floatx('float64')
+model = keras.Sequential([
+keras.layers.ConvLSTM2D(1, (2, 1),recurrent_activation='linear', activation='linear',  input_shape=(2, 3, 3, 1))])
+w = model.get_weights()
+w[0] = np.array([[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]])
+w[1] = np.array([[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.set_weights(w)
+x = tf.constant([[[[[2], [1], [1]], [[1], [2], [1]], [[2], [1], [2]]], [[[1], [1], [1]], [[1], [1], [2]], [[2], [1], [2]]]]])
+print (np.array2string(model.predict(x,steps=1), separator=', '))
+
+-------------------------------------------------------------------------------------
+2021-03-10 00:29:48.895668: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory2021-03-10 00:29:48.895689: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.2021-03-10 00:29:50.601084: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-03-10 00:29:50.601253: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory2021-03-10 00:29:50.601266: W tensorflow/stream_executor/cuda/cuda_driver.cc:326] failed call to cuInit: UNKNOWN ERROR (303)2021-03-10 00:29:50.601290: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (admin1-ThinkPad-X1-Carbon-7th): /proc/driver/nvidia/version does not exist2021-03-10 00:29:50.602181: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set2021-03-10 00:29:50.797662: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)2021-03-10 00:29:50.817727: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 1999965000 Hz
+
+-------------------------------------------------------------------------------------
+Prolog Script:
+-------------------------------------------------------------------------------------
+conv_lstm2D_layer([[[[[2], [1], [1]], [[1], [2], [1]], [[2], [1], [2]]], [[[1], [1], [1]], [[1], [1], [2]], [[2], [1], [2]]]]], [[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]],[[[[1, 1, 1, 1]]], [[[1, 1, 1, 1]]]],[0, 0, 0, 0], X)
+-------------------------------------------------------------------------------------
+before conv[[[2],[1],[1]],[[1],[2],[1]],[[2],[1],[2]]]211[[[[1]]],[[[1]]]][0]after conv[[[3],[3],[2]],[[3],[3],[3]]]Ct0: [[[0],[0],[0]],[[0],[0],[0]]]Os0: [[[0],[0],[0]],[[0],[0],[0]]]It: [[[3],[3],[2]],[[3],[3],[3]]]Ft: [[[3],[3],[2]],[[3],[3],[3]]]Ctt: [[[3],[3],[2]],[[3],[3],[3]]]Ct1: [[[0],[0],[0]],[[0],[0],[0]]]Ct2: [[[9],[9],[4]],[[9],[9],[9]]]Ct: [[[9],[9],[4]],[[9],[9],[9]]]TanhCt: [[[9],[9],[4]],[[9],[9],[9]]]Os1: [[[27],[27],[8]],[[27],[27],[27]]]aapply_lstm_step_conv doneCt1: [[[9],[9],[4]],[[9],[9],[9]]]Os1: [[[27],[27],[8]],[[27],[27],[27]]]before conv[[[1],[1],[1]],[[1],[1],[2]],[[2],[1],[2]]]211[[[[1]]],[[[1]]]][0]after conv[[[2],[2],[3]],[[3],[2],[4]]]Ct0: [[[9],[9],[4]],[[9],[9],[9]]]Os0: [[[27],[27],[8]],[[27],[27],[27]]]It: [[[29],[29],[11]],[[30],[29],[31]]]Ft: [[[29],[29],[11]],[[30],[29],[31]]]Ctt: [[[29],[29],[11]],[[30],[29],[31]]]Ct1: [[[261],[261],[44]],[[270],[261],[279]]]Ct2: [[[841],[841],[121]],[[900],[841],[961]]]Ct: [[[1102],[1102],[165]],[[1170],[1102],[1240]]]TanhCt: [[[1102],[1102],[165]],[[1170],[1102],[1240]]]Os1: [[[31958],[31958],[1815]],[[35100],[31958],[38440]]]aapply_lstm_step_conv doneCt1: [[[1102],[1102],[165]],[[1170],[1102],[1240]]]Os1: [[[31958],[31958],[1815]],[[35100],[31958],[38440]]]X = [[[[31958], [31958], [1815]], [[35100], [31958], [38440]]]] X = [[[[31958], [31958], [1815]], [[35100], [31958], [38440]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:543:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[203840.0000000], [203840.0000000], [60648.0000000]], [[35100.0000000], [31958.0000000], [38440.0000000]]]]
+Expected (Unparsed): [[[[31958], [31958], [1815]], [[35100], [31958], [38440]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:543:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[203840], [203840], [60648]], [[35100], [31958], [38440]]]]
+Expected: [[[[31958], [31958], [1815]], [[35100], [31958], [38440]]]]
+-------------------------------------------------------------------------------------
+
+Test 4 failed!
+
+*/

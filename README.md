@@ -46,6 +46,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
  |  LSTM|   |  
+ |  Masking|   |  
  |  Maximum|   |  
  |  MaxPool1D|   |  
  |  MaxPool2D|   |  
@@ -66,6 +67,7 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  SpatialDropout3D|   |   
  |  Subtract|   | 
  |  ThresholdedReLU|   | 
+ |  TimeDistributed|   | 
  |  UpSampling1D|   |  
  |  UpSampling2D|   |  
  |  UpSampling3D|   |  
@@ -77,5 +79,5 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 # Layers under development
  | Layer | Comment |
  | --- | --- |    
- |  Masking|   |  
- |  TimeDistributed|   |    
+
+   
