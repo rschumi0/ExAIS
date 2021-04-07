@@ -47,27 +47,6 @@
 % all of the same shape except for the concatenation axis, 
 % and returns a single tensor that is the concatenation of all inputs.
 
-concatenate_layer(Is,0,Os) :-
-	concatenate_lists(Is,Os).
-
-concatenate_layer(Is,1,Os) :-
-	maplist(transpose,Is,Is1),
-	concatenate_lists(Is1,Os1),
-	maplist(transpose,Os1,Os).
-	
-concatenate_layer([I|Is],Axis,[O|Os]) :-
-	Axis1 is Axis -1,
-	concatenate_layer(I,Axis1,O),
-	concatenate_layer(Is,Axis,Os).
-
-concatenate_lists([],[]).
-concatenate_lists(Is,Is) :- length(Is,1).
-concatenate_lists([I1,I2|Is],Os) :-
-	append(I1,I2,IT),
-	concatenate_lists([IT|Is],Os).
-concatenate_lists([I1,I2],Os) :-
-	append(I1,I2,Os).
-
 /*
 concatenate_layer([X,Y,Z,S], Axis, O):-
   (Axis == 0 -> concatenate_lists_axis0([X,Y,Z,S],O); Axis == 1 -> concatenate_lists_axis1([X,Y,Z,S],O); Axis > 1 -> 

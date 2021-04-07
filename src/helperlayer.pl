@@ -591,3 +591,96 @@ Expected (Unparsed): [[[[[0.5949]]]]] Warning: /home/admin1/Documents/GitHub/Ten
 -------------------------------------------------------------------------------------
 Actual:   [[[[[-0.364]]]]]
 Expected: [[[[[0.5949]]]]] */
+
+
+innner_transpose([],[]).
+innner_transpose([I|Is],[O|Os]) :-
+	maplist(transpose,I,O),
+	innner_transpose(Is,Os).
+
+	
+/*
+softmax_layer([],_,[]).
+softmax_layer(Is,-1,Os) :-
+	softmax_layer(Is,Os).
+%TODO strange behaviour for axis = 0
+softmax_layer(Is,0,Os) :-
+	replace_all(Is, 1,Os).
+softmax_layer(Is,1,Os) :-
+	depth(Is,3),
+	maplist(transpose,Is,Is1),
+	softmax_layer(Is1,Os1),
+	maplist(transpose,Os1,Os).
+softmax_layer(Is,1,Os) :-
+	depth(Is,4),
+	maplist(transpose,Is,IsT),
+	innner_transpose(IsT,Is1),
+	softmax_layer(Is1,Os1),
+	innner_transpose(Os1,OsT),
+	maplist(transpose,OsT,Os).
+softmax_layer([I|Is],Axis,[O|Os]) :-
+	Axis1 is Axis -1,
+	softmax_layer(I,Axis1,O),
+	softmax_layer(Is,Axis,Os).
+*/
+
+
+concatenate_layer(Is,0,Is).% :-
+	%concatenate_lists(Is,Os).
+
+concatenate_layer(Is,1,[Os]) :-
+	maplist(transpose,Is,Is1),
+	concatenate_layer(Is1,0,Os1),
+	maplist(transpose,Os1,Os2),
+	remove_inner_nesting(Os2,Os).
+
+concatenate_layer(Is,2,[Os]) :-
+	transpose(Is,Is1),
+	concatenate_layer(Is1,0,Os1),
+	maplist(remove_inner_nesting,Os1,Os).
+concatenate_layer(Is,3,[Os]) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,Is1),
+	concatenate_layer(Is1,0,Os1),
+	maplist(remove_inner_inner_nesting,Os1,Os).
+	%innner_transpose(Os1,OsT),
+	%maplist(map_transpose,Os1,Os).
+	%maplist(remove_inner_nesting,Os1,Os).
+
+
+	
+	
+remove_inner_inner_nesting(Is,Os) :-
+	maplist(remove_inner_nesting,Is, Os).
+remove_inner_nesting(Is,Os) :- remove_inner_nesting(Is,[],Os).
+remove_inner_nesting([],Os,Os).
+remove_inner_nesting([I|Is],Os0, Os) :-
+	append(Os0,I,Os1),
+	remove_inner_nesting(Is,Os1,Os).
+
+/*	
+concatenate_layer([I|Is],Axis,[O|Os]) :-
+	Axis1 is Axis -1,
+	concatenate_layer(I,Axis1,O),
+	concatenate_layer(Is,Axis,Os).
+
+concatenate_layer([[[[0.2388, 0.5628], [0.4056, 0.9396]], [[0.9617, 0.0576], [0.4156, 0.4144]]], [[[0.9361, 0.002], [0.2037, 0.974]], [[0.4572, 0.9538], [0.9977, 0.9201]]]], 3, X)
+-------------------------------------------------------------------------------------
+X = [[[[[0.2388, 0.5628], [0.4056, 0.9396]], [[0.9361, 0.002], [0.2037, 0.974]]], [[[0.9617, 0.0576], [0.4156, 0.4144]], [[0.4572, 0.9538], [0.9977, 0.9201]]]]] X = [[[[[0.2388, 0.5628], [0.4056, 0.9396]], [[0.9361, 0.002], [0.2037, 0.974]]], [[[0.9617, 0.0576], [0.4156, 0.4144]], [[0.4572, 0.9538], [0.9977, 0.9201]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/activation.pl:64:Warning:    Redefined static procedure innner_transpose/2Warning:    Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:596Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:556:Warning:    Singleton variables: [Ws,Us,Bs]
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.2388000, 0.5628000, 0.9361000, 0.0020000], [0.4056000, 0.9396000, 0.2037000, 0.9740000]], [[0.9617000, 0.0576000, 0.4572000, 0.9538000], [0.4156000, 0.4144000, 0.9977000, 0.9201000]]]]
+Expected (Unparsed): [[[[[0.2388, 0.5628], [0.4056, 0.9396]], [[0.9361, 0.002], [0.2037, 0.974]]], [[[0.9617, 0.0576], [0.4156, 0.4144]], [[0.4572, 0.9538], [0.9977, 0.9201]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/activation.pl:64:Warning: Redefined static procedure innner_transpose/2Warning: Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:596Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/recurrent.pl:556:Warning: Singleton variables: [Ws,Us,Bs]
+-------------------------------------------------------------------------------------
+Actual:   [[[[0.2388, 0.5628, 0.9361, 0.002], [0.4056, 0.9396, 0.2037, 0.974]], [[0.9617, 0.0576, 0.4572, 0.9538], [0.4156, 0.4144, 0.9977, 0.9201]]]]
+Expected: [[[[[0.2388, 0.5628], [0.4056, 0.9396]], [[0.9361, 0.002], [0.2037, 0.974]]], [[[0.9617, 0.0576], [0.4156, 0.4144]], [[0.4572, 0.9538], [0.9977, 0.9201]]]]]
+*/
+/*
+concatenate_lists([],[]).
+concatenate_lists(Is,Is) :- length(Is,1).
+concatenate_lists([I1,I2|Is],Os) :-
+	concatenate_lists(I1,I2,IT),
+	concatenate_lists([IT|Is],Os).
+concatenate_lists([I1,I2],Os) :-
+	concatenate_lists(I1,I2,Os).
+concatenate_lists(I1,I2,[I1,I2]).*/

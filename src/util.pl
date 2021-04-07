@@ -291,6 +291,16 @@ sub_sub_length([I|_],L) :- sub_length(I,L).
 
 sub_sub_sub_length([I|_],L) :- sub_sub_length(I,L).
 
+map_transpose(Is, Os) :- 
+	maplist(transpose,Is,Os).
 
+map_transpose(Is, Os) :- 
+	maplist(transpose,Is,Os).
+	
+map_map_transpose(Is, Os) :- 
+	maplist(map_transpose,Is,Os).
 
+map_map_map_transpose(Is, Os) :- 
+	maplist(map_map_transpose,Is,Os).
+	
     	
