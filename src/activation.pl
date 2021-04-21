@@ -79,10 +79,12 @@ softmax_layer(Is,1,Os) :-
 	maplist(transpose,Os1,Os).
 softmax_layer(Is,1,Os) :-
 	depth(Is,4),
+	writeln("case test"),
 	maplist(transpose,Is,IsT),
 	innner_transpose(IsT,Is1),
 	softmax_layer(Is1,Os1),
 	innner_transpose(Os1,OsT),
+	%softmax_layer(IsT,OsT),
 	maplist(transpose,OsT,Os).
 softmax_layer([I|Is],Axis,[O|Os]) :-
 	Axis1 is Axis -1,
@@ -97,7 +99,6 @@ softmax_layer([I|Is],[O|Os]) :-
 	is_list(I),
 	softmax_layer(I,O),
 	softmax_layer(Is,Os).
-	
 	
 /*
 model = keras.Sequential([
@@ -141,14 +142,16 @@ softmax([I|Is], R2):-
 % calculate exponent of elements in a one-dimensional input tensor
 calc_exp_SL([],Y,Y).
 calc_exp_SL([I|Is], Y0, L):-
- (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
+% ((I > 0 -> O is exp(I)); (I =:= 0 -> O is 1 ; O is I)),
+(I =:= 0 -> O is 1 ; O is exp(I)),
  append(Y0, [O], Ys),
  calc_exp_SL(Is, Ys, L).
 
  % calculate exponential sum of a one-dimension list
 calc_sum_SL([], Sum1, Sum1).
 calc_sum_SL([I|Is], Sum0, Sum):-
- (I > 0 -> O is exp(I); I =:= 0 -> O is 1 ; O is I),
+ %((I > 0 -> O is exp(I)); (I =:= 0 -> O is 1 ; O is I)),
+(I =:= 0 -> O is 1 ; O is exp(I)),
  S is float(O),
  Sum1 is Sum0 + S,
  calc_sum_SL(Is, Sum1, Sum).

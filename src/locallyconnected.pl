@@ -138,15 +138,27 @@ comp_locallyconnected3D_temp([R0|R0s], Is, X,Y,Z, [W|Ws], R1s, R2s) :-
 
 
 locally_connected1D_layer(Is,KernelSize,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],false,Os).
 locally_connected1D_layer(Is,KernelSize,IWs,Bs,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,false,Os).
 locally_connected1D_layer(Is,KernelSize,IWs,Bs,Strides,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,Strides,false,IWs,Bs,false,Os).
 	
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],false,Os).
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,false,Os).
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,false,IWs,Bs,false,Os).

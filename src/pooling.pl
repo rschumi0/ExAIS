@@ -827,112 +827,195 @@ get_pool_res3D(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,[],OsF,OsF).
 %average_pooling1D_layer([[[8,3,5],[5,4,-2],[2,1,-1]]],1,X).
 %average_pooling1D_layer([[[8,3,5],[5,4,-2],[2,1,-1]]],2,1,true,X).
 %average_pooling1D_layer([[[8,3],[5,4],[2,1],[2,1]],[[8,3],[5,4],[2,1],[2,1]]],1,20,false,X).
-average_pooling1D_layer(Is,PoolSize,Os):- pool1D_layer(avg,Is,PoolSize,Os).
+average_pooling1D_layer(Is,PoolSize,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,PoolSize,false),
+	pool1D_layer(avg,Is,PoolSize,Os).
 average_pooling1D_layer(Is,PoolSize,Strides,Padding,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,PoolSize,Padding),
 	pool1D_layer(avg,Is,PoolSize,Strides,Padding,Os).
 	
 %average_pooling2D_layer([[[[8,3,5],[5,4,-2],[2,1,-1]]]],1,4,1,1,true,X).
 %average_pooling2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],4,3,1,1,true,X).
 average_pooling2D_layer(Is,PoolSize,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,PoolSize,PoolSize,false),
 	pool2D_layer(avg,Is,PoolSize,PoolSize,Os).
 average_pooling2D_layer(Is,PoolSizeD1,PoolSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,false),
 	pool2D_layer(avg,Is,PoolSizeD1,PoolSizeD2,PoolSizeD1,PoolSizeD2,false,Os).
 average_pooling2D_layer(Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os):-
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,Padding),
 	pool2D_layer(avg,Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os).	
 	
 %average_pooling3D_layer([[[[[1]]]]],1,1,1,X).
 %average_pooling3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,X).
 %average_pooling3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,1,1,1,true,X).	
 average_pooling3D_layer(Is,PoolSize,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSize,PoolSize,PoolSize,false),
 	pool3D_layer(avg,Is,PoolSize,PoolSize,PoolSize,Os).
 average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,false),
 	pool3D_layer(avg,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
-average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
-	pool3D_layer(avg,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
+%average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
+%	check_dimensions(Is,5),	
+%	pool3D_layer(avg,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
 average_pooling3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Padding),
 	pool3D_layer(avg,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os).	
 	
 	
 %global_average_pooling1D_layer([[[8,3,6],[5,4,9]]],X).
 %global_average_pooling1D_layer([[[8,3],[5,4]],[[8,3],[5,4]],[[8,3],[5,4]]],X).
-global_average_pooling1D_layer([[I|Is0]|Is],Os):- atomic(I), length([[I|Is0]|Is],L), average_pooling1D_layer([[I|Is0]|Is],L,[Os]).
-global_average_pooling1D_layer([[I|Is0]|Is],Os):- is_list(I), length([I|Is0],L), average_pooling1D_layer([[I|Is0]|Is],L,[Os]).
+/*global_average_pooling1D_layer([[I|Is0]|Is],Os):- 
+	atomic(I), length([[I|Is0]|Is],L), 
+	average_pooling1D_layer([[I|Is0]|Is],L,OsT), 
+	decapsulate_items(OsT,Os).
+global_average_pooling1D_layer([[I|Is0]|Is],Os):- 
+	is_list(I), length([I|Is0],L), 
+	average_pooling1D_layer([[I|Is0]|Is],L,OsT), 
+	decapsulate_items(OsT,Os).
 
-global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- atomic(I), length([[[I|Is0]|Is1]|Is],L1), length([[I|Is0]|Is1],L2), average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,[[Os]]).
-global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- is_list(I), length([[I|Is0]|Is1],L1), length([I|Is0],L2), average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,[[Os]]).
+global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- 
+	atomic(I), length([[[I|Is0]|Is1]|Is],L1), length([[I|Is0]|Is1],L2), 
+	average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
+global_average_pooling2D_layer([[[I|Is0]|Is1]|Is],Os):- 
+	is_list(I), length([[I|Is0]|Is1],L1), length([I|Is0],L2), 
+	average_pooling2D_layer([[[I|Is0]|Is1]|Is],L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
 
-global_average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- atomic(I), length([[[[I|Is0]|Is1]|Is2]|Is],L1), length([[[I|Is0]|Is1]|Is2],L2), length([[I|Is0]|Is1],L3), average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,[[[Os]]]).
-global_average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- is_list(I), length([[[I|Is0]|Is1]|Is2],L1), length([[I|Is0]|Is1],L2), length([I|Is0],L3), average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,[[[Os]]]).
+global_average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- 
+	atomic(I), length([[[[I|Is0]|Is1]|Is2]|Is],L1), 
+	length([[[I|Is0]|Is1]|Is2],L2), length([[I|Is0]|Is1],L3), 
+	average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
+global_average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- 
+	is_list(I), length([[[I|Is0]|Is1]|Is2],L1), length([[I|Is0]|Is1],L2), length([I|Is0],L3), 
+	average_pooling3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
+*/
+	
+global_average_pooling1D_layer(Is,Os):-
+	check_dimensions(Is,3), 
+	sub_length(Is,L), 
+	average_pooling1D_layer(Is,L,OsT), 
+	decapsulate_items(OsT,Os).
+	
+global_average_pooling2D_layer(Is,Os):- 
+	check_dimensions(Is,4),
+	sub_length(Is,L1), sub_sub_length(Is,L2), 
+	average_pooling2D_layer(Is,L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
 
+global_average_pooling3D_layer(Is,Os):- 
+	check_dimensions(Is,5),
+	sub_length(Is,L1), sub_sub_length(Is,L2), sub_sub_sub_length(Is,L3),
+	average_pooling3D_layer(Is,L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
 
 %max_pool1D_layer([[[8,3,5],[5,4,-2],[2,1,-1]]],1,X).
 %max_pool1D_layer([[[8,3,5],[5,4,-2],[2,1,-1]]],2,1,true,X).
 %max_pool1D_layer([[[8,3],[5,4],[2,1],[2,1]],[[8,3],[5,4],[2,1],[2,1]]],1,20,false,X).
-max_pool1D_layer(Is,PoolSize,Os):- pool1D_layer(max_list,Is,PoolSize,Os).
+max_pool1D_layer(Is,PoolSize,Os):- 
+	check_dimensions(Is,3), 
+	check_pool_input_match(Is,PoolSize,false),
+	pool1D_layer(max_list,Is,PoolSize,Os).
 max_pool1D_layer(Is,PoolSize,Strides,Padding,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,PoolSize,Padding),
 	pool1D_layer(max_list,Is,PoolSize,Strides,Padding,Os).
 	
 %max_pool2D_layer([[[[8,3,5],[5,4,-2],[2,1,-1]]]],1,4,1,1,true,X).
 %max_pool2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],4,3,1,1,true,X).
 max_pool2D_layer(Is,PoolSize,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,PoolSize,PoolSize,false),
 	pool2D_layer(max_list,Is,PoolSize,PoolSize,Os).
-max_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,Os):- 
+max_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,Os):-
+	check_dimensions(Is,4), 
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,false),
 	pool2D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,PoolSizeD1,PoolSizeD2,false,Os).
 max_pool2D_layer(Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os):-
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,Padding),
 	pool2D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,Padding,Os).	
 	
 %max_pool3D_layer([[[[[1]]]]],1,1,1,X).
 %max_pool3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,X).
 %max_pool3D_layer([[[[[8,3],[2,4]],[[4,3],[5,6]]],[[[8,3],[2,4]],[[4,3],[5,6]]]]],2,2,2,1,1,1,true,X).	
 max_pool3D_layer(Is,PoolSize,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSize,PoolSize,PoolSize,false),
 	pool3D_layer(max_list,Is,PoolSize,PoolSize,PoolSize,Os).
 max_pool3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,false),
 	pool3D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
-max_pool3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
-	pool3D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
+%max_pool3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os) :-
+%	check_dimensions(Is,5),
+%	pool3D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Os).
 max_pool3D_layer(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,Padding),
 	pool3D_layer(max_list,Is,PoolSizeD1,PoolSizeD2,PoolSizeD3,StridesD1,StridesD2,StridesD3,Padding,Os).	
 	
 	
 %global_max_pool1D_layer([[[8,3,6],[5,4,9]]],X).
 %global_max_pool1D_layer([[[8,3],[5,4]],[[8,3],[5,4]],[[8,3],[5,4]]],X).
-global_max_pool1D_layer([[I|Is0]|Is],Os):- atomic(I), length([[I|Is0]|Is],L), max_pool1D_layer([[I|Is0]|Is],L,[Os]).
-global_max_pool1D_layer([[I|Is0]|Is],Os):- is_list(I), length([I|Is0],L), max_pool1D_layer([[I|Is0]|Is],L,[Os]).
+%global_max_pool1D_layer([[[8,3,6],[5,4,9]],[[8,3,6],[5,4,9]]],X).
+/*global_max_pool1D_layer([[I|Is0]|Is],Os):- 
+	atomic(I), length([[I|Is0]|Is],L), 
+	max_pool1D_layer([[I|Is0]|Is],L,OsT), 
+	decapsulate_items(OsT,Os).
+global_max_pool1D_layer([[I|Is0]|Is],Os):- 
+	is_list(I), length([I|Is0],L), 
+	max_pool1D_layer([[I|Is0]|Is],L,OsT), 
+	decapsulate_items(OsT,Os).
 
-global_max_pool2D_layer([[[I|Is0]|Is1]|Is],Os):- atomic(I), length([[[I|Is0]|Is1]|Is],L1), length([[I|Is0]|Is1],L2), max_pool2D_layer([[[I|Is0]|Is1]|Is],L1,L2,[[Os]]).
-global_max_pool2D_layer([[[I|Is0]|Is1]|Is],Os):- is_list(I), length([[I|Is0]|Is1],L1), length([I|Is0],L2), max_pool2D_layer([[[I|Is0]|Is1]|Is],L1,L2,[[Os]]).
+global_max_pool2D_layer([[[I|Is0]|Is1]|Is],Os):- 
+	atomic(I), length([[[I|Is0]|Is1]|Is],L1), length([[I|Is0]|Is1],L2), 
+	max_pool2D_layer([[[I|Is0]|Is1]|Is],L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
+global_max_pool2D_layer([[[I|Is0]|Is1]|Is],Os):- 
+	is_list(I), length([[I|Is0]|Is1],L1), length([I|Is0],L2), 
+	max_pool2D_layer([[[I|Is0]|Is1]|Is],L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
 
-global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- atomic(I), length([[[[I|Is0]|Is1]|Is2]|Is],L1), length([[[I|Is0]|Is1]|Is2],L2), length([[I|Is0]|Is1],L3), max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,[[[Os]]]).
-global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- is_list(I), length([[[I|Is0]|Is1]|Is2],L1), length([[I|Is0]|Is1],L2), length([I|Is0],L3), max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,[[[Os]]]).
+global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- 
+	atomic(I), length([[[[I|Is0]|Is1]|Is2]|Is],L1), 
+	length([[[I|Is0]|Is1]|Is2],L2), length([[I|Is0]|Is1],L3), 
+	max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
+global_max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],Os):- 
+	is_list(I), length([[[I|Is0]|Is1]|Is2],L1), length([[I|Is0]|Is1],L2), length([I|Is0],L3), 
+	max_pool3D_layer([[[[I|Is0]|Is1]|Is2]|Is],L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
+*/
 
-
-encapsulate_atoms(Is,Os) :- encapsulate_atoms(Is,[],Os).
-encapsulate_atoms([],Os,Os).
-encapsulate_atoms([I|Is],Os0,Os) :-
-	is_list(I),
-	encapsulate_atoms(I,O),
-	append(Os0,[O],Os1),
-	encapsulate_atoms(Is,Os1,Os).
-encapsulate_atoms([I|Is],Os0,Os) :-
-	atomic(I),
-	append(Os0,[[I]],Os1),
-	encapsulate_atoms(Is,Os1,Os).
+global_max_pool1D_layer(Is,Os):-
+	check_dimensions(Is,3), 
+	sub_length(Is,L), 
+	max_pool1D_layer(Is,L,OsT), 
+	decapsulate_items(OsT,Os).
 	
-decapsulate_atoms(Is,Os) :- decapsulate_atoms(Is,[],Os).
-decapsulate_atoms([],Os,Os).
-decapsulate_atoms([[I|Is0]|Is],Os0,Os) :-
-	is_list(I),
-	decapsulate_atoms([I|Is0],O),
-	append(Os0,[O],Os1),
-	decapsulate_atoms(Is,Os1,Os).
-decapsulate_atoms([[I|_]|Is],Os0,Os) :-
-	atomic(I),
-	append(Os0,[I],Os1),
-	decapsulate_atoms(Is,Os1,Os).
+global_max_pool2D_layer(Is,Os):- 
+	check_dimensions(Is,4),
+	sub_length(Is,L1), sub_sub_length(Is,L2), 
+	max_pool2D_layer(Is,L1,L2,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,Os).
 
-
-
-	
+global_max_pool3D_layer(Is,Os):- 
+	check_dimensions(Is,5),
+	sub_length(Is,L1), sub_sub_length(Is,L2), sub_sub_sub_length(Is,L3),
+	max_pool3D_layer(Is,L1,L2,L3,OsT), 
+	decapsulate_items(OsT,OsT1), decapsulate_items(OsT1,OsT2), decapsulate_items(OsT2,Os).
 	
 %conv1D_layer([[[1],[2],[3],[4]]],1,[[[-0.2462332 ,  0.5441545 , -0.26646703,  0.21214396]],[[-0.18358815,  0.21298283, -0.06799102, -0.50684196]],[[ 0.11723036, -0.4119215 ,  0.14352113,  0.33476758]],[[-0.13191402,  0.47741675, -0.30865103, -0.40099528]]],[[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0]],X).
 %conv1D_layer([[[1],[2],[3],[4]]],1,[[[-0.30587655,  0.45706058, -0.03339434, -0.71791303]]],[0,0,0,0],X)

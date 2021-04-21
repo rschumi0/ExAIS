@@ -285,6 +285,37 @@ replace_all([H|T1], R, [R|T2]):-
     	replace_all(T1, R, T2).
     	
     	
+encapsulate_atoms(Is,Os) :- encapsulate_atoms(Is,[],Os).
+encapsulate_atoms([],Os,Os).
+encapsulate_atoms([I|Is],Os0,Os) :-
+	is_list(I),
+	encapsulate_atoms(I,O),
+	append(Os0,[O],Os1),
+	encapsulate_atoms(Is,Os1,Os).
+encapsulate_atoms([I|Is],Os0,Os) :-
+	atomic(I),
+	append(Os0,[[I]],Os1),
+	encapsulate_atoms(Is,Os1,Os).
+	
+decapsulate_atoms(Is,Os) :- decapsulate_atoms(Is,[],Os).
+decapsulate_atoms([],Os,Os).
+decapsulate_atoms([[I|Is0]|Is],Os0,Os) :-
+	is_list(I),
+	decapsulate_atoms([I|Is0],O),
+	append(Os0,[O],Os1),
+	decapsulate_atoms(Is,Os1,Os).
+decapsulate_atoms([[I|_]|Is],Os0,Os) :-
+	atomic(I),
+	append(Os0,[I],Os1),
+	decapsulate_atoms(Is,Os1,Os).
+	
+decapsulate_items(Is,Os) :- decapsulate_items(Is,[],Os).
+decapsulate_items([],Os,Os).
+decapsulate_items([[I|_]|Is],Os0,Os) :-
+	append(Os0,[I],Os1),
+	decapsulate_items(Is,Os1,Os).
+    	
+    	
 sub_length([I|_],L) :- length(I,L).
 
 sub_sub_length([I|_],L) :- sub_length(I,L).

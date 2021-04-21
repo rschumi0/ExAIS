@@ -231,32 +231,56 @@ apply_dilation3D([W|IWs],KernelSizeD1,KernelSizeD2,KernelSizeD3,DilationRateD1,D
 	
 
 conv1D_layer(Is,KernelSize,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],false,Os).
 conv1D_layer(Is,KernelSize,IWs,Bs,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,false,Os).
 conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,Padding),
 	pool1D_layer(sum_list,Is,KernelSize,Strides,Padding,IWs,Bs,false,Os).
 conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,DilationRate,Os):-
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,Padding),
  	apply_dilation1D(IWs,KernelSize,DilationRate,KernelSize1,IWs1),
 	pool1D_layer(sum_list,Is,KernelSize1,Strides,Padding,IWs1,Bs,false,Os).
 	
 conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],false,Os).
 conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,false,Os).
 conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,Padding,IWs,Bs,false,Os).
 conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,DilationRateD1,DilationRateD2,Os):-
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),
  	apply_dilation2D(IWs,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,KernelSize1D1,KernelSize1D2,IWs1),
 	pool2D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,StridesD1,StridesD2,Padding,IWs1,Bs,false,Os).
 	
 conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Os):- 
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,false),
 	pool3D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,1,1,1,false,[],[],false,Os).
 conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,Os):- 
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,false),
 	pool3D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,1,1,1,false,IWs,Bs,false,Os).
 conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os):- 
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Padding),
 	pool3D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,StridesD1,StridesD2,StridesD3,Padding,IWs,Bs,false,Os).
 conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,DilationRateD1,DilationRateD2,DilationRateD3,Os):-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Padding),%TODO DilationRate
  	apply_dilation3D(IWs,KernelSizeD1,KernelSizeD2,KernelSizeD3,DilationRateD1,DilationRateD2,DilationRateD3,KernelSize1D1,KernelSize1D2,KernelSize1D3,IWs1),
 	pool3D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,KernelSize1D3,StridesD1,StridesD2,StridesD3,Padding,IWs1,Bs,false,Os).
 	
@@ -267,17 +291,29 @@ check_separable_conv_weights([IWts,IWs1,IWs2]) :-
 	
 %separable_conv1D_layer([[[1],[2],[3]]],2,[[[[1]],[[1]]],[[[ 1 , 2,  1]]]],[0,0,0],X).
 separable_conv1D_layer(Is,KernelSize,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],false,Os).
 separable_conv1D_layer(Is,KernelSize,[IWs1,IWs2],Bs,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,[[],IWs1,IWs2],Bs,false,Os).
 separable_conv1D_layer(Is,KernelSize,[IWs1,IWs2],Bs,Strides,Padding,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,Padding),
 	pool1D_layer(sum_list,Is,KernelSize,Strides,Padding,[[],IWs1,IWs2],Bs,false,Os).
 	
 separable_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],false,Os).
 separable_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,[IWs1,IWs2],Bs,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[[],IWs1,IWs2],Bs,false,Os).
 separable_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,[IWs1,IWs2],Bs,StridesD1,StridesD2,Padding,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,Padding,[[],IWs1,IWs2],Bs,false,Os).
 	
 
@@ -315,7 +351,7 @@ transpose_pool_res2D(Is,X,Y,Z,KX,KY,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IW
 
 %transpose_pool_res2D([[[1],[2]],[[1],[1]]],0,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
 
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os) :-
+conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os) :-
 	atomic(I),
 	length([[[I|Is0]|Is1]|Is],LX), 
 	length([[I|Is0]|Is1],LY), 
@@ -326,21 +362,23 @@ conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,[B|Bs],S
         OutY is LY * StridesD2 + max(KernelSizeD2 - StridesD2, 0),
         %empty_field(OutX,OutY,NN,Os0),
 	empty_field2D([B|Bs],OutX,OutY,Os0),
-        conv2D_transpose_layer([[[I|Is0]|Is1]|Is],0,0,KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os0,Os).
+        conv2D_transpose([[[I|Is0]|Is1]|Is],0,0,KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os0,Os).
 conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os) :-
+	check_dimensions([[[I|Is0]|Is1]|Is],4),
+	check_pool_input_match([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,Padding),
 	is_list(I),
-        conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,[],Os).
-conv2D_transpose_layer([],_,_,_,_,_,_,_,Os,Os).
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
+        conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,[],Os).
+conv2D_transpose([],_,_,_,_,_,_,_,Os,Os).
+conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
 	is_list(I),
-	conv2D_transpose_layer([[I|Is0]|Is1],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,O),
+	conv2D_transpose([[I|Is0]|Is1],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,O),
 	append(Os0,[O],Os1),
-        conv2D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,_,_,_,_,_,_,false,Os,Os) :-
+        conv2D_transpose(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
+conv2D_transpose([[[I|Is0]|Is1]|Is],X,Y,_,_,_,_,_,_,false,Os,Os) :-
 	atomic(I),
 	((length([[[I|Is0]|Is1]|Is],LX), X >= LX); 
 	(length([[I|Is0]|Is1],LY), Y >= LY)).
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,_,_,StridesD1,StridesD2,true,Os0,Os) :-
+conv2D_transpose([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,_,_,StridesD1,StridesD2,true,Os0,Os) :-
 	atomic(I),
 	length([[[I|Is0]|Is1]|Is],LX),
 	length([[I|Is0]|Is1],LY),
@@ -351,13 +389,13 @@ conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,_,_,Stri
         CroppingB is max(KernelSizeD2 - StridesD2, 0) - CroppingT,
 	apply_cropping_top_bottom(CroppingL, CroppingR,Os0, Os1),
 	apply_cropping_left_right(CroppingT, CroppingB,Os1, Os).
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
+conv2D_transpose([[[I|Is0]|Is1]|Is],X,Y,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
 	atomic(I),
 	length([[[I|Is0]|Is1]|Is],LX), 
 	%length([[I|Is0]|Is1],LY), 
 	transpose_pool_res2D([[[I|Is0]|Is1]|Is],X,Y,0,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os1),
 	(X < LX - 1 -> X1 is X + 1, Y1 is Y; X1 is 0, Y1 is Y + 1),
-	conv2D_transpose_layer([[[I|Is0]|Is1]|Is],X1,Y1,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
+	conv2D_transpose([[[I|Is0]|Is1]|Is],X1,Y1,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os1,Os).
 	
 	
 %conv2D_transpose_layer([[[[1], [2]], [[1], [1]]]],4,4,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],1,1,false,X).
@@ -391,7 +429,7 @@ transpose_pool_res3D(Is,X,Y,Z,Z1,KX,KY,KZ,PoolSizeD1,PoolSizeD2,PoolSizeD3,Strid
 
 %transpose_pool_res3D([[[1],[2]],[[1],[1]]],0,0,0,0,4,4,1,1,[[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]],[[[1]],[[1]],[[1]],[[1]]]],[[0]],[[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0]]],X).
 
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os) :-
+conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os) :-
 	atomic(I),
 	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
 	length([[[I|Is0]|Is1]|Is2],LY), 
@@ -403,22 +441,24 @@ conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,Kernel
         OutZ is LZ * StridesD3 + max(KernelSizeD3 - StridesD3, 0),
         %empty_field(OutX,OutY,NN,Os0),
 	empty_field3D([B|Bs],OutX,OutY,OutZ,Os0),
-        conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],0,0,0,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os0,Os).
+        conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],0,0,0,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os0,Os).
 conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	check_dimensions([[[[I|Is0]|Is1]|Is2]|Is],5),
+	check_pool_input_match([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,Padding),
 	is_list(I),
-        conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,[],Os).
-conv3D_transpose_layer([],_,_,_,_,_,_,_,_,_,Os,Os).
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+        conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,[],Os).
+conv3D_transpose([],_,_,_,_,_,_,_,_,_,Os,Os).
+conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
 	is_list(I),
-	conv3D_transpose_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,O),
+	conv3D_transpose([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,O),
 	append(Os0,[O],Os1),
-        conv3D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,_,_,_,_,_,_,_,_,false,Os,Os) :-
+        conv3D_transpose(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,_,_,_,_,_,_,_,_,false,Os,Os) :-
 	atomic(I),
 	((length([[[[I|Is0]|Is1]|Is2]|Is],LX), X >= LX); 
 	(length([[[I|Is0]|Is1]|Is2],LY), Y >= LY);
 	(length([[I|Is0]|Is1],LZ), Z >= LZ)).
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,_,_,StridesD1,StridesD2,StridesD3,true,Os0,Os) :-
+conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,_,_,StridesD1,StridesD2,StridesD3,true,Os0,Os) :-
 	atomic(I),
 	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
 	length([[[I|Is0]|Is1]|Is2],LY), 
@@ -434,7 +474,7 @@ conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,
         %apply_cropping_top_bottom(CroppingD1L, CroppingD1R,Os0, Os1),
 	%apply_cropping_top_bottom(CroppingD2L, CroppingD2R,Os1, Os2),
 	%apply_cropping_left_right(CroppingD3L, CroppingD3R,Os2, Os).
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
+conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
 	atomic(I),
 	length([[[[I|Is0]|Is1]|Is2]|Is],LX), 
 	length([[[I|Is0]|Is1]|Is2],LY), 
@@ -442,7 +482,7 @@ conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,
 	(X < LX - 1 -> (X1 is X + 1, Y1 is Y, Z1 is Z); 
 	(Y < LY - 1 -> (X1 is 0, Y1 is Y + 1, Z1 is Z);
 		       (X1 is 0, Y1 is 0, Z1 is Z + 1))),
-	conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],X1,Y1,Z1,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
+	conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],X1,Y1,Z1,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os1,Os).
 
 	
 	
@@ -458,11 +498,19 @@ Expected (Unparsed): [[[[1.6721, 1.2872, 0.9096, 0.1792], [1.7000000000000002, 0
 */
 
 depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],true,Os).
 depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,true,Os).
 depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,Padding,IWs,Bs,true,Os).
 depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,DilationRateD1,DilationRateD2,Os):-
+ 	check_dimensions(Is,4),
+ 	%check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),TODO check dilation
  	apply_dilation2D(IWs,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,KernelSize1D1,KernelSize1D2,IWs1),
 	pool2D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,StridesD1,StridesD2,Padding,IWs1,Bs,true,Os).

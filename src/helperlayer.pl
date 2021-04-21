@@ -4,7 +4,7 @@
 :-[util].
 
 %cropping1D_layer([[[1,2],[2,2],[3,3],[4,4]],[[1,2],[2,2],[3,3],[4,4]]],1,1,X).
-cropping1D_layer(Is, CroppingT, CroppingB, Os) :- cropping1D_layer(Is, CroppingT, CroppingB, [], Os).
+cropping1D_layer(Is, CroppingT, CroppingB, Os) :- check_dimensions(Is,3), cropping1D_layer(Is, CroppingT, CroppingB, [], Os).
 cropping1D_layer([], _,_, Os, Os).
 cropping1D_layer([[I|I1s]|Is], CroppingT, CroppingB, Os0, Os) :- 
 	not(atomic(I)),
@@ -17,7 +17,7 @@ cropping1D_layer([[I|I1s]|Is], CroppingT, CroppingB, _, Os) :-
 	cropping1D_layer([], CroppingT, CroppingB, Os1, Os).
 	
 %cropping2D_layer([[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]]],1,1,1,1,X).
-cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, Os) :- cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os).
+cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, Os) :- check_dimensions(Is,4),cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os).
 cropping2D_layer([], _,_,_,_, Os, Os).
 cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, Os0, Os) :- 
 	not(atomic(I)),
@@ -33,7 +33,7 @@ cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, _, Os)
 	
              
 %cropping3D_layer([[[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]]]],1,1,1,1,1,1,X).
-cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os) :- cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
+cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os) :- check_dimensions(Is,5), cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
 cropping3D_layer([], _,_,_,_,_,_, Os, Os).
 cropping3D_layer([[[[I|I0s]|I1s]|I2s]|Is], CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os0, Os) :- 
 	not(atomic(I)),
@@ -93,8 +93,8 @@ apply_cropping_left_right(0,CroppingR, Os0, Os) :-
 
 
 
-zero_padding1D_layer(Is,N,Os)	 :- padding1D(Is,0,N,N,Os).
-zero_padding1D_layer(Is,L,R,Os) :- padding1D(Is,0,L,R,Os).
+zero_padding1D_layer(Is,N,Os)	 :- check_dimensions(Is,3), padding1D(Is,0,N,N,Os).
+zero_padding1D_layer(Is,L,R,Os) :- check_dimensions(Is,3), padding1D(Is,0,L,R,Os).
 /*zero_padding1D([[I|I0s]|Is],N,Os) :- atomic(I), zero_padding1D([[I|I0s]|Is],N,[[I|I0s]|Is],Os).
 zero_padding1D([[I|I0s]|Is],N,Os) :- is_list(I), zero_padding1D([[I|I0s]|Is],N,[],Os).
 zero_padding1D([],_,Os,Os).
@@ -146,9 +146,9 @@ padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os1,Os) :-
 
 %zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
 %zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
-zero_padding2D_layer(Is,N,Os) :- padding2D(Is,0,N,N,N,N,Os).
-zero_padding2D_layer(Is,D1,D2,Os) :- padding2D(Is,0,D1,D1,D2,D2,Os).
-zero_padding2D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- padding2D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,Os).
+zero_padding2D_layer(Is,N,Os) :- check_dimensions(Is,4), padding2D(Is,0,N,N,N,N,Os).
+zero_padding2D_layer(Is,D1,D2,Os) :- check_dimensions(Is,4), padding2D(Is,0,D1,D1,D2,D2,Os).
+zero_padding2D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- check_dimensions(Is,4), padding2D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,Os).
 
 	
 padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os) :- atomic(I), padding1D([[[I|I0s]|I1s]|Is],PadSym,LeftPD2,RightPD2,Os1), padding2D(Os1,PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os).
@@ -182,9 +182,9 @@ padding2D([[[I|I0s]|I1s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Os1,Os) :-
 
 	
 %zero_padding3D_layer([[[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]]],1,X).
-zero_padding3D_layer(Is,N,Os) :- padding3D(Is,0,N,N,N,N,N,N,Os).
-zero_padding3D_layer(Is,D1,D2,D3,Os) :- padding3D(Is,0,D1,D1,D2,D2,D3,D3,Os).
-zero_padding3D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os) :- padding3D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os).
+zero_padding3D_layer(Is,N,Os) :- check_dimensions(Is,5), padding3D(Is,0,N,N,N,N,N,N,Os).
+zero_padding3D_layer(Is,D1,D2,D3,Os) :- check_dimensions(Is,5), padding3D(Is,0,D1,D1,D2,D2,D3,D3,Os).
+zero_padding3D_layer(Is,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os) :- check_dimensions(Is,5), padding3D(Is,0,LeftPD1,RightPD1,LeftPD2,RightPD2,LeftPD3,RightPD3,Os).
 /*zero_padding3D([I|Is],N,Os) :- length([I|Is],L), L == 1, zero_padding2D(I,N,Os1), zero_padding3D(Os1,N,Os1,Os).
 zero_padding3D(Is,N,Os) :- length(Is,L), L > 1, zero_padding3D(Is,N,[],Os).
 zero_padding3D([],_,Os,Os).
@@ -241,7 +241,7 @@ padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD1,LeftPD2,RightPD2,Left
 	append(Os1,[O],Os2),
 	padding3D([[[[I|I0s]|I1s]|I2s]|Is],PadSym,LeftPD1,RightPD11,LeftPD2,RightPD2,LeftPD3,RightPD3,Os2,Os).
 	
-up_sampling1D_layer(Is, Size, Os) :- up_sampling1D_layer(Is, Size, [], Os).
+up_sampling1D_layer(Is, Size, Os) :- check_dimensions(Is,3), up_sampling1D_layer(Is, Size, [], Os).
 up_sampling1D_layer([], _, Os,Os).
 up_sampling1D_layer([[I|Is0]|Is], Size, Os0,Os):-
 	is_list(I),
@@ -270,7 +270,7 @@ multiply_element(X,N,[X|Ys]):-
 	multiply_element(X,N1,Ys).
 	
 	
-up_sampling2D_layer(Is, SizeD1, SizeD2, Os) :- up_sampling2D_layer(Is, SizeD1, SizeD2, [], Os).
+up_sampling2D_layer(Is, SizeD1, SizeD2, Os) :- check_dimensions(Is,4), up_sampling2D_layer(Is, SizeD1, SizeD2, [], Os).
 up_sampling2D_layer([], _, _, Os,Os).
 up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, Os0,Os):-
 	is_list(I),
@@ -288,7 +288,7 @@ up_sampling2D_layer([[[I|Is0]|Is1]|Is], 0, SizeD2, Os0,Os):-
 	append(Os0,[O],Os1),
 	up_sampling2D_layer(Is,0, SizeD2,Os1,Os).
 	
-up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, Os) :- up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, [], Os).
+up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, Os) :- check_dimensions(Is,5), up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, [], Os).
 up_sampling3D_layer([], _, _,_, Os,Os).
 up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
 	is_list(I),
@@ -684,3 +684,98 @@ concatenate_lists([I1,I2|Is],Os) :-
 concatenate_lists([I1,I2],Os) :-
 	concatenate_lists(I1,I2,Os).
 concatenate_lists(I1,I2,[I1,I2]).*/
+
+
+
+test_exception(Name,T) :-
+	catch(T, E, (writeln(Name), writeln(E), writeln("asfdasdf"),abort)),
+	%writeln(X),
+	writeln("done").
+	
+
+
+
+
+	
+/*	
+test123(Out,Y) :-
+	L1 = thresholded_relu_layer([1,2,3,0.4,0.6],0.5,X),
+	catch(L1, E, (writeln(Name), writeln(E), writeln("asfdasdf"),abort)),
+	L2 = thresholded_relu_layer(X,0.5,Y),
+	test_exception("thresholded_relu_layer",L2),
+	catch(L2, E, (writeln(Name), writeln(E), writeln("asfdasdf"),abort)),
+	writeln(Out).
+
+	
+test5(Out) :-
+	L1 = thresholded_relu_layer([1,2,3,0.4,0.6],0.5,X),
+	L2 = thresholded_relu_layer(X,0.5,Y),
+	execLayers([L1,L2],["Lasdf","Lwer"],Y,"Y").
+*/
+
+exec_layers([],[],_,_).
+exec_layers([L|Layers],[N|LayerNames],OutVar, OutVarName) :-
+	catch(call_with_time_limit(10,L), E, (write("Aborted at "), write(N), write(": "), write(E), writeln("!!!"),abort)),
+	write("Layer "), write(N),writeln(" executed successfully"),
+	(length(Layers,0) -> write(OutVarName), write(" = "), writeln(OutVar);true),
+	exec_layers(Layers,LayerNames,OutVar, OutVarName).
+
+check_dimensions(Is, D) :-
+	depth(Is,D1), 
+	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D,BV1 is BV*10, writeln(BV1),  
+		    throw("Dimension error"));true).
+	
+check_same_shape(I1,I2) :-
+	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
+		    writeln("10"),  
+		    throw("Inconsistent Input Shapes"));true).	
+check_same_shape(I1,I2,I3) :-
+	check_same_shape(I1,I2),
+	check_same_shape(I2,I3).
+	
+check_same_shape([]).
+check_same_shape(Is) :- length(Is,1).
+check_same_shape([I1,I2|Is]) :-
+	check_same_shape(I1,I2),
+	check_same_shape([I2|Is]).
+
+	
+%LMax22036 = maximum_layer([[[[0.5569, 0.134], [0.5071, 0.0128]], [[0.9252, 0.9474], [0.9312, 0.0105]]], [[[0.7936, 0.7922], [0.5587, 0.4919]], [[0.5949, 0.8723], [0.97, 0.251]]]], Max22036), 
+%LAve50954 = average_layer([[[[0.4029, 0.524], [0.2112, 0.9831]], [[0.0687, 0.4765], [0.5959, 0.1895]]], [[[0.9714, 0.2605], [0.1184, 0.6947]], [[0.9785, 0.4338], [0.1493, 0.1083]]], [[[0.3312, 0.1356], [0.7549, 0.234]], [[0.7122, 0.0159], [0.4776, 0.4945]]]], Ave50954), 
+%LAdd90342 = add_layer([Ave50954,Max22036], [Add90342]), 
+%exec_layers([LMax22036,LAve50954,LAdd90342],["LAdd90342","LAve50954","LMax22036"],Add90342,"Add90342").
+
+check_pool_input_match(_, _, true).
+check_pool_input_match(Is,PoolSize, false) :-
+	sub_length(Is,D1),
+	(D1 < PoolSize -> (write("Invalid Model, Badness Value: "), 
+		    	   BV is D1-PoolSize, writeln(BV),   
+		           throw("Shape Error"));true).	
+
+check_pool_input_match(_, _, _, true).
+check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, false) :-
+	sub_length(Is,D1),
+	(D1 < PoolSizeD1 -> (write("Invalid Model, Badness Value: "), 
+			     BV1 is D1-PoolSizeD1, writeln(BV1),   
+	    		     throw("Shape Error"));true),
+	sub_sub_length(Is,D2),
+	(D2 < PoolSizeD2 -> (write("Invalid Model, Badness Value: "), 
+	    		     BV2 is D2-PoolSizeD2, writeln(BV2),   
+	                     throw("Shape Error"));true).
+	                     
+check_pool_input_match(_, _, _, _, true).
+check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
+	sub_length(Is,D1),
+	(D1 < PoolSizeD1 -> (write("Invalid Model, Badness Value: "), 
+			     BV1 is D1-PoolSizeD1, writeln(BV1),   
+	    		     throw("Shape Error"));true),
+	sub_sub_length(Is,D2),
+	(D2 < PoolSizeD2 -> (write("Invalid Model, Badness Value: "), 
+	    		     BV2 is D2-PoolSizeD2, writeln(BV2),   
+	                     throw("Shape Error"));true),
+	sub_sub_sub_length(Is,D3),
+	(D3 < PoolSizeD3 -> (write("Invalid Model, Badness Value: "), 
+	    		     BV3 is D3-PoolSizeD3, writeln(BV3),   
+	                     throw("Shape Error"));true).	                     
+	                     
