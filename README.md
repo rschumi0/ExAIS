@@ -1,7 +1,10 @@
 # TensorFlowPrologSpec
 This project aims to provide a Prolog specification of individual TensorFlow layers. Most layers are specified assuming statically given weights. Taking these weights as input parameter enables a deterministic computation of outputs for given inputs.
 
+# Prerequisites
 
+?- pack_install(list_util).
+?- pack_install(cplint).
 
 # Implemented layers
 
@@ -76,8 +79,4 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  ZeroPadding3D|   | 
 
 
-# Layers under development
- | Layer | Comment |
- | --- | --- |    
 
-   
