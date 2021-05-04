@@ -292,11 +292,11 @@ lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os) :-
 lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os) :- 
 	atomic(I), length(Bs,N), N1 is N /4, empty_list(N1,Os0), lstm_layer([[I|Is0]|Is],Ws,Us,Bs,[Os0],[Os0],[Os]).
 lstm_layer([],_,_,_,Os,Os).
-lstm_layer([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
+lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os0,Os) :-
 	is_list(I),
-	lstm_layer([I|Is0],Ws,RWs,Bs,O),
+	lstm_layer([I|Is0],Ws,Us,Bs,O),
 	append(Os0,[O],Os1),
-	lstm_layer(Is,Ws,RWs,Bs,Os1,Os).
+	lstm_layer(Is,Ws,Us,Bs,Os1,Os).
 lstm_layer([],_,_,_,_,Os,Os).
 lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
 	atomic(I),
@@ -553,7 +553,8 @@ temp_function(X,X).
 
     h = o * self.activation(cF)*/
 	
-apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
+%apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
+apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 %apply_lstm_step_conv1Test([I|IsT],Ws,Us,Bs,Ct0,Ct,[O0|Os0T],Os) :-
 		write('Ct0: '),writeln(Ct0),
 		write('Os0: '),writeln(Os0),

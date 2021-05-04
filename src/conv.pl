@@ -326,8 +326,8 @@ nth0_from_sublist(N,[I|Is],Os0,Os) :-
 
 
 transpose_pool_res2D(Is,X,Y,Z,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os) :- 
-	writeln(X),
-	writeln(Y),
+	%writeln(X),
+	%writeln(Y),
 	transpose_pool_res2D(Is,X,Y,Z,0,0,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IWs,Bs,Os0,Os).
 transpose_pool_res2D([[I|_]|_],_,_,Z,KX,KY,PoolSizeD1,PoolSizeD2,_,_,_,_,Os,Os) :-
 	(KX >= PoolSizeD1;KY >=  PoolSizeD2;(length(I,LZ), Z >= LZ)).
@@ -340,7 +340,7 @@ transpose_pool_res2D(Is,X,Y,Z,KX,KY,PoolSizeD1,PoolSizeD2,StridesD1,StridesD2,IW
 	nth0_3D(X,Y,Z,Is,I),
 	multiply_each_list_element_with(Ws,I,Add),
 	add_lists(OldO,Add,NewO),
-	writeln(NewO),
+	%writeln(NewO),
 	insert_pool_field(Os0,NewO,false,OutX,OutY,1,Os1),
 	((KX < PoolSizeD1-1  -> KX1 is KX+1, KY1 is KY,   Z1 is Z);
 	((KY < PoolSizeD2-1  -> KX1 is 0,    KY1 is KY+1, Z1 is Z); 

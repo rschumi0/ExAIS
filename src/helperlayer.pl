@@ -725,11 +725,21 @@ check_dimensions(Is, D) :-
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
 		    BV is D1-D,BV1 is BV*10, writeln(BV1),  
 		    throw("Dimension error"));true).
+		    
+		    
+check_same_dimensions(I1,I2) :-
+	depth(I1,D1),
+	depth(I2,D),
+	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D,BV1 is BV*10, writeln(BV1),  
+		    throw("Inconsistent Input Dimensions"));true).
 	
 check_same_shape(I1,I2) :-
+	check_same_dimensions(I1,I2),
 	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
-		    writeln("10"),  
-		    throw("Inconsistent Input Shapes"));true).	
+		    		 	   compute_different_shape_badness(I1,I2,B),
+		    			   writeln(B),  
+		    			   throw("Inconsistent Input Shapes"));true).	
 check_same_shape(I1,I2,I3) :-
 	check_same_shape(I1,I2),
 	check_same_shape(I2,I3).
@@ -739,6 +749,25 @@ check_same_shape(Is) :- length(Is,1).
 check_same_shape([I1,I2|Is]) :-
 	check_same_shape(I1,I2),
 	check_same_shape([I2|Is]).
+	
+	
+compute_different_shape_badness(I1,I2, Badness) :-
+ 	depth(I1,1),
+ 	length(I1,L1),
+ 	length(I2,L2),
+ 	Badness is abs(L1-L2).
+ 	
+compute_different_shape_badness([I1|Is1],[I2|Is2], Badness) :-
+ 	depth([I1|Is1],D),
+ 	D>=2,
+ 	length(Is1,L1),
+ 	length(Is2,L2),
+ 	pow(10,D-1,Factor),
+ 	compute_different_shape_badness(I1,I2,InnerBadness),
+ 	Badness is Factor*abs(L1-L2) + InnerBadness.	
+	
+	
+
 
 	
 %LMax22036 = maximum_layer([[[[0.5569, 0.134], [0.5071, 0.0128]], [[0.9252, 0.9474], [0.9312, 0.0105]]], [[[0.7936, 0.7922], [0.5587, 0.4919]], [[0.5949, 0.8723], [0.97, 0.251]]]], Max22036), 

@@ -43,7 +43,6 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
  |  GlobalMaxPool2D|   |  
  |  GlobalMaxPool3D|   | 
  |  GRU|   |    
- |  InputSpec|   | 
  |  LayerNormalization|   |  
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  

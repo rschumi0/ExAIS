@@ -335,3 +335,9 @@ map_map_map_transpose(Is, Os) :-
 	maplist(map_map_transpose,Is,Os).
 	
     	
+sum_rows([],[]).
+sum_rows([Head|Tail], [Ret|Return]) :-
+    sum_list(Head, Ret),
+    sum_rows(Tail, Return).
+    
+sum_columns(M,Res) :- transpose(M,M1),sum_rows(M1,Res).
