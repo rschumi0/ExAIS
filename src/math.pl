@@ -578,8 +578,7 @@ temp_layer1(X,Y,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,Zs) :-
 */
 
 %temp_layer1([[[[4, 2], [4, 2]], [[4, 6], [9, 0]]]], [[[[9, 5], [4, 5]], [[7, 8], [9, 1]]]], A,B,C,D,E,F,G,H,I,J,K,L,M,N,O, [[[[64, 52], [52, 24]], [[32, 26], [26, 12]]], [[[99, 92], [97, 29]], [[54, 30], [24, 30]]]]).
-keep(A,A).
-pack_list(A,[A]).
+
 temp_layer1(X,Y,A,B,C,D,A1,B1,C1,D1,B2,C2,D2,Zs) :-
 	(A = true; A = false),
 	(B = true; B = false),

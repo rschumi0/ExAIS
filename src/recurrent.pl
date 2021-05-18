@@ -4,18 +4,24 @@
 :-use_module(library(lambda)).
 :-[util].
 
+simple_rnn_layer(Is,Ws,RWs,Bs,Os) :- 
+	check_dimensions(Is,3),
+	sub_sub_length(Is,L),
+	length(Ws,L1),
+	check_valid_arguments(Is,L,L1),
+	simple_rnn(Is,Ws,RWs,Bs,Os).
 
-simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os) :- 
-	is_list(I), simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,[],Os).
-simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os) :- 
-	atomic(I), length(Bs,N), empty_list(N,Os0), simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os).
-simple_rnn_layer([],_,_,_,Os,Os).
-simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
+simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os) :- 
+	is_list(I), simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,[],Os).
+simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os) :- 
+	atomic(I), length(Bs,N), empty_list(N,Os0), simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os).
+simple_rnn([],_,_,_,Os,Os).
+simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
 	is_list(I),
-	simple_rnn_layer([I|Is0],Ws,RWs,Bs,O),
+	simple_rnn([I|Is0],Ws,RWs,Bs,O),
 	append(Os0,[O],Os1),
-	simple_rnn_layer(Is,Ws,RWs,Bs,Os1,Os).
-simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
+	simple_rnn(Is,Ws,RWs,Bs,Os1,Os).
+simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
 	atomic(I),
 	mult_input_and_weight([I|Is0],Ws,O),
 	%writeln("O"),
@@ -29,12 +35,7 @@ simple_rnn_layer([[I|Is0]|Is],Ws,RWs,Bs,Os0,Os) :-
 	%writeln(O2),
 	tanh(O2,Os1),
 	%writeln(Os1),
-	simple_rnn_layer(Is,Ws,RWs,Bs,Os1,Os).
-	
-unpack([X|_],X).
-	
-temp(Is,Is).
-
+	simple_rnn(Is,Ws,RWs,Bs,Os1,Os).
 	
 mult_input_and_weight([I|Is],[W|Ws],Os) :- mult_input_and_weight([I|Is],[W|Ws],[],Os).
 mult_input_and_weight([],[],Os,Os).
@@ -56,20 +57,25 @@ mult_recurrent_weight([I|Is],[RW|RWs],Os0,Os) :-
 */
 
 
+gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
+	check_dimensions(Is,3),
+	sub_sub_length(Is,L),
+	length(Ws,L1),
+	check_valid_arguments(Is,L,L1),
+	gru(Is,Ws,RWs,Bs,ResetAfter,Os).
 
 
-
-gru_layer([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os) :- 
-	is_list(I), gru_layer([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,[],Os).
-gru_layer([[I|Is0]|Is],[W|Ws],RWs,Bs,ResetAfter,Os) :- 
-	atomic(I), length(W,N), N1 is N /3, empty_list(N1,Os0), gru_layer([[I|Is0]|Is],[W|Ws],RWs,Bs,ResetAfter,[Os0],[Os]).
-gru_layer([],_,_,_,_,Os,Os).
-gru_layer([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os0,Os) :-
+gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os) :- 
+	is_list(I), gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,[],Os).
+gru([[I|Is0]|Is],[W|Ws],RWs,Bs,ResetAfter,Os) :- 
+	atomic(I), length(W,N), N1 is N /3, empty_list(N1,Os0), gru([[I|Is0]|Is],[W|Ws],RWs,Bs,ResetAfter,[Os0],[Os]).
+gru([],_,_,_,_,Os,Os).
+gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os0,Os) :-
 	is_list(I),
-	gru_layer([I|Is0],Ws,RWs,Bs,ResetAfter,O),
+	gru([I|Is0],Ws,RWs,Bs,ResetAfter,O),
 	append(Os0,[O],Os1),
-	gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os1,Os).
-gru_layer([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
+	gru(Is,Ws,RWs,Bs,ResetAfter,Os1,Os).
+gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	atomic(I),
 	%writeln("last res"),
 	%writeln(Os0),
@@ -130,10 +136,9 @@ gru_layer([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	%write('Os1: '),
 	%writeln(Os1),
 	%N1 is N+1,
-	gru_layer(Is,Ws,Us,Bs,false,Os1,Os). 
+	gru(Is,Ws,Us,Bs,false,Os1,Os). 
 	
-	
-gru_layer([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
+gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	atomic(I),
 	%writeln("last res"),
 	%writeln(Os0),
@@ -196,7 +201,7 @@ gru_layer([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	%write('Os1: '),
 	%writeln(Os1),
 	%N1 is N+1,
-	gru_layer(Is,Ws,Us,[Bs1,Bs2],true,Os1,Os). 
+	gru(Is,Ws,Us,[Bs1,Bs2],true,Os1,Os). 
 
 	
 /*
@@ -286,45 +291,51 @@ Expected: [[0.1186]]
 
 */
 
-
-lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os) :- 
-	is_list(I), lstm_layer([[I|Is0]|Is],Ws,Us,Bs,[],Os).
-lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os) :- 
-	atomic(I), length(Bs,N), N1 is N /4, empty_list(N1,Os0), lstm_layer([[I|Is0]|Is],Ws,Us,Bs,[Os0],[Os0],[Os]).
-lstm_layer([],_,_,_,Os,Os).
-lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Os0,Os) :-
+lstm_layer(Is,Ws,Us,Bs,Os) :- 
+	check_dimensions(Is,3),
+	sub_sub_length(Is,L),	
+	length(Ws,L1),
+	check_valid_arguments(Is,L,L1),
+	lstm(Is,Ws,Us,Bs,Os).
+	
+lstm([[I|Is0]|Is],Ws,Us,Bs,Os) :- 
+	is_list(I), lstm([[I|Is0]|Is],Ws,Us,Bs,[],Os).
+lstm([[I|Is0]|Is],Ws,Us,Bs,Os) :- 
+	atomic(I), length(Bs,N), N1 is N /4, empty_list(N1,Os0), lstm([[I|Is0]|Is],Ws,Us,Bs,[Os0],[Os0],[Os]).
+lstm([],_,_,_,Os,Os).
+lstm([[I|Is0]|Is],Ws,Us,Bs,Os0,Os) :-
 	is_list(I),
-	lstm_layer([I|Is0],Ws,Us,Bs,O),
+	lstm([I|Is0],Ws,Us,Bs,O),
 	append(Os0,[O],Os1),
-	lstm_layer(Is,Ws,Us,Bs,Os1,Os).
-lstm_layer([],_,_,_,_,Os,Os).
-lstm_layer([[I|Is0]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
+	lstm(Is,Ws,Us,Bs,Os1,Os).
+lstm([],_,_,_,_,Os,Os).
+lstm([[I|Is0]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
 	atomic(I),
 	split_lstm_weights(Ws, Wi,Wf,Wc,Wo),
 	split_lstm_weights(Us, Ui,Uf,Uc,Uo),
 	split_lstm_weights([Bs], Bi,Bf,Bc,Bo),
-	write('Wi: '),
-	writeln(Wi),
+	%write('Wi: '),
+	%writeln(Wi),
 	
 	sig_gate([[I|Is0]],Os0,Wi,Ui,Bi,It),
 	sig_gate([[I|Is0]],Os0,Wf,Uf,Bf,Ft),
 	sig_gate([[I|Is0]],Os0,Wo,Uo,Bo,Ot),
-	write('Ot: '),
-	writeln(Ot),
+	%write('Ot: '),
+	%writeln(Ot),
 	
 	tanh_gate([[I|Is0]],Os0,Wc,Uc,Bc,Ctt),
-	write('Ctt: '),
-	writeln(Ctt),
+	%write('Ctt: '),
+	%writeln(Ctt),
 	
 	multiply_lists(Ft,Ct0,Ct1),
 	multiply_lists(It,Ctt,Ct2),
 	add_lists(Ct1,Ct2,Ct),
 	tanh(Ct,TanhCt),
 	multiply_lists(Ot,TanhCt,Os1),
-	write('Os1: '),
-	writeln(Os1),
+	%write('Os1: '),
+	%writeln(Os1),
 	
-	lstm_layer(Is,Ws,Us,Bs,Ct,Os1,Os). 
+	lstm(Is,Ws,Us,Bs,Ct,Os1,Os). 
 	
 sig_gate(Is,HtPast,W,U,B,Os) :-
 	mmult(Is,W,Os0),

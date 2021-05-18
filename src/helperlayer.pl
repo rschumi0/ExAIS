@@ -245,7 +245,7 @@ up_sampling1D_layer(Is, Size, Os) :- check_dimensions(Is,3), up_sampling1D_layer
 up_sampling1D_layer([], _, Os,Os).
 up_sampling1D_layer([[I|Is0]|Is], Size, Os0,Os):-
 	is_list(I),
-	up_sampling1D_layer([I|Is0],Size,O),
+	up_sampling1D_layer([I|Is0],Size,[],O),
 	append(Os0,[O],Os1),
 	up_sampling1D_layer(Is,Size,Os1,Os).
 up_sampling1D_layer([[I|Is0]|Is], Size, _,Os):-
@@ -274,7 +274,7 @@ up_sampling2D_layer(Is, SizeD1, SizeD2, Os) :- check_dimensions(Is,4), up_sampli
 up_sampling2D_layer([], _, _, Os,Os).
 up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, Os0,Os):-
 	is_list(I),
-	up_sampling2D_layer([[I|Is0]|Is1],SizeD1, SizeD2,O),
+	up_sampling2D_layer([[I|Is0]|Is1],SizeD1, SizeD2,[],O),
 	append(Os0,[O],Os1),
 	up_sampling2D_layer(Is,SizeD1,SizeD2,Os1,Os).
 up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, _,Os):-
@@ -284,7 +284,7 @@ up_sampling2D_layer([[[I|Is0]|Is1]|Is], SizeD1, SizeD2, _,Os):-
 	up_sampling2D_layer(Os1,0, SizeD2,[],Os).
 up_sampling2D_layer([[[I|Is0]|Is1]|Is], 0, SizeD2, Os0,Os):-
 	atomic(I),
-	up_sampling1D_layer([[I|Is0]|Is1],SizeD2,O),
+	up_sampling1D_layer([[I|Is0]|Is1],SizeD2,[],O),
 	append(Os0,[O],Os1),
 	up_sampling2D_layer(Is,0, SizeD2,Os1,Os).
 	
@@ -292,13 +292,13 @@ up_sampling3D_layer(Is, SizeD1, SizeD2, SizeD3, Os) :- check_dimensions(Is,5), u
 up_sampling3D_layer([], _, _,_, Os,Os).
 up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, SizeD2, SizeD3, Os0,Os):-
 	is_list(I),
-	up_sampling3D_layer([[[I|I0s]|I1s]|I2s],SizeD1, SizeD2, SizeD3,O),
+	up_sampling3D_layer([[[I|I0s]|I1s]|I2s],SizeD1, SizeD2, SizeD3,[],O),
 	append(Os0,[O],Os1),
 	up_sampling3D_layer(Is,SizeD1,SizeD2, SizeD3,Os1,Os).
 up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, SizeD2, SizeD3, _,Os):-
 	atomic(I),
 	SizeD2 > 0,
-	up_sampling2D_layer([[[[I|I0s]|I1s]|I2s]|Is],SizeD2,SizeD3,Os1),
+	up_sampling2D_layer([[[[I|I0s]|I1s]|I2s]|Is],SizeD2,SizeD3,[],Os1),
 	up_sampling3D_layer(Os1,SizeD1, 0, 0,[],Os).
 up_sampling3D_layer([[[[I|I0s]|I1s]|I2s]|Is], SizeD1, 0, 0, _,Os):-
 	atomic(I),
@@ -350,7 +350,9 @@ embedding_layer([I|Is],Ws,Os0,Os) :-
 	embedding_layer(Is,Ws,Os1,Os).
 	
 	
-repeat_vector_layer(Is,N,[Os]) :- multiply_entries(Is,N,Os).
+repeat_vector_layer(Is,N,[Os]) :- 
+check_max_dimensions(Is,3),
+multiply_entries(Is,N,Os).
 
 
 permute_layer(Is,D1,D2,Os) :- permute_layer(Is,D1,D2,[],Os).
@@ -368,14 +370,18 @@ permute_layer([[I|Is1]|Is],2,1,_,Os) :-
 	transpose([[I|Is1]|Is],Os1),
 	permute_layer([],2,1,Os1,Os).
 	
-reshape_layer(Is,Ss,[Os]) :-
+reshape_layer(Is,Ss,Os) :-
 	depth(Is,1),
 	recursive_split(Ss,Is,Os).
 reshape_layer(Is,Ss,Os) :-
+	%check_valid_reshape(Is,Ss),
 	depth(Is,D),
 	D > 1,
+	shape(Is,Shape),
+	list_product(Shape,PIn),
+	list_product(Ss,POut),
 	flatten(Is,Is1),
-	reshape_layer(Is1,Ss,Os).
+	(PIn > POut -> (AddS is PIn / POut,reshape_layer(Is1,[AddS|Ss],Os));reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)).
 
 %recursive_split([3,3],[1,2,3,4,5,6,7,8,9],X).
 %recursive_split([],Is,Is).
@@ -592,12 +598,6 @@ Expected (Unparsed): [[[[[0.5949]]]]] Warning: /home/admin1/Documents/GitHub/Ten
 Actual:   [[[[[-0.364]]]]]
 Expected: [[[[[0.5949]]]]] */
 
-
-innner_transpose([],[]).
-innner_transpose([I|Is],[O|Os]) :-
-	maplist(transpose,I,O),
-	innner_transpose(Is,Os).
-
 	
 /*
 softmax_layer([],_,[]).
@@ -622,9 +622,251 @@ softmax_layer([I|Is],Axis,[O|Os]) :-
 	Axis1 is Axis -1,
 	softmax_layer(I,Axis1,O),
 	softmax_layer(Is,Axis,Os).
+
+concatenate_layer([[[[0.1961, 0.9416], [0.3303, 0.4419]]], [[[0.5051, 0.0706], [0.7356, 0.8823]]]], 0, X)
+-------------------------------------------------------------------------------------
+X = [[[[[0.1961, 0.9416], [0.3303, 0.4419]], [[0.5051, 0.0706], [0.7356, 0.8823]]]]] X = [[[[[0.1961, 0.9416], [0.3303, 0.4419]], [[0.5051, 0.0706], [0.7356, 0.8823]]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.1961000, 0.9416000], [0.3303000, 0.4419000]]], [[[0.5051000, 0.0706000], [0.7356000, 0.8823000]]]]
+Expected (Unparsed): [[[[[0.1961, 0.9416], [0.3303, 0.4419]], [[0.5051, 0.0706], [0.7356, 0.8823]]]]]
+-------------------------------------------------------------------------------------
+	 [[[[[[0.1961, 0.9416], [0.3303, 0.4419]]], [[[0.5051, 0.0706], [0.7356, 0.8823]]]]]]
+	 [[[[[0.1961, 0.9416], [0.3303, 0.4419]]], [[[0.5051, 0.0706], [0.7356, 0.8823]]]]]
+	  [[[[0.1961, 0.9416], [0.3303, 0.4419]]], [[[0.5051, 0.0706], [0.7356, 0.8823]]]]
+Actual:   [[[[0.1961, 0.9416], [0.3303, 0.4419]]], [[[0.5051, 0.0706], [0.7356, 0.8823]]]]
+Expected: [[[[[0.1961, 0.9416], [0.3303, 0.4419]], [[0.5051, 0.0706], [0.7356, 0.8823]]]]]
+
+
+concatenate_layer([[[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]]], [[[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]], 1, X)
+-------------------------------------------------------------------------------------
+X = [[[[0.7734, 0.0299], [0.5645, 0.5694]]], [[[0.8666, 0.7745], [0.0097, 0.1752]]]] X = [[[[0.7734, 0.0299], [0.5645, 0.5694]]], [[[0.8666, 0.7745], [0.0097, 0.1752]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[0.7734000, 0.0299000], [0.5645000, 0.5694000]], [[0.0535000, 0.1463000], [0.0439000, 0.3316000]]], [[[0.8666000, 0.7745000], [0.0097000, 0.1752000]], [[0.6369000, 0.1433000], [0.8595000, 0.3364000]]]]]
+Expected (Unparsed): [[[[0.7734, 0.0299], [0.5645, 0.5694]]], [[[0.8666, 0.7745], [0.0097, 0.1752]]]]
+-------------------------------------------------------------------------------------
+	   [[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.8666, 0.7745], [0.0097, 0.1752]]]]
+[[[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]], [[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]]
+X = 	 [[[[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]], [[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]]]
+           [[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]], [[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]
+          [[[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]], [[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]]
+Actual:   [[[[[0.7734, 0.0299], [0.5645, 0.5694]], [[0.0535, 0.1463], [0.0439, 0.3316]]], [[[0.8666, 0.7745], [0.0097, 0.1752]], [[0.6369, 0.1433], [0.8595, 0.3364]]]]]
+Expected: [[[[0.7734, 0.0299], [0.5645, 0.5694]]], [[[0.8666, 0.7745], [0.0097, 0.1752]]]]
 */
 
 
+temp_layer_con(X,A,B,C,D,A2,B2,C2,D2,E2,Zs) :-
+	(A = true; A = false),
+	(B = true; B = false),
+	(C = true; C = false),
+	(D = true; D = false),
+	%(E = true; E = false),
+	%(E1 = true; E1 = false),
+	(A2 = true; A2 = false),
+	(B2 = true; B2 = false),
+	(C2 = true; C2 = false),
+	(D2 = true; D2 = false),
+	(E2 = true; E2 = false),
+	%keep(X,X0),
+	del_first_items(X,X0,_),
+	
+	(A -> transpose(X0,X1);keep(X0,X1)),
+	(B -> map_transpose(X1,X2);keep(X1,X2)),
+	(C -> map_map_transpose(X2,X3);keep(X2,X3)),
+	(D -> map_transpose(X3,X4);keep(X3,X4)),
+	%(E -> transpose(X4,X5);keep(X4,X5)),
+	
+	concatenate(X4,0,Z),
+	(A2 -> transpose(Z,Z1);keep(Z,Z1)),
+	(B2 -> map_transpose(Z1,Z2);keep(Z1,Z2)),
+	(C2 -> map_map_transpose(Z2,Z3);keep(Z2,Z3)),
+	(D2 -> map_transpose(Z3,Z4);keep(Z3,Z4)),
+	(E2 -> transpose(Z4,Zs);keep(Z4,Zs)).
+
+/*
+concatenate_layer([[[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]]], [[[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]], 0, X)
+-------------------------------------------------------------------------------------
+X = [[[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]]], [[[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]] X = [[[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]]], [[[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning:    Redefined static procedure pack_list/2Warning:    Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.3747000, 0.4272000], [0.0248000, 0.2095000]], [[0.4037000, 0.0458000], [0.6292000, 0.7836000]]], [[[0.2045000, 0.2952000], [0.8904000, 0.5486000]], [[0.0843000, 0.2293000], [0.9772000, 0.8730000]]]]
+Expected (Unparsed): [[[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]]], [[[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning: Redefined static procedure pack_list/2Warning: Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652
+-------------------------------------------------------------------------------------
+          [[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]], [[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]
+Actual:   [[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]], [[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]
+Expected: [[[[[0.3747, 0.4272], [0.0248, 0.2095]], [[0.4037, 0.0458], [0.6292, 0.7836]]]], [[[[0.2045, 0.2952], [0.8904, 0.5486]], [[0.0843, 0.2293], [0.9772, 0.873]]]]]
+
+concatenate_layer([[[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]]]], [[[[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]], 1, X)
+-------------------------------------------------------------------------------------
+X = [[[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]]], [[[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]] X = [[[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]]], [[[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning:    Redefined static procedure pack_list/2Warning:    Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[0.7660000, 0.3542000], [0.7203000, 0.4083000]], [[0.8496000, 0.5699000], [0.1306000, 0.1573000]], [[0.2784000, 0.3950000], [0.5468000, 0.7413000]], [[0.3611000, 0.6774000], [0.5618000, 0.8086000]]]]
+Expected (Unparsed): [[[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]]], [[[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]] Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning: Redefined static procedure pack_list/2Warning: Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652
+-------------------------------------------------------------------------------------
+          [[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]], [[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]
+Actual:   [[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]], [[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]
+Expected: [[[[[0.766, 0.3542], [0.7203, 0.4083]], [[0.8496, 0.5699], [0.1306, 0.1573]]], [[[0.2784, 0.395], [0.5468, 0.7413]], [[0.3611, 0.6774], [0.5618, 0.8086]]]]]
+
+concatenate_layer([[[[[[0.9521, 0.369], [0.6516, 0.8806]], [[0.3956, 0.1372], [0.5964, 0.5806]]]], [[[[0.3988, 0.1688], [0.8602, 0.0703]], [[0.1648, 0.4908], [0.7639, 0.514]]]]], [[[[[0.812, 0.8494], [0.7677, 0.5054]], [[0.9957, 0.0137], [0.9772, 0.7882]]]], [[[[0.7879, 0.1554], [0.7077, 0.2006]], [[0.6858, 0.7554], [0.3063, 0.0468]]]]]], 0, X)
+-------------------------------------------------------------------------------------
+Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning:    Redefined static procedure pack_list/2Warning:    Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652ERROR: Out of global-stack.ERROR: No room for exception term.  Aborting.Could not reenable global-stackCould not reenable global-stackCould not reenable global-stackERROR: Unknown procedure: w/0 (DWIM could not correct goal)
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[0.9521000, 0.3690000], [0.6516000, 0.8806000]], [[0.3956000, 0.1372000], [0.5964000, 0.5806000]]]], [[[[0.3988000, 0.1688000], [0.8602000, 0.0703000]], [[0.1648000, 0.4908000], [0.7639000, 0.5140000]]]], [[[[0.8120000, 0.8494000], [0.7677000, 0.5054000]], [[0.9957000, 0.0137000], [0.9772000, 0.7882000]]]], [[[[0.7879000, 0.1554000], [0.7077000, 0.2006000]], [[0.6858000, 0.7554000], [0.3063000, 0.0468000]]]]]
+Expected (Unparsed): Warning: /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/math.pl:582:Warning: Redefined static procedure pack_list/2Warning: Previously defined at /home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/helperlayer.pl:652ERROR: Out of global-stack.ERROR: No room for exception term. Aborting.Could not reenable global-stackCould not reenable global-stackCould not reenable global-stackERROR: Unknown procedure: w/0 (DWIM could not correct goal)
+Invalid list input!!!-------------------------------------------------------------------------------------
+[[[[[[0.9521, 0.369], [0.6516, 0.8806]], [[0.3956, 0.1372], [0.5964, 0.5806]]]], [[[[0.812, 0.8494], [0.7677, 0.5054]], [[0.9957, 0.0137], [0.9772, 0.7882]]]]], [[[[[0.3988, 0.1688], [0.8602, 0.0703]], [[0.1648, 0.4908], [0.7639, 0.514]]]], [[[[0.7879, 0.1554], [0.7077, 0.2006]], [[0.6858, 0.7554], [0.3063, 0.0468]]]]]]          
+[[[[[0.9521, 0.369], [0.6516, 0.8806]], [[0.3956, 0.1372], [0.5964, 0.5806]]]], [[[[0.812, 0.8494], [0.7677, 0.5054]], [[0.9957, 0.0137], [0.9772, 0.7882]]]]], [[[[[0.3988, 0.1688], [0.8602, 0.0703]], [[0.1648, 0.4908], [0.7639, 0.514]]]], [[[[0.7879, 0.1554], [0.7077, 0.2006]], [[0.6858, 0.7554], [0.3063, 0.0468]]]]]]
+          [[[[[0.9521, 0.369], [0.6516, 0.8806]], [[0.3956, 0.1372], [0.5964, 0.5806]]]], [[[[0.812, 0.8494], [0.7677, 0.5054]], [[0.9957, 0.0137], [0.9772, 0.7882]]]], [[[[0.3988, 0.1688], [0.8602, 0.0703]], [[0.1648, 0.4908], [0.7639, 0.514]]]], [[[[0.7879, 0.1554], [0.7077, 0.2006]], [[0.6858, 0.7554], [0.3063, 0.0468]]]]]	
+Actual:   [[[[[0.9521, 0.369], [0.6516, 0.8806]], [[0.3956, 0.1372], [0.5964, 0.5806]]]], [[[[0.3988, 0.1688], [0.8602, 0.0703]], [[0.1648, 0.4908], [0.7639, 0.514]]]], [[[[0.812, 0.8494], [0.7677, 0.5054]], [[0.9957, 0.0137], [0.9772, 0.7882]]]], [[[[0.7879, 0.1554], [0.7077, 0.2006]], [[0.6858, 0.7554], [0.3063, 0.0468]]]]]
+Expected: 
+
+concatenate_layer([[[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[0.6423]]]]]], [[[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.4994]], [[0.4754]]], [[[0.7044]], [[0.3293]]]]]]], 0, X)
+-------------------------------------------------------------------------------------
+X = [[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[...]]]]], [[[[[0.4994]], [[...]]], [[[...]], [...]]]]] X = [[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[0.6423]]]]], [[[[[0.4994]], [[0.4754]]], [[[0.7044]], [[0.3293]]]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[[0.6240000]], [[0.5650000]]], [[[0.0348000]], [[0.1211000]]]]], [[[[[0.2062000]], [[0.0497000]]], [[[0.6407000]], [[0.6423000]]]]], [[[[[0.3603000]], [[0.3698000]]], [[[0.7759000]], [[0.0109000]]]]], [[[[[0.4994000]], [[0.4754000]]], [[[0.7044000]], [[0.3293000]]]]]]
+Expected (Unparsed): [[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[0.6423]]]]], [[[[[0.4994]], [[0.4754]]], [[[0.7044]], [[0.3293]]]]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[0.6423]]]]], [[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.4994]], [[0.4754]]], [[[0.7044]], [[0.3293]]]]]]
+Expected: [[[[[[0.624]], [[0.565]]], [[[0.0348]], [[0.1211]]]]], [[[[[0.3603]], [[0.3698]]], [[[0.7759]], [[0.0109]]]]], [[[[[0.2062]], [[0.0497]]], [[[0.6407]], [[0.6423]]]]], [[[[[0.4994]], [[0.4754]]], [[[0.7044]], [[0.3293]]]]]]
+
+
+-------------------------------------------------------------------------------------
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+input0 = tf.keras.layers.Input(shape=([1, 2]))
+input1 = tf.keras.layers.Input(shape=([1, 2]))
+func = keras.layers.Concatenate(axis=0, )([input0,input1])
+model = tf.keras.models.Model(inputs=[input0,input1], outputs=func)
+input0 = tf.constant([[[0.0242, 0.8086]], [[0.9331, 0.0734]]])
+input1 = tf.constant([[[0.4256, 0.0702]], [[0.0895, 0.217]]])
+print (np.array2string(model.predict([input0,input1],steps=1), separator=', '))
+
+
+concatenate_layer([[[[0.0242, 0.8086]], [[0.9331, 0.0734]]], [[[0.4256, 0.0702]], [[0.0895, 0.217]]]], 0, X)
+-------------------------------------------------------------------------------------
+X = [[[0.0242, 0.8086]], [[0.4256, 0.0702]], [[0.9331, 0.0734]], [[0.0895, 0.217]]] X = [[[0.0242, 0.8086]], [[0.4256, 0.0702]], [[0.9331, 0.0734]], [[0.0895, 0.217]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[0.0242000, 0.8086000]], [[0.9331000, 0.0734000]], [[0.4256000, 0.0702000]], [[0.0895000, 0.2170000]]]
+Expected (Unparsed): [[[0.0242, 0.8086]], [[0.4256, 0.0702]], [[0.9331, 0.0734]], [[0.0895, 0.217]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[0.0242, 0.8086]], [[0.9331, 0.0734]], [[0.4256, 0.0702]], [[0.0895, 0.217]]]
+Expected: [[[0.0242, 0.8086]], [[0.4256, 0.0702]], [[0.9331, 0.0734]], [[0.0895, 0.217]]]
+
+
+concatenate_layer([[[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [0.9669]]]], [[[[0.2571], [0.0112]]], [[[0.4418], [0.7353]]]]]], [[[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [0.3884]]]]], [[[[[0.7251], [0.5909]]], [[[0.467], [0.9308]]]], [[[[0.6722], [0.9302]]], [[[0.4152], [0.9676]]]]]]], 0, X)
+-------------------------------------------------------------------------------------
+X = [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [...]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [...]]]], [[[[0.2571], [...]]], [[[...]|...]]]], [[[[[0.7251], [...]]], [[[...]|...]]], [[[[...]|...]], [[...|...]]]]] X = [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [0.3884]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [0.9669]]]], [[[[0.2571], [0.0112]]], [[[0.4418], [0.7353]]]]], [[[[[0.7251], [0.5909]]], [[[0.467], [0.9308]]]], [[[[0.6722], [0.9302]]], [[[0.4152], [0.9676]]]]]] 
+
+-------------------------------------------------------------------------------------
+Actual (Unparsed): [[[[[[0.0724000], [0.5743000]]], [[[0.8740000], [0.7279000]]]], [[[[0.7218000], [0.2726000]]], [[[0.3560000], [0.7116000]]]]], [[[[[0.9283000], [0.9371000]]], [[[0.4953000], [0.9669000]]]], [[[[0.2571000], [0.0112000]]], [[[0.4418000], [0.7353000]]]]], [[[[[0.8561000], [0.1030000]]], [[[0.7395000], [0.7654000]]]], [[[[0.3978000], [0.6726000]]], [[[0.1321000], [0.3884000]]]]], [[[[[0.7251000], [0.5909000]]], [[[0.4670000], [0.9308000]]]], [[[[0.6722000], [0.9302000]]], [[[0.4152000], [0.9676000]]]]]]
+Expected (Unparsed): [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [0.3884]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [0.9669]]]], [[[[0.2571], [0.0112]]], [[[0.4418], [0.7353]]]]], [[[[[0.7251], [0.5909]]], [[[0.467], [0.9308]]]], [[[[0.6722], [0.9302]]], [[[0.4152], [0.9676]]]]]]
+-------------------------------------------------------------------------------------
+Actual:   [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [0.9669]]]], [[[[0.2571], [0.0112]]], [[[0.4418], [0.7353]]]]], [[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [0.3884]]]]], [[[[[0.7251], [0.5909]]], [[[0.467], [0.9308]]]], [[[[0.6722], [0.9302]]], [[[0.4152], [0.9676]]]]]]
+Expected: [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.2726]]], [[[0.356], [0.7116]]]]], [[[[[0.8561], [0.103]]], [[[0.7395], [0.7654]]]], [[[[0.3978], [0.6726]]], [[[0.1321], [0.3884]]]]], [[[[[0.9283], [0.9371]]], [[[0.4953], [0.9669]]]], [[[[0.2571], [0.0112]]], [[[0.4418], [0.7353]]]]], [[[[[0.7251], [0.5909]]], [[[0.467], [0.9308]]]], [[[[0.6722], [0.9302]]], [[[0.4152], [0.9676]]]]]]
+-------------------------------------------------------------------------------------
+*/
+
+
+concatenate_layer(Is,Axis,Os) :- 
+	depth(Is,D),
+	%Axis < D - 1,
+	(Axis > D - 2-> (writeln("Invalid Axis!"),abort);true),
+	concatenate_layer(Is,Axis,[],OsT),
+	((Axis =:=  0) -> remove_inner_nesting(OsT,Os); keep(OsT,Os)).
+concatenate_layer([],_,Os,Os).
+concatenate_layer(Is,Axis,Os0,Os) :-
+	(Axis  =:=  0 -> (get_first_elem(Is,I),get_tail(Is,Is1)); del_first_items(Is,I,Is1)),
+	concatenate(I, Axis,O),
+	append(Os0,[O],Os1),
+	concatenate_layer(Is1,Axis,Os1,Os).
+	
+
+concatenate(Is,0,Is).% :-
+	%concatenate_lists(Is,Os).
+
+concatenate(Is,1,Os) :-
+	maplist(transpose,Is,Is1),
+	concatenate(Is1,0,Os1),
+	maplist(transpose,Os1,Os2),
+	remove_inner_nesting(Os2,Os).
+
+concatenate(Is,2,Os) :-
+	transpose(Is,Is1),
+	concatenate(Is1,0,Os1),
+	remove_inner_inner_nesting(Os1,Os).
+	
+	/*transpose(Is,IsT),
+	map_transpose(IsT,Is1),
+	concatenate(Is1,0,Os1),
+	map_transpose(Os1,Os2),
+	transpose(Os2,Os3),
+	remove_inner_nesting(Os3,Os).*/
+	%decapsulate_items(Os1,Os).
+	%maplist(remove_inner_nesting,Os1,Os).
+concatenate(Is,3,Os) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,Is1),
+	concatenate(Is1,0,Os1),
+	remove_inner_inner_inner_nesting(Os1,Os).
+	/*transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,Is1),
+	concatenate(Is1,0,Os1),
+	map_map_transpose(Os1,Os2),
+	map_transpose(Os2,Os3),
+	remove_inner_inner_nesting(Os3,Os).*/
+	%maplist(remove_inner_nesting(Os3,Os)).
+	%transpose(Os3,Os).
+	
+	%maplist(remove_inner_inner_nesting,Os1,Os).
+	%innner_transpose(Os1,OsT),
+	%maplist(map_transpose,Os1,Os).
+	%maplist(remove_inner_nesting,Os1,Os).
+
+concatenate(Is,4,Os) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,Is1),
+	concatenate(Is1,0,Os1),
+	remove_inner_inner_inner_inner_nesting(Os1,Os).
+	/*transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,IsT2),
+	map_map_map_transpose(IsT2,Is1),
+	concatenate(Is1,0,Os1),
+	map_map_map_transpose(Os1,Os2),
+	map_map_transpose(Os2,Os3),
+	remove_inner_inner_inner_nesting(Os3,Os).*/
+	
+concatenate(Is,5,Os) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,IsT2),
+	map_map_map_transpose(IsT2,Is1),
+	concatenate(Is1,0,Os1),
+	remove_inner_inner_inner_inner_inner_nesting(Os1,Os).
+	/*transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,IsT2),
+	map_map_map_transpose(IsT2,IsT3),
+	map_map_map_map_transpose(IsT3,Is1),
+	concatenate(Is1,0,Os1),
+	map_map_map_map_transpose(Os1,Os2),
+	map_map_map_transpose(Os2,Os3),
+	remove_inner_inner_inner_inner_nesting(Os3,Os).*/
+
+
+/*
 concatenate_layer(Is,0,Is).% :-
 	%concatenate_lists(Is,Os).
 
@@ -647,17 +889,21 @@ concatenate_layer(Is,3,[Os]) :-
 	%maplist(map_transpose,Os1,Os).
 	%maplist(remove_inner_nesting,Os1,Os).
 
-
+concatenate_layer(Is,4,[Os]) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,Is1),
+	concatenate_layer(Is1,0,Os1),
+	maplist(remove_inner_inner_inner_nesting,Os1,Os).
 	
-	
-remove_inner_inner_nesting(Is,Os) :-
-	maplist(remove_inner_nesting,Is, Os).
-remove_inner_nesting(Is,Os) :- remove_inner_nesting(Is,[],Os).
-remove_inner_nesting([],Os,Os).
-remove_inner_nesting([I|Is],Os0, Os) :-
-	append(Os0,I,Os1),
-	remove_inner_nesting(Is,Os1,Os).
-
+concatenate_layer(Is,5,[Os]) :-
+	transpose(Is,IsT),
+	map_transpose(IsT,IsT1),
+	map_map_transpose(IsT1,IsT2),
+	map_map_map_transpose(IsT2,Is1),
+	concatenate_layer(Is1,0,Os1),
+	maplist(remove_inner_inner_inner_inner_nesting,Os1,Os).
+*/
 /*	
 concatenate_layer([I|Is],Axis,[O|Os]) :-
 	Axis1 is Axis -1,
@@ -723,23 +969,49 @@ exec_layers([L|Layers],[N|LayerNames],OutVar, OutVarName) :-
 check_dimensions(Is, D) :-
 	depth(Is,D1), 
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*10, writeln(BV1),  
-		    throw("Dimension error"));true).
+		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    S1 = "Dimension error, Input Shape ",
+		    shape(Is,Shape),
+		    term_string(Shape,S2),
+		    string_concat(S1,S2,S),
+		    throw(S));true).
 		    
+		    
+check_max_dimensions(Is, D) :-
+	depth(Is,D1), 
+	(D1 > D -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    S1 = "Dimension error, Input Shape ",
+		    shape(Is,Shape),
+		    term_string(Shape,S2),
+		    string_concat(S1,S2,S),
+		    throw(S));true).
 		    
 check_same_dimensions(I1,I2) :-
 	depth(I1,D1),
+	writeln("D1"),
+	writeln(D1),
 	depth(I2,D),
+		writeln("D"),
+	writeln(D),
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*10, writeln(BV1),  
-		    throw("Inconsistent Input Dimensions"));true).
+		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    S1 = "Inconsistent Input Dimensions, Input Shape ",
+		    shape(I1,Shape),
+		    term_string(Shape,S2),
+		    string_concat(S1,S2,S),
+		    throw(S));true).
 	
 check_same_shape(I1,I2) :-
 	check_same_dimensions(I1,I2),
 	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
 		    		 	   compute_different_shape_badness(I1,I2,B),
-		    			   writeln(B),  
-		    			   throw("Inconsistent Input Shapes"));true).	
+		    			   writeln(B), 
+		    			   S1 = "Inconsistent Input Shapes, Input Shape ",
+		    			   shape(I1,Shape),
+		    			   term_string(Shape,S2),
+		    			   string_concat(S1,S2,S),
+		    			   throw(S));true).	
 check_same_shape(I1,I2,I3) :-
 	check_same_shape(I1,I2),
 	check_same_shape(I2,I3).
@@ -806,5 +1078,27 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
 	sub_sub_sub_length(Is,D3),
 	(D3 < PoolSizeD3 -> (write("Invalid Model, Badness Value: "), 
 	    		     BV3 is D3-PoolSizeD3, writeln(BV3),   
-	                     throw("Shape Error"));true).	                     
+	                     throw("Shape Error"));true).	
 	                     
+check_valid_reshape(Is,Ss) :-
+	flatten(Is,Is1),
+	length(Is1,L),
+	list_product(Ss,P),
+	(L =\= P -> (write("Invalid Model, Badness Value: "), 
+    		     BV is L-P, writeln(BV),   
+                     throw("Shape Error"));true).
+	                     	                     
+check_valid_arguments(Is, A1,A2) :-
+	(A1 =\= A2 -> (write("Invalid Model, Badness Value: "), 
+    		     BV is A1-A2, writeln(BV),  
+    		     S1 = "Argument Error, Input Shape ",
+    	             shape(Is,Shape),
+    	             term_string(Shape,S2),
+    		     string_concat(S1,S2,S), 
+                     throw(S));true).
+                     
+check_valid_weight_shape(_, [],[]).                    	                                          
+check_valid_weight_shape(Is, [S|Shape],[S1|WsShape]) :-
+	check_valid_arguments(Is,S,S1),
+	check_valid_weight_shape(Shape,WsShape).
+		                     

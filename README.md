@@ -3,8 +3,9 @@ This project aims to provide a Prolog specification of individual TensorFlow lay
 
 # Prerequisites
 
-?- pack_install(list_util).
-?- pack_install(cplint).
+pack_install(list_util).
+pack_install(cplint).
+pack_install(lambda).
 
 # Implemented layers
 

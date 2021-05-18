@@ -314,30 +314,70 @@ decapsulate_items([],Os,Os).
 decapsulate_items([[I|_]|Is],Os0,Os) :-
 	append(Os0,[I],Os1),
 	decapsulate_items(Is,Os1,Os).
-    	
+	
+encapsulate_items([],[]).
+encapsulate_items([I|Is],[[I]|Os]) :-
+	encapsulate_items(Is,Os).
     	
 sub_length([I|_],L) :- length(I,L).
-
 sub_sub_length([I|_],L) :- sub_length(I,L).
-
 sub_sub_sub_length([I|_],L) :- sub_sub_length(I,L).
+sub_sub_sub_sub_length([I|_],L) :- sub_sub_sub_length(I,L).
+sub_sub_sub_sub_sub_length([I|_],L) :- sub_sub_sub_sub_length(I,L).
 
 map_transpose(Is, Os) :- 
 	maplist(transpose,Is,Os).
-
-map_transpose(Is, Os) :- 
-	maplist(transpose,Is,Os).
-	
 map_map_transpose(Is, Os) :- 
 	maplist(map_transpose,Is,Os).
-
 map_map_map_transpose(Is, Os) :- 
 	maplist(map_map_transpose,Is,Os).
+map_map_map_map_transpose(Is, Os) :- 
+	maplist(map_map_map_transpose,Is,Os).
+map_map_map_map_map_transpose(Is, Os) :- 
+	maplist(map_map_map_map_transpose,Is,Os).
 	
-    	
+remove_inner_inner_inner_inner_inner_nesting(Is,Os) :-
+	maplist(remove_inner_inner_inner_inner_nesting,Is, Os).
+remove_inner_inner_inner_inner_nesting(Is,Os) :-
+	maplist(remove_inner_inner_inner_nesting,Is, Os).		
+remove_inner_inner_inner_nesting(Is,Os) :-
+	maplist(remove_inner_inner_nesting,Is, Os).	
+remove_inner_inner_nesting(Is,Os) :-
+	maplist(remove_inner_nesting,Is, Os).
+remove_inner_nesting(Is,Os) :- remove_inner_nesting(Is,[],Os).
+remove_inner_nesting([],Os,Os).
+remove_inner_nesting([I|Is],Os0, Os) :-
+	append(Os0,I,Os1),
+	remove_inner_nesting(Is,Os1,Os).    	
+
 sum_rows([],[]).
 sum_rows([Head|Tail], [Ret|Return]) :-
     sum_list(Head, Ret),
     sum_rows(Tail, Return).
     
 sum_columns(M,Res) :- transpose(M,M1),sum_rows(M1,Res).
+
+innner_transpose([],[]).
+innner_transpose([I|Is],[O|Os]) :-
+	maplist(transpose,I,O),
+	innner_transpose(Is,Os).
+	
+shape([],[0]).
+shape([I|Is], [O]) :-
+	atomic(I),
+	length([I|Is],O).
+shape([I|Is], [O|Os]) :-
+	is_list(I),
+	length([I|Is],O),
+	shape(I,Os).
+	
+keep(A,A).
+pack_list(A,[A]).
+unpack_list([A],A).
+
+unpack([X|_],X).
+
+
+list_product([], 1).
+list_product([L|Ls], P) :-
+        foldl(product, Ls, L, P).

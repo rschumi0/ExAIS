@@ -5,7 +5,6 @@
 :- [locallyconnected].
 :- [activation].
 :- [pooling].
-:- [concatenate].
 :- [recurrent].
 :- [dropout].
 :- [denselayer].

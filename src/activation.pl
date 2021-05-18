@@ -1,5 +1,4 @@
-%:- module(activation,[]).
-
+:-[util].
 
 %relu_layer([3,2,1,-2,-0.1],2,1,0.5,O).
 
@@ -61,10 +60,6 @@ sigmoid_layer([I|Is],Y0,Y):-
 
 % softmax layer for one-dimensional input tensor
 
-innner_transpose([],[]).
-innner_transpose([I|Is],[O|Os]) :-
-	maplist(transpose,I,O),
-	innner_transpose(Is,Os).
 	
 softmax_layer([],_,[]).
 softmax_layer(Is,-1,Os) :-
