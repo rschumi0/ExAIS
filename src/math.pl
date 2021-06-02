@@ -28,7 +28,7 @@ add_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	add_lists(Xs,Ys,Z1s,Zs).	
 	
 add_layer(Is1,Is2,Os) :- check_same_shape(Is1,Is2), add_lists(Is1,Is2,Os).
-add_layer(Is,[Os]) :- check_same_shape(Is), tmpadd_lists(Is,[],Os).
+add_layer(Is,Os) :- check_same_shape(Is), tmpadd_lists(Is,[],Os).
 tmpadd_lists([],Os,Os).
 tmpadd_lists([I|Is],Os0,Os) :-
 	add_lists(I,Os0,Os1),
@@ -56,7 +56,7 @@ multiply_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	multiply_lists(Xs,Ys,Z1s,Zs).	
 	
 multiply_layer(Is1,Is2,Os) :- check_same_shape(Is1,Is2), multiply_lists(Is1,Is2,Os).
-multiply_layer(Is,[Os]) :- check_same_shape(Is), tmpmultiply_lists(Is,[],Os).
+multiply_layer(Is,Os) :- check_same_shape(Is), tmpmultiply_lists(Is,[],Os).
 tmpmultiply_lists([],Os,Os).
 tmpmultiply_lists([I|Is],Os0,Os) :-
 	multiply_lists(I,Os0,Os1),
@@ -84,8 +84,8 @@ subtract_lists([X|Xs],[Y|Ys],Z0s,Zs) :-
 	subtract_lists(Xs,Ys,Z1s,Zs).	
 	
 
-subtract_layer(Is1,Is2,[Os]) :- check_same_shape(Is1,Is2), subtract_lists(Is1,Is2,Os).
-subtract_layer([Is1,Is2],[Os]) :- check_same_shape(Is1,Is2), subtract_lists(Is1,Is2,Os).
+subtract_layer(Is1,Is2,Os) :- check_same_shape(Is1,Is2), subtract_lists(Is1,Is2,Os).
+subtract_layer([Is1,Is2],Os) :- check_same_shape(Is1,Is2), subtract_lists(Is1,Is2,Os).
 	
 %minimum_list([1,2,3,4],[4,3,2,1],X).
 %minimum_layer([[[1,2,3,4],[5,2,3,4]],[[4,3,2,1],[6,4,3,4]],[[7,8,9,0],[3,2,8,4]]],X).
@@ -113,7 +113,7 @@ minimum_list([X|Xs],[Y|Ys],Z0s,Zs) :-
 	minimum_list(Xs,Ys,Z1s,Zs).
 	
 minimum_layer(Is1,Is2,Os) :- check_same_shape(Is1,Is2), minimum_list(Is1,Is2,Os).
-minimum_layer(Is,[Os]) :- check_same_shape(Is), tmpminimum_layer(Is,[],Os).
+minimum_layer(Is,Os) :- check_same_shape(Is), tmpminimum_layer(Is,[],Os).
 tmpminimum_layer([],Os,Os).
 tmpminimum_layer([I|Is],Os0,Os) :-
 	minimum_list(I,Os0,Os1),
@@ -141,7 +141,7 @@ maximum_list([X|Xs],[Y|Ys],Z0s,Zs) :-
 	maximum_list(Xs,Ys,Z1s,Zs).
 	
 maximum_layer(Is1,Is2,Os) :- check_same_shape(Is1,Is2), maximum_list(Is1,Is2,Os).
-maximum_layer(Is,[Os]) :- check_same_shape(Is), tmpmaximum_layer(Is,[],Os).
+maximum_layer(Is,Os) :- check_same_shape(Is), tmpmaximum_layer(Is,[],Os).
 tmpmaximum_layer([],Os,Os).
 tmpmaximum_layer([I|Is],Os0,Os) :-
 	maximum_list(I,Os0,Os1),
@@ -149,7 +149,7 @@ tmpmaximum_layer([I|Is],Os0,Os) :-
 	
 	
 average_layer(Is1,Is2,[Os]):- check_same_shape(Is1,Is2), average_list([Is1,Is2],Os).
-average_layer(Is,[Os]) :- check_same_shape(Is), average_list(Is,Os).
+average_layer(Is,Os) :- check_same_shape(Is), average_list(Is,Os).
 %average_list([[1,2,3],[3,2,2]],X).
 %average_list([[[1,2,3]],[[3,2,2]]],X).
 %average_list([[[1,2,3],[4,6,3]],[[3,2,2],[8,2,4]]],X).

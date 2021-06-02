@@ -3,6 +3,12 @@
 :-use_module(library(cplint_util)).
 :-[util].
 
+flatten_layer([],[]).
+flatten_layer([I|Is],[O|Os]) :-
+	flatten(I,O),
+	flatten_layer(Is,Os).
+
+
 %cropping1D_layer([[[1,2],[2,2],[3,3],[4,4]],[[1,2],[2,2],[3,3],[4,4]]],1,1,X).
 cropping1D_layer(Is, CroppingT, CroppingB, Os) :- check_dimensions(Is,3), cropping1D_layer(Is, CroppingT, CroppingB, [], Os).
 cropping1D_layer([], _,_, Os, Os).
@@ -17,7 +23,9 @@ cropping1D_layer([[I|I1s]|Is], CroppingT, CroppingB, _, Os) :-
 	cropping1D_layer([], CroppingT, CroppingB, Os1, Os).
 	
 %cropping2D_layer([[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]]],1,1,1,1,X).
-cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, Os) :- check_dimensions(Is,4),cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os).
+cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, Os) :- 
+	check_dimensions(Is,4),
+	cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os).
 cropping2D_layer([], _,_,_,_, Os, Os).
 cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, Os0, Os) :- 
 	not(atomic(I)),
@@ -33,12 +41,14 @@ cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, _, Os)
 	
              
 %cropping3D_layer([[[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]]]],1,1,1,1,1,1,X).
-cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os) :- check_dimensions(Is,5), cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
+cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os) :- 
+	check_dimensions(Is,5), 
+	cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
 cropping3D_layer([], _,_,_,_,_,_, Os, Os).
 cropping3D_layer([[[[I|I0s]|I1s]|I2s]|Is], CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os0, Os) :- 
 	not(atomic(I)),
-	printlist(I),
-	cropping3D_layer([[[I|I0s]|I1s]|I2s],CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os1),
+	%printlist(I),
+	cropping3D_layer([[[I|I0s]|I1s]|I2s],CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os1),
 	append(Os0,[Os1],Os2),
 	cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os2, Os).
 cropping3D_layer([[[[I|I0s]|I1s]|I2s]|Is], CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, _, Os) :- 
@@ -355,11 +365,13 @@ check_max_dimensions(Is,3),
 multiply_entries(Is,N,Os).
 
 
-permute_layer(Is,D1,D2,Os) :- permute_layer(Is,D1,D2,[],Os).
+permute_layer(Is,D1,D2,Os) :- 
+	check_dimensions(Is,3), %TODO report valid dims
+	permute_layer(Is,D1,D2,[],Os).
 permute_layer([],_,_,Os,Os).
 permute_layer([[I|Is1]|Is],D1,D2,Os0,Os) :- 
  	is_list(I),
- 	permute_layer([I|Is1],D1,D2,O),
+ 	permute_layer([I|Is1],D1,D2, [],O),
  	append(Os0,[O],Os1),
  	permute_layer(Is,D1,D2,Os1,Os).
 permute_layer([[I|Is1]|Is],1,2,_,Os) :-
@@ -374,14 +386,28 @@ reshape_layer(Is,Ss,Os) :-
 	depth(Is,1),
 	recursive_split(Ss,Is,Os).
 reshape_layer(Is,Ss,Os) :-
-	%check_valid_reshape(Is,Ss),
+	check_valid_reshape(Is,Ss),
 	depth(Is,D),
 	D > 1,
 	shape(Is,Shape),
 	list_product(Shape,PIn),
 	list_product(Ss,POut),
 	flatten(Is,Is1),
-	(PIn > POut -> (AddS is PIn / POut,reshape_layer(Is1,[AddS|Ss],Os));reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)).
+	((PIn > POut)-> ((0 is mod(PIn,POut)) -> AddS is PIn // POut,reshape_layer(Is1,[AddS|Ss],Os);
+			(writeln("Invalid Model, Badness Value: 1000000000"),
+			 S1 = "Reshape Error, Input Shape ",
+		         shape(Is,ShapeT),
+		         term_string(ShapeT,S2),
+		         string_concat(S1,S2,S),
+			 throw(S)));
+			((PIn < POut) -> (writeln("Invalid Model, Badness Value: 1000000000"),
+			 S1 = "Reshape Error, Input Shape ",
+		         shape(Is,ShapeT),
+		         term_string(ShapeT,S2),
+		         string_concat(S1,S2,S),
+			 throw(S)); 
+			(reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)))).
+	%0 is mod(PIn,POut)
 
 %recursive_split([3,3],[1,2,3,4,5,6,7,8,9],X).
 %recursive_split([],Is,Is).
@@ -409,7 +435,10 @@ recursive_split([S|Ss],[],[O|Os0],Os1,Os) :-
 	append(Os1,[O1],Os2),
 	recursive_split([S|Ss],[],Os0,Os2,Os).*/
 	
-split_in_parts(P,Is,Os) :- length(Is,L), S is L / P, split_in_parts(P,Is,S,[],Os).	
+split_in_parts(P,Is,Os) :- 
+	length(Is,L), 
+	S is L / P, 
+	split_in_parts(P,Is,S,[],Os).	
 split_in_parts(_,[],_,Os,Os).
 split_in_parts(P,Is,S,Os0,Os) :-
 	Is \== [],
@@ -795,6 +824,13 @@ concatenate(Is,0,Is).% :-
 	%concatenate_lists(Is,Os).
 
 concatenate(Is,1,Os) :-
+	depth(Is,D),
+	D < 3,
+	remove_inner_nesting(Is,Os).
+
+concatenate(Is,1,Os) :-
+	depth(Is,D),
+	D > 2,
 	maplist(transpose,Is,Is1),
 	concatenate(Is1,0,Os1),
 	maplist(transpose,Os1,Os2),
@@ -968,8 +1004,12 @@ exec_layers([L|Layers],[N|LayerNames],OutVar, OutVarName) :-
 
 check_dimensions(Is, D) :-
 	depth(Is,D1), 
+	%writeln("D1"),
+	%writeln(D1),
+	%writeln("D"),
+	%writeln(D),
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    BV is D1-D,BV1 is BV*100000000, writeln(BV1),  
 		    S1 = "Dimension error, Input Shape ",
 		    shape(Is,Shape),
 		    term_string(Shape,S2),
@@ -980,7 +1020,7 @@ check_dimensions(Is, D) :-
 check_max_dimensions(Is, D) :-
 	depth(Is,D1), 
 	(D1 > D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    BV is D1-D,BV1 is BV*100000000, writeln(BV1),  
 		    S1 = "Dimension error, Input Shape ",
 		    shape(Is,Shape),
 		    term_string(Shape,S2),
@@ -989,13 +1029,13 @@ check_max_dimensions(Is, D) :-
 		    
 check_same_dimensions(I1,I2) :-
 	depth(I1,D1),
-	writeln("D1"),
-	writeln(D1),
+	%writeln("D1"),
+	%writeln(D1),
 	depth(I2,D),
-		writeln("D"),
-	writeln(D),
+	%writeln("D"),
+	%writeln(D),
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*10000, writeln(BV1),  
+		    BV is D1-D,BV1 is BV*100000000, writeln(BV1),  
 		    S1 = "Inconsistent Input Dimensions, Input Shape ",
 		    shape(I1,Shape),
 		    term_string(Shape,S2),
@@ -1004,6 +1044,10 @@ check_same_dimensions(I1,I2) :-
 	
 check_same_shape(I1,I2) :-
 	check_same_dimensions(I1,I2),
+	%shape(I1,Shape1),
+	%shape(I2,Shape2),
+	%writeln(Shape1),
+	%writeln(Shape2),
 	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
 		    		 	   compute_different_shape_badness(I1,I2,B),
 		    			   writeln(B), 
@@ -1034,7 +1078,7 @@ compute_different_shape_badness([I1|Is1],[I2|Is2], Badness) :-
  	D>=2,
  	length(Is1,L1),
  	length(Is2,L2),
- 	pow(10,D-1,Factor),
+ 	pow(100,D-1,Factor),
  	compute_different_shape_badness(I1,I2,InnerBadness),
  	Badness is Factor*abs(L1-L2) + InnerBadness.	
 	
@@ -1080,13 +1124,32 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
 	    		     BV3 is D3-PoolSizeD3, writeln(BV3),   
 	                     throw("Shape Error"));true).	
 	                     
-check_valid_reshape(Is,Ss) :-
-	flatten(Is,Is1),
-	length(Is1,L),
+check_valid_reshape([I|Is],Ss) :-
+	shape(I,S),
 	list_product(Ss,P),
-	(L =\= P -> (write("Invalid Model, Badness Value: "), 
-    		     BV is L-P, writeln(BV),   
-                     throw("Shape Error"));true).
+	list_product(S,P1),
+	(P =\= P1 -> (writeln("Invalid Model, Badness Value: 1000000000"),
+			 S1 = "Reshape Error, Input Shape ",
+			 shape([I|Is],ShapeT),
+			 term_string(ShapeT,S2),
+			 string_concat(S1,S2,ST),
+			 throw(ST));true).
+                     
+check_valid_reshapeOld([I|Is],Ss) :-
+	shape(I,S),
+	list_product(Ss,P),
+	list_product(S,P1),
+	(P =\= P1 -> (
+	(list_butlast(Ss,Ss1),not(is_sublist(S,Ss1))) ->
+		(writeln("Invalid Model, Badness Value: 1000000000"),
+		 S1 = "Reshape Error, Input Shape ",
+		 shape([I|Is],ShapeT),
+		 term_string(ShapeT,S2),
+		 string_concat(S1,S2,ST),
+		 throw(ST));
+		true);
+	true).
+
 	                     	                     
 check_valid_arguments(Is, A1,A2) :-
 	(A1 =\= A2 -> (write("Invalid Model, Badness Value: "), 
@@ -1100,5 +1163,15 @@ check_valid_arguments(Is, A1,A2) :-
 check_valid_weight_shape(_, [],[]).                    	                                          
 check_valid_weight_shape(Is, [S|Shape],[S1|WsShape]) :-
 	check_valid_arguments(Is,S,S1),
-	check_valid_weight_shape(Shape,WsShape).
-		                     
+	check_valid_weight_shape(Is,Shape,WsShape).
+
+check_same_shape_arg(I1,I2) :-
+	check_same_dimensions(I1,I2),
+	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
+		    		 	   compute_different_shape_badness(I1,I2,B),
+		    			   writeln(B), 
+		    			   S1 = "Argument Error, Input Shape ",
+		    			   shape(I1,Shape),
+		    			   term_string(Shape,S2),
+		    			   string_concat(S1,S2,S),
+		    			   throw(S));true).		                     

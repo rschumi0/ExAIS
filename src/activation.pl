@@ -45,6 +45,11 @@ leaky_relu_layer([I|Is],Alpha,[O|Os]) :-
 
 sigmoid_layer([],Y,Y).
 sigmoid_layer([I|Is],Y0,Y):-
+   I < -709,
+   append(Y0,[0.0],Ys),
+   sigmoid_layer(Is,Ys,Y).
+sigmoid_layer([I|Is],Y0,Y):-
+   I > -710,
    I1 is I * -1,
    E is 1 + exp(I1), % calculate denominator term for sigmoid the formula
    O is rdiv(1, rational(E)), % calculate whole value for the sigmoid function
@@ -66,7 +71,11 @@ softmax_layer(Is,-1,Os) :-
 	softmax_layer(Is,Os).
 %TODO strange behaviour for axis = 0
 softmax_layer(Is,0,Os) :-
+	depth(Is,2),
 	replace_all(Is, 1,Os).
+softmax_layer(Is,1,Os) :-
+    depth(Is,2),
+	softmax_layer(Is,Os).
 softmax_layer(Is,1,Os) :-
 	depth(Is,3),
 	maplist(transpose,Is,Is1),
@@ -215,6 +224,7 @@ prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
 	(I < 0 -> O is A * I;O is I),
 	prelu_layer(Is,[A|Alphas],Os).
 prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	check_same_shape_arg([I],[[A|Alphas]]),
 	%depth(Alphas,DA),
 	%depth([I|Is],DI),
 	%DI \= DA,
@@ -226,6 +236,7 @@ prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
 	prelu_layer(I,[A|Alphas],O),
 	prelu_layer(Is,[A|Alphas],Os).
 prelu_layer([I|Is],[A|Alphas],[O|Os]):-
+	check_same_shape_arg([I|Is],[A|Alphas]),
 	%depth([A|Alphas],DA),
 	%depth([I|Is],DI),
 	%DI = DA,

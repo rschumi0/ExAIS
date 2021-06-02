@@ -231,20 +231,20 @@ apply_dilation3D([W|IWs],KernelSizeD1,KernelSizeD2,KernelSizeD3,DilationRateD1,D
 	
 calc_conv_weight_shape([I|_],KernelSize,Bs, Shape) :-
 	S0 = [KernelSize],
-	shape(I,S1),
-	append(S0,S1,S2),
+	sub_length(I,SL1),
+	append(S0,[SL1],S2),
 	length(Bs,L),
 	append(S2,[L],Shape).
 calc_conv_weight_shape([I|_],KernelSizeD1,KernelSizeD2,Bs, Shape) :-
 	S0 = [KernelSizeD1,KernelSizeD2],
-	shape(I,S1),
-	append(S0,S1,S2),
+	sub_sub_length(I,SL1),
+	append(S0,[SL1],S2),
 	length(Bs,L),
 	append(S2,[L],Shape).
 calc_conv_weight_shape([I|_],KernelSizeD1,KernelSizeD2,KernelSizeD3,Bs, Shape) :-
 	S0 = [KernelSizeD1,KernelSizeD2,KernelSizeD3],
-	shape(I,S1),
-	append(S0,S1,S2),
+	sub_sub_sub_length(I,SL1),
+	append(S0,[SL1],S2),
 	length(Bs,L),
 	append(S2,[L],Shape).
 
@@ -264,13 +264,13 @@ calc_conv_transpose_weight_shape([I|_],KernelSizeD1,KernelSizeD2,KernelSizeD3,Bs
 	
 calc_separable_conv_weight1_shape([I|_],KernelSize,_, Shape) :-
 	S0 = [KernelSize],
-	shape(I,S1),
-	append(S0,S1,S2),
+	sub_length(I,SL1),
+	append(S0,[SL1],S2),
 	append(S2,[1],Shape).
 calc_separable_conv_weight1_shape([I|_],KernelSizeD1,KernelSizeD2,_, Shape) :-
 	S0 = [KernelSizeD1,KernelSizeD2],
-	shape(I,S1),
-	append(S0,S1,S2),
+	sub_sub_length(I,SL1),
+	append(S0,[SL1],S2),
 	append(S2,[1],Shape).
 	
 calc_separable_conv_weight2_shape([I|_],_,Bs, Shape) :-
@@ -479,14 +479,14 @@ conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,[B|Bs],Strides
         %empty_field(OutX,OutY,NN,Os0),
 	empty_field2D([B|Bs],OutX,OutY,Os0),
         conv2D_transpose([[[I|Is0]|Is1]|Is],0,0,KernelSizeD1,KernelSizeD2,IWs,[B|Bs],StridesD1,StridesD2,Padding,Os0,Os).
-conv2D_transpose_layer([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os) :-
-	check_dimensions([[[I|Is0]|Is1]|Is],4),
-	check_pool_input_match([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,Padding),
-	calc_conv_transpose_weight_shape([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,Bs,Shape1),
+conv2D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os) :-
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,Padding),
+	calc_conv_transpose_weight_shape(Is,KernelSizeD1,KernelSizeD2,Bs,Shape1),
 	shape(IWs,Shape2),
-	check_valid_weight_shape([[[I|Is0]|Is1]|Is],Shape1,Shape2),
-	is_list(I),
-        conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,[],Os).
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	%is_list(I),
+        conv2D_transpose(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,[],Os).
 conv2D_transpose([],_,_,_,_,_,_,_,Os,Os).
 conv2D_transpose([[[I|Is0]|Is1]|Is],KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Os0,Os) :-
 	is_list(I),
@@ -561,14 +561,17 @@ conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3
         %empty_field(OutX,OutY,NN,Os0),
 	empty_field3D([B|Bs],OutX,OutY,OutZ,Os0),
         conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],0,0,0,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,[B|Bs],StridesD1,StridesD2,StridesD3,Padding,Os0,Os).
-conv3D_transpose_layer([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os) :-
-	check_dimensions([[[[I|Is0]|Is1]|Is2]|Is],5),
-	check_pool_input_match([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,Padding),
-	calc_conv_transpose_weight_shape([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,Bs,Shape1),
+conv3D_transpose_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os) :-
+	check_dimensions(Is,5),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Padding),
+	calc_conv_transpose_weight_shape(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Bs,Shape1),
 	shape(IWs,Shape2),
-	check_valid_weight_shape([[[[I|Is0]|Is1]|Is2]|Is],Shape1,Shape2),
-	is_list(I),
-        conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,[],Os).
+	%writeln(Shape1),
+	%writeln(Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	writeln("checks done"),
+	%is_list(I),
+        conv3D_transpose(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,[],Os).
 conv3D_transpose([],_,_,_,_,_,_,_,_,_,Os,Os).
 conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD2,StridesD3,Padding,Os0,Os) :-
 	is_list(I),
@@ -592,7 +595,7 @@ conv3D_transpose([[[[I|Is0]|Is1]|Is2]|Is],X,Y,Z,KernelSizeD1,KernelSizeD2,Kernel
         CroppingD2R is max(KernelSizeD2 - StridesD2, 0) - CroppingD2L,
         CroppingD3L is floor((max(KernelSizeD3 - StridesD3, 0))/2),
         CroppingD3R is max(KernelSizeD3 - StridesD3, 0) - CroppingD3L,
-        cropping3D_layer(Os0, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os).
+        cropping3D_layer(Os0, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
         %apply_cropping_top_bottom(CroppingD1L, CroppingD1R,Os0, Os1),
 	%apply_cropping_top_bottom(CroppingD2L, CroppingD2R,Os1, Os2),
 	%apply_cropping_left_right(CroppingD3L, CroppingD3R,Os2, Os).

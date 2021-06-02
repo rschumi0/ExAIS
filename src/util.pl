@@ -3,12 +3,6 @@
 :-use_module(library(lambda)).
 :-use_module(library(matrix)).
 
-% copy one list to another (Ayesha)
-copyList(L,R) :- 
-	copy(L,R).
-	copy([],[]).
-	copy([H|T1],[H|T2]) :- 
-	copy(T1,T2).
 
 % print a list element one by one (Ayesha)
 printlist([]).
@@ -24,21 +18,6 @@ get_first_elem(X,Y):-
 get_tail(X,Y):-  
    X = [_|W], Y = W.
  
- % get second element of a list (Ayesha)
-get_second_elem(X,Y):- 
-   X= [_,S|_], Y = S.
- 
- % get second last elem of a list (Ayesha)
-get_secondlast_elem(X,Y):- 
-    X= [_,_,_,P|_], Y = P.
- 
- % if parameter is a list (Ayesha)
-if_list(X):- 
-   X = [ ]; X = [_|_].
- 
-% if list has single elem (Ayesha)
-has_single_elem(X):- 
-    X = [_|Z], Z = [ ]. 
  
 cons(X,Y,Z):- Z = [X|Y].
 
@@ -381,3 +360,10 @@ unpack([X|_],X).
 list_product([], 1).
 list_product([L|Ls], P) :-
         foldl(product, Ls, L, P).
+
+second_last([X,_], X).
+second_last([_|T], X) :- second_last(T, X).
+
+is_sublist(L, S) :-
+    append(_Prefix, Rest, L),
+    append(S, _Suffix, Rest).
