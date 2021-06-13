@@ -137,6 +137,94 @@ comp_locallyconnected3D_temp([R0|R0s], Is, X,Y,Z, [W|Ws], R1s, R2s) :-
 */
 
 
+
+/*
+ArrayList<Integer> kernel_comps_per_dim = new ArrayList<>();
+int kernel_comps = (int) Math.ceil((double)(inputShape.get(0) - kernelSizes.get(0) +1) / (double)strides.get(0));
+kernel_comps_per_dim.add(kernel_comps);
+if(dimensions > 1) {
+	kernel_comps_per_dim.add((int) Math.ceil((double)(inputShape.get(1) - kernelSizes.get(1) +1) / (double)strides.get(1)));
+	kernel_comps *= kernel_comps_per_dim.get(1);
+}
+inWS = new ArrayList<>();
+inWS.add(kernel_comps);
+int tempKernelPlaces = kernelSizes.get(0);
+for(int i = 1; i < kernelSizes.size(); i++) {
+	tempKernelPlaces = tempKernelPlaces * kernelSizes.get(i);
+}
+tempKernelPlaces *= inputShape.get(dimensions);
+inWS.add(tempKernelPlaces);
+inWS.add(nodeNumber);
+
+outWS = new ArrayList<>(kernel_comps_per_dim);//kernelSizes);
+//outWS.add(kernel_comps);
+outWS.add(nodeNumber);
+locally_connected1D_layer([[[0.745], [0.8317]]], 1,[[[0.4935, 0.8662, 0.3557]], [[0.2954, 0.3469, 0.8934]]],[[0, 0, 0], [0, 0, 0]], 1, X)
+
+calc_locally_connected1D_weight1_shape([[[0.745], [0.8317]]],[[0, 0, 0], [0, 0, 0]], 1, 1, X)
+calc_locally_connected1D_weight2_shape([[[0.745], [0.8317]]],[[[0.4935, 0.8662, 0.3557]], [[0.2954, 0.3469, 0.8934]]], 1, 1, X)
+
+calc_locally_connected2D_weight1_shape([[[[0.0052], [0.2128]], [[0.0348], [0.0804]]]],[[[0, 0]], [[0, 0]]],1, 2, 1, 1, X)
+calc_locally_connected2D_weight2_shape([[[[0.0052], [0.2128]], [[0.0348], [0.0804]]]], [[[0.2671, 0.9108], [0.5449, 0.6011]], [[0.2905, 0.818], [0.3869, 0.616]]],1, 2, 1, 1, X)
+
+*/
+
+check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,Strides) :-
+	calc_locally_connected1D_weight1_shape(Is, Bs, KernelSize, Strides, Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	calc_locally_connected1D_weight2_shape(Is, IWs, KernelSize, Strides, Shape3),
+	shape(Bs,Shape4),
+	check_valid_weight_shape(Is,Shape3,Shape4).
+
+calc_locally_connected1D_weight1_shape(Is, Bs, KernelSize, Strides, Shape) :-
+        sub_length(Is,L),
+	Kernel_comps is ceiling(((L - KernelSize +1)/Strides)),
+	S0 = [Kernel_comps],
+	sub_sub_length(Is,L1),
+	TempKernelPlaces is L1 * KernelSize,
+	append(S0,[TempKernelPlaces],S2),
+	sub_length(Bs,SL),
+	append(S2,[SL],Shape).
+	
+calc_locally_connected1D_weight2_shape(Is, IWs, KernelSize, Strides, Shape) :-
+        sub_length(Is,L),
+	Kernel_comps is ceiling(((L - KernelSize +1)/Strides)),
+	S0 = [Kernel_comps],
+	sub_sub_length(IWs,SL),
+	append(S0,[SL],Shape).
+	
+check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2) :-
+	calc_locally_connected2D_weight1_shape(Is, Bs, KernelSizeD1,KernelSizeD2, StridesD1,StridesD2, Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	calc_locally_connected2D_weight2_shape(Is, IWs, KernelSizeD1,KernelSizeD2, StridesD1,StridesD2, Shape3),
+	shape(Bs,Shape4),
+	check_valid_weight_shape(Is,Shape3,Shape4).
+	
+calc_locally_connected2D_weight1_shape(Is, Bs, KernelSizeD1,KernelSizeD2, StridesD1,StridesD2, Shape) :-
+        sub_length(Is,L),
+	Kernel_comps is ceiling(((L - KernelSizeD1 +1)/StridesD1)),
+	sub_sub_length(Is,L1),
+	Kernel_comps1 is ceiling(((L1 - KernelSizeD2 +1)/StridesD2)),
+	Temp is Kernel_comps * Kernel_comps1,
+	S0 = [Temp],
+	sub_sub_sub_length(Is,L2),
+	TempKernelPlaces is L2 * KernelSizeD1 * KernelSizeD2,
+	append(S0,[TempKernelPlaces],S2),
+	sub_sub_length(Bs,SL),
+	append(S2,[SL],Shape).
+	
+calc_locally_connected2D_weight2_shape(Is, IWs, KernelSizeD1,KernelSizeD2, StridesD1,StridesD2, Shape) :-
+        sub_length(Is,L),
+	Kernel_comps is ceiling(((L - KernelSizeD1 +1)/StridesD1)),
+	sub_sub_length(Is,L1),
+	Kernel_comps1 is ceiling(((L1 - KernelSizeD2 +1)/StridesD2)),
+	S0 = [Kernel_comps,Kernel_comps1],
+	sub_sub_length(IWs,SL),
+	append(S0,[SL],Shape).
+
+
 locally_connected1D_layer(Is,KernelSize,Os):- 
 	check_dimensions(Is,3),
 	check_pool_input_match(Is,KernelSize,false),
@@ -144,10 +232,12 @@ locally_connected1D_layer(Is,KernelSize,Os):-
 locally_connected1D_layer(Is,KernelSize,IWs,Bs,Os):- 
 	check_dimensions(Is,3),
 	check_pool_input_match(Is,KernelSize,false),
+	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,1),
 	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,false,Os).
 locally_connected1D_layer(Is,KernelSize,IWs,Bs,Strides,Os):- 
 	check_dimensions(Is,3),
 	check_pool_input_match(Is,KernelSize,false),
+	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,Strides),
 	pool1D_layer(sum_list,Is,KernelSize,Strides,false,IWs,Bs,false,Os).
 	
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
@@ -157,8 +247,10 @@ locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):-
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
 	check_dimensions(Is,4),
 	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
+	check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,1,1),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,false,Os).
 locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Os):- 
 	check_dimensions(Is,4),
 	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
+	check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2),
 	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,false,IWs,Bs,false,Os).

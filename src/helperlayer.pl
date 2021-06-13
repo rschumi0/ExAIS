@@ -10,7 +10,10 @@ flatten_layer([I|Is],[O|Os]) :-
 
 
 %cropping1D_layer([[[1,2],[2,2],[3,3],[4,4]],[[1,2],[2,2],[3,3],[4,4]]],1,1,X).
-cropping1D_layer(Is, CroppingT, CroppingB, Os) :- check_dimensions(Is,3), cropping1D_layer(Is, CroppingT, CroppingB, [], Os).
+cropping1D_layer(Is, CroppingT, CroppingB, Os) :- 
+	check_dimensions(Is,3), 
+	cropping1D_layer(Is, CroppingT, CroppingB, [], Os),
+	check_empty_cropping(Is,Os).
 cropping1D_layer([], _,_, Os, Os).
 cropping1D_layer([[I|I1s]|Is], CroppingT, CroppingB, Os0, Os) :- 
 	not(atomic(I)),
@@ -25,7 +28,8 @@ cropping1D_layer([[I|I1s]|Is], CroppingT, CroppingB, _, Os) :-
 %cropping2D_layer([[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]],[[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]],[[1,2,1,3,3],[2,2,5,1,2],[3,3,5,9,8],[4,4,5,9,8]]]],1,1,1,1,X).
 cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, Os) :- 
 	check_dimensions(Is,4),
-	cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os).
+	cropping2D_layer(Is, CroppingT, CroppingB,CroppingL, CroppingR, [], Os),
+	check_empty_cropping(Is,Os).
 cropping2D_layer([], _,_,_,_, Os, Os).
 cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, Os0, Os) :- 
 	not(atomic(I)),
@@ -43,7 +47,8 @@ cropping2D_layer([[I|I1s]|Is], CroppingT, CroppingB,CroppingL, CroppingR, _, Os)
 %cropping3D_layer([[[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]],[[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]],[[1,2,1],[2,2,5],[3,3,3]]]]],1,1,1,1,1,1,X).
 cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os) :- 
 	check_dimensions(Is,5), 
-	cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os).
+	cropping3D_layer(Is, CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, [], Os),
+	check_empty_cropping(Is,Os).
 cropping3D_layer([], _,_,_,_,_,_, Os, Os).
 cropping3D_layer([[[[I|I0s]|I1s]|I2s]|Is], CroppingD1L,CroppingD1R,CroppingD2L,CroppingD2R,CroppingD3L,CroppingD3R, Os0, Os) :- 
 	not(atomic(I)),
@@ -121,11 +126,6 @@ zero_padding1D([[I|I0s]|Is],N,Os1,Os) :-
 	empty_list(L,O),
 	append(Os1,[O],Os2),
 	zero_padding1D([[I|I0s]|Is],N1,[O|Os2],Os).*/
-	
-depth([],1).
-depth([H|T],R) :- atomic(H),!, depth(T,R).
-depth([H|T],R):- depth(H,R1), depth(T,R2), R3 is R1+1, R is max(R3,R2).
-
 	
 padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os) :- atomic(I), padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,[[I|I0s]|Is],Os).
 padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os) :- is_list(I), padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,[],Os).
@@ -446,11 +446,13 @@ split_in_parts(P,Is,S,Os0,Os) :-
 	append(Os0,[I1],Os1),
 	split_in_parts(P,Rs,S,Os1,Os).
 	
+layer_normalization_layer(Is, Axis, Epsilon, Os) :-
+	depth(Is,D),
+	check_smaller_arguments(Is,Axis,D),
+	layer_normalization(Is, Axis, Epsilon, Os).
 
-
-
-layer_normalization_layer([],_,_,[]).
-layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+layer_normalization([],_,_,[]).
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 2),	
 	variance(I,V),
 	avg(I,M),
@@ -458,38 +460,45 @@ layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
 	sqrt(VE,Div),
 	subtract_from_each_list_element(I,M,O0),
 	divide_each_list_element_by(O0,Div,O),
-	layer_normalization_layer(Is, Axis, Epsilon, Os).
-layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	layer_normalization(Is, Axis, Epsilon, Os).
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 3),
 	Axis == 1,
 	transpose(I,I1),
-	layer_normalization_layer(I1,Axis,Epsilon,O1),
+	layer_normalization(I1,Axis,Epsilon,O1),
 	transpose(O1,O),
-	layer_normalization_layer(Is, Axis, Epsilon, Os).
-layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	layer_normalization(Is, Axis, Epsilon, Os).
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 3),
 	Axis == 2,
-	layer_normalization_layer(I,Axis,Epsilon,O),
-	layer_normalization_layer(Is, Axis, Epsilon, Os).
-layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	layer_normalization(I,Axis,Epsilon,O),
+	layer_normalization(Is, Axis, Epsilon, Os).
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 4),
 	Axis > 1,
 	Axis1 is Axis -1,
-	layer_normalization_layer(I,Axis1,Epsilon,O),
-	layer_normalization_layer(Is, Axis, Epsilon, Os).
-layer_normalization_layer([I|Is], Axis, Epsilon, [O|Os]) :-
+	layer_normalization(I,Axis1,Epsilon,O),
+	layer_normalization(Is, Axis, Epsilon, Os).
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 4),
 	Axis == 1,
 	transpose(I,I1),
-	layer_normalization_layer(I1,Axis,Epsilon,O1),
+	layer_normalization(I1,Axis,Epsilon,O1),
 	transpose(O1,O),
-	layer_normalization_layer(Is, Axis, Epsilon, Os).
+	layer_normalization(Is, Axis, Epsilon, Os).
 	
-	
+calc_batch_normalization_param_shape(Is, Axis, [L]) :-
+	shape(Is,S),
+	nth0(Axis,S,L).
 	
 %batch_normalization_layer([[1,2,3]],1,0.001,[0,0,0],[1,1,1],[0,0,0],[1,1,1],X).
 batch_normalization_layer([],_,_,_,_,_,_,[]).
 batch_normalization_layer([I|Is], Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, [O|Os]) :-
+	depth([I|Is],D),
+	check_smaller_arguments([I|Is],Axis,D),
+	calc_batch_normalization_param_shape([I|Is],Axis,Shape1),
+	shape(Gammas,Shape2),
+	check_valid_weight_shape([I|Is],Shape1,Shape2), 
 	batch_normalization(I, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, O),
 	batch_normalization_layer(Is, Axis, Epsilon, Gammas, Betas, MovingMeans, MovingVariances, Os).
 batch_normalization([],_,_,_,_,_,_,[]).
@@ -1149,10 +1158,29 @@ check_valid_reshapeOld([I|Is],Ss) :-
 		 throw(ST));
 		true);
 	true).
+check_empty_cropping(Is,[]) :-
+	writeln("Invalid Model, Badness Value: 1000000000"),
+	S1 = "Cropping Error, Input Shape ",
+	shape(Is,ShapeT),
+	term_string(ShapeT,S2),
+	string_concat(S1,S2,ST),
+	throw(ST).
+check_empty_cropping(_,O) :- number(O).
+check_empty_cropping(Is, [O|_]) :-
+	check_empty_cropping(Is,O).
 
 	                     	                     
 check_valid_arguments(Is, A1,A2) :-
 	(A1 =\= A2 -> (write("Invalid Model, Badness Value: "), 
+    		     BV is A1-A2, writeln(BV),  
+    		     S1 = "Argument Error, Input Shape ",
+    	             shape(Is,Shape),
+    	             term_string(Shape,S2),
+    		     string_concat(S1,S2,S), 
+                     throw(S));true).
+                     
+check_smaller_arguments(Is, A1,A2) :-
+	(A1 >= A2 -> (write("Invalid Model, Badness Value: "), 
     		     BV is A1-A2, writeln(BV),  
     		     S1 = "Argument Error, Input Shape ",
     	             shape(Is,Shape),

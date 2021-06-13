@@ -335,11 +335,6 @@ sum_rows([Head|Tail], [Ret|Return]) :-
     sum_rows(Tail, Return).
     
 sum_columns(M,Res) :- transpose(M,M1),sum_rows(M1,Res).
-
-innner_transpose([],[]).
-innner_transpose([I|Is],[O|Os]) :-
-	maplist(transpose,I,O),
-	innner_transpose(Is,Os).
 	
 shape([],[0]).
 shape([I|Is], [O]) :-
@@ -367,3 +362,12 @@ second_last([_|T], X) :- second_last(T, X).
 is_sublist(L, S) :-
     append(_Prefix, Rest, L),
     append(S, _Suffix, Rest).
+
+
+full_depth([],1).
+full_depth([H|T],R) :- atomic(H),!, full_depth(T,R).
+full_depth([H|T],R):- full_depth(H,R1), full_depth(T,R2), R3 is R1+1, R is max(R3,R2).
+
+depth([],1).
+depth([I|_],1) :- not(is_list(I)),!.
+depth([I|_],D) :- is_list(I), depth(I,D1), D is D1 + 1.

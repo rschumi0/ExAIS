@@ -83,11 +83,35 @@ softmax_layer(Is,1,Os) :-
 	maplist(transpose,Os1,Os).
 softmax_layer(Is,1,Os) :-
 	depth(Is,4),
-	writeln("case test"),
+	%writeln("case test"),
 	maplist(transpose,Is,IsT),
-	innner_transpose(IsT,Is1),
+	map_map_transpose(IsT,Is1),
 	softmax_layer(Is1,Os1),
-	innner_transpose(Os1,OsT),
+	map_map_transpose(Os1,OsT),
+	%softmax_layer(IsT,OsT),
+	maplist(transpose,OsT,Os).
+softmax_layer(Is,1,Os) :-
+	depth(Is,5),
+	%writeln("case test"),
+	maplist(transpose,Is,IsT),
+	map_map_transpose(IsT,Is1),
+	map_map_map_transpose(Is1,Is2),
+	softmax_layer(Is2,Os1),
+	map_map_map_transpose(Os1,Os2),
+	map_map_transpose(Os2,OsT),
+	%softmax_layer(IsT,OsT),
+	maplist(transpose,OsT,Os).
+softmax_layer(Is,1,Os) :-
+	depth(Is,6),
+	%writeln("case test"),
+	maplist(transpose,Is,IsT),
+	map_map_transpose(IsT,Is1),
+	map_map_map_transpose(Is1,Is2),
+	map_map_map_map_transpose(Is2,Is3),
+	softmax_layer(Is3,Os1),
+	map_map_map_map_transpose(Os1,Os2),
+	map_map_map_transpose(Os2,Os3),
+	map_map_transpose(Os3,OsT),
 	%softmax_layer(IsT,OsT),
 	maplist(transpose,OsT,Os).
 softmax_layer([I|Is],Axis,[O|Os]) :-
