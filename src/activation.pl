@@ -232,41 +232,39 @@ elu_layer([I|Is],Alpha,[O|Os]) :-
 	elu_layer(I,Alpha,O),
 	elu_layer(Is,Alpha,Os).
 	
-prelu_layer([],_,[]).
-prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	
+prelu_layer([I|Is],Alphas,Os) :-
+	check_same_shape_arg_different_input([I|Is],I,Alphas),
+	prelu([I|Is],Alphas,Os).
+
+
+prelu([],_,[]).
+prelu([I|Is],[A|Alphas],[O|Os]) :-
 	atomic(I),
 	length([A|Alphas],LA),
 	length([I|Is],LI),
 	LA = LI,
 	(I < 0 -> O is A * I;O is I),
-	prelu_layer(Is,Alphas,Os).
-prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
+	prelu(Is,Alphas,Os).
+prelu([I|Is],[A|Alphas],[O|Os]) :-
 	atomic(I),
 	length([A|Alphas],LA),
 	length([I|Is],LI),
 	LA \= LI,
 	(I < 0 -> O is A * I;O is I),
-	prelu_layer(Is,[A|Alphas],Os).
-prelu_layer([I|Is],[A|Alphas],[O|Os]) :-
-	check_same_shape_arg([I],[[A|Alphas]]),
-	%depth(Alphas,DA),
-	%depth([I|Is],DI),
-	%DI \= DA,
+	prelu(Is,[A|Alphas],Os).
+prelu([I|Is],[A|Alphas],[O|Os]) :-
 	(atomic(A);(
 	depth([A|Alphas],DA),
 	depth([I|Is],DI),
 	DA \= DI)),
 	is_list(I),
-	prelu_layer(I,[A|Alphas],O),
-	prelu_layer(Is,[A|Alphas],Os).
-prelu_layer([I|Is],[A|Alphas],[O|Os]):-
-	check_same_shape_arg([I|Is],[A|Alphas]),
-	%depth([A|Alphas],DA),
-	%depth([I|Is],DI),
-	%DI = DA,
+	prelu(I,[A|Alphas],O),
+	prelu(Is,[A|Alphas],Os).
+prelu([I|Is],[A|Alphas],[O|Os]):-
 	is_list(A),
 	is_list(I),
-	prelu_layer(I,A,O),
-	prelu_layer(Is,Alphas,Os).
+	prelu(I,A,O),
+	prelu(Is,Alphas,Os).
 
 	

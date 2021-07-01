@@ -217,41 +217,84 @@ dimension_length(Is,0,O) :-
 dimension_length([I|_],D,O):-
 	D1 is D - 1,
 	dimension_length(I,D1,O).
+	
+	
+ 	
+check_valid_axis([I1|Is1],[I2|_],Axis1,Axis2) :-
+		A1 is Axis1 - 1,
+		A2 is Axis2 - 1,
+		shape(I1,Shape1),
+		shape(I2,Shape2),
+		length(Shape1,L1),
+		length(Shape2,L2),
+		((A1 >= L1; A2 >= L2) -> (write("Invalid Model, Badness Value: "), 
+    		     writeln("99"),  
+    		     S1 = "Dot Axis Error, Input Shape ",
+    	             shape([I1|Is1],Shape),
+    	             term_string(Shape,S2),
+    		     string_concat(S1,S2,S), 
+                     throw(S));true),
+		nth0(A1,Shape1,D1),
+		nth0(A2,Shape2,D2),
+		(D1 =\= D2 -> (write("Invalid Model, Badness Value: "), 
+		     depth([I1|Is1],DT),
+		     D is DT - Axis1,
+		     pow(100,D-1,Factor),
+		     Badness is Factor*abs(D1-D2),
+    		     writeln(Badness),  
+    		     S1 = "Dot Axis Error, Input Shape ",
+    	             shape([I1|Is1],Shape),
+    	             term_string(Shape,S2),
+    		     string_concat(S1,S2,S), 
+                     throw(S));true).
 
-dot_layer(Xs,Ys,Dim,Zs) :- dot_layer(Xs,Ys,Dim,Dim,Zs).
-dot_layer(Xs,Ys,0,0,Zs) :-
+dot_layer([],[],_,_,[]).
+dot_layer([I1|Is1],[I2|Is2],Axis1,Axis2,[O|Os]):-
+	check_same_and_max_dimensions([I1|Is1],[I2|Is2],3),
+	%check_same_dimensions([I1|Is1],[I2|Is2]),
+	%check_max_dimensions([I1|Is1], 3),
+	%check_max_dimensions([I2|Is2], 3),
+	check_valid_axis([I1|Is1],[I2|Is2],Axis1,Axis2),
+	dot(I1,I2,Axis1,Axis2,[O]),
+	dot_layer(Is1,Is2,Axis1,Axis2,Os).
+dot_layer([Is1,Is2],Axis1,Axis2,Os):-
+	dot_layer(Is1,Is2,Axis1,Axis2,Os).
+	
+
+dot(Xs,Ys,Dim,Zs) :- dot(Xs,Ys,Dim,Dim,Zs).
+dot(Xs,Ys,0,0,Zs) :-
 	depth(Xs,1),
 	transpose([Ys],Ys1),
 	mmmult([Xs],Ys1,Zs).
-dot_layer(Xs,Ys,1,1,Zs) :-
+dot(Xs,Ys,1,1,Zs) :-
 	depth(Xs,1),
 	transpose([Ys],Ys1),
 	mmmult([Xs],Ys1,Zs).
-dot_layer(Xs,Ys,0,0,[Zs]) :-
+dot(Xs,Ys,0,0,[Zs]) :-
 	depth(Xs,D),
 	D>1,
 	(D < 3 -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
 	mmmult(Xs1,Ys,Zs).
-dot_layer(Xs,Ys,1,1,[Zs]) :-
+dot(Xs,Ys,1,1,[Zs]) :-
 	depth(Xs,D),
 	D>1,
 	(D < 3 -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
 	mmmult(Xs1,Ys,Zs).
-dot_layer(Xs,Ys,1,2,[Zs]) :-
+dot(Xs,Ys,1,2,[Zs]) :-
 	depth(Xs,2),
 	transpose(Xs,Xs1),
 	transpose(Ys,Ys1),
 	mmmult(Xs1,Ys1,Zs).
-dot_layer(Xs,Ys,2,1,[Zs]) :-
+dot(Xs,Ys,2,1,[Zs]) :-
 	depth(Xs,2),
 	mmmult(Xs,Ys,Zs).
 
-dot_layer(Xs,Ys,2,2,[Zs]) :-
+dot(Xs,Ys,2,2,[Zs]) :-
 	depth(Xs,2),
 	transpose(Ys,Ys1),
 	mmmult(Xs,Ys1,Zs).
 	
-dot_layer(Xs,Ys,1,2,Zs) :-
+dot(Xs,Ys,1,2,Zs) :-
 	depth(Xs,3),
 	map_transpose([Xs], X1),
 	map_map_transpose(X1,X2),
@@ -260,9 +303,8 @@ dot_layer(Xs,Ys,1,2,Zs) :-
 	map_transpose(Y2,Y3),
 	mmmult(X2,Y3,Z1),
 	map_transpose(Z1,Zs).
-%Actual:   [[[[[1, 4], [3, 1]], [[20, 32], [28, 4]]], [[[7, 28], [21, 7]], [[48, 84], [72, 12]]]]]
 	
-dot_layer(Xs,Ys,2,1,Zs) :-
+dot(Xs,Ys,2,1,Zs) :-
 	depth(Xs,3),
 	transpose([Xs],X1),
 	map_map_transpose(X1,X2),
@@ -272,32 +314,31 @@ dot_layer(Xs,Ys,2,1,Zs) :-
 	mmmult(X2,Y1,Z1),
 	%transpose(Z,Z1),
 	map_transpose(Z1,Zs).
-	% [[[[[64, 52], [52, 24]], [[32, 26], [26, 12]]], [[[99, 92], [97, 29]], [[54, 30], [24, 30]]]]]
 	
 
 
-dot_layer(Xs,Ys,1,3,[Zs]) :-
+dot(Xs,Ys,1,3,[Zs]) :-
 	depth(Xs,3),
 	maplist(transpose, Xs, Xs1),
 	maplist(transpose, Ys, Ys1),
 	mmmult(Xs1,Ys1,Zs).
 	
-dot_layer(Xs,Ys,2,2,[Zs]) :-
+dot(Xs,Ys,2,2,[Zs]) :-
 	depth(Xs,3),
 	maplist(transpose, Xs, Xs1),
 	mmmult(Xs1,Ys,Zs).
-dot_layer(Xs,Ys,2,3,[Zs]) :-
+dot(Xs,Ys,2,3,[Zs]) :-
 	depth(Xs,3),
 	maplist(transpose, Xs, Xs1),
 	maplist(transpose, Ys, Ys1),
 	mmmult(Xs1,Ys1,Zs).
-dot_layer(Xs,Ys,3,1,[Zs]) :-
+dot(Xs,Ys,3,1,[Zs]) :-
 	depth(Xs,3),
 	mmmult(Xs,Ys,Zs).
-dot_layer(Xs,Ys,3,2,[Zs]) :-
+dot(Xs,Ys,3,2,[Zs]) :-
 	depth(Xs,3),
 	mmmult(Xs,Ys,Zs).
-dot_layer(Xs,Ys,3,3,[Zs]) :-
+dot(Xs,Ys,3,3,[Zs]) :-
 	depth(Xs,3),
 	maplist(transpose, Ys, Ys1),
 	mmmult(Xs,Ys1,Zs).

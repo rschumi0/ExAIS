@@ -461,8 +461,11 @@ layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	subtract_from_each_list_element(I,M,O0),
 	divide_each_list_element_by(O0,Div,O),
 	layer_normalization(Is, Axis, Epsilon, Os).
+	
 layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
-	depth([I|Is], 3),
+	%depth([I|Is], 3),
+	depth([I|Is], D),
+	D > 2,
 	Axis == 1,
 	transpose(I,I1),
 	layer_normalization(I1,Axis,Epsilon,O1),
@@ -473,19 +476,23 @@ layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	Axis == 2,
 	layer_normalization(I,Axis,Epsilon,O),
 	layer_normalization(Is, Axis, Epsilon, Os).
-layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
-	depth([I|Is], 4),
-	Axis > 1,
-	Axis1 is Axis -1,
-	layer_normalization(I,Axis1,Epsilon,O),
-	layer_normalization(Is, Axis, Epsilon, Os).
+/*	
 layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
 	depth([I|Is], 4),
 	Axis == 1,
 	transpose(I,I1),
 	layer_normalization(I1,Axis,Epsilon,O1),
 	transpose(O1,O),
+	layer_normalization(Is, Axis, Epsilon, Os).*/
+layer_normalization([I|Is], Axis, Epsilon, [O|Os]) :-
+	%depth([I|Is], 4),
+	depth([I|Is], D),
+	D > 3,
+	Axis > 1,
+	Axis1 is Axis -1,
+	layer_normalization(I,Axis1,Epsilon,O),
 	layer_normalization(Is, Axis, Epsilon, Os).
+
 	
 calc_batch_normalization_param_shape(Is, Axis, [L]) :-
 	shape(Is,S),
@@ -1038,18 +1045,59 @@ check_max_dimensions(Is, D) :-
 		    
 check_same_dimensions(I1,I2) :-
 	depth(I1,D1),
-	%writeln("D1"),
-	%writeln(D1),
-	depth(I2,D),
-	%writeln("D"),
-	%writeln(D),
-	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
-		    BV is D1-D,BV1 is BV*100000000, writeln(BV1),  
+	depth(I2,D2),
+	(D1 =\= D2 -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D2,BV1 is BV*100000000, writeln(BV1),  
 		    S1 = "Inconsistent Input Dimensions, Input Shape ",
 		    shape(I1,Shape),
 		    term_string(Shape,S2),
 		    string_concat(S1,S2,S),
 		    throw(S));true).
+		    
+check_same_and_max_dimensions(I1,I2,Max) :-
+	depth(I1,D1),
+	depth(I2,D2),
+	(D1 > Max -> 
+		(D2 > Max->(write("Invalid Model, Badness Value: "), 
+			    BV is (D1-Max)+(D2-Max),BV1 is BV*210000000, writeln(BV1),  
+			    S1 = "Dimension error, Input Shape ",
+			    shape(I1,Shape),
+			    term_string(Shape,S2),
+			    string_concat(S1,S2,S),
+			    throw(S));
+			    (write("Invalid Model, Badness Value: "), 
+			    BV is (D1-Max),BV1 is BV*230000000, writeln(BV1),  
+			    S1 = "Dimension error, Input Shape ",
+			    shape(I1,Shape),
+			    term_string(Shape,S2),
+			    string_concat(S1,S2,S),
+			    throw(S)));
+		 (D2 > Max->(write("Invalid Model, Badness Value: "), 
+			    BV is (D2-Max),BV1 is BV*210000000, writeln(BV1),  
+			    S1 = "Dimension error, Input Shape ",
+			    shape(I2,Shape),
+			    term_string(Shape,S2),
+			    string_concat(S1,S2,S),
+			    throw(S));true)),
+	(D1 =\= D2 -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D2,BV1 is BV*100000000, writeln(BV1),  
+		    S1 = "Inconsistent Input Dimensions, Input Shape ",
+		    shape(I1,Shape),
+		    term_string(Shape,S2),
+		    string_concat(S1,S2,S),
+		    throw(S));true).
+		    
+check_same_dimensions_different_input(Is,I1,I2) :-
+	depth(I1,D1),
+	depth(I2,D),
+	(D1 =\= D -> (write("Invalid Model, Badness Value: "), 
+		    BV is D1-D,BV1 is BV*100000000, writeln(BV1),  
+		    S1 = "Inconsistent Input Dimensions, Input Shape ",
+		    shape(Is,Shape),
+		    term_string(Shape,S2),
+		    string_concat(S1,S2,S),
+		    throw(S));true).
+	
 	
 check_same_shape(I1,I2) :-
 	check_same_dimensions(I1,I2),
@@ -1202,4 +1250,16 @@ check_same_shape_arg(I1,I2) :-
 		    			   shape(I1,Shape),
 		    			   term_string(Shape,S2),
 		    			   string_concat(S1,S2,S),
-		    			   throw(S));true).		                     
+		    			   throw(S));true).
+		    			   
+check_same_shape_arg_different_input(Is,I1,I2) :-
+	check_same_dimensions_different_input(Is,I1,I2),
+	(not(compare_structure(I1,I2)) -> (write("Invalid Model, Badness Value: "), 
+		    		 	   compute_different_shape_badness(I1,I2,B),
+		    			   writeln(B), 
+		    			   S1 = "Argument Error, Input Shape ",
+		    			   shape(Is,Shape),
+		    			   term_string(Shape,S2),
+		    			   string_concat(S1,S2,S),
+		    			   throw(S));true).
+		    			   
