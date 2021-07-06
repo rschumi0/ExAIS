@@ -406,7 +406,7 @@ matrix_rotated(Xss, Zss) :-
    transpose(Xss, Yss),
    maplist(reverse, Yss, Zss).
   
-
+/*
 temp_layer(Xs,Ys,1,1,[Zs]) :-
 	%(depth(Xs,2) -> transpose(Xs,Xs1) ; maplist(transpose, Xs, Xs1)),
 	%transpose(Xs,Xs1),
@@ -564,7 +564,7 @@ temp_layer(Xs,Ys,1,22,[Zs]) :-
 	transpose(Ys,Ys1),
 	(depth(Ys,2) -> transpose(Ys1,Ys2) ; maplist(transpose, Ys1, Ys2)),
 	mmmult(Xs2,Ys2,Zs).
-
+*/
 
 
 
@@ -620,6 +620,7 @@ temp_layer1(X,Y,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,Zs) :-
 
 %temp_layer1([[[[4, 2], [4, 2]], [[4, 6], [9, 0]]]], [[[[9, 5], [4, 5]], [[7, 8], [9, 1]]]], A,B,C,D,E,F,G,H,I,J,K,L,M,N,O, [[[[64, 52], [52, 24]], [[32, 26], [26, 12]]], [[[99, 92], [97, 29]], [[54, 30], [24, 30]]]]).
 
+/*
 temp_layer1(X,Y,A,B,C,D,A1,B1,C1,D1,B2,C2,D2,Zs) :-
 	(A = true; A = false),
 	(B = true; B = false),
@@ -661,4 +662,4 @@ temp_layer1(X,Y,A,B,C,D,A1,B1,C1,D1,B2,C2,D2,Zs) :-
 temp_layer2(X,Y,A,Zs) :-
 	(A = true; A = false),
 	(A -> (transpose(X,X1));(keep(X,X1))),
-	mmmult(X1,Y,Zs).
+	mmmult(X1,Y,Zs).*/

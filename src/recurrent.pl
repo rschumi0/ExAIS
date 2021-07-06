@@ -386,17 +386,6 @@ contains_only_zero([X|Xs]) :-
 	is_list([X|Xs]),
 	contains_only_zero(X),
 	contains_only_zero(Xs).
-
-tempdelX(Is,Os) :- tempdelX(Is,[],Os).
-tempdelX([],Os,Os).
-tempdelX([I|Is],Os0,Os) :-
-	writeln("----"),
-	lstm_layer([[[4], [1]]],[I],[[0, 0, 0, 0]],[0, 0, 0, 0], O),
-	writeln("----"),
-	writeln(I),
-	writeln(O),
-	append(Os0,[O],Os1),
-	tempdelX(Is,Os1,Os).
 	
 
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os) :- 
@@ -548,8 +537,6 @@ nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
 	writeln(Os1),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os). */
 
-
-temp_function(X,X).
 	
 	
  /*   i = self.recurrent_activation(x_i + h_i)
@@ -572,23 +559,22 @@ apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 	%TODO Check	
 	%(contains_only_zero([O0|Os0T]) -> (Is = [I|IsT], Os0 = [O0|Os0T]);(add_layer([I,O0],[I1]),Is = [I1|IsT], Os0 = [O0|Os0T]) ),
 		
-		
 	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
-	temp_function(It0,It),
+	keep(It0,It),
 		%write('It: '),writeln(It),
 	add_layer([Is,Os0],[Ft0]),%add_layer([Is,Ct0,Os0],[Ft0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
-	temp_function(Ft0,Ft),
+	keep(Ft0,Ft),
 		%write('Ft: '),writeln(Ft),
 
 	add_layer([Is,Os0],[Ot0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
-	temp_function(Ot0,Ot),
+	keep(Ot0,Ot),
 
 	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
-	temp_function(CtTemp0,Ctt),
+	keep(CtTemp0,Ctt),
 		%write('Ctt: '),writeln(Ctt),
 	multiply_lists(Ft,Ct0,Ct1),
 		%write('Ct1: '),writeln(Ct1),
@@ -596,7 +582,7 @@ apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 		write('Ct2: '),writeln(Ct2),
 	add_lists(Ct1,Ct2,Ct),
 		write('Ct: '),writeln(Ct),
-	temp_function(Ct,TanhCt),
+	keep(Ct,TanhCt),
 		write('TanhCt: '),writeln(TanhCt),
 		
 	multiply_lists(Ot,TanhCt,Os),

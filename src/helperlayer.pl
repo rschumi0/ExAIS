@@ -345,7 +345,7 @@ multiply_sub_entries([I|Is],N,Os0,Os) :-
 	multiply_sub_entries(Is,N,Os1,Os). 
 
 
-embedding_layer(Is,Ws,Os) :- embedding_layer(Is,Ws,[],Os).
+embedding_layer(Is,Ws,Os) :- check_max_dimensions(Is,2), embedding_layer(Is,Ws,[],Os).
 embedding_layer([],_,Os,Os).
 embedding_layer([I|Is],Ws,Os0,Os) :- 
 	is_list(I),
@@ -1013,7 +1013,7 @@ test5(Out) :-
 
 exec_layers([],[],_,_).
 exec_layers([L|Layers],[N|LayerNames],OutVar, OutVarName) :-
-	catch(call_with_time_limit(10,L), E, (write("Aborted at "), write(N), write(": "), write(E), writeln("!!!"),abort)),
+	catch(call_with_time_limit(120,L), E, (write("Aborted at "), write(N), write(": "), write(E), writeln("!!!"),abort)),
 	write("Layer "), write(N),writeln(" executed successfully"),
 	(length(Layers,0) -> write(OutVarName), write(" = "), writeln(OutVar);true),
 	exec_layers(Layers,LayerNames,OutVar, OutVarName).
