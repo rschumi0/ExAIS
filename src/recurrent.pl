@@ -4,6 +4,13 @@
 :-use_module(library(lambda)).
 :-[util].
 
+
+
+simple_rnncell_layer(Is,Ws,RWs,Bs,Os) :-
+	simple_rnn_layer(Is,Ws,RWs,Bs,Os).
+
+
+
 simple_rnn_layer(Is,Ws,RWs,Bs,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),
@@ -45,6 +52,7 @@ mult_input_and_weight([I|Is],[W|Ws],Os0,Os) :-
 	mult_input_and_weight(Is,Ws,Os2,Os).
 
 
+
 /*
 mult_recurrent_weight([I|Is],[RW|RWs],Os) :- mult_recurrent_weight([I|Is],[RW|RWs], [],Os).
 mult_recurrent_weight([],[],Os,Os).
@@ -57,13 +65,17 @@ mult_recurrent_weight([I|Is],[RW|RWs],Os0,Os) :-
 */
 
 
+grucell_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
+	gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os).
+
+
+
 gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
 	gru(Is,Ws,RWs,Bs,ResetAfter,Os).
-
 
 gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os) :- 
 	is_list(I), gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,[],Os).
@@ -79,7 +91,6 @@ gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	atomic(I),
 	%writeln("last res"),
 	%writeln(Os0),
-	
 	split_weights(Ws, Wz,Wr,Wh),
 	split_weights(Us, Uz,Ur,Uh),
 	split_weights([Bs], Bz,Br,Bh),
@@ -87,7 +98,6 @@ gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	%writeln(Ur),
 	%writeln(Br),
 	%writeln("start"),
-	
 	mmult([[I|Is0]],Wz,Z0),
 	%write('Z0: '),
 	%writeln(Z0),
@@ -103,7 +113,6 @@ gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	sigmoid_func(Z3,Zt),
 	%write('Zt: '),
 	%writeln(Zt),
-	
 	mmult([[I|Is0]],Wr,R0),
 	mmult(Os0,Ur,R1),
 	add_lists(R0,R1,R2),
@@ -111,7 +120,6 @@ gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	sigmoid_func(R3,Rt),
 	%write('Rt: '),
 	%writeln(Rt),
-	
 	mmult([[I|Is0]],Wh,H0),
 	multiply_lists(Rt,Os0,H1),
 	mmult(H1,Uh,H2),
@@ -122,7 +130,6 @@ gru([[I|Is0]|Is],Ws,Us,Bs,false,Os0,Os) :-
 	tanh(H4,Htt),
 	%write('Htt: '),
 	%writeln(Htt),
-	
 	one_minus_x(Zt,Zt1),
 	%write('Zt1: '),
 	%writeln(Zt1),
@@ -142,17 +149,14 @@ gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	atomic(I),
 	%writeln("last res"),
 	%writeln(Os0),
-	
 	split_weights(Ws, Wz,Wr,Wh),
 	split_weights(Us, Uz,Ur,Uh),
-	
 	add_lists(Bs1,Bs2,Bs),
 	split_weights([Bs], Bz,Br,Bh),
 	%writeln(Wr),
 	%writeln(Ur),
 	%writeln(Br),
 	%writeln("start"),
-	
 	mmult([[I|Is0]],Wz,Z0),
 	%write('Z0: '),
 	%writeln(Z0),
@@ -168,7 +172,6 @@ gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	sigmoid_func(Z3,Zt),
 	%write('Zt: '),
 	%writeln(Zt),
-	
 	mmult([[I|Is0]],Wr,R0),
 	mmult(Os0,Ur,R1),
 	add_lists(R0,R1,R2),
@@ -176,7 +179,6 @@ gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	sigmoid_func(R3,Rt),
 	%write('Rt: '),
 	%writeln(Rt),
-	
 	mmult([[I|Is0]],Wh,H0),
 	multiply_lists(Rt,Os0,H1),
 	mmult(H1,Uh,H2),
@@ -187,7 +189,6 @@ gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	tanh(H4,Htt),
 	%write('Htt: '),
 	%writeln(Htt),
-	
 	one_minus_x(Zt,Zt1),
 	%write('Zt1: '),
 	%writeln(Zt1),
@@ -202,8 +203,6 @@ gru([[I|Is0]|Is],Ws,Us,[Bs1,Bs2],true,Os0,Os) :-
 	%writeln(Os1),
 	%N1 is N+1,
 	gru(Is,Ws,Us,[Bs1,Bs2],true,Os1,Os). 
-
-	
 /*
 z_t = \sigma(W^{(z)} x_t + U^{(z)} h_{t-1} + b^{(z)})
 r_t = \sigma(W^{(r)} x_t + U^{(r)} h_{t-1} + b^{(r)})
@@ -229,7 +228,8 @@ split_weights([W|Ws], [Wr|Wrs],[Wz|Wzs],[Wh|Whs]) :-
 	split_at(LN,W,Wr,WT),
 	split_at(LN,WT,Wz,Wh),
 	split_weights(Ws, Wrs,Wzs,Whs).
-	
+
+
 
 %one_minus_x_list(Xs,Ys) :- maplist(one_minus_x,Xs,Ys).
 %one_minus_x_matrix(Xs,Ys) :- maplist(one_minus_x_list,Xs,Ys).
@@ -291,6 +291,13 @@ Expected: [[0.1186]]
 
 */
 
+
+
+lstmcell_layer(Is,Ws,Us,Bs,Os) :- 
+	lstm(Is,Ws,Us,Bs,Os).
+
+
+
 lstm_layer(Is,Ws,Us,Bs,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),	
@@ -316,17 +323,14 @@ lstm([[I|Is0]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
 	split_lstm_weights([Bs], Bi,Bf,Bc,Bo),
 	%write('Wi: '),
 	%writeln(Wi),
-	
 	sig_gate([[I|Is0]],Os0,Wi,Ui,Bi,It),
 	sig_gate([[I|Is0]],Os0,Wf,Uf,Bf,Ft),
 	sig_gate([[I|Is0]],Os0,Wo,Uo,Bo,Ot),
 	%write('Ot: '),
 	%writeln(Ot),
-	
 	tanh_gate([[I|Is0]],Os0,Wc,Uc,Bc,Ctt),
 	%write('Ctt: '),
 	%writeln(Ctt),
-	
 	multiply_lists(Ft,Ct0,Ct1),
 	multiply_lists(It,Ctt,Ct2),
 	add_lists(Ct1,Ct2,Ct),
@@ -334,7 +338,6 @@ lstm([[I|Is0]|Is],Ws,Us,Bs,Ct0,Os0,Os) :-
 	multiply_lists(Ot,TanhCt,Os1),
 	%write('Os1: '),
 	%writeln(Os1),
-	
 	lstm(Is,Ws,Us,Bs,Ct,Os1,Os). 
 	
 sig_gate(Is,HtPast,W,U,B,Os) :-
@@ -359,9 +362,10 @@ split_lstm_weights([W|Ws], [Wi|Wis],[Wf|Wfs],[Wo|Wos],[Wc|Wcs]) :-
 	split_at(LN,WT,Wf,WT1),
 	split_at(LN,WT1,Wo,Wc),
 	split_lstm_weights(Ws, Wis,Wfs,Wos,Wcs).
-	
-/*
 
+
+
+/*
 Prolog Script:
 -------------------------------------------------------------------------------------
 lstm_layer([[[4], [1]]],[[4, 5, 2, 10]],[[0, 0, 0, 0]],[0, 0, 0, 0],  X)
@@ -378,15 +382,8 @@ Expected: [[0.8476]]
 
 */
 
-contains_only_zero([]).	
-contains_only_zero(X) :-
-	atomic(X),
-	X = 0.
-contains_only_zero([X|Xs]) :-
-	is_list([X|Xs]),
-	contains_only_zero(X),
-	contains_only_zero(Xs).
-	
+
+
 
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os) :- 
 	is_list(I), conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,[],Os).
@@ -421,8 +418,7 @@ conv_lstm2D_layer([],_,_,_,_,Os,Os).
 	write('conv donc CO: '),
 	writeln(CO),
 	flatten(CO,XI),
-	
-	
+
 	nth0_2D(0,0, [[W|Ws0]|Ws],WsM),
 	nth0_2D(0,0, Us,UsM),
 	
@@ -472,9 +468,9 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	empty_list(LD3,TW1),
 	writeln(TW1),
 	depthwise_conv2D_layer([[[I|Is0]|Is1]|Is2],KernelSizeD1,KernelSizeD2,TW,TW1,CO),
-	%encapsulate_atoms([[[I|Is0]|Is1]|Is2],ITemp),
-	%conv3D_layer(ITemp,KernelSizeD1,KernelSizeD2,1,[TW],TW1,COTemp),
-	%decapsulate_atoms(COTemp,CO),
+	/* encapsulate_atoms([[[I|Is0]|Is1]|Is2],ITemp),
+	conv3D_layer(ITemp,KernelSizeD1,KernelSizeD2,1,[TW],TW1,COTemp),
+	decapsulate_atoms(COTemp,CO), */
 	/*empty_field4D(1,KernelSizeD1,KernelSizeD2,LD3,1,TW),
 	writeln(TW),
 	empty_list(LD3,TW1),
@@ -484,32 +480,11 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Os) :-
 	writeln(CO),
 	(Ct0 = [] -> (length(CO,L1), sub_length(CO,L2), empty_field(L1,L2,TempNodeNumb,TOs), apply_lstm_step_conv1Test(CO,[[W|Ws0]|Ws],Us,Bs,TOs,Ct1,TOs,Os1));
 			(apply_lstm_step_conv1Test(CO,[[W|Ws0]|Ws],Us,Bs,Ct0,Ct1,Os0,Os1))),
-	writeln("aapply_lstm_step_conv done"),
+	writeln("apply_lstm_step_conv done"),
 	write('Ct1: '),writeln(Ct1),
 	write('Os1: '),writeln(Os1),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os).
-
-	/*
-[[[[[       1.0000000],
-    [     125.0000000],
-    [     125.0000000]]],
-
-
-  [[[      39.0000000],
-    [ 2400426.0000000],
-    [ 2454783.0000000]]],
-
-
-  [[[  104103.0000000],
-    [13941221400502075392.0000000],
-    [14908953261154238464.0000000]]]]]
-
-
-
-
-
-
-nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
+/* nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
 	nth0_2D(0,0, Us,UsT),
 	
 	split_lstm_weights(WsT, Wi,Wf,Wc,Wo),
@@ -536,21 +511,14 @@ nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
 	write('Os1: '),
 	writeln(Os1),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os). */
-
-	
-	
- /*   i = self.recurrent_activation(x_i + h_i)
+/*   i = self.recurrent_activation(x_i + h_i)
     f = self.recurrent_activation(x_f + h_f)
     o = self.recurrent_activation(x_o + h_o)
     ctt =  self.activation(x_c + h_c)
-    
     c1 = f * c_tm1 
     c2 = i * ctt
-    
     cF = c1 + c2
-
-    h = o * self.activation(cF)*/
-	
+    h = o * self.activation(cF) */
 %apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 %apply_lstm_step_conv1Test([I|IsT],Ws,Us,Bs,Ct0,Ct,[O0|Os0T],Os) :-
@@ -558,7 +526,7 @@ apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 		write('Os0: '),writeln(Os0),
 	%TODO Check	
 	%(contains_only_zero([O0|Os0T]) -> (Is = [I|IsT], Os0 = [O0|Os0T]);(add_layer([I,O0],[I1]),Is = [I1|IsT], Os0 = [O0|Os0T]) ),
-		
+	
 	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
 	keep(It0,It),
@@ -567,11 +535,9 @@ apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
 	keep(Ft0,Ft),
 		%write('Ft: '),writeln(Ft),
-
 	add_layer([Is,Os0],[Ot0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
 	keep(Ot0,Ot),
-
 	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
 	keep(CtTemp0,Ctt),
@@ -587,9 +553,6 @@ apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
 		
 	multiply_lists(Ot,TanhCt,Os),
 	write('Os1: '),writeln(Os).
-	
-	
-
 	
 apply_lstm_step_conv(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :- apply_lstm_step_conv(Is,0,0,Ws,Us,Bs,Ct0,Ct,Os0,Os).
 apply_lstm_step_conv([I|Is],X,Y,_,_,_,Ct,Ct,Os,Os) :-
@@ -623,19 +586,15 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 	
 	tanh_gate([IsM],[OsM],Wc,Uc,Bc,Ctt),
 		write('Ctt: '),writeln(Ctt),
-	
 	multiply_lists(Ft,[CtM],Ct1),
 	multiply_lists(It,Ctt,Ct2),
 	add_lists(Ct1,Ct2,[CtF]),
 		write('CtF: '),writeln(CtF),
 	tanh([CtF],TanhCt),
 		write('TanhCt: '),writeln(TanhCt),
-		
-		
 	sig_gate_conv([IsM],[OsM],Wo,Uo,Bo,[CtF],Wc,Ot),
 	multiply_lists(Ot,TanhCt,[Os1]),
 		write('Os1: '),writeln(Os1),
-
 	replace(Os0,X,Y,Os1,Os2),
 		write('Os2: '),writeln(Os2),
 	replace(Ct0,X,Y,CtF,CtN),
@@ -643,7 +602,6 @@ apply_lstm_step_conv(Is,X,Y,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 	((X < LX - 1) -> X1 is X + 1,Y1 is Y;X1 is 0,Y1 is Y+1),
 	apply_lstm_step_conv(Is,X1,Y1,Ws,Us,Bs,CtN,Ct,Os2,Os).
 	
-
 sig_gate_conv(Is,HtPast,W,U,B,CtPast,C,Os) :-
 	mmult(Is,W,Os0),
 	mmult(HtPast,U,Os1),
@@ -654,8 +612,19 @@ sig_gate_conv(Is,HtPast,W,U,B,CtPast,C,Os) :-
 	%add_lists(Os4,B,Os5),
 	sigmoid_func(Os5,Os).	
 	
-/*
+contains_only_zero([]).	
+contains_only_zero(X) :-
+	atomic(X),
+	X = 0.
+contains_only_zero([X|Xs]) :-
+	is_list([X|Xs]),
+	contains_only_zero(X),
+	contains_only_zero(Xs).
 
+
+
+
+/*
 model = keras.Sequential([
 keras.layers.ConvLSTM2D(1, (1, 1),recurrent_activation='linear', activation='linear',  input_shape=(3, 1, 1, 1))])
 w = model.get_weights()

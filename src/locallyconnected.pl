@@ -169,6 +169,23 @@ calc_locally_connected2D_weight2_shape([[[[0.0052], [0.2128]], [[0.0348], [0.080
 
 */
 
+
+
+locally_connected1D_layer(Is,KernelSize,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
+	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],false,Os).
+locally_connected1D_layer(Is,KernelSize,IWs,Bs,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
+	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,1),
+	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,false,Os).
+locally_connected1D_layer(Is,KernelSize,IWs,Bs,Strides,Os):- 
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
+	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,Strides),
+	pool1D_layer(sum_list,Is,KernelSize,Strides,false,IWs,Bs,false,Os).
+	
 check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,Strides) :-
 	calc_locally_connected1D_weight1_shape(Is, Bs, KernelSize, Strides, Shape1),
 	shape(IWs,Shape2),
@@ -193,8 +210,25 @@ calc_locally_connected1D_weight2_shape(Is, IWs, KernelSize, Strides, Shape) :-
 	S0 = [Kernel_comps],
 	sub_sub_length(IWs,SL),
 	append(S0,[SL],Shape).
+
+
+
+locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],false,Os).
+locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
+	check_locally_connected2D_weight_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,1,1),
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,false,Os).
+locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Os):- 
+	check_dimensions(Is,4),
+	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
+	check_locally_connected2D_weight_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2),
+	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,false,IWs,Bs,false,Os).
 	
-check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2) :-
+check_locally_connected2D_weight_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2) :-
 	calc_locally_connected2D_weight1_shape(Is, Bs, KernelSizeD1,KernelSizeD2, StridesD1,StridesD2, Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
@@ -225,32 +259,4 @@ calc_locally_connected2D_weight2_shape(Is, IWs, KernelSizeD1,KernelSizeD2, Strid
 	append(S0,[SL],Shape).
 
 
-locally_connected1D_layer(Is,KernelSize,Os):- 
-	check_dimensions(Is,3),
-	check_pool_input_match(Is,KernelSize,false),
-	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],false,Os).
-locally_connected1D_layer(Is,KernelSize,IWs,Bs,Os):- 
-	check_dimensions(Is,3),
-	check_pool_input_match(Is,KernelSize,false),
-	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,1),
-	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,false,Os).
-locally_connected1D_layer(Is,KernelSize,IWs,Bs,Strides,Os):- 
-	check_dimensions(Is,3),
-	check_pool_input_match(Is,KernelSize,false),
-	check_locally_connected1D_weight_shape(Is,KernelSize,IWs,Bs,Strides),
-	pool1D_layer(sum_list,Is,KernelSize,Strides,false,IWs,Bs,false,Os).
-	
-locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
-	check_dimensions(Is,4),
-	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
-	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,[],[],false,Os).
-locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,Os):- 
-	check_dimensions(Is,4),
-	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
-	check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,1,1),
-	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,1,1,false,IWs,Bs,false,Os).
-locally_connected2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Os):- 
-	check_dimensions(Is,4),
-	check_pool_input_match(Is,KernelSizeD1,KernelSizeD2,false),
-	check_locally_connected2D_weight1_shape(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2),
-	pool2D_layer(sum_list,Is,KernelSizeD1,KernelSizeD2,StridesD1,StridesD2,false,IWs,Bs,false,Os).
+

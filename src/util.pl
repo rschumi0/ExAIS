@@ -101,9 +101,14 @@ del_last_items([X|Xs], [Y|Ys]) :-
 	list_butlast(X,Y),
 	del_last_items(Xs, Ys).
    
-   
+not_empty(L) :- not(is_empty(L)).
+is_empty([]).
 
-	
+first_atom([I|_], I) :-
+	atomic(I).
+first_atom([I|_],I1) :-
+	is_list(I),
+	first_atom(I,I1).
 	
 list_butlast([X|Xs], Ys) :-         
    list_butlast(Xs, Ys, X).       
@@ -132,16 +137,21 @@ divide_each_list_element_by([X|Xs],A,[Y|Ys]) :-
 	Y is X / A,
 	divide_each_list_element_by(Xs,A,Ys).
 	
-%:- use_module(library(lambda)).
-% list_sum(L1, L2, L3) :-
-%    maplist(\X^Y^Z^(Z is X + Y), L1, L2, L3).
-
 concatinate_sub_lists([],[],[]).
 concatinate_sub_lists([],Ys,Ys).
 concatinate_sub_lists(Xs,[],Xs).
 concatinate_sub_lists([X|Xs],[Y|Ys],[Z|Zs]):-
 	append(X,Y,Z),
 	concatinate_sub_lists(Xs,Ys,Zs).
+	
+exp_list([],[]).
+exp_list(X,Y) :-
+	atomic(X),
+	Y is exp(X).
+exp_list([X|Xs],[Y|Ys]) :-
+	is_list([X|Xs]),
+	exp_list(X,Y),
+	exp_list(Xs,Ys).
 	
 nth0_2DallY(X,Is,Os) :-
 	nth0(X,Is,Os).
@@ -169,6 +179,14 @@ nth0_4D(W,X,Y,Z,Is,Os) :-
 	nth0(X,I0s,I1s),
 	nth0(Y,I1s,I2s),
 	nth0(Z,I2s,Os).	
+	
+nth0_from_sublist(N,Is,Os) :- nth0_from_sublist(N,Is,[],Os).
+nth0_from_sublist(_,[],Os,Os).
+nth0_from_sublist(N,[I|Is],Os0,Os) :-
+	nth0(N,I,O),
+	append(Os0,[O],Os1),
+	nth0_from_sublist(N,Is,Os1,Os).
+	
 	
 list_sum([Item], Item).
 list_sum([Item1,Item2 | Tail], Total) :-
@@ -371,3 +389,13 @@ full_depth([H|T],R):- full_depth(H,R1), full_depth(T,R2), R3 is R1+1, R is max(R
 depth([],1).
 depth([I|_],1) :- not(is_list(I)),!.
 depth([I|_],D) :- is_list(I), depth(I,D1), D is D1 + 1.
+
+compare_lists([], []).
+compare_lists([H1|R1], [H2|R2]):-
+    atomic(H1),
+    H1 = H2,
+    compare_lists(R1, R2).
+compare_lists([H1|R1], [H2|R2]):-
+    is_list(H1),
+    compare_lists(H1,H2),
+    compare_lists(R1, R2).
