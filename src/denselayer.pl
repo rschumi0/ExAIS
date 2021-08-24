@@ -5,9 +5,9 @@
 % dense_layer([[4,3,4,5,6]],[[5,8,5],[7,6,6],[3,5,7],[3,5,4],[3,4,5]],[4,3,5,6,7],X).
 
 dense_layer(Is, IWs, Bs, Os) :-
-	%calc_dense_weight_shape(Is,Bs,Shape1),
-	%shape(IWs,Shape2),
-	%check_valid_weight_shape(Is,Shape1,Shape2), 
+	calc_dense_weight_shape(Is,Bs,Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2), 
 	dense(Is, IWs, Bs, Os).
 
 dense([], _, _, []).
