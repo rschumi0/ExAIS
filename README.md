@@ -2,12 +2,14 @@
 This project aims to provide a Prolog specification of individual TensorFlow layers. Most layers are specified assuming statically given weights. Taking these weights as input parameter enables a deterministic computation of outputs for given inputs.
 
 # Prerequisites
-
+To run the semantics, it is necessary to install [SWI Prolog](https://www.swi-prolog.org) (we used version 8.2.1).
+Moreover, the following packages need to be installed. 
 pack_install(list_util).
 pack_install(cplint).
 pack_install(lambda).
 
 # Implemented layers
+The semantics supports the following layers.
 
  | Layer | Comment |
  | --- | --- |
@@ -22,6 +24,7 @@ pack_install(lambda).
  |  Conv1D|   |  
  |  Conv2D|   |  
  |  Conv3D|   |  
+ |  Conv1DTranspose|   | 
  |  Conv2DTranspose|   |  
  |  Conv3DTranspose|   |  
  |  ConvLSTM2D|   |  
@@ -44,11 +47,15 @@ pack_install(lambda).
  |  GlobalMaxPool2D|   |  
  |  GlobalMaxPool3D|   | 
  |  GRU|   |    
+ |  GRUCell|   |  
+ |  InputLayer|   |  
+ |  InputSpec|   |  
  |  LayerNormalization|   |  
  |  LeakyReLU|   |  
  |  LocallyConnected1D|   |  
  |  LocallyConnected2D|   |  
- |  LSTM|   |  
+ |  LSTM|   | 
+ |  LSTMCell|   |  
  |  Masking|   |  
  |  Maximum|   |  
  |  MaxPool1D|   |  
@@ -64,6 +71,7 @@ pack_install(lambda).
  |  SeparableConv1D|   |  
  |  SeparableConv2D|   | 
  |  SimpleRNN|   |  
+ |  SimpleRNNCell|   | 
  |  Softmax|   |  
  |  SpatialDropout1D|   |  
  |  SpatialDropout2D|   |  
@@ -78,9 +86,22 @@ pack_install(lambda).
  |  ZeroPadding2D|   |  
  |  ZeroPadding3D|   | 
 
-# Examples
-An example graph model (with the functional API) in Prolog is shown below. It can be seen that it consists of a number of layers with various arguments. The first argument is always the input and the last is the output. Layers are connected by using the output arguments as input. The final output of the model is the one from the last layer. Details about the arguments can be found in the source code and also in the [TensorFlow documentation](https://www.tensorflow.org/api_docs/python/tf/keras/layers).
+# Getting Started
+To get started the Prolog Interpreter should be run in the source folder of the semantics with the ``swipl`` command.
+Afterwards, the main file can be loaded by entering ``[main].``. 
+The result should be true, and the main file already includes the other source files.
 
+Afterwards models can be tested in the form of queries. For example, a query for testing a convolution 1D layer can look like this.
+```
+conv1D_layer([[[0.0113, 0.1557, 0.1804], [0.8732, 0.317, 0.9175], [0.7246, 0.833, 0.8881]]], 2,[[[0.0419, 0.2172], [0.9973, 0.6763], [0.6917, 0.452]], [[0.0743, 0.9004], [0.52, 0.5426], [0.4529, 0.5032]]],[0, 0], 1, false, X).
+```
+The result for this quere will be:
+```
+X = [[[0.92579027, 1.60921455], [1.8765842, 2.3700637]]] .
+```
+
+# Graph Model Example
+An example graph model (with the functional API) in Prolog is shown below. It can be seen that it consists of a number of layers with various arguments. The first argument is always the input and the last is the output. Layers are connected by using the output arguments as input. The final output of the model is the one from the last layer. Details about the arguments can be found in the source code and also in the [TensorFlow documentation](https://www.tensorflow.org/api_docs/python/tf/keras/layers).
 
 
 ```
