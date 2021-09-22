@@ -56,17 +56,8 @@ check_type(Is,"bool") :-
 	first_atom(Is,true).
 check_type(Is,"bool") :-
 	first_atom(Is,false).
-	
-check_type_precondition(Is,DType) :-
-	(not(check_type(Is,DType)) -> (write("Invalid Model, Badness Value: "), 
-	    		 	   %compute_different_shape_badness(I1,I2,B),
-	    			   writeln("100"), 
-	    			   S1 = "Type Error, Input ",
-	    			   first_atom(Is,I),
-	    			   term_string(I,S2),
-	    			   string_concat(S1,S2,S),
-	    			   throw(S));true).	
-	    			   
+
+
 check_shape(_,[], _).
 check_shape(Is,Shape, false) :-
 	not_empty(Shape),

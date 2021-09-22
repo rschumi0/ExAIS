@@ -294,7 +294,7 @@ Expected: [[0.1186]]
 
 
 lstmcell_layer(Is,Ws,Us,Bs,Os) :- 
-	lstm(Is,Ws,Us,Bs,Os).
+	lstm_layer(Is,Ws,Us,Bs,Os).
 
 
 

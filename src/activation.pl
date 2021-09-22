@@ -9,7 +9,7 @@ relu_layer([I|Is],Max_Value,Negative_Slope,Threshold,[O|Os]) :-
 	(number(Max_Value) -> O is min(I1,Max_Value); O is I1),
 	relu_layer(Is,Max_Value,Negative_Slope,Threshold,Os).
 
-    relu_layer([I|Is],Max_Value,Negative_Slope,Threshold,[O|Os]) :-
+relu_layer([I|Is],Max_Value,Negative_Slope,Threshold,[O|Os]) :-
 	is_list(I),
 	relu_layer(I,Max_Value,Negative_Slope,Threshold,O),
 	relu_layer(Is,Max_Value,Negative_Slope,Threshold,Os).
@@ -46,17 +46,17 @@ leaky_relu_layer([I|Is],Alpha,[O|Os]) :-
 
 sigmoid_layer([],Y,Y).
 sigmoid_layer([I|Is],Y0,Y):-
-   I < -709,
-   append(Y0,[0.0],Ys),
-   sigmoid_layer(Is,Ys,Y).
+	I < -709,
+	append(Y0,[0.0],Ys),
+	sigmoid_layer(Is,Ys,Y).
 sigmoid_layer([I|Is],Y0,Y):-
-   I > -710,
-   I1 is I * -1,
-   E is 1 + exp(I1), 
-   O is rdiv(1, rational(E)),
-   S is float(O), 
-   append(Y0,[S],Ys),
-   sigmoid_layer(Is,Ys,Y).
+	I > -710,
+	I1 is I * -1,
+	E is 1 + exp(I1), 
+	O is rdiv(1, rational(E)),
+	S is float(O), 
+	append(Y0,[S],Ys),
+	sigmoid_layer(Is,Ys,Y).
 
 
 
@@ -69,7 +69,7 @@ softmax_layer(Is,0,Os) :-
 	depth(Is,2),
 	replace_all(Is, 1,Os).
 softmax_layer(Is,1,Os) :-
-    depth(Is,2),
+	depth(Is,2),
 	softmax_layer(Is,Os).
 softmax_layer(Is,1,Os) :-
 	depth(Is,3),
@@ -123,9 +123,9 @@ softmax_layer([I|Is],[O|Os]) :-
 	softmax_layer(Is,Os).
 softmax([],_).
 softmax(Is, Os):-
- exp_list(Is, Y), 
- sum_list(Y,Sum), %calc_sum_SL([I|Is], 0, Sum),   %  calc sum of exponential values for all the list elements
- divide_each_list_element_by(Y,Sum,Os).%reduce_sum_SL(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
+	exp_list(Is, Y), 
+	sum_list(Y,Sum), %calc_sum_SL([I|Is], 0, Sum),	%  calc sum of exponential values for all the list elements
+	divide_each_list_element_by(Y,Sum,Os).%reduce_sum_SL(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
 
 /*
  % calculate exponential sum of a one-dimension list
@@ -142,9 +142,9 @@ reduce_sum_SL([],_,Y,Y).
 reduce_sum_SL([Y|Ys], Sum1, R1, R2):-
   O is rdiv(rational(Y), rational(Sum1)),
   % format('~5e~n', O),
-   S is float(O),
-   append(R1, [S], Z),
-   reduce_sum_SL(Ys, Sum1, Z, R2).
+	S is float(O),
+	append(R1, [S], Z),
+	reduce_sum_SL(Ys, Sum1, Z, R2).
 
 % softmax layer for multi-dimensional input tensor
 % ?- softmax_layer_LL([[0,1,0],[0,1,0]],[],Y).
@@ -161,9 +161,9 @@ softmax_layer_LL([[I|Is]|Xs], Y0, Y):-
 % calculate exponential sum of multi-dimension list
   calc_sum_LL([], Y, Y).
   calc_sum_LL([[I|Is]|Xs], Y0, Y):-
-   calc_sum([I|Is], 0, Sum),
-   append(Y0, [Sum], Ys),
-   calc_sum_LL(Xs, Ys, Y).
+	calc_sum([I|Is], 0, Sum),
+	append(Y0, [Sum], Ys),
+	calc_sum_LL(Xs, Ys, Y).
 
 % calculate exponent of elements in a multi-dimensional input tensor
 % ?- calc_exp_LL([[8,0],[5,0]],[],Y).

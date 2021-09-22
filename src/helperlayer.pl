@@ -371,10 +371,10 @@ permute_layer(Is,D1,D2,Os) :-
 	permute_layer(Is,D1,D2,[],Os).
 permute_layer([],_,_,Os,Os).
 permute_layer([[I|Is1]|Is],D1,D2,Os0,Os) :- 
- 	is_list(I),
- 	permute_layer([I|Is1],D1,D2, [],O),
- 	append(Os0,[O],Os1),
- 	permute_layer(Is,D1,D2,Os1,Os).
+	is_list(I),
+	permute_layer([I|Is1],D1,D2, [],O),
+	append(Os0,[O],Os1),
+	permute_layer(Is,D1,D2,Os1,Os).
 permute_layer([[I|Is1]|Is],1,2,_,Os) :-
 	atomic(I),
 	permute_layer([],1,2,[[I|Is1]|Is],Os).
@@ -395,21 +395,24 @@ reshape_layer(Is,Ss,Os) :-
 	shape(Is,Shape),
 	list_product(Shape,PIn),
 	list_product(Ss,POut),
-	flatten(Is,Is1),
-	((PIn > POut)-> ((0 is mod(PIn,POut)) -> AddS is PIn // POut,reshape_layer(Is1,[AddS|Ss],Os);
-			(writeln("Invalid Model, Badness Value: 1000000000"),
-			 S1 = "Reshape Error, Input Shape ",
-		         shape(Is,ShapeT),
-		         term_string(ShapeT,S2),
-		         string_concat(S1,S2,S),
-			 throw(S)));
+	check_valid_reshape(Is,PIn,POut),
+	(PIn > POut) -> (flatten(Is,Is1),AddS is PIn // POut,reshape_layer(Is1,[AddS|Ss],Os));
+			(flatten(Is,Is1),reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)).
+	/*((PIn > POut)-> ((0 is mod(PIn,POut)) -> AddS is PIn // POut,reshape_layer(Is1,[AddS|Ss],Os);
+				(writeln("Invalid Model, Badness Value: 1000000000"),
+				S1 = "Reshape Error, Input Shape ",
+				shape(Is,ShapeT),
+				term_string(ShapeT,S2),
+				string_concat(S1,S2,S),
+				throw(S)));
 			((PIn < POut) -> (writeln("Invalid Model, Badness Value: 1000000000"),
-			 S1 = "Reshape Error, Input Shape ",
-		         shape(Is,ShapeT),
-		         term_string(ShapeT,S2),
-		         string_concat(S1,S2,S),
-			 throw(S)); 
-			(reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)))).
+						S1 = "Reshape Error, Input Shape ",
+						shape(Is,ShapeT),
+						term_string(ShapeT,S2),
+						string_concat(S1,S2,S),
+						 throw(S)); 
+					(reshape_layer(Is1,Ss,OsT),pack_list(OsT,Os)))).*/
+			
 %recursive_split([3,3],[1,2,3,4,5,6,7,8,9],X).
 %recursive_split([],Is,Is).
 recursive_split([S|Ss],Is,Is) :-length([S|Ss],L), L = 1.

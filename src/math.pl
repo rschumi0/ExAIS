@@ -197,7 +197,7 @@ dot_layer([I1|Is1],[I2|Is2],Axis1,Axis2,[O|Os]):-
 	%check_same_dimensions([I1|Is1],[I2|Is2]),
 	%check_max_dimensions([I1|Is1], 3),
 	%check_max_dimensions([I2|Is2], 3),
-	check_valid_axis([I1|Is1],[I2|Is2],Axis1,Axis2),
+	check_valid_axis_for_dot([I1|Is1],[I2|Is2],Axis1,Axis2),
 	dot(I1,I2,Axis1,Axis2,[O]),
 	dot_layer(Is1,Is2,Axis1,Axis2,Os).
 dot_layer([Is1,Is2],Axis1,Axis2,Os):-
@@ -277,34 +277,6 @@ dot(Xs,Ys,3,3,[Zs]) :-
 	maplist(transpose, Ys, Ys1),
 	mmmult(Xs,Ys1,Zs).
 	
-check_valid_axis([I1|Is1],[I2|_],Axis1,Axis2) :-
-		A1 is Axis1 - 1,
-		A2 is Axis2 - 1,
-		shape(I1,Shape1),
-		shape(I2,Shape2),
-		length(Shape1,L1),
-		length(Shape2,L2),
-		((A1 >= L1; A2 >= L2) -> (write("Invalid Model, Badness Value: "), 
-    		     writeln("99"),  
-    		     S1 = "Dot Axis Error, Input Shape ",
-    	             shape([I1|Is1],Shape),
-    	             term_string(Shape,S2),
-    		     string_concat(S1,S2,S), 
-                     throw(S));true),
-		nth0(A1,Shape1,D1),
-		nth0(A2,Shape2,D2),
-		(D1 =\= D2 -> (write("Invalid Model, Badness Value: "), 
-		     depth([I1|Is1],DT),
-		     D is DT - Axis1,
-		     pow(100,D-1,Factor),
-		     Badness is Factor*abs(D1-D2),
-    		     writeln(Badness),  
-    		     S1 = "Dot Axis Error, Input Shape ",
-    	             shape([I1|Is1],Shape),
-    	             term_string(Shape,S2),
-    		     string_concat(S1,S2,S), 
-                     throw(S));true).
-
 
 
 
