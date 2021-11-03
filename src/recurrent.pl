@@ -234,21 +234,7 @@ split_weights([W|Ws], [Wr|Wrs],[Wz|Wzs],[Wh|Whs]) :-
 %one_minus_x_list(Xs,Ys) :- maplist(one_minus_x,Xs,Ys).
 %one_minus_x_matrix(Xs,Ys) :- maplist(one_minus_x_list,Xs,Ys).
 
-%sigmoid_func(Is,Is).
 
-
-%sigmoid_list(Is,Y) :- sigmoid_layer(Is,[],Y).
-sigmoid_func([],[]).
-sigmoid_func(X,Y) :-
-	atomic(X),
-	sigmoid_layer([X],[],[Y]).
-sigmoid_func([X|Xs],Y) :-
-	atomic(X),
-	sigmoid_layer([X|Xs],[],Y).
-sigmoid_func([X|Xs],[Y|Ys]) :-
-	is_list(X),
-	sigmoid_func(X,Y),
-	sigmoid_func(Xs,Ys).
 	
 /*
 

@@ -44,19 +44,34 @@ leaky_relu_layer([I|Is],Alpha,[O|Os]) :-
 
 
 
-sigmoid_layer([],Y,Y).
-sigmoid_layer([I|Is],Y0,Y):-
+
+sigmoid_layer(X,Y) :- sigmoid_func(X,Y).
+sigmoid_func([],[]).
+sigmoid_func(X,Y) :-
+	atomic(X),
+	sigmoid_comp([X],[],[Y]).
+sigmoid_func([X|Xs],Y) :-
+	atomic(X),
+	sigmoid_comp([X|Xs],[],Y).
+sigmoid_func([X|Xs],[Y|Ys]) :-
+	is_list(X),
+	sigmoid_func(X,Y),
+	sigmoid_func(Xs,Ys).
+	
+
+sigmoid_comp([],Y,Y).
+sigmoid_comp([I|Is],Y0,Y):-
 	I < -709,
 	append(Y0,[0.0],Ys),
-	sigmoid_layer(Is,Ys,Y).
-sigmoid_layer([I|Is],Y0,Y):-
+	sigmoid_comp(Is,Ys,Y).
+sigmoid_comp([I|Is],Y0,Y):-
 	I > -710,
 	I1 is I * -1,
 	E is 1 + exp(I1), 
 	O is rdiv(1, rational(E)),
 	S is float(O), 
 	append(Y0,[S],Ys),
-	sigmoid_layer(Is,Ys,Y).
+	sigmoid_comp(Is,Ys,Y).
 
 
 
