@@ -666,7 +666,38 @@ calc_conv3D_transpose_weight_shape([I|_],KernelSizeD1,KernelSizeD2,KernelSizeD3,
 	append(S0,[L],S2),
 	append(S2,[L0],Shape).
 
-
+depthwise_conv1D_layer(Is,KernelSize,Os):-
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
+	pool1D_layer(sum_list,Is,KernelSize,1,false,[],[],true,Os).
+depthwise_conv1D_layer(Is,KernelSize,IWs,Bs,Os):-
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,false),
+	calc_depthwise_conv1D_weight_shape(Is,KernelSize,Bs,Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	pool1D_layer(sum_list,Is,KernelSize,1,false,IWs,Bs,true,Os).
+depthwise_conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,Os):-
+	check_dimensions(Is,3),
+	check_pool_input_match(Is,KernelSize,Padding),
+	calc_depthwise_conv1D_weight_shape(Is,KernelSize,Bs,Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	pool1D_layer(sum_list,Is,KernelSize,Strides,Padding,IWs,Bs,true,Os).
+depthwise_conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,DilationRate,Os):-
+	check_dimensions(Is,3),
+	% check_pool_input_match(Is,KernelSize,Padding), TODO check dilation
+	calc_depthwise_conv1D_weight_shape(Is,KernelSize,Bs,Shape1),
+	shape(IWs,Shape2),
+	check_valid_weight_shape(Is,Shape1,Shape2),
+	apply_dilation1D(IWs,KernelSize,DilationRate,KernelSize,IWs1),
+	pool1D_layer(sum_list,Is,KernelSize,Strides,Padding,IWs1,Bs,true,Os).
+	
+calc_depthwise_conv1D_weight_shape([I|_],KernelSize,_,Shape):-
+	S0 = [KernelSize],
+	sub_length(I,L),
+	append(S0,[L],S2),
+	append(S2,[1],Shape).
 
 depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Os):- 
 	check_dimensions(Is,4),
