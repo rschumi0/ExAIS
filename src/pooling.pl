@@ -404,16 +404,20 @@ pool1D_layer(Poolfunc,[[I|Is0]|Is],X,Y,PoolSize,Strides,Padding,IWs,Bs,false,Os0
 	pool1D_layer(Poolfunc,[[I|Is0]|Is],X1,0,PoolSize,Strides,Padding,IWs,Bs,false,Os1,Os).
 	
 get_pool_res1D(Poolfunc,Is,X,Y,PoolSize,Strides,IWs,Bs,MultiLayerPool,O) :- get_pool_res1D(Poolfunc,Is,X,Y,X,PoolSize,Strides,IWs,Bs,MultiLayerPool,[],O).
-get_pool_res1D(Poolfunc,[I|_],X,Y,X1,PoolSize,_,_,_,_,[O1|Os],O) :-
+get_pool_res1D(Poolfunc,[I|_],X,Y,X1,PoolSize,_,_,Bs,_,[O1|Os],O) :-
 	((X1 >= X + PoolSize);
 	length(I,LY), Y >= LY),
 	atomic(O1),
 	remove_non_numbers([O1|Os],Os1),
-	call(Poolfunc,Os1,O).
+	(Bs = [] ->		(call(Poolfunc,Os1,O));
+			(call(Poolfunc,Os1,O0),nth0(Y,Bs,B),O is O0 + B)).
 get_pool_res1D(Poolfunc,Is,X,Y,X1,PoolSize,Strides,IWs,Bs,true,Os0,O) :-
 	nth0_2D(X1,Y,Is,O1),
-	append(Os0,[O1],Os1),
+	(IWs = [] ->	(append(Os0,[O1],Os1));
+			(XT is X1 - X,nth0_3D(XT,Y,0,IWs,W),O2 is O1*W,append(Os0,[O2],Os1))),
 	X2 is X1 + 1,
+	% append(Os0,[O1],Os1),
+	% X2 is X1 + 1,
 	get_pool_res1D(Poolfunc,Is, X,Y,X2,PoolSize,Strides,IWs,Bs,true,Os1,O).
 get_pool_res1D(Poolfunc,[I|Is],X,Y,X1,PoolSize,Strides,IWs,[B|Bs],false,Os0,O) :-
 	not(check_separable_conv_weights(IWs)),
