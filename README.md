@@ -33,6 +33,7 @@ The semantics supports the following layers.
  |  Cropping2D|   |  
  |  Cropping3D|   |    
  |  Dense|   |  
+ |  DepthwiseConv1D|   |
  |  DepthwiseConv2D|   |  
  |  Dot|   |  
  |  Dropout|   |  
@@ -67,7 +68,7 @@ The semantics supports the following layers.
  |  Permute|   |  
  |  PReLU|   |  
  |  ReLU|   |  
- |  RepeatVector|   | 
+ |  RepeatVector|   |
  |  Reshape|   |    
  |  SeparableConv1D|   |  
  |  SeparableConv2D|   | 

@@ -415,13 +415,13 @@ reshape_layer(Is,Ss,Os) :-
 
 
 
-rescaling_layer([I|Is],Scale,Offset,[O|Os]) :-
-	depth([I],1) ->
-		O is I * Scale + Offset,
-		rescaling_layer(Is,Scale,Offset,Os);
-		rescaling_layer(I,Scale,Offset,O),
-		rescaling_layer(Is,Scale,Offset,Os).
-rescaling_layer([],_,_,[]).
+% rescaling_layer([I|Is],Scale,Offset,[O|Os]) :-
+% 	depth([I],1) ->
+% 		O is I * Scale + Offset,
+% 		rescaling_layer(Is,Scale,Offset,Os);
+% 		rescaling_layer(I,Scale,Offset,O),
+% 		rescaling_layer(Is,Scale,Offset,Os).
+% rescaling_layer([],_,_,[]).
 			
 %recursive_split([3,3],[1,2,3,4,5,6,7,8,9],X).
 %recursive_split([],Is,Is).

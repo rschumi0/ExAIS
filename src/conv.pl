@@ -194,6 +194,7 @@ conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,DilationRate,Os):-
 	calc_conv1D_weight_shape(Is,KernelSize,Bs,Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
+	check_valid_dilation(Is,KernelSize,DilationRate,false),
  	apply_dilation1D(IWs,KernelSize,DilationRate,KernelSize1,IWs1),
 	pool1D_layer(sum_list,Is,KernelSize1,Strides,Padding,IWs1,Bs,false,Os).
 	
@@ -245,6 +246,7 @@ conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,Padding,Dil
 	calc_conv2D_weight_shape(Is,KernelSizeD1,KernelSizeD2,Bs,Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
+	check_valid_dilation(Is,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,false),
  	apply_dilation2D(IWs,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,KernelSize1D1,KernelSize1D2,IWs1),
 	pool2D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,StridesD1,StridesD2,Padding,IWs1,Bs,false,Os).
 	
@@ -301,6 +303,7 @@ conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,IWs,Bs,StridesD1,StridesD
 	calc_conv3D_weight_shape(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Bs,Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
+	check_valid_dilation(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,DilationRateD1,DilationRateD2,DilationRateD3,false),
  	apply_dilation3D(IWs,KernelSizeD1,KernelSizeD2,KernelSizeD3,DilationRateD1,DilationRateD2,DilationRateD3,KernelSize1D1,KernelSize1D2,KernelSize1D3,IWs1),
 	pool3D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,KernelSize1D3,StridesD1,StridesD2,StridesD3,Padding,IWs1,Bs,false,Os).
 
@@ -690,6 +693,7 @@ depthwise_conv1D_layer(Is,KernelSize,IWs,Bs,Strides,Padding,DilationRate,Os):-
 	calc_depthwise_conv1D_weight_shape(Is,KernelSize,Bs,Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
+	check_valid_dilation(Is,KernelSize,DilationRate,false),
 	apply_dilation1D(IWs,KernelSize,DilationRate,KernelSize,IWs1),
 	pool1D_layer(sum_list,Is,KernelSize,Strides,Padding,IWs1,Bs,true,Os).
 	
@@ -723,6 +727,7 @@ depthwise_conv2D_layer(Is,KernelSizeD1,KernelSizeD2,IWs,Bs,StridesD1,StridesD2,P
 	calc_depthwise_conv2D_weight_shape(Is,KernelSizeD1,KernelSizeD2,Bs,Shape1),
 	shape(IWs,Shape2),
 	check_valid_weight_shape(Is,Shape1,Shape2),
+	check_valid_dilation(Is,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,false),
  	apply_dilation2D(IWs,KernelSizeD1,KernelSizeD2,DilationRateD1,DilationRateD2,KernelSize1D1,KernelSize1D2,IWs1),
 	pool2D_layer(sum_list,Is,KernelSize1D1,KernelSize1D2,StridesD1,StridesD2,Padding,IWs1,Bs,true,Os).
 
