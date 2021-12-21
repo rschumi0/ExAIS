@@ -10,4 +10,5 @@
 :- [dropout].
 :- [denselayer].
 :- [input].
+:- [clp].
 

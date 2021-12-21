@@ -5,7 +5,7 @@
 
 exec_layers([],[],_,_).
 exec_layers([L|Layers],[N|LayerNames],OutVar, OutVarName) :-
-	catch(call_with_time_limit(120,L), E, (write("Aborted at "), write(N), write(": "), write(E), writeln("!!!"),abort)),
+	catch(call_with_time_limit(220,L), E, (write("Aborted at "), write(N), write(": "), write(E), writeln("!!!"),abort)),%120
 	write("Layer "), write(N),writeln(" executed successfully"),
 	(length(Layers,0) -> write(OutVarName), write(" = "), writeln(OutVar);true),
 	exec_layers(Layers,LayerNames,OutVar, OutVarName).
@@ -177,7 +177,7 @@ check_pool_input_match(Is,PoolSize, false) :-
 			term_string(Shape,S2),
 			string_concat(S1,S2,RS),
 			S3 = ", Expected Shape ",
-			replace(Shape,1,D1,Shape3),
+			replace(Shape,1,PoolSize,Shape3),
 			term_string(Shape3,S22),
 			string_concat(S3,S22,RS1),
 			string_concat(RS,RS1,S),
@@ -193,7 +193,7 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, false) :-
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
 				S3 = ", Expected Shape ",
-				replace(Shape,1,D1,Shape3),
+				replace(Shape,1,PoolSizeD1,Shape3),
 				term_string(Shape3,S22),
 				string_concat(S3,S22,RS1),
 				string_concat(RS,RS1,S),
@@ -206,7 +206,7 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, false) :-
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
 				S3 = ", Expected Shape ",
-				replace(Shape,2,D2,Shape3),
+				replace(Shape,2,PoolSizeD2,Shape3),
 				term_string(Shape3,S22),
 				string_concat(S3,S22,RS1),
 				string_concat(RS,RS1,S),
@@ -222,7 +222,7 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
 				S3 = ", Expected Shape ",
-				replace(Shape,1,D1,Shape3),
+				replace(Shape,1,PoolSizeD1,Shape3),
 				term_string(Shape3,S22),
 				string_concat(S3,S22,RS1),
 				string_concat(RS,RS1,S),
@@ -235,7 +235,7 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
 				S3 = ", Expected Shape ",
-				replace(Shape,2,D2,Shape3),
+				replace(Shape,2,PoolSizeD2,Shape3),
 				term_string(Shape3,S22),
 				string_concat(S3,S22,RS1),
 				string_concat(RS,RS1,S),
@@ -248,7 +248,7 @@ check_pool_input_match(Is,PoolSizeD1, PoolSizeD2, PoolSizeD3, false) :-
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
 				S3 = ", Expected Shape ",
-				replace(Shape,3,D3,Shape3),
+				replace(Shape,3,PoolSizeD3,Shape3),
 				term_string(Shape3,S22),
 				string_concat(S3,S22,RS1),
 				string_concat(RS,RS1,S),
