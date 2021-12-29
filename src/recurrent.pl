@@ -369,7 +369,74 @@ Expected: [[0.8476]]
 */
 
 
+conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Os) :- 
+	is_list(I), conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,[],Os).
+conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Os) :-
+	atomic(I), 
+	conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,[],[],[],Os).
+conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Os0,Os) :-
+	is_list(I),
+	conv_lstm1D_layer([[I|Is0]|Is1],Ws,Us,Bs,O),
+	append(Os0,[O],Os1),
+	conv_lstm1D_layer(Is,Ws,Us,Bs,Os1,Os).	
+conv_lstm1D_layer([],_,_,_,Os,Os).
+conv_lstm1D_layer([],_,_,_,_,_,Os,Os).
+conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Ct0,Os0,Ostmp,Os) :-
+	atomic(I),
+	length(Ws, KernelSize),
+	(Ct0 = [] -> 
+		(
+			initialize_convlstm1d_variables([[[I|Is0]|Is1]],KernelSize,Os0Ready,Ct0Ready,Ws,Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo),
+			apply_lstm_step_convlstm1d([[[I|Is0]|Is1]],KernelSize,Os0Ready,Ct0Ready,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+		);
+		(	
+			PadLeft is div(KernelSize-1,2), 
+			PadRight is KernelSize - 1 - PadLeft,
+			split_convlstm_weights(3,Ws,Wi,Wf,Wc,Wo),
+			split_convlstm_weights(3,Us,Ui,Uf,Uc,Uo),
+			padding1D(Os0,0,PadLeft,PadRight,Os0Ready),
+			apply_lstm_step_convlstm1d([[[I|Is0]|Is1]],KernelSize,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+		)
+	),
+	append(Ostmp,Os1,Os2),
+	conv_lstm1D_layer(Is,Ws,Us,Bs,Ct1,Os1,Os2,Os).
 
+initialize_convlstm1d_variables(Is,KernelSize,Os0,Ct0,Ws,Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo) :-
+	length(Is,L0),
+	sub_length(Is,L1),
+	sub_sub_length(Is,L2),
+	empty_field3D(0,L0,L1,L2,Os0),
+	split_convlstm_weights(3,Ws,Wi,Wf,Wc,Wo),
+	split_convlstm_weights(3,Us,Ui,Uf,Uc,Uo),
+	conv1D_layer(Is,KernelSize,Wi,[0],Xi),
+	length(Xi,CL0),
+	sub_length(Xi,CL1),
+	sub_sub_length(Xi,CL2),
+	empty_field3D(0,CL0,CL1,CL2,Ct0).
+
+apply_lstm_step_convlstm1d(Is,KernelSize,Os0,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1) :-
+	conv1D_layer(Is,KernelSize,Wi,[0],Xi),
+	conv1D_layer(Is,KernelSize,Wf,[0],Xf),
+	conv1D_layer(Is,KernelSize,Wc,[0],Xc),
+	conv1D_layer(Is,KernelSize,Wo,[0],Xo),
+	conv1D_layer(Os0,KernelSize,Ui,[0],Hi),
+	conv1D_layer(Os0,KernelSize,Uf,[0],Hf),
+	conv1D_layer(Os0,KernelSize,Uc,[0],Hc),
+	conv1D_layer(Os0,KernelSize,Uo,[0],Ho),
+	write('Ct0: '),writeln(Ct0),
+	add_layer([Xi,Hi],[It0]),
+	keep(It0,It),
+	write('It: '),writeln(It),
+	add_layer([Xf,Hf],[Ft0]),
+	keep(Ft0,Ft),
+	write('Ft: '),writeln(Ft),
+	add_layer([Xo,Ho],[Ot0]),
+	keep(Ot0,Ot),
+	multiply_lists([Ft],Ct0,CtTemp0),
+	add_layer([Xc,Hc],CtTemp1),
+	multiply_lists([It],CtTemp1,CtTemp2),
+	add_lists(CtTemp2,CtTemp0,Ct1),
+	multiply_lists([Ot],Ct1,Os1).
 
 conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,Os) :- 
 	is_list(I), conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],Ws,Us,Bs,[],Os).
@@ -441,12 +508,12 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
 	atomic(I),
 	length([[W|Ws0]|Ws], KernelSizeD1),
 	length([W|Ws0],KernelSizeD2),
-	length(W,TempNodeNumb),
-	length(Bs,N), TempNodeNumb is N /4,
-	writeln("before conv"),
-	writeln([[[I|Is0]|Is1]|Is2]),
-	writeln(KernelSizeD1),
-	writeln(KernelSizeD2),
+	% length(W,TempNodeNumb),
+	% length(Bs,N), TempNodeNumb is N /4,
+	% writeln("before conv"),
+	% writeln([[[I|Is0]|Is1]|Is2]),
+	% writeln(KernelSizeD1),
+	% writeln(KernelSizeD2),
 	% length([I|Is0],LD3),
 	% writeln(LD3),
 	% empty_field4D(1,KernelSizeD1,KernelSizeD2,LD3,LD3,TW),
@@ -471,8 +538,8 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
 			% length(CO,L1), sub_length(CO,L2), empty_field(L1,L2,TempNodeNumb,TOs),
 	 		% writeln(TOs),
 	 		% apply_lstm_step_conv1Test(CO,[[W|Ws0]|Ws],Us,Bs,TOs,Ct1,TOs,Os1)
-			initialize_convlstm_variables([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0Ready,[[W|Ws0]|Ws],Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo),
-			apply_lstm_step_conv1Test2([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0Ready,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+			initialize_convlstm2d_variables([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0Ready,[[W|Ws0]|Ws],Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo),
+			apply_lstm_step_convlstm2d([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0Ready,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
 		);
 		(	
 			PadLeftD1 is div(KernelSizeD1-1,2), 
@@ -482,14 +549,14 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
 			split_convlstm_weights(4,[[W|Ws0]|Ws],Wi,Wf,Wc,Wo),
 			split_convlstm_weights(4,Us,Ui,Uf,Uc,Uo),
 			padding2D(Os0,0,PadLeftD1,PadRightD1,PadLeftD2,PadRightD2,Os0Ready),
-			writeln(Os0Ready),
-			writeln(Ct0),
-			apply_lstm_step_conv1Test2([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+			% writeln(Os0Ready),
+			% writeln(Ct0),
+			apply_lstm_step_convlstm2d([[[[I|Is0]|Is1]|Is2]],KernelSizeD1,KernelSizeD2,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
 		)
 	),
-	writeln("apply_lstm_step_conv done"),
-	write('Ct1: '),writeln(Ct1),
-	write('Os1: '),writeln(Os1),
+	% writeln("apply_lstm_step_conv done"),
+	% write('Ct1: '),writeln(Ct1),
+	% write('Os1: '),writeln(Os1),
 	append(Ostmp,Os1,Os2),
 	conv_lstm2D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os2,Os).
 /* nth0_2D(0,0, [[W|Ws0]|Ws],WsT),
@@ -529,7 +596,7 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
     h = o * self.activation(cF) */
 %apply_lstm_step_conv1Test(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :-
 
-initialize_convlstm_variables(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Ws,Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo) :-
+initialize_convlstm2d_variables(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Ws,Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo) :-
 	length(Is,L0),
 	sub_length(Is,L1),
 	sub_sub_length(Is,L2),
@@ -544,7 +611,7 @@ initialize_convlstm_variables(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Ws,Us,Wi,Wf,W
 	sub_sub_sub_length(Xi,CL3),
 	empty_field4D(0,CL0,CL1,CL2,CL3,Ct0).
 
-apply_lstm_step_conv1Test2(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1) :-
+apply_lstm_step_convlstm2d(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1) :-
 	conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Wi,[0],Xi),
 	conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Wf,[0],Xf),
 	conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Wc,[0],Xc),
@@ -570,40 +637,123 @@ apply_lstm_step_conv1Test2(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Wi,Wf,Wc,Wo,Ui,U
 	add_lists(CtTemp2,CtTemp0,Ct1),
 	multiply_lists([Ot],Ct1,Os1).
 
+conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],Ws,Us,Bs,Os) :- 
+	is_list(I), conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],Ws,Us,Bs,[],Os).
+conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],Ws,Us,Bs,Os) :- 
+	atomic(I), 
+	conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],Ws,Us,Bs,[],[],[],Os).
+conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],Ws,Us,Bs,Os0,Os) :-
+	is_list(I),
+	conv_lstm3D_layer([[[[I|Is0]|Is1]|Is2]|Is3],Ws,Us,Bs,O),
+	append(Os0,[O],Os1),
+	conv_lstm3D_layer(Is,Ws,Us,Bs,Os1,Os).	
+conv_lstm3D_layer([],_,_,_,Os,Os).
+conv_lstm3D_layer([],_,_,_,_,_,Os,Os).
 
-apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
-%apply_lstm_step_conv1Test([I|IsT],Ws,Us,Bs,Ct0,Ct,[O0|Os0T],Os) :-
-		write('Ct0: '),writeln(Ct0),
-		write('Os0: '),writeln(Os0),
-	%TODO Check	
-	%(contains_only_zero([O0|Os0T]) -> (Is = [I|IsT], Os0 = [O0|Os0T]);(add_layer([I,O0],[I1]),Is = [I1|IsT], Os0 = [O0|Os0T]) ),
-	
-	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
-	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
+conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) :-
+	atomic(I),
+	length([[W|Ws0]|Ws], KernelSizeD1),
+	length([W|Ws0],KernelSizeD2),
+	length(W,KernelSizeD3),
+	(Ct0 = [] -> 
+		(
+			initialize_convlstm3d_variables([[[[[I|Is0]|Is1]|Is2]|Is3]],KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0Ready,Ct0Ready,[[W|Ws0]|Ws],Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo),
+			apply_lstm_step_convlstm3d([[[[[I|Is0]|Is1]|Is2]|Is3]],KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0Ready,Ct0Ready,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+		);
+		(	
+			PadLeftD1 is div(KernelSizeD1-1,2), 
+			PadRightD1 is KernelSizeD1 - 1 - PadLeftD1,
+			PadLeftD2 is div(KernelSizeD2-1,2), 
+			PadRightD2 is KernelSizeD2 - 1 - PadLeftD2,
+			PadLeftD3 is div(KernelSizeD3-1,2), 
+			PadRightD3 is KernelSizeD3 - 1 - PadLeftD3,
+			split_convlstm_weights(5,[[W|Ws0]|Ws],Wi,Wf,Wc,Wo),
+			split_convlstm_weights(5,Us,Ui,Uf,Uc,Uo),
+			padding3D(Os0,0,PadLeftD1,PadRightD1,PadLeftD2,PadRightD2,PadLeftD3,PadRightD3,Os0Ready),
+			apply_lstm_step_convlstm3d([[[[[I|Is0]|Is1]|Is2]|Is3]],KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1)
+		)
+	),
+	append(Ostmp,Os1,Os2),
+	conv_lstm3D_layer(Is,[[W|Ws0]|Ws],Us,Bs,Ct1,Os1,Os2,Os).
+
+initialize_convlstm3d_variables(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0,Ct0,Ws,Us,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo) :-
+	length(Is,L0),
+	sub_length(Is,L1),
+	sub_sub_length(Is,L2),
+	sub_sub_sub_length(Is,L3),
+	sub_sub_sub_sub_length(Is,L4),
+	empty_field5D(0,L0,L1,L2,L3,L4,Os0),
+	write('Os0: '),writeln(Os0),
+	split_convlstm_weights(5,Ws,Wi,Wf,Wc,Wo),
+	split_convlstm_weights(5,Us,Ui,Uf,Uc,Uo),
+	write('Wi: '),writeln(Wi),
+	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wi,[0],Xi),
+	length(Xi,CL0),
+	sub_length(Xi,CL1),
+	sub_sub_length(Xi,CL2),
+	sub_sub_sub_length(Xi,CL3),
+	sub_sub_sub_sub_length(Xi,CL4),
+	empty_field5D(0,CL0,CL1,CL2,CL3,CL4,Ct0).
+
+apply_lstm_step_convlstm3d(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Os1,Ct1) :-
+	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wi,[0],Xi),
+	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wf,[0],Xf),
+	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wc,[0],Xc),
+	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wo,[0],Xo),
+	conv3D_layer(Os0,KernelSizeD1,KernelSizeD2,KernelSizeD3,Ui,[0],Hi),
+	conv3D_layer(Os0,KernelSizeD1,KernelSizeD2,KernelSizeD3,Uf,[0],Hf),
+	conv3D_layer(Os0,KernelSizeD1,KernelSizeD2,KernelSizeD3,Uc,[0],Hc),
+	conv3D_layer(Os0,KernelSizeD1,KernelSizeD2,KernelSizeD3,Uo,[0],Ho),
+	write('Ct0: '),writeln(Ct0),
+	add_layer([Xi,Hi],[It0]),
 	keep(It0,It),
-		% write('It: '),writeln(It),
-	add_layer([Is,Os0],[Ft0]),%add_layer([Is,Ct0,Os0],[Ft0]),
-	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
+	write('It: '),writeln(It),
+	add_layer([Xf,Hf],[Ft0]),
 	keep(Ft0,Ft),
-		% write('Ft: '),writeln(Ft),
-	add_layer([Is,Os0],[Ot0]),
-	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
+	write('Ft: '),writeln(Ft),
+	add_layer([Xo,Ho],[Ot0]),
 	keep(Ot0,Ot),
-	% writeln(Ot),
-	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
-	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
-	keep(CtTemp0,Ctt),
-		% write('Ctt: '),writeln(Ctt),
-	multiply_lists([Ft],Ct0,Ct1),
-		% write('Ct1: '),writeln(Ct1),
-	multiply_lists(It,Ctt,Ct2),
-		% write('Ct2: '),writeln(Ct2),
-	add_lists(Ct1,[Ct2],Ct),
-		write('Ct: '),writeln(Ct),
-	keep(Ct,TanhCt),
-		% write('TanhCt: '),writeln(TanhCt),
-	multiply_lists([Ot],TanhCt,Os),
-	write('Os1: '),writeln(Os).
+	multiply_lists([Ft],Ct0,CtTemp0),
+	% write('CtTemp0: '),writeln(CtTemp0),
+	add_layer([Xc,Hc],CtTemp1),
+	multiply_lists([It],CtTemp1,CtTemp2),
+	% write('CtTemp2: '),writeln(CtTemp2),
+	add_lists(CtTemp2,CtTemp0,Ct1),
+	multiply_lists([Ot],Ct1,Os1).
+
+% apply_lstm_step_conv1Test(Is,_,_,_,Ct0,Ct,Os0,Os) :-
+% %apply_lstm_step_conv1Test([I|IsT],Ws,Us,Bs,Ct0,Ct,[O0|Os0T],Os) :-
+% 		write('Ct0: '),writeln(Ct0),
+% 		write('Os0: '),writeln(Os0),
+% 	%TODO Check	
+% 	%(contains_only_zero([O0|Os0T]) -> (Is = [I|IsT], Os0 = [O0|Os0T]);(add_layer([I,O0],[I1]),Is = [I1|IsT], Os0 = [O0|Os0T]) ),
+	
+% 	add_layer([Is,Os0],[It0]),%add_layer([Is,Ct0,Os0],[It0]),
+% 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[It0]);add_layer([Is,Ct0,Os0],[It0])),
+% 	keep(It0,It),
+% 		% write('It: '),writeln(It),
+% 	add_layer([Is,Os0],[Ft0]),%add_layer([Is,Ct0,Os0],[Ft0]),
+% 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ft0]);add_layer([Is,Ct0,Os0],[Ft0])),
+% 	keep(Ft0,Ft),
+% 		% write('Ft: '),writeln(Ft),
+% 	add_layer([Is,Os0],[Ot0]),
+% 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[Ot0]);add_layer([Is,Ct,Os0],[Ot0])),
+% 	keep(Ot0,Ot),
+% 	% writeln(Ot),
+% 	add_layer([Is,Os0],[CtTemp0]),%add_layer([Is,Ct0,Os0],[CtTemp0]),
+% 	%(contains_only_zero(Os0) -> add_layer([Is,Os0],[CtTemp0]);add_layer([Is,Ct0,Os0],[CtTemp0])),
+% 	keep(CtTemp0,Ctt),
+% 		% write('Ctt: '),writeln(Ctt),
+% 	multiply_lists([Ft],Ct0,Ct1),
+% 		% write('Ct1: '),writeln(Ct1),
+% 	multiply_lists(It,Ctt,Ct2),
+% 		% write('Ct2: '),writeln(Ct2),
+% 	add_lists(Ct1,[Ct2],Ct),
+% 		write('Ct: '),writeln(Ct),
+% 	keep(Ct,TanhCt),
+% 		% write('TanhCt: '),writeln(TanhCt),
+% 	multiply_lists([Ot],TanhCt,Os),
+% 	write('Os1: '),writeln(Os).
 	
 apply_lstm_step_conv(Is,Ws,Us,Bs,Ct0,Ct,Os0,Os) :- apply_lstm_step_conv(Is,0,0,Ws,Us,Bs,Ct0,Ct,Os0,Os).
 apply_lstm_step_conv([I|Is],X,Y,_,_,_,Ct,Ct,Os,Os) :-
@@ -673,6 +823,10 @@ contains_only_zero([X|Xs]) :-
 	contains_only_zero(Xs).
 
 split_convlstm_weights(_,[],[],[],[],[]).
+split_convlstm_weights(5,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
+	check_dimensions([W0|Ws], 5),
+	split_convlstm_weights(4,W0,Wi0,Wf0,Wc0,Wo0),
+	split_convlstm_weights(5,Ws,Wis,Wfs,Wcs,Wos).
 split_convlstm_weights(4,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
 	check_dimensions([W0|Ws], 4),
 	split_convlstm_weights(3,W0,Wi0,Wf0,Wc0,Wo0),

@@ -88,6 +88,14 @@ empty_field4D(I,X,Y,Z,Z1,Fs0,Fs) :-
 	X1 is X -1,
 	empty_field4D(I,X1,Y,Z,Z1,[F|Fs0],Fs).
 
+empty_field(X,Y,Z,Z1,Z2,Fs) :- empty_field4D(0,X,Y,Z,Z1,Z2,Fs).
+empty_field5D(I,X,Y,Z,Z1,Z2,Fs) :- empty_field5D(I,X,Y,Z,Z1,Z2,[],Fs).
+empty_field5D(_,0,_,_,_,_,Fs,Fs).
+empty_field5D(I,X,Y,Z,Z1,Z2,Fs0,Fs) :-
+	empty_field4D(I,Y,Z,Z1,Z2,F),
+	X1 is X -1,
+	empty_field5D(I,X1,Y,Z,Z1,Z2,[F|Fs0],Fs).
+
 del_first_items([], [], []).
 del_first_items([[H|B]|T], [H|T1], [B|T2]) :-
 	B \== [],
