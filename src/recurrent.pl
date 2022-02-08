@@ -393,7 +393,7 @@ conv_lstm1D_layer([[[I|Is0]|Is1]|Is],Ws,Us,Bs,Ct0,Os0,Ostmp,Os) :-
 			PadLeft is div(KernelSize-1,2), 
 			PadRight is KernelSize - 1 - PadLeft,
 			split_convlstm_weights(3,Ws,Wi,Wf,Wc,Wo),
-			split_convlstm_weights(3,Us,Ui,Uf,Uc,Uo),
+			split_convlstm_hidden_weights(3,Us,Ui,Uf,Uc,Uo),
 			split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 			padding1D(Os0,0,PadLeft,PadRight,Os0Ready),
 			apply_lstm_step_convlstm1d([[[I|Is0]|Is1]],KernelSize,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Bi,Bf,Bc,Bo,Os1,Ct1)
@@ -408,7 +408,7 @@ initialize_convlstm1d_variables(Is,KernelSize,Os0,Ct0,Ws,Us,Bs,Wi,Wf,Wc,Wo,Ui,Uf
 	sub_sub_length(Is,L2),
 	empty_field3D(0,L0,L1,L2,Os0),
 	split_convlstm_weights(3,Ws,Wi,Wf,Wc,Wo),
-	split_convlstm_weights(3,Us,Ui,Uf,Uc,Uo),
+	split_convlstm_hidden_weights(3,Us,Ui,Uf,Uc,Uo),
 	split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 	conv1D_layer(Is,KernelSize,Wi,Bi,Xi),
 	length(Xi,CL0),
@@ -516,7 +516,6 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
 	% length(Bs,N), TempNodeNumb is N /4,
 	% writeln("before conv"),
 	% writeln([[[I|Is0]|Is1]|Is2]),
-	% writeln(KernelSizeD1),
 	% writeln(KernelSizeD2),
 	% length([I|Is0],LD3),
 	% writeln(LD3),
@@ -551,7 +550,7 @@ conv_lstm2D_layer([[[[I|Is0]|Is1]|Is2]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostmp,Os) 
 			PadLeftD2 is div(KernelSizeD2-1,2), 
 			PadRightD2 is KernelSizeD2 - 1 - PadLeftD2,
 			split_convlstm_weights(4,[[W|Ws0]|Ws],Wi,Wf,Wc,Wo),
-			split_convlstm_weights(4,Us,Ui,Uf,Uc,Uo),
+			split_convlstm_hidden_weights(4,Us,Ui,Uf,Uc,Bs,Uo),
 			split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 			padding2D(Os0,0,PadLeftD1,PadRightD1,PadLeftD2,PadRightD2,Os0Ready),
 			% writeln(Os0Ready),
@@ -608,7 +607,9 @@ initialize_convlstm2d_variables(Is,KernelSizeD1,KernelSizeD2,Os0,Ct0,Ws,Us,Bs,Wi
 	sub_sub_sub_length(Is,L3),
 	empty_field4D(0,L0,L1,L2,L3,Os0),
 	split_convlstm_weights(4,Ws,Wi,Wf,Wc,Wo),
-	split_convlstm_weights(4,Us,Ui,Uf,Uc,Uo),
+	split_convlstm_hidden_weights(4,Bs,Us,Ui,Uf,Uc,Uo),
+	writeln(Wi),
+	writeln(Ui),
 	split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 	conv2D_layer(Is,KernelSizeD1,KernelSizeD2,Wi,Bi,Xi),
 	length(Xi,CL0),
@@ -676,7 +677,7 @@ conv_lstm3D_layer([[[[[I|Is0]|Is1]|Is2]|Is3]|Is],[[W|Ws0]|Ws],Us,Bs,Ct0,Os0,Ostm
 			PadLeftD3 is div(KernelSizeD3-1,2), 
 			PadRightD3 is KernelSizeD3 - 1 - PadLeftD3,
 			split_convlstm_weights(5,[[W|Ws0]|Ws],Wi,Wf,Wc,Wo),
-			split_convlstm_weights(5,Us,Ui,Uf,Uc,Uo),
+			split_convlstm_hidden_weights(5,Us,Ui,Uf,Uc,Uo),
 			split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 			padding3D(Os0,0,PadLeftD1,PadRightD1,PadLeftD2,PadRightD2,PadLeftD3,PadRightD3,Os0Ready),
 			apply_lstm_step_convlstm3d([[[[[I|Is0]|Is1]|Is2]|Is3]],KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0Ready,Ct0,Wi,Wf,Wc,Wo,Ui,Uf,Uc,Uo,Bi,Bf,Bc,Bo,Os1,Ct1)
@@ -693,7 +694,7 @@ initialize_convlstm3d_variables(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Os0,Ct
 	sub_sub_sub_sub_length(Is,L4),
 	empty_field5D(0,L0,L1,L2,L3,L4,Os0),
 	split_convlstm_weights(5,Ws,Wi,Wf,Wc,Wo),
-	split_convlstm_weights(5,Us,Ui,Uf,Uc,Uo),
+	split_convlstm_hidden_weights(5,Us,Ui,Uf,Uc,Uo),
 	split_convlstm_bias(Bs,Bi,Bf,Bc,Bo),
 	conv3D_layer(Is,KernelSizeD1,KernelSizeD2,KernelSizeD3,Wi,Bi,Xi),
 	length(Xi,CL0),
@@ -752,6 +753,43 @@ split_convlstm_weights(2,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
 	split_at(LN,WT,Wf0,WT1),
 	split_at(LN,WT1,Wc0,Wo0),
 	split_convlstm_weights(2,Ws,Wis,Wfs,Wcs,Wos).
+
+split_convlstm_hidden_weights(_,_,[],[],[],[],[]).
+split_convlstm_hidden_weights(5,Bs,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
+	check_dimensions([W0|Ws], 5),
+	split_convlstm_hidden_weights(4,Bs,W0,Wi0,Wf0,Wc0,Wo0),
+	split_convlstm_hidden_weights(5,Bs,Ws,Wis,Wfs,Wcs,Wos).
+split_convlstm_hidden_weights(4,Bs,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
+	check_dimensions([W0|Ws], 4),
+	split_convlstm_hidden_weights(3,Bs,W0,Wi0,Wf0,Wc0,Wo0),
+	split_convlstm_hidden_weights(4,Bs,Ws,Wis,Wfs,Wcs,Wos).
+split_convlstm_hidden_weights(3,Bs,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
+	check_dimensions([W0|Ws], 3),
+	length(Bs,CL),
+	N is CL / 4,
+	split_to_equal_n_element_lists(N,W0,[],U0),
+	split_convlstm_hidden_weights(2,Bs,U0,Wi0,Wf0,Wc0,Wo0),
+	split_convlstm_hidden_weights(3,Bs,Ws,Wis,Wfs,Wcs,Wos).
+split_convlstm_hidden_weights(2,Bs,[W0|Ws],[Wi0|Wis],[Wf0|Wfs],[Wc0|Wcs],[Wo0|Wos]) :-
+	check_dimensions([W0|Ws],2),
+	writeln([W0|Ws]),
+	length(W0,L),
+	LN is L / 4,
+	split_at(LN,W0,Wi0,WT),
+	split_at(LN,WT,Wf0,WT1),
+	split_at(LN,WT1,Wc0,Wo0),
+	split_convlstm_hidden_weights(2,Bs,Ws,Wis,Wfs,Wcs,Wos).
+
+split_to_equal_n_element_lists(_,[],Os,Os).
+split_to_equal_n_element_lists(0,Ws,_,Ws).
+split_to_equal_n_element_lists(1,Ws,_,Ws).
+split_to_equal_n_element_lists(N,Is,Os0,Os):-	
+	check_dimensions(Is,2), 
+	split_at(N,Is,Is0,Is1),
+	add_layer(Is0,I0),
+	append(Os0,[I0],Os1),
+	split_to_equal_n_element_lists(N,Is1,Os1,Os).
+
 
 split_convlstm_bias(Bs,Bi,Bf,Bc,Bo) :-
 	is_list(Bs),
