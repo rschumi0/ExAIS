@@ -3,10 +3,10 @@ This project aims to provide a Prolog specification of TensorFlow layers. Most l
 The specification is executable and can run singular layers as well as complex graph models.
 
 # Prerequisites
-To run the semantics, it is necessary to install [SWI Prolog](https://www.swi-prolog.org) (we used version 8.2.1).
-Moreover, the following packages need to be installed. 
-pack_install(list_util).
-pack_install(cplint).
+To run the semantics, it is necessary to install [SWI Prolog](https://www.swi-prolog.org) (we used version 8.2.1).  
+Moreover, the following packages need to be installed.  
+pack_install(list_util).  
+pack_install(cplint).  
 pack_install(lambda).
 
 # Implemented layers
