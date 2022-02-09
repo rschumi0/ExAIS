@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr19812 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Dot43511 = tf.keras.layers.Input(shape=([2]))
+in1Dot43511 = tf.keras.layers.Input(shape=([2]))
+in0Con96492 = tf.keras.layers.Input(shape=([3]))
+
+Thr19812 = keras.layers.ThresholdedReLU(theta=2.5414957073160354, name = 'Thr19812', input_shape=(2, 1, 2))(in0Thr19812)
+Res5532 = keras.layers.Reshape((2, 1, 2, 1), name = 'Res5532', )(Thr19812)
+Con37669 = keras.layers.Conv3D(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con37669', )(Res5532)
+Res93278 = keras.layers.Reshape((1, 1, 4), name = 'Res93278', )(Con37669)
+Res75097 = keras.layers.Reshape((1, 4), name = 'Res75097', )(Res93278)
+Fla76154 = keras.layers.Flatten(name = 'Fla76154', )(Res75097)
+Dot43511 = keras.layers.Dot(axes=(1, 1), name = 'Dot43511', )([in0Dot43511,in1Dot43511])
+Sof48180 = keras.layers.Softmax(axis=1, name = 'Sof48180', )(Dot43511)
+Con96492 = keras.layers.Concatenate(axis=1, name = 'Con96492', )([Sof48180,in0Con96492])
+Sub70290 = keras.layers.Subtract(name = 'Sub70290', )([Fla76154,Con96492])
+model = tf.keras.models.Model(inputs=[in0Thr19812,in0Dot43511,in1Dot43511,in0Con96492], outputs=Sub70290)
+w = model.get_layer('Con37669').get_weights() 
+w[0] = np.array([[[[[0.2696, 0.7058]]]], [[[[0.3415, 0.3246]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con37669').set_weights(w) 
+in0Thr19812 = tf.constant([[[[0.833, 0.9826]], [[0.3449, 0.2905]]]])
+in0Dot43511 = tf.constant([[0.2449, 0.4634]])
+in1Dot43511 = tf.constant([[0.0465, 0.3169]])
+in0Con96492 = tf.constant([[0.1305, 0.8009, 0.7613]])
+print (np.array2string(model.predict([in0Thr19812,in0Dot43511,in1Dot43511,in0Con96492],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub70290.png')
+
+LThr19812 = thresholded_relu_layer([[[[0.833, 0.9826]], [[0.3449, 0.2905]]]], 2.5414957073160354, Thr19812), 
+LRes5532 = reshape_layer(Thr19812, [2, 1, 2, 1], Res5532), 
+LCon37669 = conv3D_layer(Res5532, 2, 1, 1,[[[[[0.2696, 0.7058]]]], [[[[0.3415, 0.3246]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con37669), 
+LRes93278 = reshape_layer(Con37669, [1, 1, 4], Res93278), 
+LRes75097 = reshape_layer(Res93278, [1, 4], Res75097), 
+LFla76154 = flatten_layer(Res75097, Fla76154), 
+LDot43511 = dot_layer([[0.2449, 0.4634]], [[0.0465, 0.3169]], 1, 1, Dot43511), 
+LSof48180 = softmax_layer(Dot43511, 1, Sof48180), 
+LCon96492 = concatenate_layer([Sof48180,[[0.1305, 0.8009, 0.7613]]], 1, Con96492), 
+LSub70290 = subtract_layer(Fla76154,Con96492, Sub70290), 
+exec_layers([LThr19812,LRes5532,LCon37669,LRes93278,LRes75097,LFla76154,LDot43511,LSof48180,LCon96492,LSub70290],["Thr19812","Res5532","Con37669","Res93278","Res75097","Fla76154","Dot43511","Sof48180","Con96492","Sub70290"],Sub70290,"Sub70290")
+
+Actual (Unparsed): [[-1.0000000, -0.1305000, -0.8009000, -0.7613000]]
+
+Expected (Unparsed): [[-1.0,-0.1305,-0.8009,-0.7613]]
+
+Actual:   [[-1, -0.1305, -0.8009, -0.7613]]
+
+Expected: [[-1, -0.1305, -0.8009, -0.7613]]

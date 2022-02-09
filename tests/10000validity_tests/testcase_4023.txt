@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc25795 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Min86242 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Min86242 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Loc25795 = keras.layers.LocallyConnected2D(3, (2, 1),strides=(1, 4), name = 'Loc25795', )(in0Loc25795)
+Res95735 = keras.layers.Reshape((1, 1, 3, 1), name = 'Res95735', )(Loc25795)
+Zer32483 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer32483', )(Res95735)
+Min86242 = keras.layers.Minimum(name = 'Min86242', )([in0Min86242,in1Min86242])
+Zer53940 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer53940', )(Min86242)
+Add35870 = keras.layers.Add(name = 'Add35870', )([Zer32483,Zer53940])
+Mas98119 = keras.layers.Masking(mask_value=1, name = 'Mas98119', )(Add35870)
+Res46141 = keras.layers.Reshape((2, 2, 4), name = 'Res46141', )(Mas98119)
+PRe9092 = keras.layers.PReLU(name = 'PRe9092', )(Res46141)
+model = tf.keras.models.Model(inputs=[in0Loc25795,in0Min86242,in1Min86242], outputs=PRe9092)
+w = model.get_layer('Loc25795').get_weights() 
+w[0] = np.array([[[0.1706, 0.1748, 0.4408], [0.9234, 0.6766, 0.0133], [0.9199, 0.495, 0.6699], [0.3043, 0.8019, 0.038]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc25795').set_weights(w) 
+w = model.get_layer('PRe9092').get_weights() 
+w[0] = np.array([[[0.035, 0.4091, 0.122, 0.1584], [0.6254, 0.9952, 0.986, 0.5914]], [[0.3549, 0.5893, 0.3261, 0.671], [0.4074, 0.0687, 0.0025, 0.7609]]])
+model.get_layer('PRe9092').set_weights(w) 
+in0Loc25795 = tf.constant([[[[0.1716, 0.9782], [0.4472, 0.3907]], [[0.3907, 0.6156], [0.2971, 0.532]]]])
+in0Min86242 = tf.constant([[[[[0.7365], [0.5905]], [[0.3175], [0.012]]], [[[0.2339], [0.7552]], [[0.184], [0.2316]]]]])
+in1Min86242 = tf.constant([[[[[0.206], [0.1569]], [[0.24], [0.9213]]], [[[0.0551], [0.2813]], [[0.5979], [0.2712]]]]])
+print (np.array2string(model.predict([in0Loc25795,in0Min86242,in1Min86242],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe9092.png')
+
+LLoc25795 = locally_connected2D_layer([[[[0.1716, 0.9782], [0.4472, 0.3907]], [[0.3907, 0.6156], [0.2971, 0.532]]]], 2, 1,[[[0.1706, 0.1748, 0.4408], [0.9234, 0.6766, 0.0133], [0.9199, 0.495, 0.6699], [0.3043, 0.8019, 0.038]]],[[[0, 0, 0]]], 1, 4, Loc25795), 
+LRes95735 = reshape_layer(Loc25795, [1, 1, 3, 1], Res95735), 
+LZer32483 = zero_padding3D_layer(Res95735, 1, 0, 1, 0, 1, 0, Zer32483), 
+LMin86242 = minimum_layer([[[[[[0.7365], [0.5905]], [[0.3175], [0.012]]], [[[0.2339], [0.7552]], [[0.184], [0.2316]]]]], [[[[[0.206], [0.1569]], [[0.24], [0.9213]]], [[[0.0551], [0.2813]], [[0.5979], [0.2712]]]]]], Min86242), 
+LZer53940 = zero_padding3D_layer(Min86242, 0, 0, 0, 0, 2, 0, Zer53940), 
+LAdd35870 = add_layer([Zer32483,Zer53940], Add35870), 
+LMas98119 = masking_layer(Add35870, 1, Mas98119), 
+LRes46141 = reshape_layer(Mas98119, [2, 2, 4], Res46141), 
+LPRe9092 = prelu_layer(Res46141, [[[0.035, 0.4091, 0.122, 0.1584], [0.6254, 0.9952, 0.986, 0.5914]], [[0.3549, 0.5893, 0.3261, 0.671], [0.4074, 0.0687, 0.0025, 0.7609]]], PRe9092), 
+exec_layers([LLoc25795,LRes95735,LZer32483,LMin86242,LZer53940,LAdd35870,LMas98119,LRes46141,LPRe9092],["Loc25795","Res95735","Zer32483","Min86242","Zer53940","Add35870","Mas98119","Res46141","PRe9092"],PRe9092,"PRe9092")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.2060000, 0.1569000], [0.0000000, 0.0000000, 0.2400000, 0.0120000]], [[0.0000000, 0.0000000, 0.0551000, 0.2813000], [0.0000000, 1.4792769, 1.5628920, 0.6053741]]]]
+
+Expected (Unparsed): [[[[0,0,0.206,0.1569],[0,0,0.24,0.012]],[[0,0,0.0551,0.2813],[0,1.47927685,1.5628919399999999,0.60537407]]]]
+
+Actual:   [[[[0, 0, 0.206, 0.1569], [0, 0, 0.24, 0.012]], [[0, 0, 0.0551, 0.2813], [0, 1.4793, 1.5629, 0.6054]]]]
+
+Expected: [[[[0, 0, 0.206, 0.1569], [0, 0, 0.24, 0.012]], [[0, 0, 0.0551, 0.2813], [0, 1.4793, 1.5629, 0.6054]]]]

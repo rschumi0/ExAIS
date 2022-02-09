@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU52316 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave936 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave936 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+ELU52316 = keras.layers.ELU(alpha=9.615192761414288, name = 'ELU52316', input_shape=(1, 2))(in0ELU52316)
+Res57733 = keras.layers.Reshape((1, 2, 1), name = 'Res57733', )(ELU52316)
+Res78943 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res78943', )(Res57733)
+Zer96368 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer96368', )(Res78943)
+Ave936 = keras.layers.Average(name = 'Ave936', )([in0Ave936,in1Ave936])
+Res21454 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res21454', )(Ave936)
+Up_5771 = keras.layers.UpSampling3D(size=(1, 1, 2), name = 'Up_5771', )(Res21454)
+Zer79790 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer79790', )(Up_5771)
+Mul54054 = keras.layers.Multiply(name = 'Mul54054', )([Zer96368,Zer79790])
+model = tf.keras.models.Model(inputs=[in0ELU52316,in0Ave936,in1Ave936], outputs=Mul54054)
+in0ELU52316 = tf.constant([[[0.0352, 0.6664]]])
+in0Ave936 = tf.constant([[[[0.5002]]]])
+in1Ave936 = tf.constant([[[[0.4082]]]])
+print (np.array2string(model.predict([in0ELU52316,in0Ave936,in1Ave936],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul54054.png')
+
+LELU52316 = elu_layer([[[0.0352, 0.6664]]], 9.615192761414288, ELU52316), 
+LRes57733 = reshape_layer(ELU52316, [1, 2, 1], Res57733), 
+LRes78943 = reshape_layer(Res57733, [1, 2, 1, 1], Res78943), 
+LZer96368 = zero_padding3D_layer(Res78943, 0, 0, 0, 0, 2, 0, Zer96368), 
+LAve936 = average_layer([[[[[0.5002]]]], [[[[0.4082]]]]], Ave936), 
+LRes21454 = reshape_layer(Ave936, [1, 1, 1, 1], Res21454), 
+LUp_5771 = up_sampling3D_layer(Res21454, 1, 1, 2, Up_5771), 
+LZer79790 = zero_padding3D_layer(Up_5771, 0, 0, 1, 0, 1, 0, Zer79790), 
+LMul54054 = multiply_layer([Zer96368,Zer79790], Mul54054), 
+exec_layers([LELU52316,LRes57733,LRes78943,LZer96368,LAve936,LRes21454,LUp_5771,LZer79790,LMul54054],["ELU52316","Res57733","Res78943","Zer96368","Ave936","Res21454","Up_5771","Zer79790","Mul54054"],Mul54054,"Mul54054")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.3026789]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0.0]],[[0],[0.0],[0.30267888]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0.3027]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0.3027]]]]]

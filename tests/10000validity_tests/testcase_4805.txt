@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min54594 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min54594 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con76406 = tf.keras.layers.Input(shape=([1, 1]))
+in0Ave81834 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave81834 = tf.keras.layers.Input(shape=([1, 2]))
+
+Min54594 = keras.layers.Minimum(name = 'Min54594', )([in0Min54594,in1Min54594])
+Res75795 = keras.layers.Reshape((2, 2), name = 'Res75795', )(Min54594)
+LST42364 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST42364', )(Res75795)
+Res36073 = keras.layers.Reshape((2, 1), name = 'Res36073', )(LST42364)
+Max78311 = keras.layers.MaxPool1D(pool_size=(2), name = 'Max78311', )(Res36073)
+Con76406 = keras.layers.Concatenate(axis=2, name = 'Con76406', )([Max78311,in0Con76406])
+Ave81834 = keras.layers.Average(name = 'Ave81834', )([in0Ave81834,in1Ave81834])
+Min6563 = keras.layers.Minimum(name = 'Min6563', )([Con76406,Ave81834])
+model = tf.keras.models.Model(inputs=[in0Min54594,in1Min54594,in0Con76406,in0Ave81834,in1Ave81834], outputs=Min6563)
+w = model.get_layer('LST42364').get_weights() 
+w[0] = np.array([[6, 8, 7, 10, 2, 6, 9, 5], [8, 3, 7, 9, 3, 1, 3, 9]])
+w[1] = np.array([[9, 5, 5, 1, 8, 8, 8, 4], [1, 9, 7, 5, 9, 7, 9, 3]])
+w[2] = np.array([5, 9, 4, 9, 8, 8, 1, 1])
+model.get_layer('LST42364').set_weights(w) 
+in0Min54594 = tf.constant([[[[0.1025], [0.2869]], [[0.7002], [0.1292]]]])
+in1Min54594 = tf.constant([[[[0.355], [0.6483]], [[0.9329], [0.5766]]]])
+in0Con76406 = tf.constant([[[0.2415]]])
+in0Ave81834 = tf.constant([[[0.5584, 0.2656]]])
+in1Ave81834 = tf.constant([[[0.2133, 0.9232]]])
+print (np.array2string(model.predict([in0Min54594,in1Min54594,in0Con76406,in0Ave81834,in1Ave81834],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min6563.png')
+
+LMin54594 = minimum_layer([[[[[0.1025], [0.2869]], [[0.7002], [0.1292]]]], [[[[0.355], [0.6483]], [[0.9329], [0.5766]]]]], Min54594), 
+LRes75795 = reshape_layer(Min54594, [2, 2], Res75795), 
+LLST42364 = lstm_layer(Res75795,[[6, 8, 7, 10, 2, 6, 9, 5], [8, 3, 7, 9, 3, 1, 3, 9]],[[9, 5, 5, 1, 8, 8, 8, 4], [1, 9, 7, 5, 9, 7, 9, 3]],[5, 9, 4, 9, 8, 8, 1, 1], LST42364), 
+LRes36073 = reshape_layer(LST42364, [2, 1], Res36073), 
+LMax78311 = max_pool1D_layer(Res36073, 2, Max78311), 
+LCon76406 = concatenate_layer([Max78311,[[[0.2415]]]], 2, Con76406), 
+LAve81834 = average_layer([[[[0.5584, 0.2656]]], [[[0.2133, 0.9232]]]], Ave81834), 
+LMin6563 = minimum_layer([Con76406,Ave81834], Min6563), 
+exec_layers([LMin54594,LRes75795,LLST42364,LRes36073,LMax78311,LCon76406,LAve81834,LMin6563],["Min54594","Res75795","LST42364","Res36073","Max78311","Con76406","Ave81834","Min6563"],Min6563,"Min6563")
+
+Actual (Unparsed): [[[0.3858500, 0.2415000]]]
+
+Expected (Unparsed): [[[0.38585,0.2415]]]
+
+Actual:   [[[0.3859, 0.2415]]]
+
+Expected: [[[0.3859, 0.2415]]]

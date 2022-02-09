@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave86887 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave86887 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add62554 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add62554 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Sof62134 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con46905 = tf.keras.layers.Input(shape=([2, 1]))
+
+Ave86887 = keras.layers.Average(name = 'Ave86887', )([in0Ave86887,in1Ave86887])
+Add62554 = keras.layers.Add(name = 'Add62554', )([in0Add62554,in1Add62554])
+Res54584 = keras.layers.Reshape((2, 2), name = 'Res54584', )(Add62554)
+Sof62134 = keras.layers.Softmax(axis=1, name = 'Sof62134', input_shape=(2, 1, 1))(in0Sof62134)
+Res38453 = keras.layers.Reshape((2, 1), name = 'Res38453', )(Sof62134)
+Up_33376 = keras.layers.UpSampling1D(size=(1), name = 'Up_33376', )(Res38453)
+Con46905 = keras.layers.Concatenate(axis=2, name = 'Con46905', )([Up_33376,in0Con46905])
+Sub25696 = keras.layers.Subtract(name = 'Sub25696', )([Res54584,Con46905])
+Dot31613 = keras.layers.Dot(axes=(1, 1), name = 'Dot31613', )([Ave86887,Sub25696])
+model = tf.keras.models.Model(inputs=[in0Ave86887,in1Ave86887,in0Add62554,in1Add62554,in0Sof62134,in0Con46905], outputs=Dot31613)
+in0Ave86887 = tf.constant([[[0.46, 0.5405], [0.826, 0.062]]])
+in1Ave86887 = tf.constant([[[0.1519, 0.3327], [0.303, 0.0427]]])
+in0Add62554 = tf.constant([[[[0.6244, 0.6998]], [[0.3648, 0.2901]]]])
+in1Add62554 = tf.constant([[[[0.3056, 0.6185]], [[0.5153, 0.937]]]])
+in0Sof62134 = tf.constant([[[[0.0566]], [[0.0079]]]])
+in0Con46905 = tf.constant([[[0.7023], [0.1163]]])
+print (np.array2string(model.predict([in0Ave86887,in1Ave86887,in0Add62554,in1Add62554,in0Sof62134,in0Con46905],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot31613.png')
+
+LAve86887 = average_layer([[[[0.46, 0.5405], [0.826, 0.062]]], [[[0.1519, 0.3327], [0.303, 0.0427]]]], Ave86887), 
+LAdd62554 = add_layer([[[[[0.6244, 0.6998]], [[0.3648, 0.2901]]]], [[[[0.3056, 0.6185]], [[0.5153, 0.937]]]]], Add62554), 
+LRes54584 = reshape_layer(Add62554, [2, 2], Res54584), 
+LSof62134 = softmax_layer([[[[0.0566]], [[0.0079]]]], 1, Sof62134), 
+LRes38453 = reshape_layer(Sof62134, [2, 1], Res38453), 
+LUp_33376 = up_sampling1D_layer(Res38453, 1, Up_33376), 
+LCon46905 = concatenate_layer([Up_33376,[[[0.7023], [0.1163]]]], 2, Con46905), 
+LSub25696 = subtract_layer(Res54584,Con46905, Sub25696), 
+LDot31613 = dot_layer(Ave86887,Sub25696, 1, 1, Dot31613), 
+exec_layers([LAve86887,LAdd62554,LRes54584,LSof62134,LRes38453,LUp_33376,LCon46905,LSub25696,LDot31613],["Ave86887","Add62554","Res54584","Sof62134","Res38453","Up_33376","Con46905","Sub25696","Dot31613"],Dot31613,"Dot31613")
+
+Actual (Unparsed): [[[0.3492722, 0.8155118], [0.2029589, 0.3270960]]]
+
+Expected (Unparsed): [[[0.3492721742545616,0.8155118],[0.2029589156427566,0.32709598]]]
+
+Actual:   [[[0.3493, 0.8156], [0.203, 0.3271]]]
+
+Expected: [[[0.3493, 0.8156], [0.203, 0.3271]]]

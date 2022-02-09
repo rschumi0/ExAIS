@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot20405 = tf.keras.layers.Input(shape=([2]))
+in1Dot20405 = tf.keras.layers.Input(shape=([2]))
+in0Mul2336 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul2336 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con836 = tf.keras.layers.Input(shape=([2, 3]))
+in0Per46200 = tf.keras.layers.Input(shape=([2, 4]))
+
+Dot20405 = keras.layers.Dot(axes=(1, 1), name = 'Dot20405', )([in0Dot20405,in1Dot20405])
+Res17732 = keras.layers.Reshape((1, 1), name = 'Res17732', )(Dot20405)
+Zer26167 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer26167', )(Res17732)
+Mul2336 = keras.layers.Multiply(name = 'Mul2336', )([in0Mul2336,in1Mul2336])
+Min77685 = keras.layers.Minimum(name = 'Min77685', )([Zer26167,Mul2336])
+Sof80949 = keras.layers.Softmax(axis=1, name = 'Sof80949', )(Min77685)
+Con836 = keras.layers.Concatenate(axis=2, name = 'Con836', )([Sof80949,in0Con836])
+Per46200 = keras.layers.Permute((1,2), name = 'Per46200',)(in0Per46200)
+Ave57202 = keras.layers.AveragePooling1D(pool_size=(2), strides=(1), padding='valid', name = 'Ave57202', )(Per46200)
+Zer9587 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer9587', )(Ave57202)
+Min97714 = keras.layers.Minimum(name = 'Min97714', )([Con836,Zer9587])
+model = tf.keras.models.Model(inputs=[in0Dot20405,in1Dot20405,in0Mul2336,in1Mul2336,in0Con836,in0Per46200], outputs=Min97714)
+in0Dot20405 = tf.constant([[0.1593, 0.3642]])
+in1Dot20405 = tf.constant([[0.075, 0.4113]])
+in0Mul2336 = tf.constant([[[0.1865], [0.6136]]])
+in1Mul2336 = tf.constant([[[0.4791], [0.7117]]])
+in0Con836 = tf.constant([[[0.8173, 0.7042, 0.9426], [0.1862, 0.7167, 0.2561]]])
+in0Per46200 = tf.constant([[[1.3302, 1.66, 1.2467, 1.2046], [1.5428, 1.1361, 1.1485, 1.9192]]])
+print (np.array2string(model.predict([in0Dot20405,in1Dot20405,in0Mul2336,in1Mul2336,in0Con836,in0Per46200],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min97714.png')
+
+LDot20405 = dot_layer([[0.1593, 0.3642]], [[0.075, 0.4113]], 1, 1, Dot20405), 
+LRes17732 = reshape_layer(Dot20405, [1, 1], Res17732), 
+LZer26167 = zero_padding1D_layer(Res17732, 1, 0, Zer26167), 
+LMul2336 = multiply_layer([[[[0.1865], [0.6136]]], [[[0.4791], [0.7117]]]], Mul2336), 
+LMin77685 = minimum_layer([Zer26167,Mul2336], Min77685), 
+LSof80949 = softmax_layer(Min77685, 1, Sof80949), 
+LCon836 = concatenate_layer([Sof80949,[[[0.8173, 0.7042, 0.9426], [0.1862, 0.7167, 0.2561]]]], 2, Con836), 
+LPer46200 = permute_layer([[[1.3302, 1.66, 1.2467, 1.2046], [1.5428, 1.1361, 1.1485, 1.9192]]], 1,2, Per46200), 
+LAve57202 = average_pooling1D_layer(Per46200, 2, 1, false, Ave57202), 
+LZer9587 = zero_padding1D_layer(Ave57202, 1, 0, Zer9587), 
+LMin97714 = minimum_layer([Con836,Zer9587], Min97714), 
+exec_layers([LDot20405,LRes17732,LZer26167,LMul2336,LMin77685,LSof80949,LCon836,LPer46200,LAve57202,LZer9587,LMin97714],["Dot20405","Res17732","Zer26167","Mul2336","Min77685","Sof80949","Con836","Per46200","Ave57202","Zer9587","Min97714"],Min97714,"Min97714")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.5403478, 0.1862000, 0.7167000, 0.2561000]]]
+
+Expected (Unparsed): [[[0,0,0,0],[0.5403478174464011,0.1862,0.7167,0.2561]]]
+
+Actual:   [[[0, 0, 0, 0], [0.5404, 0.1862, 0.7167, 0.2561]]]
+
+Expected: [[[0, 0, 0, 0], [0.5404, 0.1862, 0.7167, 0.2561]]]

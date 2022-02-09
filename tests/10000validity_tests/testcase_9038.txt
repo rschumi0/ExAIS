@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con2841 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0ReL83494 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Con99867 = tf.keras.layers.Input(shape=([2]))
+
+Con2841 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con2841', )(in0Con2841)
+Res1954 = keras.layers.Reshape((2, 1, 2), name = 'Res1954', )(Con2841)
+Res3204 = keras.layers.Reshape((2, 2), name = 'Res3204', )(Res1954)
+Fla99051 = keras.layers.Flatten(name = 'Fla99051', )(Res3204)
+ReL83494 = keras.layers.ReLU(max_value=0.27010919521271537, negative_slope=0.3135406699324247, threshold=3.8584295795442323, name = 'ReL83494', input_shape=(2, 1, 2, 2))(in0ReL83494)
+Glo96045 = keras.layers.GlobalMaxPool3D(name = 'Glo96045', )(ReL83494)
+Con99867 = keras.layers.Concatenate(axis=1, name = 'Con99867', )([Glo96045,in0Con99867])
+Max21730 = keras.layers.Maximum(name = 'Max21730', )([Fla99051,Con99867])
+Res18739 = keras.layers.Reshape((4, 1), name = 'Res18739', )(Max21730)
+PRe47822 = keras.layers.PReLU(name = 'PRe47822', )(Res18739)
+model = tf.keras.models.Model(inputs=[in0Con2841,in0ReL83494,in0Con99867], outputs=PRe47822)
+w = model.get_layer('Con2841').get_weights() 
+w[0] = np.array([[[[[0.0761, 0.9552], [0.4679, 0.4006]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con2841').set_weights(w) 
+w = model.get_layer('PRe47822').get_weights() 
+w[0] = np.array([[0.5918], [0.3019], [0.2039], [0.364]])
+model.get_layer('PRe47822').set_weights(w) 
+in0Con2841 = tf.constant([[[[[0.8478, 0.5907]]], [[[0.0886, 0.6544]]]]])
+in0ReL83494 = tf.constant([[[[[0.8953, 0.1565], [0.0635, 0.2835]]], [[[0.468, 0.6375], [0.5425, 0.5082]]]]])
+in0Con99867 = tf.constant([[0.6929, 0.8374]])
+print (np.array2string(model.predict([in0Con2841,in0ReL83494,in0Con99867],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe47822.png')
+
+LCon2841 = conv3D_transpose_layer([[[[[0.8478, 0.5907]]], [[[0.0886, 0.6544]]]]], 1, 1, 1,[[[[[0.0761, 0.9552], [0.4679, 0.4006]]]]],[0, 0], 1, 1, 1, false, Con2841), 
+LRes1954 = reshape_layer(Con2841, [2, 1, 2], Res1954), 
+LRes3204 = reshape_layer(Res1954, [2, 2], Res3204), 
+LFla99051 = flatten_layer(Res3204, Fla99051), 
+LReL83494 = relu_layer([[[[[0.8953, 0.1565], [0.0635, 0.2835]]], [[[0.468, 0.6375], [0.5425, 0.5082]]]]], 0.27010919521271537, 0.3135406699324247, 3.8584295795442323, ReL83494), 
+LGlo96045 = global_max_pool3D_layer(ReL83494, Glo96045), 
+LCon99867 = concatenate_layer([Glo96045,[[0.6929, 0.8374]]], 1, Con99867), 
+LMax21730 = maximum_layer([Fla99051,Con99867], Max21730), 
+LRes18739 = reshape_layer(Max21730, [4, 1], Res18739), 
+LPRe47822 = prelu_layer(Res18739, [[0.5918], [0.3019], [0.2039], [0.364]], PRe47822), 
+exec_layers([LCon2841,LRes1954,LRes3204,LFla99051,LReL83494,LGlo96045,LCon99867,LMax21730,LRes18739,LPRe47822],["Con2841","Res1954","Res3204","Fla99051","ReL83494","Glo96045","Con99867","Max21730","Res18739","PRe47822"],PRe47822,"PRe47822")
+
+Actual (Unparsed): [[[0.6287542], [0.6333200], [0.6929000], [0.8374000]]]
+
+Expected (Unparsed): [[[0.62875422],[0.63332004],[0.6929],[0.8374]]]
+
+Actual:   [[[0.6288], [0.6334], [0.6929], [0.8374]]]
+
+Expected: [[[0.6288], [0.6334], [0.6929], [0.8374]]]

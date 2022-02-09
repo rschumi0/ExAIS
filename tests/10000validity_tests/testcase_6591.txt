@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo5166 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Glo56992 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con56912 = tf.keras.layers.Input(shape=([1]))
+
+Glo5166 = keras.layers.GlobalAveragePooling3D(name = 'Glo5166', )(in0Glo5166)
+Glo56992 = keras.layers.GlobalAveragePooling1D(name = 'Glo56992', )(in0Glo56992)
+Bat23302 = keras.layers.BatchNormalization(axis=1, epsilon=0.13833221375426583,  name = 'Bat23302', )(Glo56992)
+Con56912 = keras.layers.Concatenate(axis=1, name = 'Con56912', )([Bat23302,in0Con56912])
+Ave48056 = keras.layers.Average(name = 'Ave48056', )([Glo5166,Con56912])
+Res18531 = keras.layers.Reshape((2, 1), name = 'Res18531', )(Ave48056)
+Res78473 = keras.layers.Reshape((2, 1, 1), name = 'Res78473', )(Res18531)
+Con31459 = keras.layers.Conv2D(3, (2, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con31459', )(Res78473)
+model = tf.keras.models.Model(inputs=[in0Glo5166,in0Glo56992,in0Con56912], outputs=Con31459)
+w = model.get_layer('Bat23302').get_weights() 
+w[0] = np.array([0.2631])
+w[1] = np.array([0.2512])
+w[2] = np.array([0.8686])
+w[3] = np.array([0.369])
+model.get_layer('Bat23302').set_weights(w) 
+w = model.get_layer('Con31459').get_weights() 
+w[0] = np.array([[[[0.9967, 0.6705, 0.1695]]], [[[0.5559, 0.8063, 0.2172]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con31459').set_weights(w) 
+in0Glo5166 = tf.constant([[[[[1.9019, 1.087]], [[1.7221, 1.6775]]], [[[1.5783, 1.0242]], [[1.9277, 1.7614]]]]])
+in0Glo56992 = tf.constant([[[1.9534], [1.7904]]])
+in0Con56912 = tf.constant([[0.3209]])
+print (np.array2string(model.predict([in0Glo5166,in0Glo56992,in0Con56912],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con31459.png')
+
+LGlo5166 = global_average_pooling3D_layer([[[[[1.9019, 1.087]], [[1.7221, 1.6775]]], [[[1.5783, 1.0242]], [[1.9277, 1.7614]]]]], Glo5166), 
+LGlo56992 = global_average_pooling1D_layer([[[1.9534], [1.7904]]], Glo56992), 
+LBat23302 = batch_normalization_layer(Glo56992, 1, 0.13833221375426583, [0.2631], [0.2512], [0.8686], [0.369], Bat23302), 
+LCon56912 = concatenate_layer([Bat23302,[[0.3209]]], 1, Con56912), 
+LAve48056 = average_layer([Glo5166,Con56912], Ave48056), 
+LRes18531 = reshape_layer(Ave48056, [2, 1], Res18531), 
+LRes78473 = reshape_layer(Res18531, [2, 1, 1], Res78473), 
+LCon31459 = conv2D_layer(Res78473, 2, 1,[[[[0.9967, 0.6705, 0.1695]]], [[[0.5559, 0.8063, 0.2172]]]],[0, 0, 0], 1, 1, false, 1, 1, Con31459), 
+exec_layers([LGlo5166,LGlo56992,LBat23302,LCon56912,LAve48056,LRes18531,LRes78473,LCon31459],["Glo5166","Glo56992","Bat23302","Con56912","Ave48056","Res18531","Res78473","Con31459"],Con31459,"Con31459")
+
+Actual (Unparsed): [[[[1.6730397, 1.4947931, 0.3892994]]]]
+
+Expected (Unparsed): [[[[1.6730396446754097,1.4947931210997414,0.38929938185798835]]]]
+
+Actual:   [[[[1.6731, 1.4948, 0.3893]]]]
+
+Expected: [[[[1.6731, 1.4948, 0.3893]]]]

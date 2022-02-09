@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot87891 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot87891 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con37222 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con19016 = tf.keras.layers.Input(shape=([4, 1]))
+
+Dot87891 = keras.layers.Dot(axes=(2, 2), name = 'Dot87891', )([in0Dot87891,in1Dot87891])
+Zer2952 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer2952', )(Dot87891)
+Con37222 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con37222', )(in0Con37222)
+Mas20853 = keras.layers.Masking(mask_value=2, name = 'Mas20853', )(Con37222)
+Up_84455 = keras.layers.UpSampling1D(size=(2), name = 'Up_84455', )(Mas20853)
+Up_21408 = keras.layers.UpSampling1D(size=(2), name = 'Up_21408', )(Up_84455)
+Con19016 = keras.layers.Concatenate(axis=2, name = 'Con19016', )([Up_21408,in0Con19016])
+Ave11878 = keras.layers.Average(name = 'Ave11878', )([Zer2952,Con19016])
+model = tf.keras.models.Model(inputs=[in0Dot87891,in1Dot87891,in0Con37222,in0Con19016], outputs=Ave11878)
+w = model.get_layer('Con37222').get_weights() 
+w[0] = np.array([[[0.4474, 0.551]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con37222').set_weights(w) 
+in0Dot87891 = tf.constant([[[0.3622, 0.4644], [0.641, 0.5722], [0.6825, 0.6282]]])
+in1Dot87891 = tf.constant([[[0.6405, 0.067], [0.7673, 0.7471], [0.0585, 0.0447]]])
+in0Con37222 = tf.constant([[[0.1664]]])
+in0Con19016 = tf.constant([[[0.6538], [0.6965], [0.119], [0.5186]]])
+print (np.array2string(model.predict([in0Dot87891,in1Dot87891,in0Con37222,in0Con19016],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave11878.png')
+
+LDot87891 = dot_layer([[[0.3622, 0.4644], [0.641, 0.5722], [0.6825, 0.6282]]], [[[0.6405, 0.067], [0.7673, 0.7471], [0.0585, 0.0447]]], 2, 2, Dot87891), 
+LZer2952 = zero_padding1D_layer(Dot87891, 1, 0, Zer2952), 
+LCon37222 = conv1D_layer([[[0.1664]]], 1,[[[0.4474, 0.551]]],[0, 0], 1, false, 1, Con37222), 
+LMas20853 = masking_layer(Con37222, 2, Mas20853), 
+LUp_84455 = up_sampling1D_layer(Mas20853, 2, Up_84455), 
+LUp_21408 = up_sampling1D_layer(Up_84455, 2, Up_21408), 
+LCon19016 = concatenate_layer([Up_21408,[[[0.6538], [0.6965], [0.119], [0.5186]]]], 2, Con19016), 
+LAve11878 = average_layer([Zer2952,Con19016], Ave11878), 
+exec_layers([LDot87891,LZer2952,LCon37222,LMas20853,LUp_84455,LUp_21408,LCon19016,LAve11878],["Dot87891","Zer2952","Con37222","Mas20853","Up_84455","Up_21408","Con19016","Ave11878"],Ave11878,"Ave11878")
+
+Actual (Unparsed): [[[0.0372237, 0.0458432, 0.3269000], [0.1687756, 0.3582778, 0.3692237], [0.2616726, 0.5055082, 0.0910379], [0.2768390, 0.5423484, 0.2933034]]]
+
+Expected (Unparsed): [[[0.03722368,0.0458432,0.3269],[0.16877563,0.35827785,0.36922369],[0.26167263,0.50550816,0.09103792],[0.27683900499999997,0.542348435,0.29330339499999997]]]
+
+Actual:   [[[0.0373, 0.0459, 0.3269], [0.1688, 0.3583, 0.3693], [0.2617, 0.5056, 0.0911], [0.2769, 0.5424, 0.2934]]]
+
+Expected: [[[0.0373, 0.0459, 0.3269], [0.1688, 0.3583, 0.3693], [0.2617, 0.5056, 0.0911], [0.2769, 0.5424, 0.2934]]]

@@ -1,0 +1,109 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo763 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con99203 = tf.keras.layers.Input(shape=([2]))
+in0Mul14759 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul14759 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con13168 = tf.keras.layers.Input(shape=([1]))
+in0Max42698 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Max42698 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con34454 = tf.keras.layers.Input(shape=([1]))
+in0Sim90542 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con87694 = tf.keras.layers.Input(shape=([1]))
+in0Glo78835 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max8600 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con19002 = tf.keras.layers.Input(shape=([2]))
+
+Glo763 = keras.layers.GlobalAveragePooling2D(name = 'Glo763', )(in0Glo763)
+Con99203 = keras.layers.Concatenate(axis=1, name = 'Con99203', )([Glo763,in0Con99203])
+Mul14759 = keras.layers.Multiply(name = 'Mul14759', )([in0Mul14759,in1Mul14759])
+Fla12220 = keras.layers.Flatten(name = 'Fla12220', )(Mul14759)
+Con13168 = keras.layers.Concatenate(axis=1, name = 'Con13168', )([Fla12220,in0Con13168])
+Max42698 = keras.layers.Maximum(name = 'Max42698', )([in0Max42698,in1Max42698])
+Res77457 = keras.layers.Reshape((1, 1, 2), name = 'Res77457', )(Max42698)
+Res84651 = keras.layers.Reshape((1, 2), name = 'Res84651', )(Res77457)
+Fla23867 = keras.layers.Flatten(name = 'Fla23867', )(Res84651)
+Con34454 = keras.layers.Concatenate(axis=1, name = 'Con34454', )([Fla23867,in0Con34454])
+Sim90542 = keras.layers.SimpleRNN(3,name = 'Sim90542', )(in0Sim90542)
+Min30013 = keras.layers.Minimum(name = 'Min30013', )([Con34454,Sim90542])
+Add62093 = keras.layers.Add(name = 'Add62093', )([Con13168,Min30013])
+Add9691 = keras.layers.Add(name = 'Add9691', )([Con99203,Add62093])
+Con87694 = keras.layers.Concatenate(axis=1, name = 'Con87694', )([Add9691,in0Con87694])
+Glo78835 = keras.layers.GlobalAveragePooling1D(name = 'Glo78835', )(in0Glo78835)
+Res47252 = keras.layers.Reshape((1, 1), name = 'Res47252', )(Glo78835)
+Sim35286 = keras.layers.SimpleRNN(1,name = 'Sim35286', )(Res47252)
+Den91714 = keras.layers.Dense(4,name = 'Den91714', )(Sim35286)
+Max8600 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max8600', )(in0Max8600)
+Fla56836 = keras.layers.Flatten(name = 'Fla56836', )(Max8600)
+Con19002 = keras.layers.Concatenate(axis=1, name = 'Con19002', )([Fla56836,in0Con19002])
+Min65904 = keras.layers.Minimum(name = 'Min65904', )([Den91714,Con19002])
+Ave63147 = keras.layers.Average(name = 'Ave63147', )([Con87694,Min65904])
+model = tf.keras.models.Model(inputs=[in0Glo763,in0Con99203,in0Mul14759,in1Mul14759,in0Con13168,in0Max42698,in1Max42698,in0Con34454,in0Sim90542,in0Con87694,in0Glo78835,in0Max8600,in0Con19002], outputs=Ave63147)
+w = model.get_layer('Sim90542').get_weights() 
+w[0] = np.array([[10, 9, 4]])
+w[1] = np.array([[10, 4, 8], [3, 3, 9], [7, 2, 2]])
+w[2] = np.array([9, 4, 2])
+model.get_layer('Sim90542').set_weights(w) 
+w = model.get_layer('Sim35286').get_weights() 
+w[0] = np.array([[1]])
+w[1] = np.array([[7]])
+w[2] = np.array([3])
+model.get_layer('Sim35286').set_weights(w) 
+w = model.get_layer('Den91714').get_weights() 
+w[0] = np.array([[0.6617, 0.7525, 0.8457, 0.4389]])
+w[1] = np.array([0.3796, 0.2832, 0.9891, 0.9947])
+model.get_layer('Den91714').set_weights(w) 
+in0Glo763 = tf.constant([[[[1.5978], [1.915]], [[1.0601], [1.9846]]]])
+in0Con99203 = tf.constant([[0.9274, 0.9145]])
+in0Mul14759 = tf.constant([[[0.4835], [0.1452]]])
+in1Mul14759 = tf.constant([[[0.1171], [0.5023]]])
+in0Con13168 = tf.constant([[0.3494]])
+in0Max42698 = tf.constant([[[[[0.4276, 0.2826]]]]])
+in1Max42698 = tf.constant([[[[[0.3978, 0.4198]]]]])
+in0Con34454 = tf.constant([[0.0768]])
+in0Sim90542 = tf.constant([[[2], [1], [10]]])
+in0Con87694 = tf.constant([[0.629]])
+in0Glo78835 = tf.constant([[[1.526], [1.4926]]])
+in0Max8600 = tf.constant([[[1.5829, 1.5302]]])
+in0Con19002 = tf.constant([[0.3628, 0.2833]])
+print (np.array2string(model.predict([in0Glo763,in0Con99203,in0Mul14759,in1Mul14759,in0Con13168,in0Max42698,in1Max42698,in0Con34454,in0Sim90542,in0Con87694,in0Glo78835,in0Max8600,in0Con19002],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave63147.png')
+
+LGlo763 = global_average_pooling2D_layer([[[[1.5978], [1.915]], [[1.0601], [1.9846]]]], Glo763), 
+LCon99203 = concatenate_layer([Glo763,[[0.9274, 0.9145]]], 1, Con99203), 
+LMul14759 = multiply_layer([[[[0.4835], [0.1452]]], [[[0.1171], [0.5023]]]], Mul14759), 
+LFla12220 = flatten_layer(Mul14759, Fla12220), 
+LCon13168 = concatenate_layer([Fla12220,[[0.3494]]], 1, Con13168), 
+LMax42698 = maximum_layer([[[[[[0.4276, 0.2826]]]]], [[[[[0.3978, 0.4198]]]]]], Max42698), 
+LRes77457 = reshape_layer(Max42698, [1, 1, 2], Res77457), 
+LRes84651 = reshape_layer(Res77457, [1, 2], Res84651), 
+LFla23867 = flatten_layer(Res84651, Fla23867), 
+LCon34454 = concatenate_layer([Fla23867,[[0.0768]]], 1, Con34454), 
+LSim90542 = simple_rnn_layer([[[2], [1], [10]]],[[10, 9, 4]],[[10, 4, 8], [3, 3, 9], [7, 2, 2]],[9, 4, 2], Sim90542), 
+LMin30013 = minimum_layer([Con34454,Sim90542], Min30013), 
+LAdd62093 = add_layer([Con13168,Min30013], Add62093), 
+LAdd9691 = add_layer([Con99203,Add62093], Add9691), 
+LCon87694 = concatenate_layer([Add9691,[[0.629]]], 1, Con87694), 
+LGlo78835 = global_average_pooling1D_layer([[[1.526], [1.4926]]], Glo78835), 
+LRes47252 = reshape_layer(Glo78835, [1, 1], Res47252), 
+LSim35286 = simple_rnn_layer(Res47252,[[1]],[[7]],[3], Sim35286), 
+LDen91714 = dense_layer(Sim35286, [[0.6617, 0.7525, 0.8457, 0.4389]],[0.3796, 0.2832, 0.9891, 0.9947], Den91714), 
+LMax8600 = max_pool1D_layer([[[1.5829, 1.5302]]], 1, Max8600), 
+LFla56836 = flatten_layer(Max8600, Fla56836), 
+LCon19002 = concatenate_layer([Fla56836,[[0.3628, 0.2833]]], 1, Con19002), 
+LMin65904 = minimum_layer([Den91714,Con19002], Min65904), 
+LAve63147 = average_layer([Con87694,Min65904], Ave63147), 
+exec_layers([LGlo763,LCon99203,LMul14759,LFla12220,LCon13168,LMax42698,LRes77457,LRes84651,LFla23867,LCon34454,LSim90542,LMin30013,LAdd62093,LAdd9691,LCon87694,LGlo78835,LRes47252,LSim35286,LDen91714,LMax8600,LFla56836,LCon19002,LMin65904,LAve63147],["Glo763","Con99203","Mul14759","Fla12220","Con13168","Max42698","Res77457","Res84651","Fla23867","Con34454","Sim90542","Min30013","Add62093","Add9691","Con87694","Glo78835","Res47252","Sim35286","Den91714","Max8600","Fla56836","Con19002","Min65904","Ave63147"],Ave63147,"Ave63147")
+
+Actual (Unparsed): [[1.5823663, 1.2278258, 0.8517500, 0.4561500]]
+
+Expected (Unparsed): [[1.5823662792836881,1.2278258365036652,0.85175,0.45615]]
+
+Actual:   [[1.5824, 1.2279, 0.8518, 0.4562]]
+
+Expected: [[1.5824, 1.2279, 0.8518, 0.4562]]

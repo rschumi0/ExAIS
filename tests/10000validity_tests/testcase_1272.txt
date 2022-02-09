@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro21195 = tf.keras.layers.Input(shape=([1, 4, 2, 2]))
+
+Cro21195 = keras.layers.Cropping3D(cropping=((0, 0), (1, 0), (0, 1)), name = 'Cro21195', )(in0Cro21195)
+Res21280 = keras.layers.Reshape((1, 3, 2), name = 'Res21280', )(Cro21195)
+Res43278 = keras.layers.Reshape((1, 6), name = 'Res43278', )(Res21280)
+Max59447 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max59447', )(Res43278)
+Res65539 = keras.layers.Reshape((1, 6, 1), name = 'Res65539', )(Max59447)
+Con29760 = keras.layers.Conv2DTranspose(2, (1, 3),strides=(1, 1), padding='valid', name = 'Con29760', )(Res65539)
+model = tf.keras.models.Model(inputs=[in0Cro21195], outputs=Con29760)
+w = model.get_layer('Con29760').get_weights() 
+w[0] = np.array([[[[0.4851], [0.9595]], [[0.7918], [0.2238]], [[0.6209], [0.4203]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con29760').set_weights(w) 
+in0Cro21195 = tf.constant([[[[[1.4684, 1.3024], [1.0116, 1.8169]], [[1.0165, 1.0384], [1.9771, 1.2687]], [[1.9286, 1.3372], [1.7486, 1.9937]], [[1.7973, 1.932], [1.7579, 1.3494]]]]])
+print (np.array2string(model.predict([in0Cro21195],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con29760.png')
+
+LCro21195 = cropping3D_layer([[[[[1.4684, 1.3024], [1.0116, 1.8169]], [[1.0165, 1.0384], [1.9771, 1.2687]], [[1.9286, 1.3372], [1.7486, 1.9937]], [[1.7973, 1.932], [1.7579, 1.3494]]]]], 0, 0, 1, 0, 0, 1, Cro21195), 
+LRes21280 = reshape_layer(Cro21195, [1, 3, 2], Res21280), 
+LRes43278 = reshape_layer(Res21280, [1, 6], Res43278), 
+LMax59447 = max_pool1D_layer(Res43278, 1, 1, false, Max59447), 
+LRes65539 = reshape_layer(Max59447, [1, 6, 1], Res65539), 
+LCon29760 = conv2D_transpose_layer(Res65539, 1, 3,[[[[0.4851], [0.9595]], [[0.7918], [0.2238]], [[0.6209], [0.4203]]]],[0, 0], 1, 1, false, Con29760), 
+exec_layers([LCro21195,LRes21280,LRes43278,LMax59447,LRes65539,LCon29760],["Cro21195","Res21280","Res43278","Max59447","Res65539","Con29760"],Con29760,"Con29760")
+
+Actual (Unparsed): [[[[0.4931041, 0.9753317], [1.3085926, 1.2238376], [2.3889138, 2.5101205], [2.8204838, 2.1511037], [3.1281329, 2.8343653], [3.1905829, 2.8180150], [2.6457012, 1.1877868], [1.1995788, 0.8120196]]]]
+
+Expected (Unparsed): [[[[0.49310414999999996,0.9753317499999999],[1.3085925399999998,1.2238375000000001],[2.38891383,2.51012057],[2.8204837599999997,2.1511036],[3.1281329299999996,2.83436529],[3.19058282,2.8180148999999997],[2.6457011699999997,1.1877867899999999],[1.1995788,0.8120196]]]]
+
+Actual:   [[[[0.4932, 0.9754], [1.3086, 1.2239], [2.389, 2.5102], [2.8205, 2.1512], [3.1282, 2.8344], [3.1906, 2.8181], [2.6458, 1.1878], [1.1996, 0.8121]]]]
+
+Expected: [[[[0.4932, 0.9754], [1.3086, 1.2239], [2.389, 2.5102], [2.8205, 2.1512], [3.1282, 2.8344], [3.1906, 2.8181], [2.6458, 1.1878], [1.1996, 0.8121]]]]

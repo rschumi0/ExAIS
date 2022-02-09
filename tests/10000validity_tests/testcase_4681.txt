@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU22658 = tf.keras.layers.Input(shape=([1, 3]))
+
+GRU22658 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU22658', )(in0GRU22658)
+Res9212 = keras.layers.Reshape((1, 1), name = 'Res9212', )(GRU22658)
+Sim48433 = keras.layers.SimpleRNN(1,name = 'Sim48433', )(Res9212)
+Res80500 = keras.layers.Reshape((1, 1), name = 'Res80500', )(Sim48433)
+GRU43827 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU43827', )(Res80500)
+Res82080 = keras.layers.Reshape((2, 1), name = 'Res82080', )(GRU43827)
+Res44019 = keras.layers.Reshape((2, 1, 1), name = 'Res44019', )(Res82080)
+Res90163 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res90163', )(Res44019)
+Up_9241 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_9241', )(Res90163)
+model = tf.keras.models.Model(inputs=[in0GRU22658], outputs=Up_9241)
+w = model.get_layer('GRU22658').get_weights() 
+w[0] = np.array([[7, 10, 8], [7, 2, 7], [9, 9, 3]])
+w[1] = np.array([[5, 2, 3]])
+w[2] = np.array([[8, 4, 8], [2, 5, 7]])
+model.get_layer('GRU22658').set_weights(w) 
+w = model.get_layer('Sim48433').get_weights() 
+w[0] = np.array([[2]])
+w[1] = np.array([[4]])
+w[2] = np.array([8])
+model.get_layer('Sim48433').set_weights(w) 
+w = model.get_layer('GRU43827').get_weights() 
+w[0] = np.array([[2, 1, 3, 1, 9, 2]])
+w[1] = np.array([[3, 2, 6, 3, 8, 7], [4, 2, 9, 8, 6, 3]])
+w[2] = np.array([2, 9, 5, 3, 9, 9])
+model.get_layer('GRU43827').set_weights(w) 
+in0GRU22658 = tf.constant([[[2, 1, 2]]])
+print (np.array2string(model.predict([in0GRU22658],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_9241.png')
+
+LGRU22658 = gru_layer([[[2, 1, 2]]],[[7, 10, 8], [7, 2, 7], [9, 9, 3]],[[5, 2, 3]],[[8, 4, 8], [2, 5, 7]], true, GRU22658), 
+LRes9212 = reshape_layer(GRU22658, [1, 1], Res9212), 
+LSim48433 = simple_rnn_layer(Res9212,[[2]],[[4]],[8], Sim48433), 
+LRes80500 = reshape_layer(Sim48433, [1, 1], Res80500), 
+LGRU43827 = gru_layer(Res80500,[[2, 1, 3, 1, 9, 2]],[[3, 2, 6, 3, 8, 7], [4, 2, 9, 8, 6, 3]],[2, 9, 5, 3, 9, 9], false, GRU43827), 
+LRes82080 = reshape_layer(GRU43827, [2, 1], Res82080), 
+LRes44019 = reshape_layer(Res82080, [2, 1, 1], Res44019), 
+LRes90163 = reshape_layer(Res44019, [2, 1, 1, 1], Res90163), 
+LUp_9241 = up_sampling3D_layer(Res90163, 1, 1, 1, Up_9241), 
+exec_layers([LGRU22658,LRes9212,LSim48433,LRes80500,LGRU43827,LRes82080,LRes44019,LRes90163,LUp_9241],["GRU22658","Res9212","Sim48433","Res80500","GRU43827","Res82080","Res44019","Res90163","Up_9241"],Up_9241,"Up_9241")
+
+Actual (Unparsed): [[[[[0.0179862]]], [[[0.0000454]]]]]
+
+Expected (Unparsed): [[[[[0.017986217912795303]]],[[[4.539787889444566e-5]]]]]
+
+Actual:   [[[[[0.018]]], [[[0.0001]]]]]
+
+Expected: [[[[[0.018]]], [[[0.0001]]]]]

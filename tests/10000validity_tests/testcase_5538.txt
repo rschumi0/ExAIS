@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep40135 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave89007 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave89007 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Dep40135 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep40135', )(in0Dep40135)
+Res68246 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res68246', )(Dep40135)
+Up_35780 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_35780', )(Res68246)
+Res9538 = keras.layers.Reshape((2, 1, 2), name = 'Res9538', )(Up_35780)
+Ave89007 = keras.layers.Average(name = 'Ave89007', )([in0Ave89007,in1Ave89007])
+Zer76927 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer76927', )(Ave89007)
+Min60139 = keras.layers.Minimum(name = 'Min60139', )([Res9538,Zer76927])
+model = tf.keras.models.Model(inputs=[in0Dep40135,in0Ave89007,in1Ave89007], outputs=Min60139)
+w = model.get_layer('Dep40135').get_weights() 
+w[0] = np.array([[[[0.6689], [0.0457]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep40135').set_weights(w) 
+in0Dep40135 = tf.constant([[[[0.088, 0.2964]]]])
+in0Ave89007 = tf.constant([[[[0.7558, 0.1657]]]])
+in1Ave89007 = tf.constant([[[[0.1271, 0.2989]]]])
+print (np.array2string(model.predict([in0Dep40135,in0Ave89007,in1Ave89007],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min60139.png')
+
+LDep40135 = depthwise_conv2D_layer([[[[0.088, 0.2964]]]], 1, 1,[[[[0.6689], [0.0457]]]],[0, 0], 1, 1, true, Dep40135), 
+LRes68246 = reshape_layer(Dep40135, [1, 1, 2, 1], Res68246), 
+LUp_35780 = up_sampling3D_layer(Res68246, 2, 1, 1, Up_35780), 
+LRes9538 = reshape_layer(Up_35780, [2, 1, 2], Res9538), 
+LAve89007 = average_layer([[[[[0.7558, 0.1657]]]], [[[[0.1271, 0.2989]]]]], Ave89007), 
+LZer76927 = zero_padding2D_layer(Ave89007, 1, 0, 0, 0, Zer76927), 
+LMin60139 = minimum_layer([Res9538,Zer76927], Min60139), 
+exec_layers([LDep40135,LRes68246,LUp_35780,LRes9538,LAve89007,LZer76927,LMin60139],["Dep40135","Res68246","Up_35780","Res9538","Ave89007","Zer76927","Min60139"],Min60139,"Min60139")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000]], [[0.0588632, 0.0135455]]]]
+
+Expected (Unparsed): [[[[0,0]],[[0.058863200000000004,0.013545479999999999]]]]
+
+Actual:   [[[[0, 0]], [[0.0589, 0.0136]]]]
+
+Expected: [[[[0, 0]], [[0.0589, 0.0136]]]]

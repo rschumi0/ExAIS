@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max73851 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max73851 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Max76225 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Max76225 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Max73851 = keras.layers.Maximum(name = 'Max73851', )([in0Max73851,in1Max73851])
+Res81649 = keras.layers.Reshape((2, 4), name = 'Res81649', )(Max73851)
+Max76225 = keras.layers.Maximum(name = 'Max76225', )([in0Max76225,in1Max76225])
+Res31265 = keras.layers.Reshape((1, 1, 2), name = 'Res31265', )(Max76225)
+Sep75515 = keras.layers.SeparableConv2D(4, (1, 1),strides=(1, 1), padding='valid', name = 'Sep75515', )(Res31265)
+Res76648 = keras.layers.Reshape((1, 4), name = 'Res76648', )(Sep75515)
+Dot12935 = keras.layers.Dot(axes=(2, 2), name = 'Dot12935', )([Res81649,Res76648])
+ELU89031 = keras.layers.ELU(alpha=8.445113728821383, name = 'ELU89031', )(Dot12935)
+model = tf.keras.models.Model(inputs=[in0Max73851,in1Max73851,in0Max76225,in1Max76225], outputs=ELU89031)
+w = model.get_layer('Sep75515').get_weights() 
+w[0] = np.array([[[[0.3096], [0.8666]]]])
+w[1] = np.array([[[[0.5366, 0.3763, 0.3063, 0.9216], [0.8565, 0.4675, 0.718, 0.6699]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep75515').set_weights(w) 
+in0Max73851 = tf.constant([[[[0.7039, 0.9959], [0.6212, 0.6665]], [[0.5935, 0.5247], [0.1075, 0.2982]]]])
+in1Max73851 = tf.constant([[[[0.8184, 0.5756], [0.1862, 0.879]], [[0.551, 0.6549], [0.4457, 0.8427]]]])
+in0Max76225 = tf.constant([[[[[0.1025], [0.7867]]]]])
+in1Max76225 = tf.constant([[[[[0.1679], [0.7316]]]]])
+print (np.array2string(model.predict([in0Max73851,in1Max73851,in0Max76225,in1Max76225],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU89031.png')
+
+LMax73851 = maximum_layer([[[[[0.7039, 0.9959], [0.6212, 0.6665]], [[0.5935, 0.5247], [0.1075, 0.2982]]]], [[[[0.8184, 0.5756], [0.1862, 0.879]], [[0.551, 0.6549], [0.4457, 0.8427]]]]], Max73851), 
+LRes81649 = reshape_layer(Max73851, [2, 4], Res81649), 
+LMax76225 = maximum_layer([[[[[[0.1025], [0.7867]]]]], [[[[[0.1679], [0.7316]]]]]], Max76225), 
+LRes31265 = reshape_layer(Max76225, [1, 1, 2], Res31265), 
+LSep75515 = separable_conv2D_layer(Res31265, 1, 1,[[[[[0.3096], [0.8666]]]],[[[[0.5366, 0.3763, 0.3063, 0.9216], [0.8565, 0.4675, 0.718, 0.6699]]]]],[0, 0, 0, 0], 1, 1, false, Sep75515), 
+LRes76648 = reshape_layer(Sep75515, [1, 4], Res76648), 
+LDot12935 = dot_layer(Res81649,Res76648, 2, 2, Dot12935), 
+LELU89031 = elu_layer(Dot12935, 8.445113728821383, ELU89031), 
+exec_layers([LMax73851,LRes81649,LMax76225,LRes31265,LSep75515,LRes76648,LDot12935,LELU89031],["Max73851","Res81649","Max76225","Res31265","Sep75515","Res76648","Dot12935","ELU89031"],ELU89031,"ELU89031")
+
+Actual (Unparsed): [[[1.5951274], [1.2351572]]]
+
+Expected (Unparsed): [[[1.5951273278845899],[1.2351571878423107]]]
+
+Actual:   [[[1.5952], [1.2352]]]
+
+Expected: [[[1.5952], [1.2352]]]

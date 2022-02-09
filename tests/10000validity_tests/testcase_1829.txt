@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro70446 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con81858 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con46970 = tf.keras.layers.Input(shape=([1]))
+
+Cro70446 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro70446', )(in0Cro70446)
+Res74110 = keras.layers.Reshape((2, 1, 1), name = 'Res74110', )(Cro70446)
+PRe32119 = keras.layers.PReLU(name = 'PRe32119', )(Res74110)
+Res82352 = keras.layers.Reshape((2, 1), name = 'Res82352', )(PRe32119)
+Fla99585 = keras.layers.Flatten(name = 'Fla99585', )(Res82352)
+Con81858 = keras.layers.Conv1D(3, (2),strides=(3), padding='same', dilation_rate=(1), name = 'Con81858', )(in0Con81858)
+Res24667 = keras.layers.Reshape((1, 3, 1), name = 'Res24667', )(Con81858)
+Res80359 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res80359', )(Res24667)
+Glo36903 = keras.layers.GlobalAveragePooling3D(name = 'Glo36903', )(Res80359)
+Con46970 = keras.layers.Concatenate(axis=1, name = 'Con46970', )([Glo36903,in0Con46970])
+Add48880 = keras.layers.Add(name = 'Add48880', )([Fla99585,Con46970])
+model = tf.keras.models.Model(inputs=[in0Cro70446,in0Con81858,in0Con46970], outputs=Add48880)
+w = model.get_layer('PRe32119').get_weights() 
+w[0] = np.array([[[0.4123]], [[0.7676]]])
+model.get_layer('PRe32119').set_weights(w) 
+w = model.get_layer('Con81858').get_weights() 
+w[0] = np.array([[[0.8512, 0.5267, 0.366], [0.4758, 0.1776, 0.4497]], [[0.3509, 0.057, 0.0685], [0.4691, 0.8393, 0.774]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con81858').set_weights(w) 
+in0Cro70446 = tf.constant([[[1.6221], [1.7638], [1.6691]]])
+in0Con81858 = tf.constant([[[0.7093, 0.0308], [0.5746, 0.8041]]])
+in0Con46970 = tf.constant([[0.3279]])
+print (np.array2string(model.predict([in0Cro70446,in0Con81858,in0Con46970],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add48880.png')
+
+LCro70446 = cropping1D_layer([[[1.6221], [1.7638], [1.6691]]], 1, 0, Cro70446), 
+LRes74110 = reshape_layer(Cro70446, [2, 1, 1], Res74110), 
+LPRe32119 = prelu_layer(Res74110, [[[0.4123]], [[0.7676]]], PRe32119), 
+LRes82352 = reshape_layer(PRe32119, [2, 1], Res82352), 
+LFla99585 = flatten_layer(Res82352, Fla99585), 
+LCon81858 = conv1D_layer([[[0.7093, 0.0308], [0.5746, 0.8041]]], 2,[[[0.8512, 0.5267, 0.366], [0.4758, 0.1776, 0.4497]], [[0.3509, 0.057, 0.0685], [0.4691, 0.8393, 0.774]]],[0, 0, 0], 3, true, 1, Con81858), 
+LRes24667 = reshape_layer(Con81858, [1, 3, 1], Res24667), 
+LRes80359 = reshape_layer(Res24667, [1, 3, 1, 1], Res80359), 
+LGlo36903 = global_average_pooling3D_layer(Res80359, Glo36903), 
+LCon46970 = concatenate_layer([Glo36903,[[0.3279]]], 1, Con46970), 
+LAdd48880 = add_layer([Fla99585,Con46970], Add48880), 
+exec_layers([LCro70446,LRes74110,LPRe32119,LRes82352,LFla99585,LCon81858,LRes24667,LRes80359,LGlo36903,LCon46970,LAdd48880],["Cro70446","Res74110","PRe32119","Res82352","Fla99585","Con81858","Res24667","Res80359","Glo36903","Con46970","Add48880"],Add48880,"Add48880")
+
+Actual (Unparsed): [[2.8368403, 1.9970000]]
+
+Expected (Unparsed): [[2.836840343333334,1.997]]
+
+Actual:   [[2.8369, 1.997]]
+
+Expected: [[2.8369, 1.997]]

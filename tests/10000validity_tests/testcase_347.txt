@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub63296 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub63296 = tf.keras.layers.Input(shape=([3, 3]))
+in0Ave18429 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave18429 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con43610 = tf.keras.layers.Input(shape=([3, 1]))
+
+Sub63296 = keras.layers.Subtract(name = 'Sub63296', )([in0Sub63296,in1Sub63296])
+Ave18429 = keras.layers.Average(name = 'Ave18429', )([in0Ave18429,in1Ave18429])
+Zer54820 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer54820', )(Ave18429)
+Con43610 = keras.layers.Concatenate(axis=2, name = 'Con43610', )([Zer54820,in0Con43610])
+Mul37287 = keras.layers.Multiply(name = 'Mul37287', )([Sub63296,Con43610])
+model = tf.keras.models.Model(inputs=[in0Sub63296,in1Sub63296,in0Ave18429,in1Ave18429,in0Con43610], outputs=Mul37287)
+in0Sub63296 = tf.constant([[[0.5021, 0.9904, 0.5768], [0.8809, 0.5369, 0.7435], [0.0711, 0.6642, 0.0033]]])
+in1Sub63296 = tf.constant([[[0.8797, 0.4886, 0.6472], [0.5275, 0.7454, 0.3068], [0.4125, 0.7021, 0.1537]]])
+in0Ave18429 = tf.constant([[[0.4444, 0.1063]]])
+in1Ave18429 = tf.constant([[[0.8453, 0.5849]]])
+in0Con43610 = tf.constant([[[0.509], [0.0492], [0.8009]]])
+print (np.array2string(model.predict([in0Sub63296,in1Sub63296,in0Ave18429,in1Ave18429,in0Con43610],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul37287.png')
+
+LSub63296 = subtract_layer([[[0.5021, 0.9904, 0.5768], [0.8809, 0.5369, 0.7435], [0.0711, 0.6642, 0.0033]]], [[[0.8797, 0.4886, 0.6472], [0.5275, 0.7454, 0.3068], [0.4125, 0.7021, 0.1537]]], Sub63296), 
+LAve18429 = average_layer([[[[0.4444, 0.1063]]], [[[0.8453, 0.5849]]]], Ave18429), 
+LZer54820 = zero_padding1D_layer(Ave18429, 2, 0, Zer54820), 
+LCon43610 = concatenate_layer([Zer54820,[[[0.509], [0.0492], [0.8009]]]], 2, Con43610), 
+LMul37287 = multiply_layer([Sub63296,Con43610], Mul37287), 
+exec_layers([LSub63296,LAve18429,LZer54820,LCon43610,LMul37287],["Sub63296","Ave18429","Zer54820","Con43610","Mul37287"],Mul37287,"Mul37287")
+
+Actual (Unparsed): [[[-0.0000000, 0.0000000, -0.0358336], [0.0000000, -0.0000000, 0.0214856], [-0.2201518, -0.0130982, -0.1204554]]]
+
+Expected (Unparsed): [[[-0.0,0.0,-0.03583360000000001],[0.0,-0.0,0.02148564],[-0.22015178999999999,-0.013098239999999978,-0.12045536]]]
+
+Actual:   [[[-0, 0, -0.0358], [0, -0, 0.0215], [-0.2201, -0.013, -0.1204]]]
+
+Expected: [[[-0, 0, -0.0358], [0, -0, 0.0215], [-0.2201, -0.013, -0.1204]]]

@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo67604 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Con79860 = tf.keras.layers.Input(shape=([2, 1]))
+in0Min15260 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min15260 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min45921 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Min45921 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Glo67604 = keras.layers.GlobalAveragePooling3D(name = 'Glo67604', )(in0Glo67604)
+Res65420 = keras.layers.Reshape((2, 1), name = 'Res65420', )(Glo67604)
+Con79860 = keras.layers.Concatenate(axis=2, name = 'Con79860', )([Res65420,in0Con79860])
+Min15260 = keras.layers.Minimum(name = 'Min15260', )([in0Min15260,in1Min15260])
+Res5518 = keras.layers.Reshape((1, 2, 1), name = 'Res5518', )(Min15260)
+Res55082 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res55082', )(Res5518)
+Min45921 = keras.layers.Minimum(name = 'Min45921', )([in0Min45921,in1Min45921])
+Zer14833 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (0, 0)), name = 'Zer14833', )(Min45921)
+Ave79391 = keras.layers.Average(name = 'Ave79391', )([Res55082,Zer14833])
+Res47875 = keras.layers.Reshape((1, 2, 1), name = 'Res47875', )(Ave79391)
+Res96328 = keras.layers.Reshape((1, 2), name = 'Res96328', )(Res47875)
+Up_99016 = keras.layers.UpSampling1D(size=(2), name = 'Up_99016', )(Res96328)
+Lea50990 = keras.layers.LeakyReLU(alpha=5.903027859444542, name = 'Lea50990', )(Up_99016)
+Sub82040 = keras.layers.Subtract(name = 'Sub82040', )([Con79860,Lea50990])
+model = tf.keras.models.Model(inputs=[in0Glo67604,in0Con79860,in0Min15260,in1Min15260,in0Min45921,in1Min45921], outputs=Sub82040)
+in0Glo67604 = tf.constant([[[[[1.3737, 1.3714]]], [[[1.3616, 1.3983]]]]])
+in0Con79860 = tf.constant([[[0.0737], [0.4302]]])
+in0Min15260 = tf.constant([[[0.5867, 0.4268]]])
+in1Min15260 = tf.constant([[[0.4304, 0.0181]]])
+in0Min45921 = tf.constant([[[[[0.3045]]]]])
+in1Min45921 = tf.constant([[[[[0.9003]]]]])
+print (np.array2string(model.predict([in0Glo67604,in0Con79860,in0Min15260,in1Min15260,in0Min45921,in1Min45921],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub82040.png')
+
+LGlo67604 = global_average_pooling3D_layer([[[[[1.3737, 1.3714]]], [[[1.3616, 1.3983]]]]], Glo67604), 
+LRes65420 = reshape_layer(Glo67604, [2, 1], Res65420), 
+LCon79860 = concatenate_layer([Res65420,[[[0.0737], [0.4302]]]], 2, Con79860), 
+LMin15260 = minimum_layer([[[[0.5867, 0.4268]]], [[[0.4304, 0.0181]]]], Min15260), 
+LRes5518 = reshape_layer(Min15260, [1, 2, 1], Res5518), 
+LRes55082 = reshape_layer(Res5518, [1, 2, 1, 1], Res55082), 
+LMin45921 = minimum_layer([[[[[[0.3045]]]]], [[[[[0.9003]]]]]], Min45921), 
+LZer14833 = zero_padding3D_layer(Min45921, 0, 0, 1, 0, 0, 0, Zer14833), 
+LAve79391 = average_layer([Res55082,Zer14833], Ave79391), 
+LRes47875 = reshape_layer(Ave79391, [1, 2, 1], Res47875), 
+LRes96328 = reshape_layer(Res47875, [1, 2], Res96328), 
+LUp_99016 = up_sampling1D_layer(Res96328, 2, Up_99016), 
+LLea50990 = leaky_relu_layer(Up_99016, 5.903027859444542, Lea50990), 
+LSub82040 = subtract_layer(Con79860,Lea50990, Sub82040), 
+exec_layers([LGlo67604,LRes65420,LCon79860,LMin15260,LRes5518,LRes55082,LMin45921,LZer14833,LAve79391,LRes47875,LRes96328,LUp_99016,LLea50990,LSub82040],["Glo67604","Res65420","Con79860","Min15260","Res5518","Res55082","Min45921","Zer14833","Ave79391","Res47875","Res96328","Up_99016","Lea50990","Sub82040"],Sub82040,"Sub82040")
+
+Actual (Unparsed): [[[1.1524500, -0.0876000], [1.1696500, 0.2689000]]]
+
+Expected (Unparsed): [[[1.1524499999999998,-0.0876],[1.16965,0.26890000000000003]]]
+
+Actual:   [[[1.1525, -0.0876], [1.1697, 0.2689]]]
+
+Expected: [[[1.1525, -0.0876], [1.1697, 0.269]]]

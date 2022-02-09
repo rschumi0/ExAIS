@@ -1,0 +1,102 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo92337 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Con38806 = tf.keras.layers.Input(shape=([2, 3, 2, 1]))
+in0Sub14714 = tf.keras.layers.Input(shape=([2, 3, 2, 2]))
+in1Sub14714 = tf.keras.layers.Input(shape=([2, 3, 2, 2]))
+in0Sim87050 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sim44334 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sep28166 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Glo92337 = keras.layers.GlobalAveragePooling3D(name = 'Glo92337', )(in0Glo92337)
+Res47513 = keras.layers.Reshape((2, 1), name = 'Res47513', )(Glo92337)
+Res38052 = keras.layers.Reshape((2, 1, 1), name = 'Res38052', )(Res47513)
+Res58441 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res58441', )(Res38052)
+Zer42259 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (1, 0)), name = 'Zer42259', )(Res58441)
+Con38806 = keras.layers.Concatenate(axis=4, name = 'Con38806', )([Zer42259,in0Con38806])
+Sub14714 = keras.layers.Subtract(name = 'Sub14714', )([in0Sub14714,in1Sub14714])
+Max37583 = keras.layers.Maximum(name = 'Max37583', )([Con38806,Sub14714])
+Res64477 = keras.layers.Reshape((2, 3, 4), name = 'Res64477', )(Max37583)
+Res62858 = keras.layers.Reshape((2, 12), name = 'Res62858', )(Res64477)
+Zer74423 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer74423', )(Res62858)
+Sim87050 = keras.layers.SimpleRNN(2,name = 'Sim87050', )(in0Sim87050)
+Res31467 = keras.layers.Reshape((2, 1), name = 'Res31467', )(Sim87050)
+Res47270 = keras.layers.Reshape((2, 1, 1), name = 'Res47270', )(Res31467)
+Glo53279 = keras.layers.GlobalMaxPool2D(name = 'Glo53279', )(Res47270)
+Res31371 = keras.layers.Reshape((1, 1), name = 'Res31371', )(Glo53279)
+Zer5390 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer5390', )(Res31371)
+Sim44334 = keras.layers.SimpleRNN(2,name = 'Sim44334', )(in0Sim44334)
+Res5120 = keras.layers.Reshape((2, 1), name = 'Res5120', )(Sim44334)
+Zer86227 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer86227', )(Res5120)
+Sep28166 = keras.layers.SeparableConv2D(4, (1, 1),strides=(2, 2), padding='valid', name = 'Sep28166', )(in0Sep28166)
+Res34981 = keras.layers.Reshape((1, 4), name = 'Res34981', )(Sep28166)
+Per19301 = keras.layers.Permute((2,1), name = 'Per19301',)(Res34981)
+Min88227 = keras.layers.Minimum(name = 'Min88227', )([Zer86227,Per19301])
+Min91475 = keras.layers.Minimum(name = 'Min91475', )([Zer5390,Min88227])
+Dot51679 = keras.layers.Dot(axes=(1, 1), name = 'Dot51679', )([Zer74423,Min91475])
+model = tf.keras.models.Model(inputs=[in0Glo92337,in0Con38806,in0Sub14714,in1Sub14714,in0Sim87050,in0Sim44334,in0Sep28166], outputs=Dot51679)
+w = model.get_layer('Sim87050').get_weights() 
+w[0] = np.array([[1, 6], [3, 2]])
+w[1] = np.array([[10, 9], [1, 10]])
+w[2] = np.array([6, 10])
+model.get_layer('Sim87050').set_weights(w) 
+w = model.get_layer('Sim44334').get_weights() 
+w[0] = np.array([[5, 5], [9, 9]])
+w[1] = np.array([[4, 8], [2, 7]])
+w[2] = np.array([2, 1])
+model.get_layer('Sim44334').set_weights(w) 
+w = model.get_layer('Sep28166').get_weights() 
+w[0] = np.array([[[[0.1193], [0.2737]]]])
+w[1] = np.array([[[[0.2224, 0.0166, 0.4266, 0.6612], [0.585, 0.8747, 0.4316, 0.669]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep28166').set_weights(w) 
+in0Glo92337 = tf.constant([[[[[1.2903, 1.0405]], [[1.2775, 1.4898]]], [[[1.804, 1.6008]], [[1.4899, 1.205]]]]])
+in0Con38806 = tf.constant([[[[[0.7961], [0.2805]], [[0.498], [0.1733]], [[0.3035], [0.507]]], [[[0.1921], [0.958]], [[0.2425], [0.7727]], [[0.7579], [0.9875]]]]])
+in0Sub14714 = tf.constant([[[[[0.678, 0.3365], [0.8376, 0.1239]], [[0.6769, 0.0412], [0.8449, 0.4803]], [[0.4965, 0.8523], [0.4214, 0.3473]]], [[[0.7474, 0.3445], [0.8846, 0.2004]], [[0.6259, 0.6679], [0.5289, 0.6162]], [[0.5426, 0.5861], [0.5646, 0.2966]]]]])
+in1Sub14714 = tf.constant([[[[[0.3055, 0.7296], [0.6572, 0.2758]], [[0.2012, 0.5048], [0.617, 0.9976]], [[0.4566, 0.8767], [0.0118, 0.9251]]], [[[0.1198, 0.6774], [0.6046, 0.4894]], [[0.3539, 0.1842], [0.5564, 0.4719]], [[0.5046, 0.4574], [0.2747, 0.3695]]]]])
+in0Sim87050 = tf.constant([[[4, 7], [8, 10]]])
+in0Sim44334 = tf.constant([[[5, 9], [6, 6]]])
+in0Sep28166 = tf.constant([[[[0.8787, 0.011]], [[0.0766, 0.5368]]]])
+print (np.array2string(model.predict([in0Glo92337,in0Con38806,in0Sub14714,in1Sub14714,in0Sim87050,in0Sim44334,in0Sep28166],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot51679.png')
+
+LGlo92337 = global_average_pooling3D_layer([[[[[1.2903, 1.0405]], [[1.2775, 1.4898]]], [[[1.804, 1.6008]], [[1.4899, 1.205]]]]], Glo92337), 
+LRes47513 = reshape_layer(Glo92337, [2, 1], Res47513), 
+LRes38052 = reshape_layer(Res47513, [2, 1, 1], Res38052), 
+LRes58441 = reshape_layer(Res38052, [2, 1, 1, 1], Res58441), 
+LZer42259 = zero_padding3D_layer(Res58441, 0, 0, 2, 0, 1, 0, Zer42259), 
+LCon38806 = concatenate_layer([Zer42259,[[[[[0.7961], [0.2805]], [[0.498], [0.1733]], [[0.3035], [0.507]]], [[[0.1921], [0.958]], [[0.2425], [0.7727]], [[0.7579], [0.9875]]]]]], 4, Con38806), 
+LSub14714 = subtract_layer([[[[[0.678, 0.3365], [0.8376, 0.1239]], [[0.6769, 0.0412], [0.8449, 0.4803]], [[0.4965, 0.8523], [0.4214, 0.3473]]], [[[0.7474, 0.3445], [0.8846, 0.2004]], [[0.6259, 0.6679], [0.5289, 0.6162]], [[0.5426, 0.5861], [0.5646, 0.2966]]]]], [[[[[0.3055, 0.7296], [0.6572, 0.2758]], [[0.2012, 0.5048], [0.617, 0.9976]], [[0.4566, 0.8767], [0.0118, 0.9251]]], [[[0.1198, 0.6774], [0.6046, 0.4894]], [[0.3539, 0.1842], [0.5564, 0.4719]], [[0.5046, 0.4574], [0.2747, 0.3695]]]]], Sub14714), 
+LMax37583 = maximum_layer([Con38806,Sub14714], Max37583), 
+LRes64477 = reshape_layer(Max37583, [2, 3, 4], Res64477), 
+LRes62858 = reshape_layer(Res64477, [2, 12], Res62858), 
+LZer74423 = zero_padding1D_layer(Res62858, 1, 1, Zer74423), 
+LSim87050 = simple_rnn_layer([[[4, 7], [8, 10]]],[[1, 6], [3, 2]],[[10, 9], [1, 10]],[6, 10], Sim87050), 
+LRes31467 = reshape_layer(Sim87050, [2, 1], Res31467), 
+LRes47270 = reshape_layer(Res31467, [2, 1, 1], Res47270), 
+LGlo53279 = global_max_pool2D_layer(Res47270, Glo53279), 
+LRes31371 = reshape_layer(Glo53279, [1, 1], Res31371), 
+LZer5390 = zero_padding1D_layer(Res31371, 3, 0, Zer5390), 
+LSim44334 = simple_rnn_layer([[[5, 9], [6, 6]]],[[5, 5], [9, 9]],[[4, 8], [2, 7]],[2, 1], Sim44334), 
+LRes5120 = reshape_layer(Sim44334, [2, 1], Res5120), 
+LZer86227 = zero_padding1D_layer(Res5120, 2, 0, Zer86227), 
+LSep28166 = separable_conv2D_layer([[[[0.8787, 0.011]], [[0.0766, 0.5368]]]], 1, 1,[[[[[0.1193], [0.2737]]]],[[[[0.2224, 0.0166, 0.4266, 0.6612], [0.585, 0.8747, 0.4316, 0.669]]]]],[0, 0, 0, 0], 2, 2, false, Sep28166), 
+LRes34981 = reshape_layer(Sep28166, [1, 4], Res34981), 
+LPer19301 = permute_layer(Res34981, 2,1, Per19301), 
+LMin88227 = minimum_layer([Zer86227,Per19301], Min88227), 
+LMin91475 = minimum_layer([Zer5390,Min88227], Min91475), 
+LDot51679 = dot_layer(Zer74423,Min91475, 1, 1, Dot51679), 
+exec_layers([LGlo92337,LRes47513,LRes38052,LRes58441,LZer42259,LCon38806,LSub14714,LMax37583,LRes64477,LRes62858,LZer74423,LSim87050,LRes31467,LRes47270,LGlo53279,LRes31371,LZer5390,LSim44334,LRes5120,LZer86227,LSep28166,LRes34981,LPer19301,LMin88227,LMin91475,LDot51679],["Glo92337","Res47513","Res38052","Res58441","Zer42259","Con38806","Sub14714","Max37583","Res64477","Res62858","Zer74423","Sim87050","Res31467","Res47270","Glo53279","Res31371","Zer5390","Sim44334","Res5120","Zer86227","Sep28166","Res34981","Per19301","Min88227","Min91475","Dot51679"],Dot51679,"Dot51679")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]]]
+
+Expected (Unparsed): [[[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]]
+
+Actual:   [[[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]]
+
+Expected: [[[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]]

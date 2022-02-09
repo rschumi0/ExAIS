@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max8137 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Max8137 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con82630 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot15584 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot15584 = tf.keras.layers.Input(shape=([2, 3]))
+
+Max8137 = keras.layers.Maximum(name = 'Max8137', )([in0Max8137,in1Max8137])
+Res85314 = keras.layers.Reshape((1, 2), name = 'Res85314', )(Max8137)
+GRU55488 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU55488', )(Res85314)
+Res74007 = keras.layers.Reshape((1, 1), name = 'Res74007', )(GRU55488)
+Res25151 = keras.layers.Reshape((1, 1, 1), name = 'Res25151', )(Res74007)
+Max67223 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max67223', )(Res25151)
+Res48254 = keras.layers.Reshape((1, 1), name = 'Res48254', )(Max67223)
+Zer20196 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer20196', )(Res48254)
+Con82630 = keras.layers.Concatenate(axis=2, name = 'Con82630', )([Zer20196,in0Con82630])
+Dot15584 = keras.layers.Dot(axes=(1, 1), name = 'Dot15584', )([in0Dot15584,in1Dot15584])
+Ave55990 = keras.layers.Average(name = 'Ave55990', )([Con82630,Dot15584])
+model = tf.keras.models.Model(inputs=[in0Max8137,in1Max8137,in0Con82630,in0Dot15584,in1Dot15584], outputs=Ave55990)
+w = model.get_layer('GRU55488').get_weights() 
+w[0] = np.array([[1, 2, 10], [5, 7, 4]])
+w[1] = np.array([[4, 1, 1]])
+w[2] = np.array([3, 9, 8])
+model.get_layer('GRU55488').set_weights(w) 
+in0Max8137 = tf.constant([[[[0.1913], [0.7135]]]])
+in1Max8137 = tf.constant([[[[0.7903], [0.6452]]]])
+in0Con82630 = tf.constant([[[0.0495, 0.795], [0.0829, 0.7315], [0.903, 0.4638]]])
+in0Dot15584 = tf.constant([[[0.4847, 0.4114, 0.8086], [0.8353, 0.5043, 0.6737]]])
+in1Dot15584 = tf.constant([[[0.7079, 0.5266, 0.6479], [0.3266, 0.1525, 0.4662]]])
+print (np.array2string(model.predict([in0Max8137,in1Max8137,in0Con82630,in0Dot15584,in1Dot15584],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave55990.png')
+
+LMax8137 = maximum_layer([[[[[0.1913], [0.7135]]]], [[[[0.7903], [0.6452]]]]], Max8137), 
+LRes85314 = reshape_layer(Max8137, [1, 2], Res85314), 
+LGRU55488 = gru_layer(Res85314,[[1, 2, 10], [5, 7, 4]],[[4, 1, 1]],[3, 9, 8], false, GRU55488), 
+LRes74007 = reshape_layer(GRU55488, [1, 1], Res74007), 
+LRes25151 = reshape_layer(Res74007, [1, 1, 1], Res25151), 
+LMax67223 = max_pool2D_layer(Res25151, 1, 1, Max67223), 
+LRes48254 = reshape_layer(Max67223, [1, 1], Res48254), 
+LZer20196 = zero_padding1D_layer(Res48254, 2, 0, Zer20196), 
+LCon82630 = concatenate_layer([Zer20196,[[[0.0495, 0.795], [0.0829, 0.7315], [0.903, 0.4638]]]], 2, Con82630), 
+LDot15584 = dot_layer([[[0.4847, 0.4114, 0.8086], [0.8353, 0.5043, 0.6737]]], [[[0.7079, 0.5266, 0.6479], [0.3266, 0.1525, 0.4662]]], 1, 1, Dot15584), 
+LAve55990 = average_layer([Con82630,Dot15584], Ave55990), 
+exec_layers([LMax8137,LRes85314,LGRU55488,LRes74007,LRes25151,LMax67223,LRes48254,LZer20196,LCon82630,LDot15584,LAve55990],["Max8137","Res85314","GRU55488","Res74007","Res25151","Max67223","Res48254","Zer20196","Con82630","Dot15584","Ave55990"],Ave55990,"Ave55990")
+
+Actual (Unparsed): [[[0.3079640, 0.2160631, 0.7492270], [0.2279672, 0.1882245, 0.6165754], [0.3965378, 0.7157740, 0.6508854]]]
+
+Expected (Unparsed): [[[0.307964055,0.216063135,0.7492269950000001],[0.22796721999999997,0.188224495,0.61657536],[0.39653777668131135,0.715774005,0.65088544]]]
+
+Actual:   [[[0.308, 0.2161, 0.7493], [0.228, 0.1883, 0.6166], [0.3966, 0.7158, 0.6509]]]
+
+Expected: [[[0.308, 0.2161, 0.7493], [0.228, 0.1883, 0.6166], [0.3966, 0.7158, 0.6509]]]

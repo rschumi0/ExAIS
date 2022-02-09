@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Fla68979 = tf.keras.layers.Input(shape=([3, 1, 2]))
+in0Con17618 = tf.keras.layers.Input(shape=([6, 3]))
+in0Min17839 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min17839 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Fla68979 = keras.layers.Flatten(name = 'Fla68979', )(in0Fla68979)
+Res43997 = keras.layers.Reshape((6, 1), name = 'Res43997', )(Fla68979)
+Con17618 = keras.layers.Concatenate(axis=2, name = 'Con17618', )([Res43997,in0Con17618])
+Min17839 = keras.layers.Minimum(name = 'Min17839', )([in0Min17839,in1Min17839])
+Res38518 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res38518', )(Min17839)
+Glo85573 = keras.layers.GlobalMaxPool3D(name = 'Glo85573', )(Res38518)
+Res24317 = keras.layers.Reshape((1, 1), name = 'Res24317', )(Glo85573)
+Res38878 = keras.layers.Reshape((1, 1, 1), name = 'Res38878', )(Res24317)
+Loc6995 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 5), name = 'Loc6995', )(Res38878)
+Res47708 = keras.layers.Reshape((1, 4), name = 'Res47708', )(Loc6995)
+Dot41236 = keras.layers.Dot(axes=(2, 2), name = 'Dot41236', )([Con17618,Res47708])
+Lay59450 = keras.layers.LayerNormalization(axis=1, epsilon=1.117328003624378, name = 'Lay59450', )(Dot41236)
+model = tf.keras.models.Model(inputs=[in0Fla68979,in0Con17618,in0Min17839,in1Min17839], outputs=Lay59450)
+w = model.get_layer('Loc6995').get_weights() 
+w[0] = np.array([[[0.2015, 0.9084, 0.4426, 0.2401]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc6995').set_weights(w) 
+in0Fla68979 = tf.constant([[[[1.1211, 1.5701]], [[1.7178, 1.9276]], [[1.128, 1.2317]]]])
+in0Con17618 = tf.constant([[[0.6431, 0.7861, 0.7772], [0.7856, 0.753, 0.099], [0.1389, 0.2523, 0.3658], [0.213, 0.1592, 0.2185], [0.5464, 0.1697, 0.9256], [0.8234, 0.0452, 0.177]]])
+in0Min17839 = tf.constant([[[[0.1757], [0.8476]], [[0.7048], [0.9922]]]])
+in1Min17839 = tf.constant([[[[0.7174], [0.4726]], [[0.8021], [0.5219]]]])
+print (np.array2string(model.predict([in0Fla68979,in0Con17618,in0Min17839,in1Min17839],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay59450.png')
+
+LFla68979 = flatten_layer([[[[1.1211, 1.5701]], [[1.7178, 1.9276]], [[1.128, 1.2317]]]], Fla68979), 
+LRes43997 = reshape_layer(Fla68979, [6, 1], Res43997), 
+LCon17618 = concatenate_layer([Res43997,[[[0.6431, 0.7861, 0.7772], [0.7856, 0.753, 0.099], [0.1389, 0.2523, 0.3658], [0.213, 0.1592, 0.2185], [0.5464, 0.1697, 0.9256], [0.8234, 0.0452, 0.177]]]], 2, Con17618), 
+LMin17839 = minimum_layer([[[[[0.1757], [0.8476]], [[0.7048], [0.9922]]]], [[[[0.7174], [0.4726]], [[0.8021], [0.5219]]]]], Min17839), 
+LRes38518 = reshape_layer(Min17839, [2, 2, 1, 1], Res38518), 
+LGlo85573 = global_max_pool3D_layer(Res38518, Glo85573), 
+LRes24317 = reshape_layer(Glo85573, [1, 1], Res24317), 
+LRes38878 = reshape_layer(Res24317, [1, 1, 1], Res38878), 
+LLoc6995 = locally_connected2D_layer(Res38878, 1, 1,[[[0.2015, 0.9084, 0.4426, 0.2401]]],[[[0, 0, 0, 0]]], 1, 5, Loc6995), 
+LRes47708 = reshape_layer(Loc6995, [1, 4], Res47708), 
+LDot41236 = dot_layer(Con17618,Res47708, 2, 2, Dot41236), 
+LLay59450 = layer_normalization_layer(Dot41236, 1, 1.117328003624378, Lay59450), 
+exec_layers([LFla68979,LRes43997,LCon17618,LMin17839,LRes38518,LGlo85573,LRes24317,LRes38878,LLoc6995,LRes47708,LDot41236,LLay59450],["Fla68979","Res43997","Con17618","Min17839","Res38518","Glo85573","Res24317","Res38878","Loc6995","Res47708","Dot41236","Lay59450"],Lay59450,"Lay59450")
+
+Actual (Unparsed): [[[0.2054152], [0.2332376], [-0.2357210], [-0.2140749], [-0.0067809], [0.0179240]]]
+
+Expected (Unparsed): [[[0.20541515598212629],[0.2332376351239205],[-0.23572097070792955],[-0.21407494055012685],[-0.006780914994376511],[0.01792403514638568]]]
+
+Actual:   [[[0.2055], [0.2333], [-0.2357], [-0.214], [-0.0067], [0.018]]]
+
+Expected: [[[0.2055], [0.2333], [-0.2357], [-0.214], [-0.0067], [0.018]]]

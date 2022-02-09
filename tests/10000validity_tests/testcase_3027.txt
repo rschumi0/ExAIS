@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep93429 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo24717 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Con88095 = tf.keras.layers.Input(shape=([2]))
+
+Sep93429 = keras.layers.SeparableConv1D(3, (2),strides=(1), padding='valid', name = 'Sep93429', )(in0Sep93429)
+Fla97833 = keras.layers.Flatten(name = 'Fla97833', )(Sep93429)
+Glo24717 = keras.layers.GlobalMaxPool3D(name = 'Glo24717', )(in0Glo24717)
+Con88095 = keras.layers.Concatenate(axis=1, name = 'Con88095', )([Glo24717,in0Con88095])
+Add53584 = keras.layers.Add(name = 'Add53584', )([Fla97833,Con88095])
+Res61035 = keras.layers.Reshape((3, 1), name = 'Res61035', )(Add53584)
+Res7130 = keras.layers.Reshape((3, 1, 1), name = 'Res7130', )(Res61035)
+Res89700 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res89700', )(Res7130)
+Glo28000 = keras.layers.GlobalAveragePooling3D(name = 'Glo28000', )(Res89700)
+model = tf.keras.models.Model(inputs=[in0Sep93429,in0Glo24717,in0Con88095], outputs=Glo28000)
+w = model.get_layer('Sep93429').get_weights() 
+w[0] = np.array([[[0.1601], [0.5559]], [[0.4896], [0.0913]]])
+w[1] = np.array([[[0.8471, 0.4522, 0.0997], [0.3465, 0.8476, 0.5222]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep93429').set_weights(w) 
+in0Sep93429 = tf.constant([[[0.2618, 0.9088], [0.0646, 0.4689]]])
+in0Glo24717 = tf.constant([[[[[1.6604], [1.2684]], [[1.8539], [1.4657]]], [[[1.0215], [1.7951]], [[1.4699], [1.8751]]]]])
+in0Con88095 = tf.constant([[0.5811, 0.5642]])
+print (np.array2string(model.predict([in0Sep93429,in0Glo24717,in0Con88095],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo28000.png')
+
+LSep93429 = separable_conv1D_layer([[[0.2618, 0.9088], [0.0646, 0.4689]]], 2,[[[[0.1601], [0.5559]], [[0.4896], [0.0913]]],[[[0.8471, 0.4522, 0.0997], [0.3465, 0.8476, 0.5222]]]],[0, 0, 0], 1, false, Sep93429), 
+LFla97833 = flatten_layer(Sep93429, Fla97833), 
+LGlo24717 = global_max_pool3D_layer([[[[[1.6604], [1.2684]], [[1.8539], [1.4657]]], [[[1.0215], [1.7951]], [[1.4699], [1.8751]]]]], Glo24717), 
+LCon88095 = concatenate_layer([Glo24717,[[0.5811, 0.5642]]], 1, Con88095), 
+LAdd53584 = add_layer([Fla97833,Con88095], Add53584), 
+LRes61035 = reshape_layer(Add53584, [3, 1], Res61035), 
+LRes7130 = reshape_layer(Res61035, [3, 1, 1], Res7130), 
+LRes89700 = reshape_layer(Res7130, [3, 1, 1, 1], Res89700), 
+LGlo28000 = global_average_pooling3D_layer(Res89700, Glo28000), 
+exec_layers([LSep93429,LFla97833,LGlo24717,LCon88095,LAdd53584,LRes61035,LRes7130,LRes89700,LGlo28000],["Sep93429","Fla97833","Glo24717","Con88095","Add53584","Res61035","Res7130","Res89700","Glo28000"],Glo28000,"Glo28000")
+
+Actual (Unparsed): [[1.3546132]]
+
+Expected (Unparsed): [[1.3546131900823333]]
+
+Actual:   [[1.3547]]
+
+Expected: [[1.3547]]

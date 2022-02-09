@@ -1,0 +1,78 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_13659 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con58310 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sim32357 = tf.keras.layers.Input(shape=([2, 1]))
+in0Cro12082 = tf.keras.layers.Input(shape=([2, 3, 1, 1]))
+
+Up_13659 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_13659', )(in0Up_13659)
+Res74388 = keras.layers.Reshape((2, 1), name = 'Res74388', )(Up_13659)
+Con58310 = keras.layers.Concatenate(axis=2, name = 'Con58310', )([Res74388,in0Con58310])
+Sim32357 = keras.layers.SimpleRNN(1,name = 'Sim32357', )(in0Sim32357)
+Res88168 = keras.layers.Reshape((1, 1), name = 'Res88168', )(Sim32357)
+Res87071 = keras.layers.Reshape((1, 1, 1), name = 'Res87071', )(Res88168)
+Loc62567 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc62567', )(Res87071)
+Res83852 = keras.layers.Reshape((1, 3), name = 'Res83852', )(Loc62567)
+Dot58418 = keras.layers.Dot(axes=(2, 2), name = 'Dot58418', )([Con58310,Res83852])
+Res47521 = keras.layers.Reshape((2, 1, 1), name = 'Res47521', )(Dot58418)
+Cro12082 = keras.layers.Cropping3D(cropping=((1, 0), (0, 2), (0, 0)), name = 'Cro12082', )(in0Cro12082)
+Res13530 = keras.layers.Reshape((1, 1, 1), name = 'Res13530', )(Cro12082)
+Res45626 = keras.layers.Reshape((1, 1), name = 'Res45626', )(Res13530)
+Per15997 = keras.layers.Permute((2,1), name = 'Per15997',)(Res45626)
+Res22695 = keras.layers.Reshape((1, 1, 1), name = 'Res22695', )(Per15997)
+Dep50573 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep50573', )(Res22695)
+Zer57618 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer57618', )(Dep50573)
+Ave23936 = keras.layers.Average(name = 'Ave23936', )([Res47521,Zer57618])
+model = tf.keras.models.Model(inputs=[in0Up_13659,in0Con58310,in0Sim32357,in0Cro12082], outputs=Ave23936)
+w = model.get_layer('Sim32357').get_weights() 
+w[0] = np.array([[10]])
+w[1] = np.array([[4]])
+w[2] = np.array([9])
+model.get_layer('Sim32357').set_weights(w) 
+w = model.get_layer('Loc62567').get_weights() 
+w[0] = np.array([[[0.8367, 0.8647, 0.7773]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc62567').set_weights(w) 
+w = model.get_layer('Dep50573').get_weights() 
+w[0] = np.array([[[[0.2723]]]])
+w[1] = np.array([0])
+model.get_layer('Dep50573').set_weights(w) 
+in0Up_13659 = tf.constant([[[[1.7493]], [[1.6332]]]])
+in0Con58310 = tf.constant([[[0.1307, 0.0462], [0.0417, 0.2039]]])
+in0Sim32357 = tf.constant([[[8], [1]]])
+in0Cro12082 = tf.constant([[[[[1.2491]], [[1.6095]], [[1.915]]], [[[1.6191]], [[1.2431]], [[1.233]]]]])
+print (np.array2string(model.predict([in0Up_13659,in0Con58310,in0Sim32357,in0Cro12082],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave23936.png')
+
+LUp_13659 = up_sampling2D_layer([[[[1.7493]], [[1.6332]]]], 1, 1, Up_13659), 
+LRes74388 = reshape_layer(Up_13659, [2, 1], Res74388), 
+LCon58310 = concatenate_layer([Res74388,[[[0.1307, 0.0462], [0.0417, 0.2039]]]], 2, Con58310), 
+LSim32357 = simple_rnn_layer([[[8], [1]]],[[10]],[[4]],[9], Sim32357), 
+LRes88168 = reshape_layer(Sim32357, [1, 1], Res88168), 
+LRes87071 = reshape_layer(Res88168, [1, 1, 1], Res87071), 
+LLoc62567 = locally_connected2D_layer(Res87071, 1, 1,[[[0.8367, 0.8647, 0.7773]]],[[[0, 0, 0]]], 1, 1, Loc62567), 
+LRes83852 = reshape_layer(Loc62567, [1, 3], Res83852), 
+LDot58418 = dot_layer(Con58310,Res83852, 2, 2, Dot58418), 
+LRes47521 = reshape_layer(Dot58418, [2, 1, 1], Res47521), 
+LCro12082 = cropping3D_layer([[[[[1.2491]], [[1.6095]], [[1.915]]], [[[1.6191]], [[1.2431]], [[1.233]]]]], 1, 0, 0, 2, 0, 0, Cro12082), 
+LRes13530 = reshape_layer(Cro12082, [1, 1, 1], Res13530), 
+LRes45626 = reshape_layer(Res13530, [1, 1], Res45626), 
+LPer15997 = permute_layer(Res45626, 2,1, Per15997), 
+LRes22695 = reshape_layer(Per15997, [1, 1, 1], Res22695), 
+LDep50573 = depthwise_conv2D_layer(Res22695, 1, 1,[[[[0.2723]]]],[0], 1, 1, false, Dep50573), 
+LZer57618 = zero_padding2D_layer(Dep50573, 1, 0, 0, 0, Zer57618), 
+LAve23936 = average_layer([Res47521,Zer57618], Ave23936), 
+exec_layers([LUp_13659,LRes74388,LCon58310,LSim32357,LRes88168,LRes87071,LLoc62567,LRes83852,LDot58418,LRes47521,LCro12082,LRes13530,LRes45626,LPer15997,LRes22695,LDep50573,LZer57618,LAve23936],["Up_13659","Res74388","Con58310","Sim32357","Res88168","Res87071","Loc62567","Res83852","Dot58418","Res47521","Cro12082","Res13530","Res45626","Per15997","Res22695","Dep50573","Zer57618","Ave23936"],Ave23936,"Ave23936")
+
+Actual (Unparsed): [[[[0.8062834]], [[1.0009644]]]]
+
+Expected (Unparsed): [[[[0.80628343]],[[1.0009644149999999]]]]
+
+Actual:   [[[[0.8063]], [[1.001]]]]
+
+Expected: [[[[0.8063]], [[1.001]]]]

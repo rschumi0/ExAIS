@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo34596 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Add74388 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Add74388 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Glo34596 = keras.layers.GlobalAveragePooling3D(name = 'Glo34596', )(in0Glo34596)
+Res48792 = keras.layers.Reshape((2, 1), name = 'Res48792', )(Glo34596)
+Res30259 = keras.layers.Reshape((2, 1, 1), name = 'Res30259', )(Res48792)
+Zer78323 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer78323', )(Res30259)
+Add74388 = keras.layers.Add(name = 'Add74388', )([in0Add74388,in1Add74388])
+Max82685 = keras.layers.Maximum(name = 'Max82685', )([Zer78323,Add74388])
+Res64555 = keras.layers.Reshape((2, 2), name = 'Res64555', )(Max82685)
+Loc28182 = keras.layers.LocallyConnected1D(2, (2),strides=(1), name = 'Loc28182', )(Res64555)
+Sep75716 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep75716', )(Loc28182)
+model = tf.keras.models.Model(inputs=[in0Glo34596,in0Add74388,in1Add74388], outputs=Sep75716)
+w = model.get_layer('Loc28182').get_weights() 
+w[0] = np.array([[[0.9926, 0.8533], [0.7873, 0.1079], [0.2064, 0.8104], [0.4152, 0.246]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc28182').set_weights(w) 
+w = model.get_layer('Sep75716').get_weights() 
+w[0] = np.array([[[0.8579], [0.04]]])
+w[1] = np.array([[[0.1873, 0.4473], [0.8981, 0.6748]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep75716').set_weights(w) 
+in0Glo34596 = tf.constant([[[[[1.0479, 1.1726]], [[1.6143, 1.1224]]]]])
+in0Add74388 = tf.constant([[[[0.8773], [0.8628]], [[0.6587], [0.8212]]]])
+in1Add74388 = tf.constant([[[[0.1957], [0.0885]], [[0.766], [0.5534]]]])
+print (np.array2string(model.predict([in0Glo34596,in0Add74388,in1Add74388],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep75716.png')
+
+LGlo34596 = global_average_pooling3D_layer([[[[[1.0479, 1.1726]], [[1.6143, 1.1224]]]]], Glo34596), 
+LRes48792 = reshape_layer(Glo34596, [2, 1], Res48792), 
+LRes30259 = reshape_layer(Res48792, [2, 1, 1], Res30259), 
+LZer78323 = zero_padding2D_layer(Res30259, 0, 0, 1, 0, Zer78323), 
+LAdd74388 = add_layer([[[[[0.8773], [0.8628]], [[0.6587], [0.8212]]]], [[[[0.1957], [0.0885]], [[0.766], [0.5534]]]]], Add74388), 
+LMax82685 = maximum_layer([Zer78323,Add74388], Max82685), 
+LRes64555 = reshape_layer(Max82685, [2, 2], Res64555), 
+LLoc28182 = locally_connected1D_layer(Res64555, 2,[[[0.9926, 0.8533], [0.7873, 0.1079], [0.2064, 0.8104], [0.4152, 0.246]]],[[0, 0]], 1, Loc28182), 
+LSep75716 = separable_conv1D_layer(Loc28182, 1,[[[[0.8579], [0.04]]],[[[0.1873, 0.4473], [0.8981, 0.6748]]]],[0, 0], 1, false, Sep75716), 
+exec_layers([LGlo34596,LRes48792,LRes30259,LZer78323,LAdd74388,LMax82685,LRes64555,LLoc28182,LSep75716],["Glo34596","Res48792","Res30259","Zer78323","Add74388","Max82685","Res64555","Loc28182","Sep75716"],Sep75716,"Sep75716")
+
+Actual (Unparsed): [[[0.5701672, 1.2115894]]]
+
+Expected (Unparsed): [[[0.570167196190376,1.211589408563956]]]
+
+Actual:   [[[0.5702, 1.2116]]]
+
+Expected: [[[0.5702, 1.2116]]]

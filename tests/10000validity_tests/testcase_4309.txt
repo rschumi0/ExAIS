@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul83241 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul83241 = tf.keras.layers.Input(shape=([2, 2]))
+in0Loc45864 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul83241 = keras.layers.Multiply(name = 'Mul83241', )([in0Mul83241,in1Mul83241])
+Loc45864 = keras.layers.LocallyConnected1D(2, (2),strides=(1), name = 'Loc45864', )(in0Loc45864)
+Zer9239 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer9239', )(Loc45864)
+Mul62493 = keras.layers.Multiply(name = 'Mul62493', )([Mul83241,Zer9239])
+Res31433 = keras.layers.Reshape((2, 2, 1), name = 'Res31433', )(Mul62493)
+Dep79073 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='same', name = 'Dep79073', )(Res31433)
+model = tf.keras.models.Model(inputs=[in0Mul83241,in1Mul83241,in0Loc45864], outputs=Dep79073)
+w = model.get_layer('Loc45864').get_weights() 
+w[0] = np.array([[[0.7159, 0.0651], [0.2364, 0.6576]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc45864').set_weights(w) 
+w = model.get_layer('Dep79073').get_weights() 
+w[0] = np.array([[[[0.1033]]], [[[0.8836]]]])
+w[1] = np.array([0])
+model.get_layer('Dep79073').set_weights(w) 
+in0Mul83241 = tf.constant([[[0.4299, 0.9149], [0.2461, 0.184]]])
+in1Mul83241 = tf.constant([[[0.7087, 0.4113], [0.7534, 0.1144]]])
+in0Loc45864 = tf.constant([[[0.7905], [0.5977]]])
+print (np.array2string(model.predict([in0Mul83241,in1Mul83241,in0Loc45864],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep79073.png')
+
+LMul83241 = multiply_layer([[[[0.4299, 0.9149], [0.2461, 0.184]]], [[[0.7087, 0.4113], [0.7534, 0.1144]]]], Mul83241), 
+LLoc45864 = locally_connected1D_layer([[[0.7905], [0.5977]]], 2,[[[0.7159, 0.0651], [0.2364, 0.6576]]],[[0, 0]], 1, Loc45864), 
+LZer9239 = zero_padding1D_layer(Loc45864, 1, 0, Zer9239), 
+LMul62493 = multiply_layer([Mul83241,Zer9239], Mul62493), 
+LRes31433 = reshape_layer(Mul62493, [2, 2, 1], Res31433), 
+LDep79073 = depthwise_conv2D_layer(Res31433, 2, 1,[[[[0.1033]]], [[[0.8836]]]],[0], 2, 2, true, Dep79073), 
+exec_layers([LMul83241,LLoc45864,LZer9239,LMul62493,LRes31433,LDep79073],["Mul83241","Loc45864","Zer9239","Mul62493","Res31433","Dep79073"],Dep79073,"Dep79073")
+
+Actual (Unparsed): [[[[0.1158629]]]]
+
+Expected (Unparsed): [[[[0.11586293920979984]]]]
+
+Actual:   [[[[0.1159]]]]
+
+Expected: [[[[0.1159]]]]

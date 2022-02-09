@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min52361 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Min52361 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Ave57936 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave57936 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Min47591 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Min47591 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Min52361 = keras.layers.Minimum(name = 'Min52361', )([in0Min52361,in1Min52361])
+Zer20112 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer20112', )(Min52361)
+Ave57936 = keras.layers.Average(name = 'Ave57936', )([in0Ave57936,in1Ave57936])
+Add38194 = keras.layers.Add(name = 'Add38194', )([Zer20112,Ave57936])
+Res37968 = keras.layers.Reshape((2, 1, 2), name = 'Res37968', )(Add38194)
+Min47591 = keras.layers.Minimum(name = 'Min47591', )([in0Min47591,in1Min47591])
+Mas7239 = keras.layers.Masking(mask_value=2, name = 'Mas7239', )(Min47591)
+Res7441 = keras.layers.Reshape((1, 1, 4), name = 'Res7441', )(Mas7239)
+Res68749 = keras.layers.Reshape((1, 4), name = 'Res68749', )(Res7441)
+Glo40531 = keras.layers.GlobalMaxPool1D(name = 'Glo40531', )(Res68749)
+Res63857 = keras.layers.Reshape((2, 1, 2), name = 'Res63857', )(Glo40531)
+Max75322 = keras.layers.Maximum(name = 'Max75322', )([Res37968,Res63857])
+model = tf.keras.models.Model(inputs=[in0Min52361,in1Min52361,in0Ave57936,in1Ave57936,in0Min47591,in1Min47591], outputs=Max75322)
+in0Min52361 = tf.constant([[[[[0.4683]]], [[[0.2995]]]]])
+in1Min52361 = tf.constant([[[[[0.6903]]], [[[0.8742]]]]])
+in0Ave57936 = tf.constant([[[[[0.0793], [0.3127]]], [[[0.9419], [0.8329]]]]])
+in1Ave57936 = tf.constant([[[[[0.7185], [0.5377]]], [[[0.2495], [0.4123]]]]])
+in0Min47591 = tf.constant([[[[[0.249, 0.3455], [0.222, 0.0994]]]]])
+in1Min47591 = tf.constant([[[[[0.4788, 0.745], [0.5366, 0.8678]]]]])
+print (np.array2string(model.predict([in0Min52361,in1Min52361,in0Ave57936,in1Ave57936,in0Min47591,in1Min47591],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max75322.png')
+
+LMin52361 = minimum_layer([[[[[[0.4683]]], [[[0.2995]]]]], [[[[[0.6903]]], [[[0.8742]]]]]], Min52361), 
+LZer20112 = zero_padding3D_layer(Min52361, 0, 0, 0, 0, 1, 0, Zer20112), 
+LAve57936 = average_layer([[[[[[0.0793], [0.3127]]], [[[0.9419], [0.8329]]]]], [[[[[0.7185], [0.5377]]], [[[0.2495], [0.4123]]]]]], Ave57936), 
+LAdd38194 = add_layer([Zer20112,Ave57936], Add38194), 
+LRes37968 = reshape_layer(Add38194, [2, 1, 2], Res37968), 
+LMin47591 = minimum_layer([[[[[[0.249, 0.3455], [0.222, 0.0994]]]]], [[[[[0.4788, 0.745], [0.5366, 0.8678]]]]]], Min47591), 
+LMas7239 = masking_layer(Min47591, 2, Mas7239), 
+LRes7441 = reshape_layer(Mas7239, [1, 1, 4], Res7441), 
+LRes68749 = reshape_layer(Res7441, [1, 4], Res68749), 
+LGlo40531 = global_max_pool1D_layer(Res68749, Glo40531), 
+LRes63857 = reshape_layer(Glo40531, [2, 1, 2], Res63857), 
+LMax75322 = maximum_layer([Res37968,Res63857], Max75322), 
+exec_layers([LMin52361,LZer20112,LAve57936,LAdd38194,LRes37968,LMin47591,LMas7239,LRes7441,LRes68749,LGlo40531,LRes63857,LMax75322],["Min52361","Zer20112","Ave57936","Add38194","Res37968","Min47591","Mas7239","Res7441","Res68749","Glo40531","Res63857","Max75322"],Max75322,"Max75322")
+
+Actual (Unparsed): [[[[0.3989000, 0.8935000]], [[0.5957000, 0.9221000]]]]
+
+Expected (Unparsed): [[[[0.39890000000000003,0.8935]],[[0.5957,0.9221]]]]
+
+Actual:   [[[[0.3989, 0.8935]], [[0.5957, 0.9221]]]]
+
+Expected: [[[[0.399, 0.8935]], [[0.5957, 0.9221]]]]

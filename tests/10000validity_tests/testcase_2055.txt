@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per90962 = tf.keras.layers.Input(shape=([4, 4]))
+in0Den74808 = tf.keras.layers.Input(shape=([3, 3]))
+in0Glo69524 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Per90962 = keras.layers.Permute((1,2), name = 'Per90962',)(in0Per90962)
+Res58125 = keras.layers.Reshape((4, 4, 1), name = 'Res58125', )(Per90962)
+Den74808 = keras.layers.Dense(4,name = 'Den74808', )(in0Den74808)
+Res21811 = keras.layers.Reshape((3, 4, 1), name = 'Res21811', )(Den74808)
+Glo69524 = keras.layers.GlobalMaxPool2D(name = 'Glo69524', )(in0Glo69524)
+Res35006 = keras.layers.Reshape((1, 1), name = 'Res35006', )(Glo69524)
+Res71619 = keras.layers.Reshape((1, 1, 1), name = 'Res71619', )(Res35006)
+Max55998 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max55998', )(Res71619)
+Zer9478 = keras.layers.ZeroPadding2D(padding=((2, 0), (3, 0)), name = 'Zer9478', )(Max55998)
+Sub64251 = keras.layers.Subtract(name = 'Sub64251', )([Res21811,Zer9478])
+Zer37660 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer37660', )(Sub64251)
+Max95989 = keras.layers.Maximum(name = 'Max95989', )([Res58125,Zer37660])
+model = tf.keras.models.Model(inputs=[in0Per90962,in0Den74808,in0Glo69524], outputs=Max95989)
+w = model.get_layer('Den74808').get_weights() 
+w[0] = np.array([[0.7069, 0.475, 0.9461, 0.9489], [0.0194, 0.1143, 0.5495, 0.8864], [0.0727, 0.6695, 0.861, 0.1908]])
+w[1] = np.array([0.5881, 0.909, 0.2497, 0.384])
+model.get_layer('Den74808').set_weights(w) 
+in0Per90962 = tf.constant([[[1.6787, 1.8482, 1.0057, 1.0095], [1.9334, 1.9757, 1.3054, 1.6581], [1.3047, 1.721, 1.7442, 1.8875], [1.7849, 1.2511, 1.7351, 1.3765]]])
+in0Den74808 = tf.constant([[[0.764, 0.08, 0.131], [0.1731, 0.515, 0.3666], [0.6101, 0.5763, 0.7569]]])
+in0Glo69524 = tf.constant([[[[1.3109], [1.6553]], [[1.8039], [1.3645]]]])
+print (np.array2string(model.predict([in0Per90962,in0Den74808,in0Glo69524],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max95989.png')
+
+LPer90962 = permute_layer([[[1.6787, 1.8482, 1.0057, 1.0095], [1.9334, 1.9757, 1.3054, 1.6581], [1.3047, 1.721, 1.7442, 1.8875], [1.7849, 1.2511, 1.7351, 1.3765]]], 1,2, Per90962), 
+LRes58125 = reshape_layer(Per90962, [4, 4, 1], Res58125), 
+LDen74808 = dense_layer([[[0.764, 0.08, 0.131], [0.1731, 0.515, 0.3666], [0.6101, 0.5763, 0.7569]]], [[0.7069, 0.475, 0.9461, 0.9489], [0.0194, 0.1143, 0.5495, 0.8864], [0.0727, 0.6695, 0.861, 0.1908]],[0.5881, 0.909, 0.2497, 0.384], Den74808), 
+LRes21811 = reshape_layer(Den74808, [3, 4, 1], Res21811), 
+LGlo69524 = global_max_pool2D_layer([[[[1.3109], [1.6553]], [[1.8039], [1.3645]]]], Glo69524), 
+LRes35006 = reshape_layer(Glo69524, [1, 1], Res35006), 
+LRes71619 = reshape_layer(Res35006, [1, 1, 1], Res71619), 
+LMax55998 = max_pool2D_layer(Res71619, 1, 1, Max55998), 
+LZer9478 = zero_padding2D_layer(Max55998, 2, 0, 3, 0, Zer9478), 
+LSub64251 = subtract_layer(Res21811,Zer9478, Sub64251), 
+LZer37660 = zero_padding2D_layer(Sub64251, 1, 0, 0, 0, Zer37660), 
+LMax95989 = maximum_layer([Res58125,Zer37660], Max95989), 
+exec_layers([LPer90962,LRes58125,LDen74808,LRes21811,LGlo69524,LRes35006,LRes71619,LMax55998,LZer9478,LSub64251,LZer37660,LMax95989],["Per90962","Res58125","Den74808","Res21811","Glo69524","Res35006","Res71619","Max55998","Zer9478","Sub64251","Zer37660","Max95989"],Max95989,"Max95989")
+
+Actual (Unparsed): [[[[1.6787000], [1.8482000], [1.0057000], [1.0095000]], [[1.9334000], [1.9757000], [1.3054000], [1.6581000]], [[1.3047000], [1.7210000], [1.7442000], [1.8875000]], [[1.7849000], [1.7714131], [1.7952834], [1.3765000]]]]
+
+Expected (Unparsed): [[[[1.6787],[1.8482],[1.0057],[1.0095]],[[1.9334],[1.9757],[1.3054],[1.6581]],[[1.3047],[1.721],[1.7442],[1.8875]],[[1.7849],[1.77141314],[1.79528336],[1.3765]]]]
+
+Actual:   [[[[1.6787], [1.8482], [1.0057], [1.0095]], [[1.9334], [1.9757], [1.3054], [1.6581]], [[1.3047], [1.721], [1.7442], [1.8875]], [[1.7849], [1.7715], [1.7953], [1.3765]]]]
+
+Expected: [[[[1.6787], [1.8482], [1.0057], [1.0095]], [[1.9334], [1.9757], [1.3054], [1.6581]], [[1.3047], [1.721], [1.7442], [1.8875]], [[1.7849], [1.7715], [1.7953], [1.3765]]]]

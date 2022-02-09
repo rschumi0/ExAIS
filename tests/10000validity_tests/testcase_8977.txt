@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0LST18694 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con8309 = tf.keras.layers.Input(shape=([3, 3]))
+in0Loc42520 = tf.keras.layers.Input(shape=([1, 1]))
+in0Dot3487 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot3487 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con84966 = tf.keras.layers.Input(shape=([3, 1]))
+
+LST18694 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST18694', )(in0LST18694)
+Res80304 = keras.layers.Reshape((1, 1), name = 'Res80304', )(LST18694)
+Zer69049 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer69049', )(Res80304)
+Con8309 = keras.layers.Concatenate(axis=2, name = 'Con8309', )([Zer69049,in0Con8309])
+Loc42520 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc42520', )(in0Loc42520)
+Zer12244 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer12244', )(Loc42520)
+Dot3487 = keras.layers.Dot(axes=(2, 1), name = 'Dot3487', )([in0Dot3487,in1Dot3487])
+Con84966 = keras.layers.Concatenate(axis=2, name = 'Con84966', )([Dot3487,in0Con84966])
+Ave47258 = keras.layers.Average(name = 'Ave47258', )([Zer12244,Con84966])
+Ave31958 = keras.layers.Average(name = 'Ave31958', )([Con8309,Ave47258])
+Max35610 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max35610', )(Ave31958)
+Thr57554 = keras.layers.ThresholdedReLU(theta=0.8605227439934537, name = 'Thr57554', )(Max35610)
+model = tf.keras.models.Model(inputs=[in0LST18694,in0Con8309,in0Loc42520,in0Dot3487,in1Dot3487,in0Con84966], outputs=Thr57554)
+w = model.get_layer('LST18694').get_weights() 
+w[0] = np.array([[4, 10, 7, 4], [10, 3, 8, 3], [9, 9, 9, 3]])
+w[1] = np.array([[5, 4, 9, 3]])
+w[2] = np.array([5, 7, 2, 3])
+model.get_layer('LST18694').set_weights(w) 
+w = model.get_layer('Loc42520').get_weights() 
+w[0] = np.array([[[0.7493, 0.8576, 0.7949, 0.5659]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc42520').set_weights(w) 
+in0LST18694 = tf.constant([[[10, 3, 1], [2, 3, 7]]])
+in0Con8309 = tf.constant([[[0.6022, 0.0478, 0.4848], [0.7691, 0.1257, 0.381], [0.5294, 0.7173, 0.1391]]])
+in0Loc42520 = tf.constant([[[0.5378]]])
+in0Dot3487 = tf.constant([[[0.4031, 0.2226, 0.8531], [0.0167, 0.5809, 0.1056], [0.6516, 0.2371, 0.2491]]])
+in1Dot3487 = tf.constant([[[0.9734, 0.6721, 0.1416], [0.014, 0.2286, 0.44], [0.7145, 0.9615, 0.3666]]])
+in0Con84966 = tf.constant([[[0.7388], [0.3612], [0.5271]]])
+print (np.array2string(model.predict([in0LST18694,in0Con8309,in0Loc42520,in0Dot3487,in1Dot3487,in0Con84966],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Thr57554.png')
+
+LLST18694 = lstm_layer([[[10, 3, 1], [2, 3, 7]]],[[4, 10, 7, 4], [10, 3, 8, 3], [9, 9, 9, 3]],[[5, 4, 9, 3]],[5, 7, 2, 3], LST18694), 
+LRes80304 = reshape_layer(LST18694, [1, 1], Res80304), 
+LZer69049 = zero_padding1D_layer(Res80304, 2, 0, Zer69049), 
+LCon8309 = concatenate_layer([Zer69049,[[[0.6022, 0.0478, 0.4848], [0.7691, 0.1257, 0.381], [0.5294, 0.7173, 0.1391]]]], 2, Con8309), 
+LLoc42520 = locally_connected1D_layer([[[0.5378]]], 1,[[[0.7493, 0.8576, 0.7949, 0.5659]]],[[0, 0, 0, 0]], 1, Loc42520), 
+LZer12244 = zero_padding1D_layer(Loc42520, 2, 0, Zer12244), 
+LDot3487 = dot_layer([[[0.4031, 0.2226, 0.8531], [0.0167, 0.5809, 0.1056], [0.6516, 0.2371, 0.2491]]], [[[0.9734, 0.6721, 0.1416], [0.014, 0.2286, 0.44], [0.7145, 0.9615, 0.3666]]], 2, 1, Dot3487), 
+LCon84966 = concatenate_layer([Dot3487,[[[0.7388], [0.3612], [0.5271]]]], 2, Con84966), 
+LAve47258 = average_layer([Zer12244,Con84966], Ave47258), 
+LAve31958 = average_layer([Con8309,Ave47258], Ave31958), 
+LMax35610 = max_pool1D_layer(Ave31958, 1, 1, false, Max35610), 
+LThr57554 = thresholded_relu_layer(Max35610, 0.8605227439934537, Thr57554), 
+exec_layers([LLST18694,LRes80304,LZer69049,LCon8309,LLoc42520,LZer12244,LDot3487,LCon84966,LAve47258,LAve31958,LMax35610,LThr57554],["LST18694","Res80304","Zer69049","Con8309","Loc42520","Zer12244","Dot3487","Con84966","Ave47258","Ave31958","Max35610","Thr57554"],Thr57554,"Thr57554")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0,0,0],[0,0,0,0],[0,0,0,0]]]
+
+Actual:   [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+
+Expected: [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]

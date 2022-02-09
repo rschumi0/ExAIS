@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub79949 = tf.keras.layers.Input(shape=([3, 2, 3]))
+in1Sub79949 = tf.keras.layers.Input(shape=([3, 2, 3]))
+in0Con85004 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con54595 = tf.keras.layers.Input(shape=([3, 3]))
+
+Sub79949 = keras.layers.Subtract(name = 'Sub79949', )([in0Sub79949,in1Sub79949])
+Res6673 = keras.layers.Reshape((3, 6), name = 'Res6673', )(Sub79949)
+Con85004 = keras.layers.Conv1D(3, (2),strides=(1), padding='same', dilation_rate=(1), name = 'Con85004', )(in0Con85004)
+Zer86958 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer86958', )(Con85004)
+Con54595 = keras.layers.Concatenate(axis=2, name = 'Con54595', )([Zer86958,in0Con54595])
+Sub80396 = keras.layers.Subtract(name = 'Sub80396', )([Res6673,Con54595])
+model = tf.keras.models.Model(inputs=[in0Sub79949,in1Sub79949,in0Con85004,in0Con54595], outputs=Sub80396)
+w = model.get_layer('Con85004').get_weights() 
+w[0] = np.array([[[0.5859, 0.3468, 0.0798]], [[0.4468, 0.886, 0.6048]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con85004').set_weights(w) 
+in0Sub79949 = tf.constant([[[[0.5436, 0.9794, 0.7983], [0.7601, 0.6811, 0.8319]], [[0.1034, 0.7802, 0.6342], [0.8797, 0.0231, 0.0459]], [[0.0946, 0.825, 0.5589], [0.7809, 0.0446, 0.6977]]]])
+in1Sub79949 = tf.constant([[[[0.9636, 0.8605, 0.6063], [0.3301, 0.8377, 0.0336]], [[0.6464, 0.7141, 0.5688], [0.2903, 0.1752, 0.0594]], [[0.6303, 0.9445, 0.1021], [0.7602, 0.0505, 0.2783]]]])
+in0Con85004 = tf.constant([[[0.232], [0.8872]]])
+in0Con54595 = tf.constant([[[0.1075, 0.7663, 0.3893], [0.0741, 0.3281, 0.0481], [0.0133, 0.0788, 0.4036]]])
+print (np.array2string(model.predict([in0Sub79949,in1Sub79949,in0Con85004,in0Con54595],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub80396.png')
+
+LSub79949 = subtract_layer([[[[0.5436, 0.9794, 0.7983], [0.7601, 0.6811, 0.8319]], [[0.1034, 0.7802, 0.6342], [0.8797, 0.0231, 0.0459]], [[0.0946, 0.825, 0.5589], [0.7809, 0.0446, 0.6977]]]], [[[[0.9636, 0.8605, 0.6063], [0.3301, 0.8377, 0.0336]], [[0.6464, 0.7141, 0.5688], [0.2903, 0.1752, 0.0594]], [[0.6303, 0.9445, 0.1021], [0.7602, 0.0505, 0.2783]]]], Sub79949), 
+LRes6673 = reshape_layer(Sub79949, [3, 6], Res6673), 
+LCon85004 = conv1D_layer([[[0.232], [0.8872]]], 2,[[[0.5859, 0.3468, 0.0798]], [[0.4468, 0.886, 0.6048]]],[0, 0, 0], 1, true, 1, Con85004), 
+LZer86958 = zero_padding1D_layer(Con85004, 1, 0, Zer86958), 
+LCon54595 = concatenate_layer([Zer86958,[[[0.1075, 0.7663, 0.3893], [0.0741, 0.3281, 0.0481], [0.0133, 0.0788, 0.4036]]]], 2, Con54595), 
+LSub80396 = subtract_layer(Res6673,Con54595, Sub80396), 
+exec_layers([LSub79949,LRes6673,LCon85004,LZer86958,LCon54595,LSub80396],["Sub79949","Res6673","Con85004","Zer86958","Con54595","Sub80396"],Sub80396,"Sub80396")
+
+Actual (Unparsed): [[[-0.4200000, 0.1189000, 0.1920000, 0.3225000, -0.9229000, 0.4090000], [-1.0753297, -0.8004168, -0.4896922, 0.5153000, -0.4802000, -0.0616000], [-1.0555105, -0.4271810, 0.3860014, 0.0074000, -0.0847000, 0.0158000]]]
+
+Expected (Unparsed): [[[-0.42000000000000004,0.1189,0.19200000000000006,0.3225,-0.9228999999999999,0.40900000000000003],[-1.0753297599999998,-0.8004167999999999,-0.48969216000000004,0.5153000000000001,-0.48019999999999996,-0.061599999999999995],[-1.05551048,-0.42718096000000005,0.38600144,0.007400000000000052,-0.0847,0.01579999999999998]]]
+
+Actual:   [[[-0.42, 0.1189, 0.192, 0.3225, -0.9229, 0.409], [-1.0753, -0.8004, -0.4896, 0.5153, -0.4802, -0.0616], [-1.0555, -0.4271, 0.3861, 0.0074, -0.0847, 0.0158]]]
+
+Expected: [[[-0.42, 0.1189, 0.1921, 0.3225, -0.9228, 0.4091], [-1.0753, -0.8004, -0.4896, 0.5154, -0.4801, -0.0615], [-1.0555, -0.4271, 0.3861, 0.0075, -0.0847, 0.0158]]]

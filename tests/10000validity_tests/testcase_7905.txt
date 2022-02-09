@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo95739 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Max8228 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max8228 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Glo95739 = keras.layers.GlobalMaxPool3D(name = 'Glo95739', )(in0Glo95739)
+Max8228 = keras.layers.Maximum(name = 'Max8228', )([in0Max8228,in1Max8228])
+Res44138 = keras.layers.Reshape((2, 4), name = 'Res44138', )(Max8228)
+Sep30837 = keras.layers.SeparableConv1D(4, (2),strides=(1), padding='same', name = 'Sep30837', )(Res44138)
+Sim62093 = keras.layers.SimpleRNN(1,name = 'Sim62093', )(Sep30837)
+Max58330 = keras.layers.Maximum(name = 'Max58330', )([Glo95739,Sim62093])
+model = tf.keras.models.Model(inputs=[in0Glo95739,in0Max8228,in1Max8228], outputs=Max58330)
+w = model.get_layer('Sep30837').get_weights() 
+w[0] = np.array([[[0.788], [0.04], [0.3905], [0.4709]], [[0.9393], [0.3642], [0.291], [0.3498]]])
+w[1] = np.array([[[0.0379, 0.1453, 0.0014, 0.004], [0.994, 0.7562, 0.0555, 0.9646], [0.0509, 0.9934, 0.1276, 0.8584], [0.8964, 0.4915, 0.8826, 0.503]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep30837').set_weights(w) 
+w = model.get_layer('Sim62093').get_weights() 
+w[0] = np.array([[5], [2], [1], [2]])
+w[1] = np.array([[5]])
+w[2] = np.array([6])
+model.get_layer('Sim62093').set_weights(w) 
+in0Glo95739 = tf.constant([[[[[1.0576]]], [[[1.7734]]]]])
+in0Max8228 = tf.constant([[[[0.9339, 0.6262], [0.3487, 0.4546]], [[0.8793, 0.7089], [0.847, 0.674]]]])
+in1Max8228 = tf.constant([[[[0.3086, 0.8345], [0.6685, 0.1843]], [[0.1902, 0.0398], [0.2604, 0.7571]]]])
+print (np.array2string(model.predict([in0Glo95739,in0Max8228,in1Max8228],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max58330.png')
+
+LGlo95739 = global_max_pool3D_layer([[[[[1.0576]]], [[[1.7734]]]]], Glo95739), 
+LMax8228 = maximum_layer([[[[[0.9339, 0.6262], [0.3487, 0.4546]], [[0.8793, 0.7089], [0.847, 0.674]]]], [[[[0.3086, 0.8345], [0.6685, 0.1843]], [[0.1902, 0.0398], [0.2604, 0.7571]]]]], Max8228), 
+LRes44138 = reshape_layer(Max8228, [2, 4], Res44138), 
+LSep30837 = separable_conv1D_layer(Res44138, 2,[[[[0.788], [0.04], [0.3905], [0.4709]], [[0.9393], [0.3642], [0.291], [0.3498]]],[[[0.0379, 0.1453, 0.0014, 0.004], [0.994, 0.7562, 0.0555, 0.9646], [0.0509, 0.9934, 0.1276, 0.8584], [0.8964, 0.4915, 0.8826, 0.503]]]],[0, 0, 0, 0], 1, true, Sep30837), 
+LSim62093 = simple_rnn_layer(Sep30837,[[5], [2], [1], [2]],[[5]],[6], Sim62093), 
+LMax58330 = maximum_layer([Glo95739,Sim62093], Max58330), 
+exec_layers([LGlo95739,LMax8228,LRes44138,LSep30837,LSim62093,LMax58330],["Glo95739","Max8228","Res44138","Sep30837","Sim62093","Max58330"],Max58330,"Max58330")
+
+Actual (Unparsed): [[1.7733999]]
+
+Expected (Unparsed): [[1.7734]]
+
+Actual:   [[1.7734]]
+
+Expected: [[1.7734]]

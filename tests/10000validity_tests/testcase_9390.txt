@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo27288 = tf.keras.layers.Input(shape=([1, 1]))
+in0Dot74519 = tf.keras.layers.Input(shape=([2]))
+in1Dot74519 = tf.keras.layers.Input(shape=([2]))
+in0Con52764 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Mul5266 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Mul5266 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Glo27288 = keras.layers.GlobalAveragePooling1D(name = 'Glo27288', )(in0Glo27288)
+Dot74519 = keras.layers.Dot(axes=(1, 1), name = 'Dot74519', )([in0Dot74519,in1Dot74519])
+Sub48700 = keras.layers.Subtract(name = 'Sub48700', )([Glo27288,Dot74519])
+Res62608 = keras.layers.Reshape((1, 1), name = 'Res62608', )(Sub48700)
+Res81966 = keras.layers.Reshape((1, 1, 1), name = 'Res81966', )(Res62608)
+Con52764 = keras.layers.Concatenate(axis=3, name = 'Con52764', )([Res81966,in0Con52764])
+Mul5266 = keras.layers.Multiply(name = 'Mul5266', )([in0Mul5266,in1Mul5266])
+Con78490 = keras.layers.Conv2D(2, (1, 2),strides=(2, 1), padding='same', dilation_rate=(1, 1), name = 'Con78490', )(Mul5266)
+Mul93569 = keras.layers.Multiply(name = 'Mul93569', )([Con52764,Con78490])
+model = tf.keras.models.Model(inputs=[in0Glo27288,in0Dot74519,in1Dot74519,in0Con52764,in0Mul5266,in1Mul5266], outputs=Mul93569)
+w = model.get_layer('Con78490').get_weights() 
+w[0] = np.array([[[[0.9765, 0.815]], [[0.6157, 0.7039]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con78490').set_weights(w) 
+in0Glo27288 = tf.constant([[[1.8932]]])
+in0Dot74519 = tf.constant([[0.3186, 0.4416]])
+in1Dot74519 = tf.constant([[0.8829, 0.6862]])
+in0Con52764 = tf.constant([[[[0.5452]]]])
+in0Mul5266 = tf.constant([[[[0.4932]], [[0.4391]]]])
+in1Mul5266 = tf.constant([[[[0.8437]], [[0.9699]]]])
+print (np.array2string(model.predict([in0Glo27288,in0Dot74519,in1Dot74519,in0Con52764,in0Mul5266,in1Mul5266],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul93569.png')
+
+LGlo27288 = global_average_pooling1D_layer([[[1.8932]]], Glo27288), 
+LDot74519 = dot_layer([[0.3186, 0.4416]], [[0.8829, 0.6862]], 1, 1, Dot74519), 
+LSub48700 = subtract_layer(Glo27288,Dot74519, Sub48700), 
+LRes62608 = reshape_layer(Sub48700, [1, 1], Res62608), 
+LRes81966 = reshape_layer(Res62608, [1, 1, 1], Res81966), 
+LCon52764 = concatenate_layer([Res81966,[[[[0.5452]]]]], 3, Con52764), 
+LMul5266 = multiply_layer([[[[[0.4932]], [[0.4391]]]], [[[[0.8437]], [[0.9699]]]]], Mul5266), 
+LCon78490 = conv2D_layer(Mul5266, 1, 2,[[[[0.9765, 0.815]], [[0.6157, 0.7039]]]],[0, 0], 2, 1, true, 1, 1, Con78490), 
+LMul93569 = multiply_layer([Con52764,Con78490], Mul93569), 
+exec_layers([LGlo27288,LDot74519,LSub48700,LRes62608,LRes81966,LCon52764,LMul5266,LCon78490,LMul93569],["Glo27288","Dot74519","Sub48700","Res62608","Res81966","Con52764","Mul5266","Con78490","Mul93569"],Mul93569,"Mul93569")
+
+Actual (Unparsed): [[[[0.5318436, 0.1848947]]]]
+
+Expected (Unparsed): [[[[0.5318435618849118,0.18489474709992001]]]]
+
+Actual:   [[[[0.5319, 0.1849]]]]
+
+Expected: [[[[0.5319, 0.1849]]]]

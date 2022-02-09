@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc16570 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sof29250 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0ReL47843 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sub51005 = tf.keras.layers.Input(shape=([3]))
+in1Sub51005 = tf.keras.layers.Input(shape=([3]))
+in0Con59916 = tf.keras.layers.Input(shape=([3]))
+
+Loc16570 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc16570', )(in0Loc16570)
+Sof29250 = keras.layers.Softmax(axis=1, name = 'Sof29250', input_shape=(1, 1, 2))(in0Sof29250)
+Res10183 = keras.layers.Reshape((1, 2), name = 'Res10183', )(Sof29250)
+Dot10410 = keras.layers.Dot(axes=(1, 1), name = 'Dot10410', )([Loc16570,Res10183])
+ReL47843 = keras.layers.ReLU(max_value=2.7918756766415487, negative_slope=8.814864103383403, threshold=0.060892056921059146, name = 'ReL47843', input_shape=(1, 2))(in0ReL47843)
+Zer17464 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer17464', )(ReL47843)
+Ave68239 = keras.layers.Average(name = 'Ave68239', )([Dot10410,Zer17464])
+Fla37663 = keras.layers.Flatten(name = 'Fla37663', )(Ave68239)
+Sub51005 = keras.layers.Subtract(name = 'Sub51005', )([in0Sub51005,in1Sub51005])
+Con59916 = keras.layers.Concatenate(axis=1, name = 'Con59916', )([Sub51005,in0Con59916])
+Add73166 = keras.layers.Add(name = 'Add73166', )([Fla37663,Con59916])
+Fla40313 = keras.layers.Flatten(name = 'Fla40313', )(Add73166)
+model = tf.keras.models.Model(inputs=[in0Loc16570,in0Sof29250,in0ReL47843,in0Sub51005,in1Sub51005,in0Con59916], outputs=Fla40313)
+w = model.get_layer('Loc16570').get_weights() 
+w[0] = np.array([[[0.4325, 0.2127, 0.0784], [0.6482, 0.7884, 0.3302]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc16570').set_weights(w) 
+in0Loc16570 = tf.constant([[[0.5509, 0.76]]])
+in0Sof29250 = tf.constant([[[[0.7294, 0.8992]]]])
+in0ReL47843 = tf.constant([[[0.8741, 0.182]]])
+in0Sub51005 = tf.constant([[0.133, 0.3451, 0.8891]])
+in1Sub51005 = tf.constant([[0.653, 0.1115, 0.8845]])
+in0Con59916 = tf.constant([[0.428, 0.3954, 0.7161]])
+print (np.array2string(model.predict([in0Loc16570,in0Sof29250,in0ReL47843,in0Sub51005,in1Sub51005,in0Con59916],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla40313.png')
+
+LLoc16570 = locally_connected1D_layer([[[0.5509, 0.76]]], 1,[[[0.4325, 0.2127, 0.0784], [0.6482, 0.7884, 0.3302]]],[[0, 0, 0]], 1, Loc16570), 
+LSof29250 = softmax_layer([[[[0.7294, 0.8992]]]], 1, Sof29250), 
+LRes10183 = reshape_layer(Sof29250, [1, 2], Res10183), 
+LDot10410 = dot_layer(Loc16570,Res10183, 1, 1, Dot10410), 
+LReL47843 = relu_layer([[[0.8741, 0.182]]], 2.7918756766415487, 8.814864103383403, 0.060892056921059146, ReL47843), 
+LZer17464 = zero_padding1D_layer(ReL47843, 2, 0, Zer17464), 
+LAve68239 = average_layer([Dot10410,Zer17464], Ave68239), 
+LFla37663 = flatten_layer(Ave68239, Fla37663), 
+LSub51005 = subtract_layer([[0.133, 0.3451, 0.8891]], [[0.653, 0.1115, 0.8845]], Sub51005), 
+LCon59916 = concatenate_layer([Sub51005,[[0.428, 0.3954, 0.7161]]], 1, Con59916), 
+LAdd73166 = add_layer([Fla37663,Con59916], Add73166), 
+LFla40313 = flatten_layer(Add73166, Fla40313), 
+exec_layers([LLoc16570,LSof29250,LRes10183,LDot10410,LReL47843,LZer17464,LAve68239,LFla37663,LSub51005,LCon59916,LAdd73166,LFla40313],["Loc16570","Sof29250","Res10183","Dot10410","ReL47843","Zer17464","Ave68239","Fla37663","Sub51005","Con59916","Add73166","Fla40313"],Fla40313,"Fla40313")
+
+Actual (Unparsed): [[-0.1545519, 0.5990481, 0.3627802, 0.7861802, 0.9795213, 0.9541713]]
+
+Expected (Unparsed): [[-0.154551875,0.599048125,0.3627802150000001,0.786180215,0.9795212799999999,0.95417128]]
+
+Actual:   [[-0.1545, 0.5991, 0.3628, 0.7862, 0.9796, 0.9542]]
+
+Expected: [[-0.1545, 0.5991, 0.3628, 0.7862, 0.9796, 0.9542]]

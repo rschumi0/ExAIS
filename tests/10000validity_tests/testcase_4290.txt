@@ -1,0 +1,75 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot53515 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot53515 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con98744 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Up_79617 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot53515 = keras.layers.Dot(axes=(2, 2), name = 'Dot53515', )([in0Dot53515,in1Dot53515])
+Thr52625 = keras.layers.ThresholdedReLU(theta=2.4607274741210503, name = 'Thr52625', )(Dot53515)
+LST34245 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST34245', )(Thr52625)
+Res56817 = keras.layers.Reshape((1, 1), name = 'Res56817', )(LST34245)
+Res66733 = keras.layers.Reshape((1, 1, 1), name = 'Res66733', )(Res56817)
+Res42818 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res42818', )(Res66733)
+Con80751 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con80751', )(Res42818)
+Res13410 = keras.layers.Reshape((1, 1, 2), name = 'Res13410', )(Con80751)
+Con98744 = keras.layers.Concatenate(axis=3, name = 'Con98744', )([Res13410,in0Con98744])
+Up_79617 = keras.layers.UpSampling1D(size=(1), name = 'Up_79617', )(in0Up_79617)
+Res83762 = keras.layers.Reshape((1, 1, 1), name = 'Res83762', )(Up_79617)
+Res92695 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res92695', )(Res83762)
+Up_40326 = keras.layers.UpSampling3D(size=(1, 1, 2), name = 'Up_40326', )(Res92695)
+Res44981 = keras.layers.Reshape((1, 1, 2), name = 'Res44981', )(Up_40326)
+Sep78100 = keras.layers.SeparableConv2D(4, (1, 1),strides=(1, 1), padding='valid', name = 'Sep78100', )(Res44981)
+Min668 = keras.layers.Minimum(name = 'Min668', )([Con98744,Sep78100])
+model = tf.keras.models.Model(inputs=[in0Dot53515,in1Dot53515,in0Con98744,in0Up_79617], outputs=Min668)
+w = model.get_layer('LST34245').get_weights() 
+w[0] = np.array([[7, 4, 10, 5], [6, 9, 6, 9]])
+w[1] = np.array([[4, 4, 1, 5]])
+w[2] = np.array([9, 4, 9, 10])
+model.get_layer('LST34245').set_weights(w) 
+w = model.get_layer('Con80751').get_weights() 
+w[0] = np.array([[[[[0.3485], [0.3438]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con80751').set_weights(w) 
+w = model.get_layer('Sep78100').get_weights() 
+w[0] = np.array([[[[0.9546], [0.2613]]]])
+w[1] = np.array([[[[0.9513, 0.9379, 0.5298, 0.3246], [0.0552, 0.9993, 0.4846, 0.9702]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep78100').set_weights(w) 
+in0Dot53515 = tf.constant([[[0.1639, 0.1917, 0.6302], [0.8952, 0.9961, 0.8011]]])
+in1Dot53515 = tf.constant([[[0.6295, 0.5788, 0.0559], [0.1524, 0.7783, 0.0315]]])
+in0Con98744 = tf.constant([[[[0.5894, 0.3156]]]])
+in0Up_79617 = tf.constant([[[1.5133]]])
+print (np.array2string(model.predict([in0Dot53515,in1Dot53515,in0Con98744,in0Up_79617],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min668.png')
+
+LDot53515 = dot_layer([[[0.1639, 0.1917, 0.6302], [0.8952, 0.9961, 0.8011]]], [[[0.6295, 0.5788, 0.0559], [0.1524, 0.7783, 0.0315]]], 2, 2, Dot53515), 
+LThr52625 = thresholded_relu_layer(Dot53515, 2.4607274741210503, Thr52625), 
+LLST34245 = lstm_layer(Thr52625,[[7, 4, 10, 5], [6, 9, 6, 9]],[[4, 4, 1, 5]],[9, 4, 9, 10], LST34245), 
+LRes56817 = reshape_layer(LST34245, [1, 1], Res56817), 
+LRes66733 = reshape_layer(Res56817, [1, 1, 1], Res66733), 
+LRes42818 = reshape_layer(Res66733, [1, 1, 1, 1], Res42818), 
+LCon80751 = conv3D_transpose_layer(Res42818, 1, 1, 1,[[[[[0.3485], [0.3438]]]]],[0, 0], 1, 1, 1, false, Con80751), 
+LRes13410 = reshape_layer(Con80751, [1, 1, 2], Res13410), 
+LCon98744 = concatenate_layer([Res13410,[[[[0.5894, 0.3156]]]]], 3, Con98744), 
+LUp_79617 = up_sampling1D_layer([[[1.5133]]], 1, Up_79617), 
+LRes83762 = reshape_layer(Up_79617, [1, 1, 1], Res83762), 
+LRes92695 = reshape_layer(Res83762, [1, 1, 1, 1], Res92695), 
+LUp_40326 = up_sampling3D_layer(Res92695, 1, 1, 2, Up_40326), 
+LRes44981 = reshape_layer(Up_40326, [1, 1, 2], Res44981), 
+LSep78100 = separable_conv2D_layer(Res44981, 1, 1,[[[[[0.9546], [0.2613]]]],[[[[0.9513, 0.9379, 0.5298, 0.3246], [0.0552, 0.9993, 0.4846, 0.9702]]]]],[0, 0, 0, 0], 1, 1, false, Sep78100), 
+LMin668 = minimum_layer([Con98744,Sep78100], Min668), 
+exec_layers([LDot53515,LThr52625,LLST34245,LRes56817,LRes66733,LRes42818,LCon80751,LRes13410,LCon98744,LUp_79617,LRes83762,LRes92695,LUp_40326,LRes44981,LSep78100,LMin668],["Dot53515","Thr52625","LST34245","Res56817","Res66733","Res42818","Con80751","Res13410","Con98744","Up_79617","Res83762","Res92695","Up_40326","Res44981","Sep78100","Min668"],Min668,"Min668")
+
+Actual (Unparsed): [[[[0.3359386, 0.3314081, 0.5894000, 0.3156000]]]]
+
+Expected (Unparsed): [[[[0.33593864490995606,0.3314080519943842,0.5894,0.3156]]]]
+
+Actual:   [[[[0.336, 0.3315, 0.5894, 0.3156]]]]
+
+Expected: [[[[0.336, 0.3315, 0.5894, 0.3156]]]]

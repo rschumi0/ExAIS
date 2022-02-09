@@ -1,0 +1,85 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo12663 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con27954 = tf.keras.layers.Input(shape=([1, 1]))
+in0Mul86957 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul86957 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con12178 = tf.keras.layers.Input(shape=([1, 10]))
+in0Glo20095 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Con97496 = tf.keras.layers.Input(shape=([1, 2, 3]))
+in0Loc34585 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Glo12663 = keras.layers.GlobalMaxPool2D(name = 'Glo12663', )(in0Glo12663)
+Res44345 = keras.layers.Reshape((2, 1), name = 'Res44345', )(Glo12663)
+Res81601 = keras.layers.Reshape((2, 1, 1), name = 'Res81601', )(Res44345)
+Glo91076 = keras.layers.GlobalMaxPool2D(name = 'Glo91076', )(Res81601)
+Res16190 = keras.layers.Reshape((1, 1), name = 'Res16190', )(Glo91076)
+Con27954 = keras.layers.Concatenate(axis=2, name = 'Con27954', )([Res16190,in0Con27954])
+Mul86957 = keras.layers.Multiply(name = 'Mul86957', )([in0Mul86957,in1Mul86957])
+Ave2020 = keras.layers.Average(name = 'Ave2020', )([Con27954,Mul86957])
+Con12178 = keras.layers.Concatenate(axis=2, name = 'Con12178', )([Ave2020,in0Con12178])
+Glo20095 = keras.layers.GlobalAveragePooling3D(name = 'Glo20095', )(in0Glo20095)
+Res54670 = keras.layers.Reshape((1, 1), name = 'Res54670', )(Glo20095)
+Res75190 = keras.layers.Reshape((1, 1, 1), name = 'Res75190', )(Res54670)
+Zer94140 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer94140', )(Res75190)
+Con97496 = keras.layers.Concatenate(axis=3, name = 'Con97496', )([Zer94140,in0Con97496])
+Loc34585 = keras.layers.LocallyConnected2D(4, (2, 1),strides=(1, 1), name = 'Loc34585', )(in0Loc34585)
+Max60341 = keras.layers.Maximum(name = 'Max60341', )([Con97496,Loc34585])
+Res99616 = keras.layers.Reshape((1, 2, 4, 1), name = 'Res99616', )(Max60341)
+Cro43586 = keras.layers.Cropping3D(cropping=((0, 0), (0, 0), (1, 0)), name = 'Cro43586', )(Res99616)
+Up_42872 = keras.layers.UpSampling3D(size=(1, 1, 2), name = 'Up_42872', )(Cro43586)
+Res65306 = keras.layers.Reshape((1, 2, 6), name = 'Res65306', )(Up_42872)
+Res83133 = keras.layers.Reshape((1, 12), name = 'Res83133', )(Res65306)
+Dot36902 = keras.layers.Dot(axes=(2, 2), name = 'Dot36902', )([Con12178,Res83133])
+model = tf.keras.models.Model(inputs=[in0Glo12663,in0Con27954,in0Mul86957,in1Mul86957,in0Con12178,in0Glo20095,in0Con97496,in0Loc34585], outputs=Dot36902)
+w = model.get_layer('Loc34585').get_weights() 
+w[0] = np.array([[[0.4296, 0.2475, 0.3269, 0.9397], [0.1614, 0.2343, 0.8014, 0.9093], [0.8176, 0.0262, 0.4567, 0.9499], [0.8134, 0.6895, 0.8608, 0.572]], [[0.6649, 0.4273, 0.2893, 0.043], [0.5154, 0.2189, 0.8594, 0.9075], [0.4102, 0.5297, 0.5791, 0.9809], [0.9181, 0.2319, 0.0987, 0.9403]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc34585').set_weights(w) 
+in0Glo12663 = tf.constant([[[[1.5416, 1.0996], [1.8271, 1.9704]]]])
+in0Con27954 = tf.constant([[[0.2767]]])
+in0Mul86957 = tf.constant([[[0.7391, 0.937]]])
+in1Mul86957 = tf.constant([[[0.7445, 0.9219]]])
+in0Con12178 = tf.constant([[[0.9976, 0.114, 0.7298, 0.2162, 0.8151, 0.7555, 0.337, 0.3763, 0.2489, 0.3067]]])
+in0Glo20095 = tf.constant([[[[[1.6686], [1.3642]], [[1.7853], [1.9307]]], [[[1.5349], [1.9105]], [[1.7544], [1.7517]]]]])
+in0Con97496 = tf.constant([[[[0.3123, 0.9841, 0.9585], [0.0903, 0.6465, 0.7934]]]])
+in0Loc34585 = tf.constant([[[[0.3083, 0.7577], [0.5691, 0.7184]], [[0.1314, 0.7669], [0.3102, 0.2175]]]])
+print (np.array2string(model.predict([in0Glo12663,in0Con27954,in0Mul86957,in1Mul86957,in0Con12178,in0Glo20095,in0Con97496,in0Loc34585],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot36902.png')
+
+LGlo12663 = global_max_pool2D_layer([[[[1.5416, 1.0996], [1.8271, 1.9704]]]], Glo12663), 
+LRes44345 = reshape_layer(Glo12663, [2, 1], Res44345), 
+LRes81601 = reshape_layer(Res44345, [2, 1, 1], Res81601), 
+LGlo91076 = global_max_pool2D_layer(Res81601, Glo91076), 
+LRes16190 = reshape_layer(Glo91076, [1, 1], Res16190), 
+LCon27954 = concatenate_layer([Res16190,[[[0.2767]]]], 2, Con27954), 
+LMul86957 = multiply_layer([[[[0.7391, 0.937]]], [[[0.7445, 0.9219]]]], Mul86957), 
+LAve2020 = average_layer([Con27954,Mul86957], Ave2020), 
+LCon12178 = concatenate_layer([Ave2020,[[[0.9976, 0.114, 0.7298, 0.2162, 0.8151, 0.7555, 0.337, 0.3763, 0.2489, 0.3067]]]], 2, Con12178), 
+LGlo20095 = global_average_pooling3D_layer([[[[[1.6686], [1.3642]], [[1.7853], [1.9307]]], [[[1.5349], [1.9105]], [[1.7544], [1.7517]]]]], Glo20095), 
+LRes54670 = reshape_layer(Glo20095, [1, 1], Res54670), 
+LRes75190 = reshape_layer(Res54670, [1, 1, 1], Res75190), 
+LZer94140 = zero_padding2D_layer(Res75190, 0, 0, 1, 0, Zer94140), 
+LCon97496 = concatenate_layer([Zer94140,[[[[0.3123, 0.9841, 0.9585], [0.0903, 0.6465, 0.7934]]]]], 3, Con97496), 
+LLoc34585 = locally_connected2D_layer([[[[0.3083, 0.7577], [0.5691, 0.7184]], [[0.1314, 0.7669], [0.3102, 0.2175]]]], 2, 1,[[[0.4296, 0.2475, 0.3269, 0.9397], [0.1614, 0.2343, 0.8014, 0.9093], [0.8176, 0.0262, 0.4567, 0.9499], [0.8134, 0.6895, 0.8608, 0.572]], [[0.6649, 0.4273, 0.2893, 0.043], [0.5154, 0.2189, 0.8594, 0.9075], [0.4102, 0.5297, 0.5791, 0.9809], [0.9181, 0.2319, 0.0987, 0.9403]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 1, 1, Loc34585), 
+LMax60341 = maximum_layer([Con97496,Loc34585], Max60341), 
+LRes99616 = reshape_layer(Max60341, [1, 2, 4, 1], Res99616), 
+LCro43586 = cropping3D_layer(Res99616, 0, 0, 0, 0, 1, 0, Cro43586), 
+LUp_42872 = up_sampling3D_layer(Cro43586, 1, 1, 2, Up_42872), 
+LRes65306 = reshape_layer(Up_42872, [1, 2, 6], Res65306), 
+LRes83133 = reshape_layer(Res65306, [1, 12], Res83133), 
+LDot36902 = dot_layer(Con12178,Res83133, 2, 2, Dot36902), 
+exec_layers([LGlo12663,LRes44345,LRes81601,LGlo91076,LRes16190,LCon27954,LMul86957,LAve2020,LCon12178,LGlo20095,LRes54670,LRes75190,LZer94140,LCon97496,LLoc34585,LMax60341,LRes99616,LCro43586,LUp_42872,LRes65306,LRes83133,LDot36902],["Glo12663","Res44345","Res81601","Glo91076","Res16190","Con27954","Mul86957","Ave2020","Con12178","Glo20095","Res54670","Res75190","Zer94140","Con97496","Loc34585","Max60341","Res99616","Cro43586","Up_42872","Res65306","Res83133","Dot36902"],Dot36902,"Dot36902")
+
+Actual (Unparsed): [[[6.8113642]]]
+
+Expected (Unparsed): [[[6.811364151768798]]]
+
+Actual:   [[[6.8114]]]
+
+Expected: [[[6.8114]]]

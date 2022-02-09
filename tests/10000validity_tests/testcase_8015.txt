@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot9243 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot9243 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con61071 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave38261 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave38261 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot9243 = keras.layers.Dot(axes=(2, 2), name = 'Dot9243', )([in0Dot9243,in1Dot9243])
+Res24387 = keras.layers.Reshape((2, 2, 1), name = 'Res24387', )(Dot9243)
+Cro9479 = keras.layers.Cropping2D(cropping=((1, 0), (0, 1)), name = 'Cro9479', )(Res24387)
+Res95775 = keras.layers.Reshape((1, 1), name = 'Res95775', )(Cro9479)
+Zer70639 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer70639', )(Res95775)
+Con61071 = keras.layers.Concatenate(axis=2, name = 'Con61071', )([Zer70639,in0Con61071])
+Ave38261 = keras.layers.Average(name = 'Ave38261', )([in0Ave38261,in1Ave38261])
+Max28125 = keras.layers.Maximum(name = 'Max28125', )([Con61071,Ave38261])
+Con4096 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con4096', )(Max28125)
+model = tf.keras.models.Model(inputs=[in0Dot9243,in1Dot9243,in0Con61071,in0Ave38261,in1Ave38261], outputs=Con4096)
+w = model.get_layer('Con4096').get_weights() 
+w[0] = np.array([[[0.7031, 0.393, 0.5493, 0.7113], [0.2079, 0.7139, 0.529, 0.4717]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con4096').set_weights(w) 
+in0Dot9243 = tf.constant([[[0.4556, 0.3052, 0.3382], [0.4355, 0.2577, 0.2234]]])
+in1Dot9243 = tf.constant([[[0.1549, 0.3777, 0.5523], [0.7783, 0.7012, 0.7604]]])
+in0Con61071 = tf.constant([[[0.9618], [0.989]]])
+in0Ave38261 = tf.constant([[[0.5568, 0.0192], [0.4913, 0.652]]])
+in1Ave38261 = tf.constant([[[0.2531, 0.9771], [0.4722, 0.0554]]])
+print (np.array2string(model.predict([in0Dot9243,in1Dot9243,in0Con61071,in0Ave38261,in1Ave38261],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con4096.png')
+
+LDot9243 = dot_layer([[[0.4556, 0.3052, 0.3382], [0.4355, 0.2577, 0.2234]]], [[[0.1549, 0.3777, 0.5523], [0.7783, 0.7012, 0.7604]]], 2, 2, Dot9243), 
+LRes24387 = reshape_layer(Dot9243, [2, 2, 1], Res24387), 
+LCro9479 = cropping2D_layer(Res24387, 1, 0, 0, 1, Cro9479), 
+LRes95775 = reshape_layer(Cro9479, [1, 1], Res95775), 
+LZer70639 = zero_padding1D_layer(Res95775, 1, 0, Zer70639), 
+LCon61071 = concatenate_layer([Zer70639,[[[0.9618], [0.989]]]], 2, Con61071), 
+LAve38261 = average_layer([[[[0.5568, 0.0192], [0.4913, 0.652]]], [[[0.2531, 0.9771], [0.4722, 0.0554]]]], Ave38261), 
+LMax28125 = maximum_layer([Con61071,Ave38261], Max28125), 
+LCon4096 = conv1D_layer(Max28125, 1,[[[0.7031, 0.393, 0.5493, 0.7113], [0.2079, 0.7139, 0.529, 0.4717]]],[0, 0, 0, 0], 1, false, 1, Con4096), 
+exec_layers([LDot9243,LRes24387,LCro9479,LRes95775,LZer70639,LCon61071,LAve38261,LMax28125,LCon4096],["Dot9243","Res24387","Cro9479","Res95775","Zer70639","Con61071","Ave38261","Max28125","Con4096"],Con4096,"Con4096")
+
+Actual (Unparsed): [[[0.4846786, 0.8457744, 0.7312312, 0.7417220], [0.5443315, 0.8953749, 0.7878063, 0.8091801]]]
+
+Expected (Unparsed): [[[0.48467856499999995,0.8457743699999999,0.731231235,0.741721995],[0.544331525,0.8953748499999999,0.787806275,0.809180075]]]
+
+Actual:   [[[0.4847, 0.8458, 0.7313, 0.7418], [0.5444, 0.8954, 0.7879, 0.8092]]]
+
+Expected: [[[0.4847, 0.8458, 0.7313, 0.7418], [0.5444, 0.8954, 0.7879, 0.8092]]]

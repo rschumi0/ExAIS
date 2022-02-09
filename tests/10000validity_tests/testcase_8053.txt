@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat16601 = tf.keras.layers.Input(shape=([2]))
+in0Con2233 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max46701 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Max46701 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Bat16601 = keras.layers.BatchNormalization(axis=1, epsilon=0.9532370463411377,  name = 'Bat16601', )(in0Bat16601)
+Res916 = keras.layers.Reshape((2, 1), name = 'Res916', )(Bat16601)
+Max61435 = keras.layers.MaxPool1D(pool_size=(2), strides=(1), padding='same', name = 'Max61435', )(Res916)
+Lea9544 = keras.layers.LeakyReLU(alpha=2.1806703141299093, name = 'Lea9544', )(Max61435)
+Con2233 = keras.layers.Concatenate(axis=2, name = 'Con2233', )([Lea9544,in0Con2233])
+Max46701 = keras.layers.Maximum(name = 'Max46701', )([in0Max46701,in1Max46701])
+Glo63567 = keras.layers.GlobalMaxPool3D(name = 'Glo63567', )(Max46701)
+Res24557 = keras.layers.Reshape((1, 1), name = 'Res24557', )(Glo63567)
+Res57168 = keras.layers.Reshape((1, 1, 1), name = 'Res57168', )(Res24557)
+Con55393 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con55393', )(Res57168)
+Res76195 = keras.layers.Reshape((1, 3), name = 'Res76195', )(Con55393)
+Dot55907 = keras.layers.Dot(axes=(2, 2), name = 'Dot55907', )([Con2233,Res76195])
+model = tf.keras.models.Model(inputs=[in0Bat16601,in0Con2233,in0Max46701,in1Max46701], outputs=Dot55907)
+w = model.get_layer('Bat16601').get_weights() 
+w[0] = np.array([0.4888, 0.774])
+w[1] = np.array([0.4666, 0.5407])
+w[2] = np.array([0.9805, 0.9421])
+w[3] = np.array([0.8194, 0.8118])
+model.get_layer('Bat16601').set_weights(w) 
+w = model.get_layer('Con55393').get_weights() 
+w[0] = np.array([[[[0.2825, 0.7496, 0.5672]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con55393').set_weights(w) 
+in0Bat16601 = tf.constant([[1.2796, 1.7002]])
+in0Con2233 = tf.constant([[[0.9534, 0.4119], [0.4192, 0.7174]]])
+in0Max46701 = tf.constant([[[[[0.665]]]]])
+in1Max46701 = tf.constant([[[[[0.2998]]]]])
+print (np.array2string(model.predict([in0Bat16601,in0Con2233,in0Max46701,in1Max46701],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot55907.png')
+
+LBat16601 = batch_normalization_layer([[1.2796, 1.7002]], 1, 0.9532370463411377, [0.4888, 0.774], [0.4666, 0.5407], [0.9805, 0.9421], [0.8194, 0.8118], Bat16601), 
+LRes916 = reshape_layer(Bat16601, [2, 1], Res916), 
+LMax61435 = max_pool1D_layer(Res916, 2, 1, true, Max61435), 
+LLea9544 = leaky_relu_layer(Max61435, 2.1806703141299093, Lea9544), 
+LCon2233 = concatenate_layer([Lea9544,[[[0.9534, 0.4119], [0.4192, 0.7174]]]], 2, Con2233), 
+LMax46701 = maximum_layer([[[[[[0.665]]]]], [[[[[0.2998]]]]]], Max46701), 
+LGlo63567 = global_max_pool3D_layer(Max46701, Glo63567), 
+LRes24557 = reshape_layer(Glo63567, [1, 1], Res24557), 
+LRes57168 = reshape_layer(Res24557, [1, 1, 1], Res57168), 
+LCon55393 = conv2D_layer(Res57168, 1, 1,[[[[0.2825, 0.7496, 0.5672]]]],[0, 0, 0], 1, 1, false, 1, 1, Con55393), 
+LRes76195 = reshape_layer(Con55393, [1, 3], Res76195), 
+LDot55907 = dot_layer(Con2233,Res76195, 2, 2, Dot55907), 
+exec_layers([LBat16601,LRes916,LMax61435,LLea9544,LCon2233,LMax46701,LGlo63567,LRes24557,LRes57168,LCon55393,LRes76195,LDot55907],["Bat16601","Res916","Max61435","Lea9544","Con2233","Max46701","Glo63567","Res24557","Res57168","Con55393","Res76195","Dot55907"],Dot55907,"Dot55907")
+
+Actual (Unparsed): [[[0.8151675], [0.6641083]]]
+
+Expected (Unparsed): [[[0.8151674614516624],[0.6641082426516625]]]
+
+Actual:   [[[0.8152], [0.6642]]]
+
+Expected: [[[0.8152], [0.6642]]]

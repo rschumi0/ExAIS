@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min11039 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min11039 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con25884 = tf.keras.layers.Input(shape=([1, 3, 1]))
+in0Dep98787 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Min11039 = keras.layers.Minimum(name = 'Min11039', )([in0Min11039,in1Min11039])
+Res14692 = keras.layers.Reshape((1, 2, 1), name = 'Res14692', )(Min11039)
+Zer48340 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer48340', )(Res14692)
+Con25884 = keras.layers.Concatenate(axis=3, name = 'Con25884', )([Zer48340,in0Con25884])
+Dep98787 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep98787', )(in0Dep98787)
+Con23777 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con23777', )(Dep98787)
+Con6985 = keras.layers.Conv2DTranspose(2, (1, 2),strides=(1, 1), padding='valid', name = 'Con6985', )(Con23777)
+Add27432 = keras.layers.Add(name = 'Add27432', )([Con25884,Con6985])
+model = tf.keras.models.Model(inputs=[in0Min11039,in1Min11039,in0Con25884,in0Dep98787], outputs=Add27432)
+w = model.get_layer('Dep98787').get_weights() 
+w[0] = np.array([[[[0.8739]]]])
+w[1] = np.array([0])
+model.get_layer('Dep98787').set_weights(w) 
+w = model.get_layer('Con23777').get_weights() 
+w[0] = np.array([[[[0.1133, 0.7009]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con23777').set_weights(w) 
+w = model.get_layer('Con6985').get_weights() 
+w[0] = np.array([[[[0.1976, 0.2613], [0.2238, 0.1461]], [[0.0266, 0.2541], [0.609, 0.019]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con6985').set_weights(w) 
+in0Min11039 = tf.constant([[[0.6982, 0.7842]]])
+in1Min11039 = tf.constant([[[0.0021, 0.3384]]])
+in0Con25884 = tf.constant([[[[0.9677], [0.4151], [0.1595]]]])
+in0Dep98787 = tf.constant([[[[0.5169], [0.9638]]]])
+print (np.array2string(model.predict([in0Min11039,in1Min11039,in0Con25884,in0Dep98787],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add27432.png')
+
+LMin11039 = minimum_layer([[[[0.6982, 0.7842]]], [[[0.0021, 0.3384]]]], Min11039), 
+LRes14692 = reshape_layer(Min11039, [1, 2, 1], Res14692), 
+LZer48340 = zero_padding2D_layer(Res14692, 0, 0, 1, 0, Zer48340), 
+LCon25884 = concatenate_layer([Zer48340,[[[[0.9677], [0.4151], [0.1595]]]]], 3, Con25884), 
+LDep98787 = depthwise_conv2D_layer([[[[0.5169], [0.9638]]]], 1, 1,[[[[0.8739]]]],[0], 1, 1, true, Dep98787), 
+LCon23777 = conv2D_layer(Dep98787, 1, 1,[[[[0.1133, 0.7009]]]],[0, 0], 1, 1, false, 1, 1, Con23777), 
+LCon6985 = conv2D_transpose_layer(Con23777, 1, 2,[[[[0.1976, 0.2613], [0.2238, 0.1461]], [[0.0266, 0.2541], [0.609, 0.019]]]],[0, 0], 1, 1, false, Con6985), 
+LAdd27432 = add_layer([Con25884,Con6985], Add27432), 
+exec_layers([LMin11039,LRes14692,LZer48340,LCon25884,LDep98787,LCon23777,LCon6985,LAdd27432],["Min11039","Res14692","Zer48340","Con25884","Dep98787","Con23777","Con6985","Add27432"],Add27432,"Add27432")
+
+Actual (Unparsed): [[[[0.0928433, 1.0254107], [0.2570254, 0.5598902], [0.4909447, 0.2288325]]]]
+
+Expected (Unparsed): [[[[0.09284325565875749,1.0254107180553473],[0.2570253533510727,0.5598901493121926],[0.4909446619443054,0.228832544734976]]]]
+
+Actual:   [[[[0.0929, 1.0255], [0.2571, 0.5599], [0.491, 0.2289]]]]
+
+Expected: [[[[0.0929, 1.0255], [0.2571, 0.5599], [0.491, 0.2289]]]]

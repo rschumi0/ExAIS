@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave56896 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con41915 = tf.keras.layers.Input(shape=([1, 1]))
+in0Ave77843 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave77843 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave56896 = keras.layers.AveragePooling2D(pool_size=(1, 2), name = 'Ave56896', )(in0Ave56896)
+Res20887 = keras.layers.Reshape((1, 1), name = 'Res20887', )(Ave56896)
+Ave9999 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave9999', )(Res20887)
+Con41915 = keras.layers.Concatenate(axis=2, name = 'Con41915', )([Ave9999,in0Con41915])
+Ave77843 = keras.layers.Average(name = 'Ave77843', )([in0Ave77843,in1Ave77843])
+Add42083 = keras.layers.Add(name = 'Add42083', )([Con41915,Ave77843])
+Res67786 = keras.layers.Reshape((1, 2, 1), name = 'Res67786', )(Add42083)
+Res78828 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res78828', )(Res67786)
+Con27887 = keras.layers.Conv3DTranspose(4, (1, 2, 1),strides=(1, 1, 1), padding='same', name = 'Con27887', )(Res78828)
+model = tf.keras.models.Model(inputs=[in0Ave56896,in0Con41915,in0Ave77843,in1Ave77843], outputs=Con27887)
+w = model.get_layer('Con27887').get_weights() 
+w[0] = np.array([[[[[0.2618], [0.9541], [0.2659], [0.5664]]], [[[0.3484], [0.2855], [0.5318], [0.127]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con27887').set_weights(w) 
+in0Ave56896 = tf.constant([[[[1.0315], [1.888]]]])
+in0Con41915 = tf.constant([[[0.3556]]])
+in0Ave77843 = tf.constant([[[0.979, 0.8287]]])
+in1Ave77843 = tf.constant([[[0.5831, 0.4376]]])
+print (np.array2string(model.predict([in0Ave56896,in0Con41915,in0Ave77843,in1Ave77843],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con27887.png')
+
+LAve56896 = average_pooling2D_layer([[[[1.0315], [1.888]]]], 1, 2, Ave56896), 
+LRes20887 = reshape_layer(Ave56896, [1, 1], Res20887), 
+LAve9999 = average_pooling1D_layer(Res20887, 1, Ave9999), 
+LCon41915 = concatenate_layer([Ave9999,[[[0.3556]]]], 2, Con41915), 
+LAve77843 = average_layer([[[[0.979, 0.8287]]], [[[0.5831, 0.4376]]]], Ave77843), 
+LAdd42083 = add_layer([Con41915,Ave77843], Add42083), 
+LRes67786 = reshape_layer(Add42083, [1, 2, 1], Res67786), 
+LRes78828 = reshape_layer(Res67786, [1, 2, 1, 1], Res78828), 
+LCon27887 = conv3D_transpose_layer(Res78828, 1, 2, 1,[[[[[0.2618], [0.9541], [0.2659], [0.5664]]], [[[0.3484], [0.2855], [0.5318], [0.127]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con27887), 
+exec_layers([LAve56896,LRes20887,LAve9999,LCon41915,LAve77843,LAdd42083,LRes67786,LRes78828,LCon27887],["Ave56896","Res20887","Ave9999","Con41915","Ave77843","Add42083","Res67786","Res78828","Con27887"],Con27887,"Con27887")
+
+Actual (Unparsed): [[[[[0.5866414, 2.1379473, 0.5958287, 1.2691891]], [[1.0395495, 1.5831148, 1.4545661, 0.8446096]]]]]
+
+Expected (Unparsed): [[[[[0.58664144,2.13794728,0.5958287200000001,1.26918912]],[[1.03954947,1.5831147749999999,1.4545660650000003,0.8446096000000001]]]]]
+
+Actual:   [[[[[0.5867, 2.138, 0.5959, 1.2692]], [[1.0396, 1.5832, 1.4546, 0.8447]]]]]
+
+Expected: [[[[[0.5867, 2.138, 0.5959, 1.2692]], [[1.0396, 1.5832, 1.4546, 0.8447]]]]]

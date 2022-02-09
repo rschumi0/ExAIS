@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul78500 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul78500 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con73023 = tf.keras.layers.Input(shape=([3, 2]))
+in0Mul14196 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul14196 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Zer41244 = tf.keras.layers.Input(shape=([1, 4]))
+
+Mul78500 = keras.layers.Multiply(name = 'Mul78500', )([in0Mul78500,in1Mul78500])
+Zer93522 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer93522', )(Mul78500)
+Con73023 = keras.layers.Concatenate(axis=2, name = 'Con73023', )([Zer93522,in0Con73023])
+Mul14196 = keras.layers.Multiply(name = 'Mul14196', )([in0Mul14196,in1Mul14196])
+Res42463 = keras.layers.Reshape((1, 4), name = 'Res42463', )(Mul14196)
+Zer90326 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer90326', )(Res42463)
+Zer41244 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer41244', )(in0Zer41244)
+Min90288 = keras.layers.Minimum(name = 'Min90288', )([Zer90326,Zer41244])
+Ave6947 = keras.layers.Average(name = 'Ave6947', )([Con73023,Min90288])
+model = tf.keras.models.Model(inputs=[in0Mul78500,in1Mul78500,in0Con73023,in0Mul14196,in1Mul14196,in0Zer41244], outputs=Ave6947)
+in0Mul78500 = tf.constant([[[0.9856, 0.745]]])
+in1Mul78500 = tf.constant([[[0.2149, 0.7781]]])
+in0Con73023 = tf.constant([[[0.3785, 0.5413], [0.3357, 0.7519], [0.4753, 0.0302]]])
+in0Mul14196 = tf.constant([[[[0.6621, 0.5361], [0.6464, 0.1461]]]])
+in1Mul14196 = tf.constant([[[[0.8429, 0.1772], [0.017, 0.0664]]]])
+in0Zer41244 = tf.constant([[[1.9445, 1.9942, 1.1246, 1.211]]])
+print (np.array2string(model.predict([in0Mul78500,in1Mul78500,in0Con73023,in0Mul14196,in1Mul14196,in0Zer41244],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave6947.png')
+
+LMul78500 = multiply_layer([[[[0.9856, 0.745]]], [[[0.2149, 0.7781]]]], Mul78500), 
+LZer93522 = zero_padding1D_layer(Mul78500, 2, 0, Zer93522), 
+LCon73023 = concatenate_layer([Zer93522,[[[0.3785, 0.5413], [0.3357, 0.7519], [0.4753, 0.0302]]]], 2, Con73023), 
+LMul14196 = multiply_layer([[[[[0.6621, 0.5361], [0.6464, 0.1461]]]], [[[[0.8429, 0.1772], [0.017, 0.0664]]]]], Mul14196), 
+LRes42463 = reshape_layer(Mul14196, [1, 4], Res42463), 
+LZer90326 = zero_padding1D_layer(Res42463, 2, 0, Zer90326), 
+LZer41244 = zero_padding1D_layer([[[1.9445, 1.9942, 1.1246, 1.211]]], 1, 1, Zer41244), 
+LMin90288 = minimum_layer([Zer90326,Zer41244], Min90288), 
+LAve6947 = average_layer([Con73023,Min90288], Ave6947), 
+exec_layers([LMul78500,LZer93522,LCon73023,LMul14196,LRes42463,LZer90326,LZer41244,LMin90288,LAve6947],["Mul78500","Zer93522","Con73023","Mul14196","Res42463","Zer90326","Zer41244","Min90288","Ave6947"],Ave6947,"Ave6947")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.1892500, 0.2706500], [0.0000000, 0.0000000, 0.1678500, 0.3759500], [0.1059027, 0.2898423, 0.2376500, 0.0151000]]]
+
+Expected (Unparsed): [[[0,0,0.18925,0.27065],[0,0,0.16785,0.37595],[0.10590272,0.28984225,0.23765,0.0151]]]
+
+Actual:   [[[0, 0, 0.1893, 0.2707], [0, 0, 0.1679, 0.376], [0.106, 0.2899, 0.2377, 0.0151]]]
+
+Expected: [[[0, 0, 0.1893, 0.2707], [0, 0, 0.1679, 0.376], [0.106, 0.2899, 0.2377, 0.0151]]]

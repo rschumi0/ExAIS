@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub4674 = tf.keras.layers.Input(shape=([2]))
+in1Sub4674 = tf.keras.layers.Input(shape=([2]))
+
+Sub4674 = keras.layers.Subtract(name = 'Sub4674', )([in0Sub4674,in1Sub4674])
+Res43810 = keras.layers.Reshape((2, 1), name = 'Res43810', )(Sub4674)
+Res86809 = keras.layers.Reshape((2, 1, 1), name = 'Res86809', )(Res43810)
+Res69273 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res69273', )(Res86809)
+Con71810 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con71810', )(Res69273)
+ELU42139 = keras.layers.ELU(alpha=0.9519651579221602, name = 'ELU42139', )(Con71810)
+model = tf.keras.models.Model(inputs=[in0Sub4674,in1Sub4674], outputs=ELU42139)
+w = model.get_layer('Con71810').get_weights() 
+w[0] = np.array([[[[[0.4029], [0.7513], [0.1445], [0.8244]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con71810').set_weights(w) 
+in0Sub4674 = tf.constant([[0.1724, 0.39]])
+in1Sub4674 = tf.constant([[0.6983, 0.3072]])
+print (np.array2string(model.predict([in0Sub4674,in1Sub4674],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU42139.png')
+
+LSub4674 = subtract_layer([[0.1724, 0.39]], [[0.6983, 0.3072]], Sub4674), 
+LRes43810 = reshape_layer(Sub4674, [2, 1], Res43810), 
+LRes86809 = reshape_layer(Res43810, [2, 1, 1], Res86809), 
+LRes69273 = reshape_layer(Res86809, [2, 1, 1, 1], Res69273), 
+LCon71810 = conv3D_transpose_layer(Res69273, 1, 1, 1,[[[[[0.4029], [0.7513], [0.1445], [0.8244]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con71810), 
+LELU42139 = elu_layer(Con71810, 0.9519651579221602, ELU42139), 
+exec_layers([LSub4674,LRes43810,LRes86809,LRes69273,LCon71810,LELU42139],["Sub4674","Res43810","Res86809","Res69273","Con71810","ELU42139"],ELU42139,"ELU42139")
+
+Actual (Unparsed): [[[[[-0.1817705, -0.3107149, -0.0696618, -0.3348989]]], [[[0.0333601, 0.0622076, 0.0119646, 0.0682603]]]]]
+
+Expected (Unparsed): [[[[[-0.18177046926501417,-0.310714921419259,-0.06966184834486902,-0.33489885684945986]]],[[[0.033360120000000014,0.06220764000000003,0.011964600000000006,0.06826032000000004]]]]]
+
+Actual:   [[[[[-0.1817, -0.3107, -0.0696, -0.3348]]], [[[0.0334, 0.0623, 0.012, 0.0683]]]]]
+
+Expected: [[[[[-0.1817, -0.3107, -0.0696, -0.3348]]], [[[0.0334, 0.0623, 0.012, 0.0683]]]]]

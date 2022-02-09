@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den73618 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max49040 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max49040 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mul92026 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Mul92026 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Den73618 = keras.layers.Dense(3,name = 'Den73618', )(in0Den73618)
+Res77643 = keras.layers.Reshape((2, 3, 1), name = 'Res77643', )(Den73618)
+Loc78941 = keras.layers.LocallyConnected2D(2, (2, 3),strides=(1, 1), name = 'Loc78941', )(Res77643)
+Res31297 = keras.layers.Reshape((1, 2), name = 'Res31297', )(Loc78941)
+Zer53003 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer53003', )(Res31297)
+Max49040 = keras.layers.Maximum(name = 'Max49040', )([in0Max49040,in1Max49040])
+Min25608 = keras.layers.Minimum(name = 'Min25608', )([Zer53003,Max49040])
+Res3487 = keras.layers.Reshape((2, 2, 1), name = 'Res3487', )(Min25608)
+Res13211 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res13211', )(Res3487)
+Zer75248 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer75248', )(Res13211)
+Mul92026 = keras.layers.Multiply(name = 'Mul92026', )([in0Mul92026,in1Mul92026])
+Lea58978 = keras.layers.LeakyReLU(alpha=7.9012395383050995, name = 'Lea58978', )(Mul92026)
+Sub36711 = keras.layers.Subtract(name = 'Sub36711', )([Zer75248,Lea58978])
+Res78118 = keras.layers.Reshape((2, 2, 2), name = 'Res78118', )(Sub36711)
+Ave90290 = keras.layers.AveragePooling2D(pool_size=(1, 2), strides=(1, 1), padding='valid', name = 'Ave90290', )(Res78118)
+model = tf.keras.models.Model(inputs=[in0Den73618,in0Max49040,in1Max49040,in0Mul92026,in1Mul92026], outputs=Ave90290)
+w = model.get_layer('Den73618').get_weights() 
+w[0] = np.array([[0.4134, 0.8171, 0.4979], [0.1577, 0.1422, 0.4357]])
+w[1] = np.array([0.9223, 0.7803, 0.9796])
+model.get_layer('Den73618').set_weights(w) 
+w = model.get_layer('Loc78941').get_weights() 
+w[0] = np.array([[[0.9566, 0.9343], [0.6404, 0.6118], [0.9522, 0.4441], [0.7643, 0.4636], [0.9597, 0.5558], [0.2506, 0.311]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc78941').set_weights(w) 
+in0Den73618 = tf.constant([[[0.6867, 0.4438], [0.0427, 0.0165]]])
+in0Max49040 = tf.constant([[[0.3736, 0.7059], [0.556, 0.1469]]])
+in1Max49040 = tf.constant([[[0.3252, 0.1448], [0.0691, 0.4432]]])
+in0Mul92026 = tf.constant([[[[[0.1621], [0.5011]], [[0.4882], [0.3722]]], [[[0.6762], [0.4186]], [[0.0815], [0.6825]]]]])
+in1Mul92026 = tf.constant([[[[[0.2703], [0.9223]], [[0.0279], [0.6775]]], [[[0.0526], [0.9329]], [[0.1362], [0.6099]]]]])
+print (np.array2string(model.predict([in0Den73618,in0Max49040,in1Max49040,in0Mul92026,in1Mul92026],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave90290.png')
+
+LDen73618 = dense_layer([[[0.6867, 0.4438], [0.0427, 0.0165]]], [[0.4134, 0.8171, 0.4979], [0.1577, 0.1422, 0.4357]],[0.9223, 0.7803, 0.9796], Den73618), 
+LRes77643 = reshape_layer(Den73618, [2, 3, 1], Res77643), 
+LLoc78941 = locally_connected2D_layer(Res77643, 2, 3,[[[0.9566, 0.9343], [0.6404, 0.6118], [0.9522, 0.4441], [0.7643, 0.4636], [0.9597, 0.5558], [0.2506, 0.311]]],[[[0, 0]]], 1, 1, Loc78941), 
+LRes31297 = reshape_layer(Loc78941, [1, 2], Res31297), 
+LZer53003 = zero_padding1D_layer(Res31297, 1, 0, Zer53003), 
+LMax49040 = maximum_layer([[[[0.3736, 0.7059], [0.556, 0.1469]]], [[[0.3252, 0.1448], [0.0691, 0.4432]]]], Max49040), 
+LMin25608 = minimum_layer([Zer53003,Max49040], Min25608), 
+LRes3487 = reshape_layer(Min25608, [2, 2, 1], Res3487), 
+LRes13211 = reshape_layer(Res3487, [2, 2, 1, 1], Res13211), 
+LZer75248 = zero_padding3D_layer(Res13211, 0, 0, 0, 0, 1, 0, Zer75248), 
+LMul92026 = multiply_layer([[[[[[0.1621], [0.5011]], [[0.4882], [0.3722]]], [[[0.6762], [0.4186]], [[0.0815], [0.6825]]]]], [[[[[0.2703], [0.9223]], [[0.0279], [0.6775]]], [[[0.0526], [0.9329]], [[0.1362], [0.6099]]]]]], Mul92026), 
+LLea58978 = leaky_relu_layer(Mul92026, 7.9012395383050995, Lea58978), 
+LSub36711 = subtract_layer(Zer75248,Lea58978, Sub36711), 
+LRes78118 = reshape_layer(Sub36711, [2, 2, 2], Res78118), 
+LAve90290 = average_pooling2D_layer(Res78118, 1, 2, 1, 1, false, Ave90290), 
+exec_layers([LDen73618,LRes77643,LLoc78941,LRes31297,LZer53003,LMax49040,LMin25608,LRes3487,LRes13211,LZer75248,LMul92026,LLea58978,LSub36711,LRes78118,LAve90290],["Den73618","Res77643","Loc78941","Res31297","Zer53003","Max49040","Min25608","Res3487","Res13211","Zer75248","Mul92026","Lea58978","Sub36711","Res78118","Ave90290"],Ave90290,"Ave90290")
+
+Actual (Unparsed): [[[[-0.0287182, -0.3571650]], [[-0.0233342, 0.0962156]]]]
+
+Expected (Unparsed): [[[[-0.028718204999999997,-0.357165015]],[[-0.02333421,0.09621565500000001]]]]
+
+Actual:   [[[[-0.0287, -0.3571]], [[-0.0233, 0.0963]]]]
+
+Expected: [[[[-0.0287, -0.3571]], [[-0.0233, 0.0963]]]]

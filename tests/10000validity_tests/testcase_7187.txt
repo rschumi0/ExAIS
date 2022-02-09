@@ -1,0 +1,84 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min11193 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min11193 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Glo15698 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con90455 = tf.keras.layers.Input(shape=([2]))
+in0Con69498 = tf.keras.layers.Input(shape=([4, 3, 3, 1]))
+in0PRe30648 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Add96144 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Add96144 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+Min11193 = keras.layers.Minimum(name = 'Min11193', )([in0Min11193,in1Min11193])
+Con48126 = keras.layers.Conv2D(4, (1, 2),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con48126', )(Min11193)
+Res48615 = keras.layers.Reshape((1, 4), name = 'Res48615', )(Con48126)
+Fla76211 = keras.layers.Flatten(name = 'Fla76211', )(Res48615)
+Glo15698 = keras.layers.GlobalAveragePooling1D(name = 'Glo15698', )(in0Glo15698)
+Con90455 = keras.layers.Concatenate(axis=1, name = 'Con90455', )([Glo15698,in0Con90455])
+Ave90447 = keras.layers.Average(name = 'Ave90447', )([Fla76211,Con90455])
+Res30649 = keras.layers.Reshape((4, 1), name = 'Res30649', )(Ave90447)
+Res24535 = keras.layers.Reshape((4, 1, 1), name = 'Res24535', )(Res30649)
+Res76055 = keras.layers.Reshape((4, 1, 1, 1), name = 'Res76055', )(Res24535)
+Zer15263 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (2, 0)), name = 'Zer15263', )(Res76055)
+Con69498 = keras.layers.Concatenate(axis=4, name = 'Con69498', )([Zer15263,in0Con69498])
+PRe30648 = keras.layers.PReLU(name = 'PRe30648', input_shape=(2, 2, 2, 2))(in0PRe30648)
+Add96144 = keras.layers.Add(name = 'Add96144', )([in0Add96144,in1Add96144])
+Zer89646 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer89646', )(Add96144)
+Mul97262 = keras.layers.Multiply(name = 'Mul97262', )([PRe30648,Zer89646])
+Zer61053 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (1, 0)), name = 'Zer61053', )(Mul97262)
+Add37999 = keras.layers.Add(name = 'Add37999', )([Con69498,Zer61053])
+Res61181 = keras.layers.Reshape((4, 3, 6), name = 'Res61181', )(Add37999)
+Glo92688 = keras.layers.GlobalAveragePooling2D(name = 'Glo92688', )(Res61181)
+model = tf.keras.models.Model(inputs=[in0Min11193,in1Min11193,in0Glo15698,in0Con90455,in0Con69498,in0PRe30648,in0Add96144,in1Add96144], outputs=Glo92688)
+w = model.get_layer('Con48126').get_weights() 
+w[0] = np.array([[[[0.9236, 0.3617, 0.4988, 0.0346]], [[0.3898, 0.4517, 0.2952, 0.7013]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con48126').set_weights(w) 
+w = model.get_layer('PRe30648').get_weights() 
+w[0] = np.array([[[[0.4205, 0.4606], [0.4241, 0.1279]], [[0.1231, 0.1262], [0.221, 0.7403]]], [[[0.6359, 0.9543], [0.0163, 0.1067]], [[0.9894, 0.842], [0.7435, 0.6374]]]])
+model.get_layer('PRe30648').set_weights(w) 
+in0Min11193 = tf.constant([[[[0.4606], [0.4061]]]])
+in1Min11193 = tf.constant([[[[0.7402], [0.7126]]]])
+in0Glo15698 = tf.constant([[[1.3442, 1.7427]]])
+in0Con90455 = tf.constant([[0.9955, 0.0303]])
+in0Con69498 = tf.constant([[[[[0.1285], [0.6156], [0.6751]], [[0.7742], [0.4318], [0.1956]], [[0.7966], [0.0793], [0.7786]]], [[[0.8137], [0.3519], [0.0665]], [[0.0171], [0.1944], [0.9666]], [[0.6035], [0.7875], [0.0335]]], [[[0.546], [0.0726], [0.1108]], [[0.0217], [0.7415], [0.4493]], [[0.9182], [0.0526], [0.5812]]], [[[0.3541], [0.9196], [0.1101]], [[0.4601], [0.3383], [0.9034]], [[0.5315], [0.2056], [0.8222]]]]])
+in0PRe30648 = tf.constant([[[[[0.443, 0.9981], [0.8714, 0.1776]], [[0.9163, 0.7345], [0.7533, 0.2635]]], [[[0.751, 0.8972], [0.4248, 0.4923]], [[0.3058, 0.3939], [0.0387, 0.2551]]]]])
+in0Add96144 = tf.constant([[[[[0.3588, 0.2439]], [[0.2814, 0.9228]]]]])
+in1Add96144 = tf.constant([[[[[0.4829, 0.7805]], [[0.9337, 0.4089]]]]])
+print (np.array2string(model.predict([in0Min11193,in1Min11193,in0Glo15698,in0Con90455,in0Con69498,in0PRe30648,in0Add96144,in1Add96144],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo92688.png')
+
+LMin11193 = minimum_layer([[[[[0.4606], [0.4061]]]], [[[[0.7402], [0.7126]]]]], Min11193), 
+LCon48126 = conv2D_layer(Min11193, 1, 2,[[[[0.9236, 0.3617, 0.4988, 0.0346]], [[0.3898, 0.4517, 0.2952, 0.7013]]]],[0, 0, 0, 0], 1, 1, false, 1, 1, Con48126), 
+LRes48615 = reshape_layer(Con48126, [1, 4], Res48615), 
+LFla76211 = flatten_layer(Res48615, Fla76211), 
+LGlo15698 = global_average_pooling1D_layer([[[1.3442, 1.7427]]], Glo15698), 
+LCon90455 = concatenate_layer([Glo15698,[[0.9955, 0.0303]]], 1, Con90455), 
+LAve90447 = average_layer([Fla76211,Con90455], Ave90447), 
+LRes30649 = reshape_layer(Ave90447, [4, 1], Res30649), 
+LRes24535 = reshape_layer(Res30649, [4, 1, 1], Res24535), 
+LRes76055 = reshape_layer(Res24535, [4, 1, 1, 1], Res76055), 
+LZer15263 = zero_padding3D_layer(Res76055, 0, 0, 2, 0, 2, 0, Zer15263), 
+LCon69498 = concatenate_layer([Zer15263,[[[[[0.1285], [0.6156], [0.6751]], [[0.7742], [0.4318], [0.1956]], [[0.7966], [0.0793], [0.7786]]], [[[0.8137], [0.3519], [0.0665]], [[0.0171], [0.1944], [0.9666]], [[0.6035], [0.7875], [0.0335]]], [[[0.546], [0.0726], [0.1108]], [[0.0217], [0.7415], [0.4493]], [[0.9182], [0.0526], [0.5812]]], [[[0.3541], [0.9196], [0.1101]], [[0.4601], [0.3383], [0.9034]], [[0.5315], [0.2056], [0.8222]]]]]], 4, Con69498), 
+LPRe30648 = prelu_layer([[[[[0.443, 0.9981], [0.8714, 0.1776]], [[0.9163, 0.7345], [0.7533, 0.2635]]], [[[0.751, 0.8972], [0.4248, 0.4923]], [[0.3058, 0.3939], [0.0387, 0.2551]]]]], [[[[0.4205, 0.4606], [0.4241, 0.1279]], [[0.1231, 0.1262], [0.221, 0.7403]]], [[[0.6359, 0.9543], [0.0163, 0.1067]], [[0.9894, 0.842], [0.7435, 0.6374]]]], PRe30648), 
+LAdd96144 = add_layer([[[[[[0.3588, 0.2439]], [[0.2814, 0.9228]]]]], [[[[[0.4829, 0.7805]], [[0.9337, 0.4089]]]]]], Add96144), 
+LZer89646 = zero_padding3D_layer(Add96144, 1, 0, 0, 0, 1, 0, Zer89646), 
+LMul97262 = multiply_layer([PRe30648,Zer89646], Mul97262), 
+LZer61053 = zero_padding3D_layer(Mul97262, 2, 0, 1, 0, 1, 0, Zer61053), 
+LAdd37999 = add_layer([Con69498,Zer61053], Add37999), 
+LRes61181 = reshape_layer(Add37999, [4, 3, 6], Res61181), 
+LGlo92688 = global_average_pooling2D_layer(Res61181, Glo92688), 
+exec_layers([LMin11193,LCon48126,LRes48615,LFla76211,LGlo15698,LCon90455,LAve90447,LRes30649,LRes24535,LRes76055,LZer15263,LCon69498,LPRe30648,LAdd96144,LZer89646,LMul97262,LZer61053,LAdd37999,LRes61181,LGlo92688],["Min11193","Con48126","Res48615","Fla76211","Glo15698","Con90455","Ave90447","Res30649","Res24535","Res76055","Zer15263","Con69498","PRe30648","Add96144","Zer89646","Mul97262","Zer61053","Add37999","Res61181","Glo92688"],Glo92688,"Glo92688")
+
+Actual (Unparsed): [[0.0000000, 0.4971000, 0.0000000, 0.3992250, 0.2710818, 0.5447441]]
+
+Expected (Unparsed): [[0,0.4971000000000001,0.0,0.39922499999999994,0.27108175333333334,0.5447440658333333]]
+
+Actual:   [[0, 0.4971, 0, 0.3993, 0.2711, 0.5448]]
+
+Expected: [[0, 0.4972, 0, 0.3993, 0.2711, 0.5448]]

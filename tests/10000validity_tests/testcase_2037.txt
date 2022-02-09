@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add42035 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Add42035 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in0Sub39649 = tf.keras.layers.Input(shape=([2]))
+in1Sub39649 = tf.keras.layers.Input(shape=([2]))
+in0Con96823 = tf.keras.layers.Input(shape=([3]))
+
+Add42035 = keras.layers.Add(name = 'Add42035', )([in0Add42035,in1Add42035])
+Res89523 = keras.layers.Reshape((1, 1, 4), name = 'Res89523', )(Add42035)
+Res75056 = keras.layers.Reshape((1, 4), name = 'Res75056', )(Res89523)
+Max34177 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max34177', )(Res75056)
+Fla79247 = keras.layers.Flatten(name = 'Fla79247', )(Max34177)
+Sub39649 = keras.layers.Subtract(name = 'Sub39649', )([in0Sub39649,in1Sub39649])
+Res22178 = keras.layers.Reshape((2, 1), name = 'Res22178', )(Sub39649)
+GRU66829 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU66829', )(Res22178)
+Con96823 = keras.layers.Concatenate(axis=1, name = 'Con96823', )([GRU66829,in0Con96823])
+Add90368 = keras.layers.Add(name = 'Add90368', )([Fla79247,Con96823])
+model = tf.keras.models.Model(inputs=[in0Add42035,in1Add42035,in0Sub39649,in1Sub39649,in0Con96823], outputs=Add90368)
+w = model.get_layer('GRU66829').get_weights() 
+w[0] = np.array([[5, 1, 7]])
+w[1] = np.array([[10, 8, 1]])
+w[2] = np.array([[1, 5, 7], [4, 7, 6]])
+model.get_layer('GRU66829').set_weights(w) 
+in0Add42035 = tf.constant([[[[[0.966, 0.7574], [0.5135, 0.3417]]]]])
+in1Add42035 = tf.constant([[[[[0.1623, 0.668], [0.0844, 0.7608]]]]])
+in0Sub39649 = tf.constant([[0.0109, 0.5876]])
+in1Sub39649 = tf.constant([[0.4826, 0.0756]])
+in0Con96823 = tf.constant([[0.0397, 0.0566, 0.5327]])
+print (np.array2string(model.predict([in0Add42035,in1Add42035,in0Sub39649,in1Sub39649,in0Con96823],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add90368.png')
+
+LAdd42035 = add_layer([[[[[[0.966, 0.7574], [0.5135, 0.3417]]]]], [[[[[0.1623, 0.668], [0.0844, 0.7608]]]]]], Add42035), 
+LRes89523 = reshape_layer(Add42035, [1, 1, 4], Res89523), 
+LRes75056 = reshape_layer(Res89523, [1, 4], Res75056), 
+LMax34177 = max_pool1D_layer(Res75056, 1, 1, true, Max34177), 
+LFla79247 = flatten_layer(Max34177, Fla79247), 
+LSub39649 = subtract_layer([[0.0109, 0.5876]], [[0.4826, 0.0756]], Sub39649), 
+LRes22178 = reshape_layer(Sub39649, [2, 1], Res22178), 
+LGRU66829 = gru_layer(Res22178,[[5, 1, 7]],[[10, 8, 1]],[[1, 5, 7], [4, 7, 6]], true, GRU66829), 
+LCon96823 = concatenate_layer([GRU66829,[[0.0397, 0.0566, 0.5327]]], 1, Con96823), 
+LAdd90368 = add_layer([Fla79247,Con96823], Add90368), 
+exec_layers([LAdd42035,LRes89523,LRes75056,LMax34177,LFla79247,LSub39649,LRes22178,LGRU66829,LCon96823,LAdd90368],["Add42035","Res89523","Res75056","Max34177","Fla79247","Sub39649","Res22178","GRU66829","Con96823","Add90368"],Add90368,"Add90368")
+
+Actual (Unparsed): [[1.1950648, 1.4651000, 0.6545000, 1.6352000]]
+
+Expected (Unparsed): [[1.1950647893855304,1.4651,0.6545,1.6352]]
+
+Actual:   [[1.1951, 1.4651, 0.6545, 1.6352]]
+
+Expected: [[1.1951, 1.4651, 0.6545, 1.6352]]

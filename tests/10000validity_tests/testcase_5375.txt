@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo76870 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con82747 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Sep10490 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Glo76870 = keras.layers.GlobalAveragePooling3D(name = 'Glo76870', )(in0Glo76870)
+Lea8027 = keras.layers.LeakyReLU(alpha=7.656991479903498, name = 'Lea8027', )(Glo76870)
+Res3400 = keras.layers.Reshape((2, 1), name = 'Res3400', )(Lea8027)
+Res44077 = keras.layers.Reshape((2, 1, 1), name = 'Res44077', )(Res3400)
+Con82747 = keras.layers.Concatenate(axis=3, name = 'Con82747', )([Res44077,in0Con82747])
+Sep10490 = keras.layers.SeparableConv2D(3, (2, 1),strides=(2, 2), padding='same', name = 'Sep10490', )(in0Sep10490)
+Bat20625 = keras.layers.BatchNormalization(axis=1, epsilon=0.37918976515556346,  name = 'Bat20625', )(Sep10490)
+Zer54780 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer54780', )(Bat20625)
+Ave94397 = keras.layers.Average(name = 'Ave94397', )([Con82747,Zer54780])
+model = tf.keras.models.Model(inputs=[in0Glo76870,in0Con82747,in0Sep10490], outputs=Ave94397)
+w = model.get_layer('Sep10490').get_weights() 
+w[0] = np.array([[[[0.6865]]], [[[0.3249]]]])
+w[1] = np.array([[[[0.6682, 0.0113, 0.4925]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep10490').set_weights(w) 
+w = model.get_layer('Bat20625').get_weights() 
+w[0] = np.array([0.0651])
+w[1] = np.array([0.8543])
+w[2] = np.array([0.6236])
+w[3] = np.array([0.6702])
+model.get_layer('Bat20625').set_weights(w) 
+in0Glo76870 = tf.constant([[[[[1.547, 1.6081]], [[1.4707, 1.0089]]]]])
+in0Con82747 = tf.constant([[[[0.1126, 0.2791]], [[0.663, 0.9415]]]])
+in0Sep10490 = tf.constant([[[[0.7488]], [[0.1767]]]])
+print (np.array2string(model.predict([in0Glo76870,in0Con82747,in0Sep10490],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave94397.png')
+
+LGlo76870 = global_average_pooling3D_layer([[[[[1.547, 1.6081]], [[1.4707, 1.0089]]]]], Glo76870), 
+LLea8027 = leaky_relu_layer(Glo76870, 7.656991479903498, Lea8027), 
+LRes3400 = reshape_layer(Lea8027, [2, 1], Res3400), 
+LRes44077 = reshape_layer(Res3400, [2, 1, 1], Res44077), 
+LCon82747 = concatenate_layer([Res44077,[[[[0.1126, 0.2791]], [[0.663, 0.9415]]]]], 3, Con82747), 
+LSep10490 = separable_conv2D_layer([[[[0.7488]], [[0.1767]]]], 2, 1,[[[[[0.6865]]], [[[0.3249]]]],[[[[0.6682, 0.0113, 0.4925]]]]],[0, 0, 0], 2, 2, true, Sep10490), 
+LBat20625 = batch_normalization_layer(Sep10490, 1, 0.37918976515556346, [0.0651], [0.8543], [0.6236], [0.6702], Bat20625), 
+LZer54780 = zero_padding2D_layer(Bat20625, 1, 0, 0, 0, Zer54780), 
+LAve94397 = average_layer([Con82747,Zer54780], Ave94397), 
+exec_layers([LGlo76870,LLea8027,LRes3400,LRes44077,LCon82747,LSep10490,LBat20625,LZer54780,LAve94397],["Glo76870","Lea8027","Res3400","Res44077","Con82747","Sep10490","Bat20625","Zer54780","Ave94397"],Ave94397,"Ave94397")
+
+Actual (Unparsed): [[[[0.7544250, 0.0563000, 0.1395500]], [[1.0737185, 0.7390404, 0.8870281]]]]
+
+Expected (Unparsed): [[[[0.7544249999999999,0.0563,0.13955]],[[1.0737184546996146,0.739040431851862,0.887028085367372]]]]
+
+Actual:   [[[[0.7545, 0.0563, 0.1396]], [[1.0738, 0.7391, 0.8871]]]]
+
+Expected: [[[[0.7545, 0.0563, 0.1396]], [[1.0738, 0.7391, 0.8871]]]]

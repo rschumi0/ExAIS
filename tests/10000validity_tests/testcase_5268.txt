@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep34198 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con36500 = tf.keras.layers.Input(shape=([1, 1]))
+in0Max38925 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max38925 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dep34198 = keras.layers.DepthwiseConv2D((1, 2),strides=(2, 2), padding='same', name = 'Dep34198', )(in0Dep34198)
+ReL50520 = keras.layers.ReLU(max_value=7.641913753219776, negative_slope=6.088037882388471, threshold=9.67826827572441, name = 'ReL50520', )(Dep34198)
+Bat33060 = keras.layers.BatchNormalization(axis=1, epsilon=0.1165807807339413,  name = 'Bat33060', )(ReL50520)
+Res38919 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res38919', )(Bat33060)
+Glo86610 = keras.layers.GlobalAveragePooling3D(name = 'Glo86610', )(Res38919)
+Res11934 = keras.layers.Reshape((1, 1), name = 'Res11934', )(Glo86610)
+Con36500 = keras.layers.Concatenate(axis=2, name = 'Con36500', )([Res11934,in0Con36500])
+Max38925 = keras.layers.Maximum(name = 'Max38925', )([in0Max38925,in1Max38925])
+Ave88697 = keras.layers.Average(name = 'Ave88697', )([Con36500,Max38925])
+model = tf.keras.models.Model(inputs=[in0Dep34198,in0Con36500,in0Max38925,in1Max38925], outputs=Ave88697)
+w = model.get_layer('Dep34198').get_weights() 
+w[0] = np.array([[[[0.2555], [0.5016]], [[0.4353], [0.5105]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep34198').set_weights(w) 
+w = model.get_layer('Bat33060').get_weights() 
+w[0] = np.array([0.83])
+w[1] = np.array([0.5176])
+w[2] = np.array([0.3942])
+w[3] = np.array([0.0859])
+model.get_layer('Bat33060').set_weights(w) 
+in0Dep34198 = tf.constant([[[[0.0804, 0.4059], [0.8898, 0.7002]], [[0.2058, 0.4329], [0.0655, 0.2053]]]])
+in0Con36500 = tf.constant([[[0.0024]]])
+in0Max38925 = tf.constant([[[0.3449, 0.3528]]])
+in1Max38925 = tf.constant([[[0.8886, 0.0932]]])
+print (np.array2string(model.predict([in0Dep34198,in0Con36500,in0Max38925,in1Max38925],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave88697.png')
+
+LDep34198 = depthwise_conv2D_layer([[[[0.0804, 0.4059], [0.8898, 0.7002]], [[0.2058, 0.4329], [0.0655, 0.2053]]]], 1, 2,[[[[0.2555], [0.5016]], [[0.4353], [0.5105]]]],[0, 0], 2, 2, true, Dep34198), 
+LReL50520 = relu_layer(Dep34198, 7.641913753219776, 6.088037882388471, 9.67826827572441, ReL50520), 
+LBat33060 = batch_normalization_layer(ReL50520, 1, 0.1165807807339413, [0.83], [0.5176], [0.3942], [0.0859], Bat33060), 
+LRes38919 = reshape_layer(Bat33060, [1, 1, 2, 1], Res38919), 
+LGlo86610 = global_average_pooling3D_layer(Res38919, Glo86610), 
+LRes11934 = reshape_layer(Glo86610, [1, 1], Res11934), 
+LCon36500 = concatenate_layer([Res11934,[[[0.0024]]]], 2, Con36500), 
+LMax38925 = maximum_layer([[[[0.3449, 0.3528]]], [[[0.8886, 0.0932]]]], Max38925), 
+LAve88697 = average_layer([Con36500,Max38925], Ave88697), 
+exec_layers([LDep34198,LReL50520,LBat33060,LRes38919,LGlo86610,LRes11934,LCon36500,LMax38925,LAve88697],["Dep34198","ReL50520","Bat33060","Res38919","Glo86610","Res11934","Con36500","Max38925","Ave88697"],Ave88697,"Ave88697")
+
+Actual (Unparsed): [[[-51.2817522, 0.1776000]]]
+
+Expected (Unparsed): [[[-51.28175227316602,0.1776]]]
+
+Actual:   [[[-51.2817, 0.1776]]]
+
+Expected: [[[-51.2817, 0.1776]]]

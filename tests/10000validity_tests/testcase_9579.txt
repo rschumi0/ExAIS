@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add5106 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Add5106 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave10673 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Ave10673 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Sub97311 = tf.keras.layers.Input(shape=([2]))
+in1Sub97311 = tf.keras.layers.Input(shape=([2]))
+
+Add5106 = keras.layers.Add(name = 'Add5106', )([in0Add5106,in1Add5106])
+Fla83406 = keras.layers.Flatten(name = 'Fla83406', )(Add5106)
+Res12556 = keras.layers.Reshape((4, 1), name = 'Res12556', )(Fla83406)
+Ave10673 = keras.layers.Average(name = 'Ave10673', )([in0Ave10673,in1Ave10673])
+Res39797 = keras.layers.Reshape((2, 1, 4), name = 'Res39797', )(Ave10673)
+Sub97311 = keras.layers.Subtract(name = 'Sub97311', )([in0Sub97311,in1Sub97311])
+Res22824 = keras.layers.Reshape((2, 1), name = 'Res22824', )(Sub97311)
+Loc38709 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc38709', )(Res22824)
+Res90983 = keras.layers.Reshape((2, 1, 4), name = 'Res90983', )(Loc38709)
+Add39846 = keras.layers.Add(name = 'Add39846', )([Res39797,Res90983])
+Res87016 = keras.layers.Reshape((2, 4), name = 'Res87016', )(Add39846)
+Zer84526 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer84526', )(Res87016)
+Dot89158 = keras.layers.Dot(axes=(1, 1), name = 'Dot89158', )([Res12556,Zer84526])
+Bat46999 = keras.layers.BatchNormalization(axis=2, epsilon=0.3111697832346066,  name = 'Bat46999', )(Dot89158)
+model = tf.keras.models.Model(inputs=[in0Add5106,in1Add5106,in0Ave10673,in1Ave10673,in0Sub97311,in1Sub97311], outputs=Bat46999)
+w = model.get_layer('Loc38709').get_weights() 
+w[0] = np.array([[[0.8967, 0.1173, 0.5031, 0.2505]], [[0.9674, 0.0743, 0.7987, 0.8649]]])
+w[1] = np.array([[0, 0, 0, 0], [0, 0, 0, 0]])
+model.get_layer('Loc38709').set_weights(w) 
+w = model.get_layer('Bat46999').get_weights() 
+w[0] = np.array([0.1583, 0.9938, 0.9144, 0.7107])
+w[1] = np.array([0.7924, 0.9244, 0.9566, 0.2693])
+w[2] = np.array([0.5858, 0.0737, 0.2274, 0.9])
+w[3] = np.array([0.6832, 0.4947, 0.249, 0.9344])
+model.get_layer('Bat46999').set_weights(w) 
+in0Add5106 = tf.constant([[[[0.2742, 0.9439], [0.7056, 0.4538]]]])
+in1Add5106 = tf.constant([[[[0.3382, 0.9625], [0.1979, 0.9282]]]])
+in0Ave10673 = tf.constant([[[[[0.7818, 0.6541], [0.9788, 0.5886]]], [[[0.3809, 0.4419], [0.2272, 0.1554]]]]])
+in1Ave10673 = tf.constant([[[[[0.7488, 0.5637], [0.741, 0.2811]]], [[[0.7479, 0.4613], [0.7579, 0.7716]]]]])
+in0Sub97311 = tf.constant([[0.8896, 0.1283]])
+in1Sub97311 = tf.constant([[0.3113, 0.5124]])
+print (np.array2string(model.predict([in0Add5106,in1Add5106,in0Ave10673,in1Ave10673,in0Sub97311,in1Sub97311],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat46999.png')
+
+LAdd5106 = add_layer([[[[[0.2742, 0.9439], [0.7056, 0.4538]]]], [[[[0.3382, 0.9625], [0.1979, 0.9282]]]]], Add5106), 
+LFla83406 = flatten_layer(Add5106, Fla83406), 
+LRes12556 = reshape_layer(Fla83406, [4, 1], Res12556), 
+LAve10673 = average_layer([[[[[[0.7818, 0.6541], [0.9788, 0.5886]]], [[[0.3809, 0.4419], [0.2272, 0.1554]]]]], [[[[[0.7488, 0.5637], [0.741, 0.2811]]], [[[0.7479, 0.4613], [0.7579, 0.7716]]]]]], Ave10673), 
+LRes39797 = reshape_layer(Ave10673, [2, 1, 4], Res39797), 
+LSub97311 = subtract_layer([[0.8896, 0.1283]], [[0.3113, 0.5124]], Sub97311), 
+LRes22824 = reshape_layer(Sub97311, [2, 1], Res22824), 
+LLoc38709 = locally_connected1D_layer(Res22824, 1,[[[0.8967, 0.1173, 0.5031, 0.2505]], [[0.9674, 0.0743, 0.7987, 0.8649]]],[[0, 0, 0, 0], [0, 0, 0, 0]], 1, Loc38709), 
+LRes90983 = reshape_layer(Loc38709, [2, 1, 4], Res90983), 
+LAdd39846 = add_layer([Res39797,Res90983], Add39846), 
+LRes87016 = reshape_layer(Add39846, [2, 4], Res87016), 
+LZer84526 = zero_padding1D_layer(Res87016, 2, 0, Zer84526), 
+LDot89158 = dot_layer(Res12556,Zer84526, 1, 1, Dot89158), 
+LBat46999 = batch_normalization_layer(Dot89158, 2, 0.3111697832346066, [0.1583, 0.9938, 0.9144, 0.7107], [0.7924, 0.9244, 0.9566, 0.2693], [0.5858, 0.0737, 0.2274, 0.9], [0.6832, 0.4947, 0.249, 0.9344], Bat46999), 
+exec_layers([LAdd5106,LFla83406,LRes12556,LAve10673,LRes39797,LSub97311,LRes22824,LLoc38709,LRes90983,LAdd39846,LRes87016,LZer84526,LDot89158,LBat46999],["Add5106","Fla83406","Res12556","Ave10673","Res39797","Sub97311","Res22824","Loc38709","Res90983","Add39846","Res87016","Zer84526","Dot89158","Bat46999"],Bat46999,"Bat46999")
+
+Actual (Unparsed): [[[0.9258509, 2.1669516, 2.2627790, 0.1452625]]]
+
+Expected (Unparsed): [[[0.9258508662871962,2.1669515456814707,2.262778942618102,0.1452625040400756]]]
+
+Actual:   [[[0.9259, 2.167, 2.2628, 0.1453]]]
+
+Expected: [[[0.9259, 2.167, 2.2628, 0.1453]]]

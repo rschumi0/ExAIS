@@ -1,0 +1,81 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den30469 = tf.keras.layers.Input(shape=([2, 5]))
+in0Thr72426 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Glo63022 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con90536 = tf.keras.layers.Input(shape=([2]))
+in0Con54178 = tf.keras.layers.Input(shape=([4, 1]))
+in0Max31230 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max31230 = tf.keras.layers.Input(shape=([1, 2]))
+
+Den30469 = keras.layers.Dense(2,name = 'Den30469', )(in0Den30469)
+Res55502 = keras.layers.Reshape((2, 2, 1), name = 'Res55502', )(Den30469)
+Res4670 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res4670', )(Res55502)
+Thr72426 = keras.layers.ThresholdedReLU(theta=2.260476345518037, name = 'Thr72426', input_shape=(2, 2, 1, 1))(in0Thr72426)
+Ave75557 = keras.layers.Average(name = 'Ave75557', )([Res4670,Thr72426])
+Res59504 = keras.layers.Reshape((2, 2, 1), name = 'Res59504', )(Ave75557)
+Res72322 = keras.layers.Reshape((2, 2), name = 'Res72322', )(Res59504)
+Fla22583 = keras.layers.Flatten(name = 'Fla22583', )(Res72322)
+Glo63022 = keras.layers.GlobalAveragePooling2D(name = 'Glo63022', )(in0Glo63022)
+Con90536 = keras.layers.Concatenate(axis=1, name = 'Con90536', )([Glo63022,in0Con90536])
+Max69433 = keras.layers.Maximum(name = 'Max69433', )([Fla22583,Con90536])
+Res71408 = keras.layers.Reshape((4, 1), name = 'Res71408', )(Max69433)
+Con54178 = keras.layers.Concatenate(axis=2, name = 'Con54178', )([Res71408,in0Con54178])
+Max31230 = keras.layers.Maximum(name = 'Max31230', )([in0Max31230,in1Max31230])
+Bat64988 = keras.layers.BatchNormalization(axis=2, epsilon=0.639912736213417,  name = 'Bat64988', )(Max31230)
+Zer28399 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer28399', )(Bat64988)
+Sub93462 = keras.layers.Subtract(name = 'Sub93462', )([Con54178,Zer28399])
+Thr96761 = keras.layers.ThresholdedReLU(theta=8.448036524655128, name = 'Thr96761', )(Sub93462)
+model = tf.keras.models.Model(inputs=[in0Den30469,in0Thr72426,in0Glo63022,in0Con90536,in0Con54178,in0Max31230,in1Max31230], outputs=Thr96761)
+w = model.get_layer('Den30469').get_weights() 
+w[0] = np.array([[0.9862, 0.703], [0.3705, 0.6592], [0.9813, 0.1887], [0.8634, 0.7547], [0.521, 0.4067]])
+w[1] = np.array([0.6248, 0.5987])
+model.get_layer('Den30469').set_weights(w) 
+w = model.get_layer('Bat64988').get_weights() 
+w[0] = np.array([0.55, 0.5205])
+w[1] = np.array([0.0764, 0.5729])
+w[2] = np.array([0.0015, 0.0919])
+w[3] = np.array([0.9983, 0.1694])
+model.get_layer('Bat64988').set_weights(w) 
+in0Den30469 = tf.constant([[[0.7406, 0.5138, 0.3674, 0.5517, 0.9787], [0.9932, 0.9747, 0.2565, 0.9704, 0.7579]]])
+in0Thr72426 = tf.constant([[[[[0.7266]], [[0.2194]]], [[[0.6149]], [[0.3632]]]]])
+in0Glo63022 = tf.constant([[[[1.5283, 1.0113], [1.3243, 1.7638]]]])
+in0Con90536 = tf.constant([[0.3229, 0.8225]])
+in0Con54178 = tf.constant([[[0.2544], [0.3811], [0.8328], [0.9084]]])
+in0Max31230 = tf.constant([[[0.1541, 0.6223]]])
+in1Max31230 = tf.constant([[[0.7219, 0.6288]]])
+print (np.array2string(model.predict([in0Den30469,in0Thr72426,in0Glo63022,in0Con90536,in0Con54178,in0Max31230,in1Max31230],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Thr96761.png')
+
+LDen30469 = dense_layer([[[0.7406, 0.5138, 0.3674, 0.5517, 0.9787], [0.9932, 0.9747, 0.2565, 0.9704, 0.7579]]], [[0.9862, 0.703], [0.3705, 0.6592], [0.9813, 0.1887], [0.8634, 0.7547], [0.521, 0.4067]],[0.6248, 0.5987], Den30469), 
+LRes55502 = reshape_layer(Den30469, [2, 2, 1], Res55502), 
+LRes4670 = reshape_layer(Res55502, [2, 2, 1, 1], Res4670), 
+LThr72426 = thresholded_relu_layer([[[[[0.7266]], [[0.2194]]], [[[0.6149]], [[0.3632]]]]], 2.260476345518037, Thr72426), 
+LAve75557 = average_layer([Res4670,Thr72426], Ave75557), 
+LRes59504 = reshape_layer(Ave75557, [2, 2, 1], Res59504), 
+LRes72322 = reshape_layer(Res59504, [2, 2], Res72322), 
+LFla22583 = flatten_layer(Res72322, Fla22583), 
+LGlo63022 = global_average_pooling2D_layer([[[[1.5283, 1.0113], [1.3243, 1.7638]]]], Glo63022), 
+LCon90536 = concatenate_layer([Glo63022,[[0.3229, 0.8225]]], 1, Con90536), 
+LMax69433 = maximum_layer([Fla22583,Con90536], Max69433), 
+LRes71408 = reshape_layer(Max69433, [4, 1], Res71408), 
+LCon54178 = concatenate_layer([Res71408,[[[0.2544], [0.3811], [0.8328], [0.9084]]]], 2, Con54178), 
+LMax31230 = maximum_layer([[[[0.1541, 0.6223]]], [[[0.7219, 0.6288]]]], Max31230), 
+LBat64988 = batch_normalization_layer(Max31230, 2, 0.639912736213417, [0.55, 0.5205], [0.0764, 0.5729], [0.0015, 0.0919], [0.9983, 0.1694], Bat64988), 
+LZer28399 = zero_padding1D_layer(Bat64988, 3, 0, Zer28399), 
+LSub93462 = subtract_layer(Con54178,Zer28399, Sub93462), 
+LThr96761 = thresholded_relu_layer(Sub93462, 8.448036524655128, Thr96761), 
+exec_layers([LDen30469,LRes55502,LRes4670,LThr72426,LAve75557,LRes59504,LRes72322,LFla22583,LGlo63022,LCon90536,LMax69433,LRes71408,LCon54178,LMax31230,LBat64988,LZer28399,LSub93462,LThr96761],["Den30469","Res55502","Res4670","Thr72426","Ave75557","Res59504","Res72322","Fla22583","Glo63022","Con90536","Max69433","Res71408","Con54178","Max31230","Bat64988","Zer28399","Sub93462","Thr96761"],Thr96761,"Thr96761")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0],[0,0],[0,0],[0,0]]]
+
+Actual:   [[[0, 0], [0, 0], [0, 0], [0, 0]]]
+
+Expected: [[[0, 0], [0, 0], [0, 0], [0, 0]]]

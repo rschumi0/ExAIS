@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub84255 = tf.keras.layers.Input(shape=([3]))
+in1Sub84255 = tf.keras.layers.Input(shape=([3]))
+in0Con31049 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot15125 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot15125 = tf.keras.layers.Input(shape=([3, 3]))
+
+Sub84255 = keras.layers.Subtract(name = 'Sub84255', )([in0Sub84255,in1Sub84255])
+Res41907 = keras.layers.Reshape((3, 1), name = 'Res41907', )(Sub84255)
+Con31049 = keras.layers.Concatenate(axis=2, name = 'Con31049', )([Res41907,in0Con31049])
+Dot15125 = keras.layers.Dot(axes=(2, 1), name = 'Dot15125', )([in0Dot15125,in1Dot15125])
+Mul93060 = keras.layers.Multiply(name = 'Mul93060', )([Con31049,Dot15125])
+Per29554 = keras.layers.Permute((2,1), name = 'Per29554',)(Mul93060)
+ReL6949 = keras.layers.ReLU(max_value=1.7586771464340143, negative_slope=8.767653204006255, threshold=0.8177010552803099, name = 'ReL6949', )(Per29554)
+model = tf.keras.models.Model(inputs=[in0Sub84255,in1Sub84255,in0Con31049,in0Dot15125,in1Dot15125], outputs=ReL6949)
+in0Sub84255 = tf.constant([[0.1463, 0.9852, 0.3074]])
+in1Sub84255 = tf.constant([[0.0683, 0.9851, 0.3484]])
+in0Con31049 = tf.constant([[[0.2678, 0.4503], [0.5892, 0.0016], [0.0142, 0.5275]]])
+in0Dot15125 = tf.constant([[[0.9308, 0.0718, 0.7619], [0.7826, 0.8079, 0.9621], [0.0371, 0.8539, 0.8941]]])
+in1Dot15125 = tf.constant([[[0.7632, 0.8499, 0.5242], [0.6056, 0.7699, 0.6656], [0.5466, 0.0676, 0.4106]]])
+print (np.array2string(model.predict([in0Sub84255,in1Sub84255,in0Con31049,in0Dot15125,in1Dot15125],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ReL6949.png')
+
+LSub84255 = subtract_layer([[0.1463, 0.9852, 0.3074]], [[0.0683, 0.9851, 0.3484]], Sub84255), 
+LRes41907 = reshape_layer(Sub84255, [3, 1], Res41907), 
+LCon31049 = concatenate_layer([Res41907,[[[0.2678, 0.4503], [0.5892, 0.0016], [0.0142, 0.5275]]]], 2, Con31049), 
+LDot15125 = dot_layer([[[0.9308, 0.0718, 0.7619], [0.7826, 0.8079, 0.9621], [0.0371, 0.8539, 0.8941]]], [[[0.7632, 0.8499, 0.5242], [0.6056, 0.7699, 0.6656], [0.5466, 0.0676, 0.4106]]], 2, 1, Dot15125), 
+LMul93060 = multiply_layer([Con31049,Dot15125], Mul93060), 
+LPer29554 = permute_layer(Mul93060, 2,1, Per29554), 
+LReL6949 = relu_layer(Per29554, 1.7586771464340143, 8.767653204006255, 0.8177010552803099, ReL6949), 
+exec_layers([LSub84255,LRes41907,LCon31049,LDot15125,LMul93060,LPer29554,LReL6949],["Sub84255","Res41907","Con31049","Dot15125","Mul93060","Per29554","ReL6949"],ReL6949,"ReL6949")
+
+Actual (Unparsed): [[[-6.3689622, -7.1679053, -7.5410697], [-5.0611402, -0.1841324, -7.0760197], [-3.8191744, -7.1504791, -2.7528693]]]
+
+Expected (Unparsed): [[[-6.368962230497421,-7.167905555927421,-7.541069670593076],[-5.061140271516872,-0.18413269309450175,-7.076019708567051],[-3.8191746448357526,-7.1504791277273965,-2.7528691951002005]]]
+
+Actual:   [[[-6.3689, -7.1679, -7.541], [-5.0611, -0.1841, -7.076], [-3.8191, -7.1504, -2.7528]]]
+
+Expected: [[[-6.3689, -7.1679, -7.541], [-5.0611, -0.1841, -7.076], [-3.8191, -7.1504, -2.7528]]]

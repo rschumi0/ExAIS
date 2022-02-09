@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max25975 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max25975 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Ave90430 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave90430 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max66350 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Max66350 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con60163 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Max25975 = keras.layers.Maximum(name = 'Max25975', )([in0Max25975,in1Max25975])
+Ave90430 = keras.layers.Average(name = 'Ave90430', )([in0Ave90430,in1Ave90430])
+Res47306 = keras.layers.Reshape((1, 2, 1), name = 'Res47306', )(Ave90430)
+Max66350 = keras.layers.Maximum(name = 'Max66350', )([in0Max66350,in1Max66350])
+Zer62634 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer62634', )(Max66350)
+Add73228 = keras.layers.Add(name = 'Add73228', )([Res47306,Zer62634])
+Zer23118 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer23118', )(Add73228)
+Con60163 = keras.layers.Concatenate(axis=3, name = 'Con60163', )([Zer23118,in0Con60163])
+Min1901 = keras.layers.Minimum(name = 'Min1901', )([Max25975,Con60163])
+model = tf.keras.models.Model(inputs=[in0Max25975,in1Max25975,in0Ave90430,in1Ave90430,in0Max66350,in1Max66350,in0Con60163], outputs=Min1901)
+in0Max25975 = tf.constant([[[[0.3475, 0.5837], [0.8771, 0.3704]], [[0.7663, 0.5333], [0.9048, 0.0221]]]])
+in1Max25975 = tf.constant([[[[0.5055, 0.0455], [0.4954, 0.5103]], [[0.8216, 0.9369], [0.3279, 0.2625]]]])
+in0Ave90430 = tf.constant([[[0.9201, 0.5895]]])
+in1Ave90430 = tf.constant([[[0.5119, 0.0829]]])
+in0Max66350 = tf.constant([[[[0.8665]]]])
+in1Max66350 = tf.constant([[[[0.0528]]]])
+in0Con60163 = tf.constant([[[[0.1538], [0.413]], [[0.4836], [0.3971]]]])
+print (np.array2string(model.predict([in0Max25975,in1Max25975,in0Ave90430,in1Ave90430,in0Max66350,in1Max66350,in0Con60163],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min1901.png')
+
+LMax25975 = maximum_layer([[[[[0.3475, 0.5837], [0.8771, 0.3704]], [[0.7663, 0.5333], [0.9048, 0.0221]]]], [[[[0.5055, 0.0455], [0.4954, 0.5103]], [[0.8216, 0.9369], [0.3279, 0.2625]]]]], Max25975), 
+LAve90430 = average_layer([[[[0.9201, 0.5895]]], [[[0.5119, 0.0829]]]], Ave90430), 
+LRes47306 = reshape_layer(Ave90430, [1, 2, 1], Res47306), 
+LMax66350 = maximum_layer([[[[[0.8665]]]], [[[[0.0528]]]]], Max66350), 
+LZer62634 = zero_padding2D_layer(Max66350, 0, 0, 1, 0, Zer62634), 
+LAdd73228 = add_layer([Res47306,Zer62634], Add73228), 
+LZer23118 = zero_padding2D_layer(Add73228, 1, 0, 0, 0, Zer23118), 
+LCon60163 = concatenate_layer([Zer23118,[[[[0.1538], [0.413]], [[0.4836], [0.3971]]]]], 3, Con60163), 
+LMin1901 = minimum_layer([Max25975,Con60163], Min1901), 
+exec_layers([LMax25975,LAve90430,LRes47306,LMax66350,LZer62634,LAdd73228,LZer23118,LCon60163,LMin1901],["Max25975","Ave90430","Res47306","Max66350","Zer62634","Add73228","Zer23118","Con60163","Min1901"],Min1901,"Min1901")
+
+Actual (Unparsed): [[[[0.0000000, 0.1538000], [0.0000000, 0.4130000]], [[0.7160000, 0.4836000], [0.9048000, 0.2625000]]]]
+
+Expected (Unparsed): [[[[0,0.1538],[0,0.413]],[[0.716,0.4836],[0.9048,0.2625]]]]
+
+Actual:   [[[[0, 0.1538], [0, 0.413]], [[0.716, 0.4836], [0.9048, 0.2625]]]]
+
+Expected: [[[[0, 0.1538], [0, 0.413]], [[0.716, 0.4836], [0.9048, 0.2625]]]]

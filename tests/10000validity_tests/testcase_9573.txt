@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas56942 = tf.keras.layers.Input(shape=([1]))
+in0Con18235 = tf.keras.layers.Input(shape=([2, 1]))
+in0Dep13970 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Mas56942 = keras.layers.Masking(mask_value=1, name = 'Mas56942', )(in0Mas56942)
+Res8592 = keras.layers.Reshape((1, 1), name = 'Res8592', )(Mas56942)
+Res81303 = keras.layers.Reshape((1, 1, 1), name = 'Res81303', )(Res8592)
+Res44883 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res44883', )(Res81303)
+Glo55825 = keras.layers.GlobalAveragePooling3D(name = 'Glo55825', )(Res44883)
+Res10095 = keras.layers.Reshape((1, 1), name = 'Res10095', )(Glo55825)
+Zer87090 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer87090', )(Res10095)
+Con18235 = keras.layers.Concatenate(axis=2, name = 'Con18235', )([Zer87090,in0Con18235])
+Dep13970 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep13970', )(in0Dep13970)
+Res21809 = keras.layers.Reshape((2, 2), name = 'Res21809', )(Dep13970)
+Up_81266 = keras.layers.UpSampling1D(size=(1), name = 'Up_81266', )(Res21809)
+Sub67784 = keras.layers.Subtract(name = 'Sub67784', )([Con18235,Up_81266])
+model = tf.keras.models.Model(inputs=[in0Mas56942,in0Con18235,in0Dep13970], outputs=Sub67784)
+w = model.get_layer('Dep13970').get_weights() 
+w[0] = np.array([[[[0.5283]]]])
+w[1] = np.array([0])
+model.get_layer('Dep13970').set_weights(w) 
+in0Mas56942 = tf.constant([[1.702]])
+in0Con18235 = tf.constant([[[0.09], [0.4987]]])
+in0Dep13970 = tf.constant([[[[0.785], [0.61]], [[0.7686], [0.029]]]])
+print (np.array2string(model.predict([in0Mas56942,in0Con18235,in0Dep13970],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub67784.png')
+
+LMas56942 = masking_layer([[1.702]], 1, Mas56942), 
+LRes8592 = reshape_layer(Mas56942, [1, 1], Res8592), 
+LRes81303 = reshape_layer(Res8592, [1, 1, 1], Res81303), 
+LRes44883 = reshape_layer(Res81303, [1, 1, 1, 1], Res44883), 
+LGlo55825 = global_average_pooling3D_layer(Res44883, Glo55825), 
+LRes10095 = reshape_layer(Glo55825, [1, 1], Res10095), 
+LZer87090 = zero_padding1D_layer(Res10095, 1, 0, Zer87090), 
+LCon18235 = concatenate_layer([Zer87090,[[[0.09], [0.4987]]]], 2, Con18235), 
+LDep13970 = depthwise_conv2D_layer([[[[0.785], [0.61]], [[0.7686], [0.029]]]], 1, 1,[[[[0.5283]]]],[0], 1, 1, false, Dep13970), 
+LRes21809 = reshape_layer(Dep13970, [2, 2], Res21809), 
+LUp_81266 = up_sampling1D_layer(Res21809, 1, Up_81266), 
+LSub67784 = subtract_layer(Con18235,Up_81266, Sub67784), 
+exec_layers([LMas56942,LRes8592,LRes81303,LRes44883,LGlo55825,LRes10095,LZer87090,LCon18235,LDep13970,LRes21809,LUp_81266,LSub67784],["Mas56942","Res8592","Res81303","Res44883","Glo55825","Res10095","Zer87090","Con18235","Dep13970","Res21809","Up_81266","Sub67784"],Sub67784,"Sub67784")
+
+Actual (Unparsed): [[[-0.4147155, -0.2322630], [1.2959486, 0.4833793]]]
+
+Expected (Unparsed): [[[-0.4147155,-0.23226299999999997],[1.2959486199999999,0.48337929999999996]]]
+
+Actual:   [[[-0.4147, -0.2322], [1.296, 0.4834]]]
+
+Expected: [[[-0.4147, -0.2322], [1.296, 0.4834]]]

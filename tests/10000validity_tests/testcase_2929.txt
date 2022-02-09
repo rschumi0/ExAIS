@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add22836 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Add22836 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Con21784 = tf.keras.layers.Input(shape=([1, 2, 3]))
+in0Add53562 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add53562 = tf.keras.layers.Input(shape=([2, 1]))
+
+Add22836 = keras.layers.Add(name = 'Add22836', )([in0Add22836,in1Add22836])
+Res7792 = keras.layers.Reshape((1, 2, 1), name = 'Res7792', )(Add22836)
+Con21784 = keras.layers.Concatenate(axis=3, name = 'Con21784', )([Res7792,in0Con21784])
+Add53562 = keras.layers.Add(name = 'Add53562', )([in0Add53562,in1Add53562])
+Res316 = keras.layers.Reshape((2, 1, 1), name = 'Res316', )(Add53562)
+Sep53400 = keras.layers.SeparableConv2D(4, (2, 1),strides=(2, 2), padding='same', name = 'Sep53400', )(Res316)
+Zer26144 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer26144', )(Sep53400)
+Mul26638 = keras.layers.Multiply(name = 'Mul26638', )([Con21784,Zer26144])
+model = tf.keras.models.Model(inputs=[in0Add22836,in1Add22836,in0Con21784,in0Add53562,in1Add53562], outputs=Mul26638)
+w = model.get_layer('Sep53400').get_weights() 
+w[0] = np.array([[[[0.4267]]], [[[0.5947]]]])
+w[1] = np.array([[[[0.4602, 0.9714, 0.3288, 0.0043]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep53400').set_weights(w) 
+in0Add22836 = tf.constant([[[[[0.1985]], [[0.1365]]]]])
+in1Add22836 = tf.constant([[[[[0.5704]], [[0.7264]]]]])
+in0Con21784 = tf.constant([[[[0.7141, 0.3617, 0.7058], [0.2956, 0.4911, 0.513]]]])
+in0Add53562 = tf.constant([[[0.411], [0.9857]]])
+in1Add53562 = tf.constant([[[0.397], [0.0103]]])
+print (np.array2string(model.predict([in0Add22836,in1Add22836,in0Con21784,in0Add53562,in1Add53562],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul26638.png')
+
+LAdd22836 = add_layer([[[[[[0.1985]], [[0.1365]]]]], [[[[[0.5704]], [[0.7264]]]]]], Add22836), 
+LRes7792 = reshape_layer(Add22836, [1, 2, 1], Res7792), 
+LCon21784 = concatenate_layer([Res7792,[[[[0.7141, 0.3617, 0.7058], [0.2956, 0.4911, 0.513]]]]], 3, Con21784), 
+LAdd53562 = add_layer([[[[0.411], [0.9857]]], [[[0.397], [0.0103]]]], Add53562), 
+LRes316 = reshape_layer(Add53562, [2, 1, 1], Res316), 
+LSep53400 = separable_conv2D_layer(Res316, 2, 1,[[[[[0.4267]]], [[[0.5947]]]],[[[[0.4602, 0.9714, 0.3288, 0.0043]]]]],[0, 0, 0, 0], 2, 2, true, Sep53400), 
+LZer26144 = zero_padding2D_layer(Sep53400, 0, 0, 1, 0, Zer26144), 
+LMul26638 = multiply_layer([Con21784,Zer26144], Mul26638), 
+exec_layers([LAdd22836,LRes7792,LCon21784,LAdd53562,LRes316,LSep53400,LZer26144,LMul26638],["Add22836","Res7792","Con21784","Add53562","Res316","Sep53400","Zer26144","Mul26638"],Mul26638,"Mul26638")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.3721265, 0.2690829, 0.1513162, 0.0020671]]]]
+
+Expected (Unparsed): [[[[0.0,0.0,0.0,0.0],[0.372126511163784,0.269082873505632,0.15131614586486397,0.00206713741932]]]]
+
+Actual:   [[[[0, 0, 0, 0], [0.3722, 0.2691, 0.1514, 0.0021]]]]
+
+Expected: [[[[0, 0, 0, 0], [0.3722, 0.2691, 0.1514, 0.0021]]]]

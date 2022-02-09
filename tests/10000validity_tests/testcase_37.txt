@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot70225 = tf.keras.layers.Input(shape=([3]))
+in1Dot70225 = tf.keras.layers.Input(shape=([3]))
+in0Con31497 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max15264 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Max15264 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con25720 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sep16130 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot70225 = keras.layers.Dot(axes=(1, 1), name = 'Dot70225', )([in0Dot70225,in1Dot70225])
+ReL20956 = keras.layers.ReLU(max_value=9.125958156090688, negative_slope=1.2110159994846588, threshold=8.305446010469833, name = 'ReL20956', )(Dot70225)
+Res1950 = keras.layers.Reshape((1, 1), name = 'Res1950', )(ReL20956)
+Zer6874 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer6874', )(Res1950)
+Con31497 = keras.layers.Concatenate(axis=2, name = 'Con31497', )([Zer6874,in0Con31497])
+Max15264 = keras.layers.Maximum(name = 'Max15264', )([in0Max15264,in1Max15264])
+Res92081 = keras.layers.Reshape((1, 1), name = 'Res92081', )(Max15264)
+Zer22990 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer22990', )(Res92081)
+Con25720 = keras.layers.Concatenate(axis=2, name = 'Con25720', )([Zer22990,in0Con25720])
+Sep16130 = keras.layers.SeparableConv1D(2, (2),strides=(1), padding='same', name = 'Sep16130', )(in0Sep16130)
+Min51780 = keras.layers.Minimum(name = 'Min51780', )([Con25720,Sep16130])
+Min60680 = keras.layers.Minimum(name = 'Min60680', )([Con31497,Min51780])
+model = tf.keras.models.Model(inputs=[in0Dot70225,in1Dot70225,in0Con31497,in0Max15264,in1Max15264,in0Con25720,in0Sep16130], outputs=Min60680)
+w = model.get_layer('Sep16130').get_weights() 
+w[0] = np.array([[[0.5808], [0.1819]], [[0.9702], [0.0497]]])
+w[1] = np.array([[[0.8427, 0.0902], [0.2073, 0.462]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep16130').set_weights(w) 
+in0Dot70225 = tf.constant([[0.6791, 0.8399, 0.3486]])
+in1Dot70225 = tf.constant([[0.659, 0.2536, 0.0494]])
+in0Con31497 = tf.constant([[[0.599], [0.374]]])
+in0Max15264 = tf.constant([[[[0.6263]]]])
+in1Max15264 = tf.constant([[[[0.925]]]])
+in0Con25720 = tf.constant([[[0.1433], [0.33]]])
+in0Sep16130 = tf.constant([[[0.094, 0.5588], [0.47, 0.1141]]])
+print (np.array2string(model.predict([in0Dot70225,in1Dot70225,in0Con31497,in0Max15264,in1Max15264,in0Con25720,in0Sep16130],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min60680.png')
+
+LDot70225 = dot_layer([[0.6791, 0.8399, 0.3486]], [[0.659, 0.2536, 0.0494]], 1, 1, Dot70225), 
+LReL20956 = relu_layer(Dot70225, 9.125958156090688, 1.2110159994846588, 8.305446010469833, ReL20956), 
+LRes1950 = reshape_layer(ReL20956, [1, 1], Res1950), 
+LZer6874 = zero_padding1D_layer(Res1950, 1, 0, Zer6874), 
+LCon31497 = concatenate_layer([Zer6874,[[[0.599], [0.374]]]], 2, Con31497), 
+LMax15264 = maximum_layer([[[[[0.6263]]]], [[[[0.925]]]]], Max15264), 
+LRes92081 = reshape_layer(Max15264, [1, 1], Res92081), 
+LZer22990 = zero_padding1D_layer(Res92081, 1, 0, Zer22990), 
+LCon25720 = concatenate_layer([Zer22990,[[[0.1433], [0.33]]]], 2, Con25720), 
+LSep16130 = separable_conv1D_layer([[[0.094, 0.5588], [0.47, 0.1141]]], 2,[[[[0.5808], [0.1819]], [[0.9702], [0.0497]]],[[[0.8427, 0.0902], [0.2073, 0.462]]]],[0, 0], 1, true, Sep16130), 
+LMin51780 = minimum_layer([Con25720,Sep16130], Min51780), 
+LMin60680 = minimum_layer([Con31497,Min51780], Min60680), 
+exec_layers([LDot70225,LReL20956,LRes1950,LZer6874,LCon31497,LMax15264,LRes92081,LZer22990,LCon25720,LSep16130,LMin51780,LMin60680],["Dot70225","ReL20956","Res1950","Zer6874","Con31497","Max15264","Res92081","Zer22990","Con25720","Sep16130","Min51780","Min60680"],Min60680,"Min60680")
+
+Actual (Unparsed): [[[0.0000000, 0.0956354], [-9.2372663, 0.0342111]]]
+
+Expected (Unparsed): [[[0,0.09563536422],[-9.237266291762186,0.03421114818]]]
+
+Actual:   [[[0, 0.0957], [-9.2372, 0.0343]]]
+
+Expected: [[[0, 0.0957], [-9.2372, 0.0343]]]

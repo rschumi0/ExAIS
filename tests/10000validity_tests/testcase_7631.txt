@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub68361 = tf.keras.layers.Input(shape=([3, 3, 2]))
+in1Sub68361 = tf.keras.layers.Input(shape=([3, 3, 2]))
+in0Ave5730 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave5730 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sub68361 = keras.layers.Subtract(name = 'Sub68361', )([in0Sub68361,in1Sub68361])
+Glo66349 = keras.layers.GlobalAveragePooling2D(name = 'Glo66349', )(Sub68361)
+Res41539 = keras.layers.Reshape((2, 1), name = 'Res41539', )(Glo66349)
+Sim48540 = keras.layers.SimpleRNN(1,name = 'Sim48540', )(Res41539)
+Res15794 = keras.layers.Reshape((1, 1), name = 'Res15794', )(Sim48540)
+Ave5730 = keras.layers.Average(name = 'Ave5730', )([in0Ave5730,in1Ave5730])
+Max74306 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max74306', )(Ave5730)
+Cro61159 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro61159', )(Max74306)
+Dot67346 = keras.layers.Dot(axes=(2, 1), name = 'Dot67346', )([Res15794,Cro61159])
+model = tf.keras.models.Model(inputs=[in0Sub68361,in1Sub68361,in0Ave5730,in1Ave5730], outputs=Dot67346)
+w = model.get_layer('Sim48540').get_weights() 
+w[0] = np.array([[1]])
+w[1] = np.array([[4]])
+w[2] = np.array([8])
+model.get_layer('Sim48540').set_weights(w) 
+in0Sub68361 = tf.constant([[[[0.8186, 0.6579], [0.4199, 0.5856], [0.98, 0.3233]], [[0.5989, 0.803], [0.4219, 0.7156], [0.3196, 0.933]], [[0.5516, 0.5344], [0.9439, 0.2416], [0.4247, 0.2727]]]])
+in1Sub68361 = tf.constant([[[[0.4728, 0.8675], [0.3388, 0.3513], [0.098, 0.1405]], [[0.2881, 0.542], [0.2773, 0.2653], [0.6126, 0.9035]], [[0.5156, 0.099], [0.8505, 0.008], [0.2906, 0.0211]]]])
+in0Ave5730 = tf.constant([[[0.8882], [0.4599]]])
+in1Ave5730 = tf.constant([[[0.7217], [0.3064]]])
+print (np.array2string(model.predict([in0Sub68361,in1Sub68361,in0Ave5730,in1Ave5730],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot67346.png')
+
+LSub68361 = subtract_layer([[[[0.8186, 0.6579], [0.4199, 0.5856], [0.98, 0.3233]], [[0.5989, 0.803], [0.4219, 0.7156], [0.3196, 0.933]], [[0.5516, 0.5344], [0.9439, 0.2416], [0.4247, 0.2727]]]], [[[[0.4728, 0.8675], [0.3388, 0.3513], [0.098, 0.1405]], [[0.2881, 0.542], [0.2773, 0.2653], [0.6126, 0.9035]], [[0.5156, 0.099], [0.8505, 0.008], [0.2906, 0.0211]]]], Sub68361), 
+LGlo66349 = global_average_pooling2D_layer(Sub68361, Glo66349), 
+LRes41539 = reshape_layer(Glo66349, [2, 1], Res41539), 
+LSim48540 = simple_rnn_layer(Res41539,[[1]],[[4]],[8], Sim48540), 
+LRes15794 = reshape_layer(Sim48540, [1, 1], Res15794), 
+LAve5730 = average_layer([[[[0.8882], [0.4599]]], [[[0.7217], [0.3064]]]], Ave5730), 
+LMax74306 = max_pool1D_layer(Ave5730, 1, Max74306), 
+LCro61159 = cropping1D_layer(Max74306, 1, 0, Cro61159), 
+LDot67346 = dot_layer(Res15794,Cro61159, 2, 1, Dot67346), 
+exec_layers([LSub68361,LGlo66349,LRes41539,LSim48540,LRes15794,LAve5730,LMax74306,LCro61159,LDot67346],["Sub68361","Glo66349","Res41539","Sim48540","Res15794","Ave5730","Max74306","Cro61159","Dot67346"],Dot67346,"Dot67346")
+
+Actual (Unparsed): [[[0.3831500]]]
+
+Expected (Unparsed): [[[0.38314999998090304]]]
+
+Actual:   [[[0.3832]]]
+
+Expected: [[[0.3832]]]

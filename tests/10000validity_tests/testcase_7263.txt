@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU73394 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con77948 = tf.keras.layers.Input(shape=([1, 1]))
+in0Max86858 = tf.keras.layers.Input(shape=([1, 1]))
+
+GRU73394 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU73394', )(in0GRU73394)
+Res27541 = keras.layers.Reshape((1, 1), name = 'Res27541', )(GRU73394)
+Con77948 = keras.layers.Concatenate(axis=2, name = 'Con77948', )([Res27541,in0Con77948])
+Max86858 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max86858', )(in0Max86858)
+Sep72324 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep72324', )(Max86858)
+Max50484 = keras.layers.Maximum(name = 'Max50484', )([Con77948,Sep72324])
+model = tf.keras.models.Model(inputs=[in0GRU73394,in0Con77948,in0Max86858], outputs=Max50484)
+w = model.get_layer('GRU73394').get_weights() 
+w[0] = np.array([[6, 10, 10]])
+w[1] = np.array([[10, 8, 8]])
+w[2] = np.array([10, 6, 10])
+model.get_layer('GRU73394').set_weights(w) 
+w = model.get_layer('Sep72324').get_weights() 
+w[0] = np.array([[[0.5072]]])
+w[1] = np.array([[[0.9338, 0.1627]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep72324').set_weights(w) 
+in0GRU73394 = tf.constant([[[2], [5]]])
+in0Con77948 = tf.constant([[[0.2154]]])
+in0Max86858 = tf.constant([[[1.2671]]])
+print (np.array2string(model.predict([in0GRU73394,in0Con77948,in0Max86858],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max50484.png')
+
+LGRU73394 = gru_layer([[[2], [5]]],[[6, 10, 10]],[[10, 8, 8]],[10, 6, 10], false, GRU73394), 
+LRes27541 = reshape_layer(GRU73394, [1, 1], Res27541), 
+LCon77948 = concatenate_layer([Res27541,[[[0.2154]]]], 2, Con77948), 
+LMax86858 = max_pool1D_layer([[[1.2671]]], 1, 1, false, Max86858), 
+LSep72324 = separable_conv1D_layer(Max86858, 1,[[[[0.5072]]],[[[0.9338, 0.1627]]]],[0, 0], 1, true, Sep72324), 
+LMax50484 = maximum_layer([Con77948,Sep72324], Max50484), 
+exec_layers([LGRU73394,LRes27541,LCon77948,LMax86858,LSep72324,LMax50484],["GRU73394","Res27541","Con77948","Max86858","Sep72324","Max50484"],Max50484,"Max50484")
+
+Actual (Unparsed): [[[0.6001281, 0.2154000]]]
+
+Expected (Unparsed): [[[0.6001281594559998,0.2154]]]
+
+Actual:   [[[0.6002, 0.2154]]]
+
+Expected: [[[0.6002, 0.2154]]]

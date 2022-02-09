@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave48908 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave48908 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con84489 = tf.keras.layers.Input(shape=([1, 2]))
+in0Loc85304 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave48908 = keras.layers.Average(name = 'Ave48908', )([in0Ave48908,in1Ave48908])
+Con84489 = keras.layers.Concatenate(axis=2, name = 'Con84489', )([Ave48908,in0Con84489])
+Loc85304 = keras.layers.LocallyConnected1D(4, (1),strides=(11), name = 'Loc85304', )(in0Loc85304)
+ELU90771 = keras.layers.ELU(alpha=-8.344351111027475, name = 'ELU90771', )(Loc85304)
+Min23625 = keras.layers.Minimum(name = 'Min23625', )([Con84489,ELU90771])
+model = tf.keras.models.Model(inputs=[in0Ave48908,in1Ave48908,in0Con84489,in0Loc85304], outputs=Min23625)
+w = model.get_layer('Loc85304').get_weights() 
+w[0] = np.array([[[0.9033, 0.1524, 0.9155, 0.3194], [0.409, 0.7249, 0.3538, 0.1527]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc85304').set_weights(w) 
+in0Ave48908 = tf.constant([[[0.5585, 0.0524]]])
+in1Ave48908 = tf.constant([[[0.2472, 0.7507]]])
+in0Con84489 = tf.constant([[[0.4672, 0.7681]]])
+in0Loc85304 = tf.constant([[[0.6014, 0.9879], [0.8004, 0.0975]]])
+print (np.array2string(model.predict([in0Ave48908,in1Ave48908,in0Con84489,in0Loc85304],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min23625.png')
+
+LAve48908 = average_layer([[[[0.5585, 0.0524]]], [[[0.2472, 0.7507]]]], Ave48908), 
+LCon84489 = concatenate_layer([Ave48908,[[[0.4672, 0.7681]]]], 2, Con84489), 
+LLoc85304 = locally_connected1D_layer([[[0.6014, 0.9879], [0.8004, 0.0975]]], 1,[[[0.9033, 0.1524, 0.9155, 0.3194], [0.409, 0.7249, 0.3538, 0.1527]]],[[0, 0, 0, 0]], 11, Loc85304), 
+LELU90771 = elu_layer(Loc85304, -8.344351111027475, ELU90771), 
+LMin23625 = minimum_layer([Con84489,ELU90771], Min23625), 
+exec_layers([LAve48908,LCon84489,LLoc85304,LELU90771,LMin23625],["Ave48908","Con84489","Loc85304","ELU90771","Min23625"],Min23625,"Min23625")
+
+Actual (Unparsed): [[[0.4028500, 0.4015500, 0.4672000, 0.3429395]]]
+
+Expected (Unparsed): [[[0.40285,0.40155,0.4672,0.34293949]]]
+
+Actual:   [[[0.4029, 0.4016, 0.4672, 0.343]]]
+
+Expected: [[[0.4029, 0.4016, 0.4672, 0.343]]]

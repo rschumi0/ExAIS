@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo48423 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Glo48423 = keras.layers.GlobalAveragePooling2D(name = 'Glo48423', )(in0Glo48423)
+Res66077 = keras.layers.Reshape((2, 1), name = 'Res66077', )(Glo48423)
+Sim63289 = keras.layers.SimpleRNN(3,name = 'Sim63289', )(Res66077)
+Res48157 = keras.layers.Reshape((3, 1), name = 'Res48157', )(Sim63289)
+Res94186 = keras.layers.Reshape((3, 1, 1), name = 'Res94186', )(Res48157)
+Sep51206 = keras.layers.SeparableConv2D(2, (3, 1),strides=(1, 1), padding='same', name = 'Sep51206', )(Res94186)
+Con90712 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con90712', )(Sep51206)
+model = tf.keras.models.Model(inputs=[in0Glo48423], outputs=Con90712)
+w = model.get_layer('Sim63289').get_weights() 
+w[0] = np.array([[2, 7, 4]])
+w[1] = np.array([[10, 2, 9], [10, 10, 6], [1, 9, 1]])
+w[2] = np.array([1, 7, 4])
+model.get_layer('Sim63289').set_weights(w) 
+w = model.get_layer('Sep51206').get_weights() 
+w[0] = np.array([[[[0.6723]]], [[[0.7891]]], [[[0.006]]]])
+w[1] = np.array([[[[0.7857, 0.3696]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep51206').set_weights(w) 
+w = model.get_layer('Con90712').get_weights() 
+w[0] = np.array([[[[0.165, 0.0557, 0.9428], [0.8182, 0.7438, 0.2868]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con90712').set_weights(w) 
+in0Glo48423 = tf.constant([[[[1.2325, 1.2565], [1.1904, 1.8078]]]])
+print (np.array2string(model.predict([in0Glo48423],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con90712.png')
+
+LGlo48423 = global_average_pooling2D_layer([[[[1.2325, 1.2565], [1.1904, 1.8078]]]], Glo48423), 
+LRes66077 = reshape_layer(Glo48423, [2, 1], Res66077), 
+LSim63289 = simple_rnn_layer(Res66077,[[2, 7, 4]],[[10, 2, 9], [10, 10, 6], [1, 9, 1]],[1, 7, 4], Sim63289), 
+LRes48157 = reshape_layer(Sim63289, [3, 1], Res48157), 
+LRes94186 = reshape_layer(Res48157, [3, 1, 1], Res94186), 
+LSep51206 = separable_conv2D_layer(Res94186, 3, 1,[[[[[0.6723]]], [[[0.7891]]], [[[0.006]]]],[[[[0.7857, 0.3696]]]]],[0, 0], 1, 1, true, Sep51206), 
+LCon90712 = conv2D_layer(Sep51206, 1, 1,[[[[0.165, 0.0557, 0.9428], [0.8182, 0.7438, 0.2868]]]],[0, 0, 0], 1, 1, false, 1, 1, Con90712), 
+exec_layers([LGlo48423,LRes66077,LSim63289,LRes48157,LRes94186,LSep51206,LCon90712],["Glo48423","Res66077","Sim63289","Res48157","Res94186","Sep51206","Con90712"],Con90712,"Con90712")
+
+Actual (Unparsed): [[[[0.3435207, 0.2533761, 0.6732583]], [[0.6339861, 0.4676192, 1.2425345]], [[0.6313938, 0.4657072, 1.2374540]]]]
+
+Expected (Unparsed): [[[[0.343520744622,0.25337608334699996,0.673258271724]],[[0.633986090628,0.46761924877800004,1.242534508776]],[[0.631393807308,0.46570721695799994,1.237453953336]]]]
+
+Actual:   [[[[0.3436, 0.2534, 0.6733]], [[0.634, 0.4677, 1.2426]], [[0.6314, 0.4658, 1.2375]]]]
+
+Expected: [[[[0.3436, 0.2534, 0.6733]], [[0.634, 0.4677, 1.2426]], [[0.6314, 0.4658, 1.2375]]]]

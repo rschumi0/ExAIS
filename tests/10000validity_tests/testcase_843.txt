@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul48906 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Mul48906 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Con89361 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min54545 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Min54545 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Mul48906 = keras.layers.Multiply(name = 'Mul48906', )([in0Mul48906,in1Mul48906])
+Res31868 = keras.layers.Reshape((2, 1, 2), name = 'Res31868', )(Mul48906)
+Res15589 = keras.layers.Reshape((2, 2), name = 'Res15589', )(Res31868)
+Max86990 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max86990', )(Res15589)
+Res70805 = keras.layers.Reshape((2, 2, 1), name = 'Res70805', )(Max86990)
+Con89361 = keras.layers.Concatenate(axis=3, name = 'Con89361', )([Res70805,in0Con89361])
+Min54545 = keras.layers.Minimum(name = 'Min54545', )([in0Min54545,in1Min54545])
+Zer47507 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer47507', )(Min54545)
+Max3080 = keras.layers.Maximum(name = 'Max3080', )([Con89361,Zer47507])
+Up_12959 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_12959', )(Max3080)
+model = tf.keras.models.Model(inputs=[in0Mul48906,in1Mul48906,in0Con89361,in0Min54545,in1Min54545], outputs=Up_12959)
+in0Mul48906 = tf.constant([[[[[0.4435], [0.1337]]], [[[0.556], [0.5288]]]]])
+in1Mul48906 = tf.constant([[[[[0.8002], [0.8736]]], [[[0.8321], [0.5368]]]]])
+in0Con89361 = tf.constant([[[[0.2406], [0.4258]], [[0.032], [0.3487]]]])
+in0Min54545 = tf.constant([[[[0.0589, 0.1139]], [[0.9316, 0.4612]]]])
+in1Min54545 = tf.constant([[[[0.2488, 0.868]], [[0.1178, 0.1405]]]])
+print (np.array2string(model.predict([in0Mul48906,in1Mul48906,in0Con89361,in0Min54545,in1Min54545],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_12959.png')
+
+LMul48906 = multiply_layer([[[[[[0.4435], [0.1337]]], [[[0.556], [0.5288]]]]], [[[[[0.8002], [0.8736]]], [[[0.8321], [0.5368]]]]]], Mul48906), 
+LRes31868 = reshape_layer(Mul48906, [2, 1, 2], Res31868), 
+LRes15589 = reshape_layer(Res31868, [2, 2], Res15589), 
+LMax86990 = max_pool1D_layer(Res15589, 1, Max86990), 
+LRes70805 = reshape_layer(Max86990, [2, 2, 1], Res70805), 
+LCon89361 = concatenate_layer([Res70805,[[[[0.2406], [0.4258]], [[0.032], [0.3487]]]]], 3, Con89361), 
+LMin54545 = minimum_layer([[[[[0.0589, 0.1139]], [[0.9316, 0.4612]]]], [[[[0.2488, 0.868]], [[0.1178, 0.1405]]]]], Min54545), 
+LZer47507 = zero_padding2D_layer(Min54545, 0, 0, 1, 0, Zer47507), 
+LMax3080 = maximum_layer([Con89361,Zer47507], Max3080), 
+LUp_12959 = up_sampling2D_layer(Max3080, 1, 1, Up_12959), 
+exec_layers([LMul48906,LRes31868,LRes15589,LMax86990,LRes70805,LCon89361,LMin54545,LZer47507,LMax3080,LUp_12959],["Mul48906","Res31868","Res15589","Max86990","Res70805","Con89361","Min54545","Zer47507","Max3080","Up_12959"],Up_12959,"Up_12959")
+
+Actual (Unparsed): [[[[0.3548887, 0.2406000], [0.1168003, 0.4258000]], [[0.4626476, 0.0320000], [0.2838599, 0.3487000]]]]
+
+Expected (Unparsed): [[[[0.3548887,0.2406],[0.11680032000000001,0.4258]],[[0.4626476,0.032],[0.28385984000000003,0.3487]]]]
+
+Actual:   [[[[0.3549, 0.2406], [0.1169, 0.4258]], [[0.4627, 0.032], [0.2839, 0.3487]]]]
+
+Expected: [[[[0.3549, 0.2406], [0.1169, 0.4258]], [[0.4627, 0.032], [0.2839, 0.3487]]]]

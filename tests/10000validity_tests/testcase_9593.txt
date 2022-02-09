@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul59579 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Mul59579 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con50367 = tf.keras.layers.Input(shape=([2, 2, 3, 1]))
+in0Max96917 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Max96917 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Mul59579 = keras.layers.Multiply(name = 'Mul59579', )([in0Mul59579,in1Mul59579])
+Res51919 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res51919', )(Mul59579)
+Zer8167 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer8167', )(Res51919)
+Con50367 = keras.layers.Concatenate(axis=4, name = 'Con50367', )([Zer8167,in0Con50367])
+Max96917 = keras.layers.Maximum(name = 'Max96917', )([in0Max96917,in1Max96917])
+Zer6261 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer6261', )(Max96917)
+Sub83827 = keras.layers.Subtract(name = 'Sub83827', )([Con50367,Zer6261])
+Den59511 = keras.layers.Dense(1,name = 'Den59511', )(Sub83827)
+Up_35532 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_35532', )(Den59511)
+model = tf.keras.models.Model(inputs=[in0Mul59579,in1Mul59579,in0Con50367,in0Max96917,in1Max96917], outputs=Up_35532)
+w = model.get_layer('Den59511').get_weights() 
+w[0] = np.array([[0.2406], [0.6557]])
+w[1] = np.array([0.277])
+model.get_layer('Den59511').set_weights(w) 
+in0Mul59579 = tf.constant([[[[0.5299], [0.3005]], [[0.3577], [0.5767]]]])
+in1Mul59579 = tf.constant([[[[0.9498], [0.9403]], [[0.6596], [0.9597]]]])
+in0Con50367 = tf.constant([[[[[0.6686], [0.1106], [0.2652]], [[0.4299], [0.2426], [0.7482]]], [[[0.8662], [0.8063], [0.9392]], [[0.7315], [0.5386], [0.2959]]]]])
+in0Max96917 = tf.constant([[[[[0.1343, 0.8937], [0.9406, 0.5352]]]]])
+in1Max96917 = tf.constant([[[[[0.1706, 0.547], [0.4765, 0.8053]]]]])
+print (np.array2string(model.predict([in0Mul59579,in1Mul59579,in0Con50367,in0Max96917,in1Max96917],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_35532.png')
+
+LMul59579 = multiply_layer([[[[[0.5299], [0.3005]], [[0.3577], [0.5767]]]], [[[[0.9498], [0.9403]], [[0.6596], [0.9597]]]]], Mul59579), 
+LRes51919 = reshape_layer(Mul59579, [2, 2, 1, 1], Res51919), 
+LZer8167 = zero_padding3D_layer(Res51919, 0, 0, 0, 0, 2, 0, Zer8167), 
+LCon50367 = concatenate_layer([Zer8167,[[[[[0.6686], [0.1106], [0.2652]], [[0.4299], [0.2426], [0.7482]]], [[[0.8662], [0.8063], [0.9392]], [[0.7315], [0.5386], [0.2959]]]]]], 4, Con50367), 
+LMax96917 = maximum_layer([[[[[[0.1343, 0.8937], [0.9406, 0.5352]]]]], [[[[[0.1706, 0.547], [0.4765, 0.8053]]]]]], Max96917), 
+LZer6261 = zero_padding3D_layer(Max96917, 1, 0, 1, 0, 1, 0, Zer6261), 
+LSub83827 = subtract_layer(Con50367,Zer6261, Sub83827), 
+LDen59511 = dense_layer(Sub83827, [[0.2406], [0.6557]],[0.277], Den59511), 
+LUp_35532 = up_sampling3D_layer(Den59511, 2, 1, 1, Up_35532), 
+exec_layers([LMul59579,LRes51919,LZer8167,LCon50367,LMax96917,LZer6261,LSub83827,LDen59511,LUp_35532],["Mul59579","Res51919","Zer8167","Con50367","Max96917","Zer6261","Sub83827","Den59511","Up_35532"],Up_35532,"Up_35532")
+
+Actual (Unparsed): [[[[[0.7154010], [0.3495204], [0.5719854]], [[0.5588854], [0.4360728], [0.8355787]]], [[[0.7154010], [0.3495204], [0.5719854]], [[0.5588854], [0.4360728], [0.8355787]]], [[[0.8449673], [0.8056909], [0.9496003]], [[0.7566446], [0.0031146], [-0.1501597]]], [[[0.8449673], [0.8056909], [0.9496003]], [[0.7566446], [0.0031146], [-0.1501597]]]]]
+
+Expected (Unparsed): [[[[[0.71540102],[0.34952042000000005],[0.5719853842120001]],[[0.55888543],[0.43607282],[0.83557871209]]],[[[0.71540102],[0.34952042000000005],[0.5719853842120001]],[[0.55888543],[0.43607282],[0.83557871209]]],[[[0.84496734],[0.80569091],[0.949600344152]],[[0.7566445500000001],[0.003114569999999983],[-0.150159707006]]],[[[0.84496734],[0.80569091],[0.949600344152]],[[0.7566445500000001],[0.003114569999999983],[-0.150159707006]]]]]
+
+Actual:   [[[[[0.7155], [0.3496], [0.572]], [[0.5589], [0.4361], [0.8356]]], [[[0.7155], [0.3496], [0.572]], [[0.5589], [0.4361], [0.8356]]], [[[0.845], [0.8057], [0.9497]], [[0.7567], [0.0032], [-0.1501]]], [[[0.845], [0.8057], [0.9497]], [[0.7567], [0.0032], [-0.1501]]]]]
+
+Expected: [[[[[0.7155], [0.3496], [0.572]], [[0.5589], [0.4361], [0.8356]]], [[[0.7155], [0.3496], [0.572]], [[0.5589], [0.4361], [0.8356]]], [[[0.845], [0.8057], [0.9497]], [[0.7567], [0.0032], [-0.1501]]], [[[0.845], [0.8057], [0.9497]], [[0.7567], [0.0032], [-0.1501]]]]]

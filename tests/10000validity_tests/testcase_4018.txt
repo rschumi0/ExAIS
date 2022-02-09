@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep66512 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con93927 = tf.keras.layers.Input(shape=([1, 1]))
+in0Cro38688 = tf.keras.layers.Input(shape=([1, 3]))
+in0Dot7789 = tf.keras.layers.Input(shape=([3]))
+in1Dot7789 = tf.keras.layers.Input(shape=([3]))
+
+Sep66512 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep66512', )(in0Sep66512)
+Con93927 = keras.layers.Concatenate(axis=2, name = 'Con93927', )([Sep66512,in0Con93927])
+Cro38688 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro38688', )(in0Cro38688)
+Add19075 = keras.layers.Add(name = 'Add19075', )([Con93927,Cro38688])
+Res31385 = keras.layers.Reshape((1, 3, 1), name = 'Res31385', )(Add19075)
+Dot7789 = keras.layers.Dot(axes=(1, 1), name = 'Dot7789', )([in0Dot7789,in1Dot7789])
+Res55122 = keras.layers.Reshape((1, 1), name = 'Res55122', )(Dot7789)
+Res22658 = keras.layers.Reshape((1, 1, 1), name = 'Res22658', )(Res55122)
+Res45815 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res45815', )(Res22658)
+Con12842 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con12842', )(Res45815)
+Res93365 = keras.layers.Reshape((1, 3, 1), name = 'Res93365', )(Con12842)
+Add48772 = keras.layers.Add(name = 'Add48772', )([Res31385,Res93365])
+model = tf.keras.models.Model(inputs=[in0Sep66512,in0Con93927,in0Cro38688,in0Dot7789,in1Dot7789], outputs=Add48772)
+w = model.get_layer('Sep66512').get_weights() 
+w[0] = np.array([[[0.4887], [0.7244]]])
+w[1] = np.array([[[0.2865, 0.2115], [0.3433, 0.3052]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep66512').set_weights(w) 
+w = model.get_layer('Con12842').get_weights() 
+w[0] = np.array([[[[[0.9708], [0.6299], [0.4901]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con12842').set_weights(w) 
+in0Sep66512 = tf.constant([[[0.4679, 0.0017]]])
+in0Con93927 = tf.constant([[[0.203]]])
+in0Cro38688 = tf.constant([[[1.481, 1.3848, 1.844]]])
+in0Dot7789 = tf.constant([[0.6072, 0.8994, 0.4449]])
+in1Dot7789 = tf.constant([[0.1977, 0.0066, 0.2888]])
+print (np.array2string(model.predict([in0Sep66512,in0Con93927,in0Cro38688,in0Dot7789,in1Dot7789],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add48772.png')
+
+LSep66512 = separable_conv1D_layer([[[0.4679, 0.0017]]], 1,[[[[0.4887], [0.7244]]],[[[0.2865, 0.2115], [0.3433, 0.3052]]]],[0, 0], 1, true, Sep66512), 
+LCon93927 = concatenate_layer([Sep66512,[[[0.203]]]], 2, Con93927), 
+LCro38688 = cropping1D_layer([[[1.481, 1.3848, 1.844]]], 0, 0, Cro38688), 
+LAdd19075 = add_layer([Con93927,Cro38688], Add19075), 
+LRes31385 = reshape_layer(Add19075, [1, 3, 1], Res31385), 
+LDot7789 = dot_layer([[0.6072, 0.8994, 0.4449]], [[0.1977, 0.0066, 0.2888]], 1, 1, Dot7789), 
+LRes55122 = reshape_layer(Dot7789, [1, 1], Res55122), 
+LRes22658 = reshape_layer(Res55122, [1, 1, 1], Res22658), 
+LRes45815 = reshape_layer(Res22658, [1, 1, 1, 1], Res45815), 
+LCon12842 = conv3D_transpose_layer(Res45815, 1, 1, 1,[[[[[0.9708], [0.6299], [0.4901]]]]],[0, 0, 0], 1, 1, 1, false, Con12842), 
+LRes93365 = reshape_layer(Con12842, [1, 3, 1], Res93365), 
+LAdd48772 = add_layer([Res31385,Res93365], Add48772), 
+exec_layers([LSep66512,LCon93927,LCro38688,LAdd19075,LRes31385,LDot7789,LRes55122,LRes22658,LRes45815,LCon12842,LRes93365,LAdd48772],["Sep66512","Con93927","Cro38688","Add19075","Res31385","Dot7789","Res55122","Res22658","Res45815","Con12842","Res93365","Add48772"],Add48772,"Add48772")
+
+Actual (Unparsed): [[[[1.7939708], [1.5938265], [2.1717141]]]]
+
+Expected (Unparsed): [[[[1.793970814509],[1.593826526431],[2.17171408066]]]]
+
+Actual:   [[[[1.794], [1.5939], [2.1718]]]]
+
+Expected: [[[[1.794], [1.5939], [2.1718]]]]

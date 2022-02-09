@@ -1,0 +1,42 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub395 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub395 = tf.keras.layers.Input(shape=([3, 2]))
+
+Sub395 = keras.layers.Subtract(name = 'Sub395', )([in0Sub395,in1Sub395])
+Res17875 = keras.layers.Reshape((3, 2, 1), name = 'Res17875', )(Sub395)
+Loc36656 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc36656', )(Res17875)
+Res52691 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res52691', )(Loc36656)
+PRe56961 = keras.layers.PReLU(name = 'PRe56961', )(Res52691)
+model = tf.keras.models.Model(inputs=[in0Sub395,in1Sub395], outputs=PRe56961)
+w = model.get_layer('Loc36656').get_weights() 
+w[0] = np.array([[[0.666, 0.9796], [0.992, 0.8046]], [[0.8914, 0.3367], [0.6692, 0.4569]], [[0.5484, 0.3455], [0.3919, 0.9717]], [[0.4932, 0.6431], [0.8918, 0.7973]]])
+w[1] = np.array([[[0, 0], [0, 0]], [[0, 0], [0, 0]]])
+model.get_layer('Loc36656').set_weights(w) 
+w = model.get_layer('PRe56961').get_weights() 
+w[0] = np.array([[[[0.5592], [0.8453]], [[0.4807], [0.1409]]], [[[0.1466], [0.665]], [[0.0452], [0.4371]]]])
+model.get_layer('PRe56961').set_weights(w) 
+in0Sub395 = tf.constant([[[0.5375, 0.4509], [0.7695, 0.0824], [0.7706, 0.2197]]])
+in1Sub395 = tf.constant([[[0.3414, 0.4365], [0.1674, 0.3381], [0.9091, 0.4064]]])
+print (np.array2string(model.predict([in0Sub395,in1Sub395],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe56961.png')
+
+LSub395 = subtract_layer([[[0.5375, 0.4509], [0.7695, 0.0824], [0.7706, 0.2197]]], [[[0.3414, 0.4365], [0.1674, 0.3381], [0.9091, 0.4064]]], Sub395), 
+LRes17875 = reshape_layer(Sub395, [3, 2, 1], Res17875), 
+LLoc36656 = locally_connected2D_layer(Res17875, 2, 1,[[[0.666, 0.9796], [0.992, 0.8046]], [[0.8914, 0.3367], [0.6692, 0.4569]], [[0.5484, 0.3455], [0.3919, 0.9717]], [[0.4932, 0.6431], [0.8918, 0.7973]]],[[[0, 0], [0, 0]], [[0, 0], [0, 0]]], 1, 1, Loc36656), 
+LRes52691 = reshape_layer(Loc36656, [2, 2, 2, 1], Res52691), 
+LPRe56961 = prelu_layer(Res52691, [[[[0.5592], [0.8453]], [[0.4807], [0.1409]]], [[[0.1466], [0.665]], [[0.0452], [0.4371]]]], PRe56961), 
+exec_layers([LSub395,LRes17875,LLoc36656,LRes52691,LPRe56961],["Sub395","Res17875","Loc36656","Res52691","PRe56961"],PRe56961,"PRe56961")
+
+Actual (Unparsed): [[[[[0.7278858], [0.6765493]], [[-0.0760844], [-0.0157781]]], [[[0.2759135], [0.0734451]], [[-0.0132260], [-0.1369419]]]]]
+
+Expected (Unparsed): [[[[[0.7278858],[0.67654922]],[[-0.076084369196],[-0.015778101765]]],[[[0.27591349],[0.0734450999999999]],[[-0.013225985559999999],[-0.136941935118]]]]]
+
+Actual:   [[[[[0.7279], [0.6766]], [[-0.076], [-0.0157]]], [[[0.276], [0.0735]], [[-0.0132], [-0.1369]]]]]
+
+Expected: [[[[[0.7279], [0.6766]], [[-0.076], [-0.0157]]], [[[0.276], [0.0735]], [[-0.0132], [-0.1369]]]]]

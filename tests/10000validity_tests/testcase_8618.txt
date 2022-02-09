@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo25352 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con6289 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max51265 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Glo25352 = keras.layers.GlobalAveragePooling3D(name = 'Glo25352', )(in0Glo25352)
+Res54976 = keras.layers.Reshape((1, 1), name = 'Res54976', )(Glo25352)
+Res87350 = keras.layers.Reshape((1, 1, 1), name = 'Res87350', )(Res54976)
+Glo19111 = keras.layers.GlobalMaxPool2D(name = 'Glo19111', )(Res87350)
+Res65408 = keras.layers.Reshape((1, 1), name = 'Res65408', )(Glo19111)
+PRe52903 = keras.layers.PReLU(name = 'PRe52903', )(Res65408)
+Res54879 = keras.layers.Reshape((1, 1, 1), name = 'Res54879', )(PRe52903)
+Con6289 = keras.layers.Concatenate(axis=3, name = 'Con6289', )([Res54879,in0Con6289])
+Max51265 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Max51265', )(in0Max51265)
+Min29648 = keras.layers.Minimum(name = 'Min29648', )([Con6289,Max51265])
+model = tf.keras.models.Model(inputs=[in0Glo25352,in0Con6289,in0Max51265], outputs=Min29648)
+w = model.get_layer('PRe52903').get_weights() 
+w[0] = np.array([[0.8568]])
+model.get_layer('PRe52903').set_weights(w) 
+in0Glo25352 = tf.constant([[[[[1.1403]]], [[[1.9161]]]]])
+in0Con6289 = tf.constant([[[[0.9554]]]])
+in0Max51265 = tf.constant([[[[1.1791, 1.1674]]]])
+print (np.array2string(model.predict([in0Glo25352,in0Con6289,in0Max51265],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min29648.png')
+
+LGlo25352 = global_average_pooling3D_layer([[[[[1.1403]]], [[[1.9161]]]]], Glo25352), 
+LRes54976 = reshape_layer(Glo25352, [1, 1], Res54976), 
+LRes87350 = reshape_layer(Res54976, [1, 1, 1], Res87350), 
+LGlo19111 = global_max_pool2D_layer(Res87350, Glo19111), 
+LRes65408 = reshape_layer(Glo19111, [1, 1], Res65408), 
+LPRe52903 = prelu_layer(Res65408, [[0.8568]], PRe52903), 
+LRes54879 = reshape_layer(PRe52903, [1, 1, 1], Res54879), 
+LCon6289 = concatenate_layer([Res54879,[[[[0.9554]]]]], 3, Con6289), 
+LMax51265 = max_pool2D_layer([[[[1.1791, 1.1674]]]], 1, 1, 1, 1, false, Max51265), 
+LMin29648 = minimum_layer([Con6289,Max51265], Min29648), 
+exec_layers([LGlo25352,LRes54976,LRes87350,LGlo19111,LRes65408,LPRe52903,LRes54879,LCon6289,LMax51265,LMin29648],["Glo25352","Res54976","Res87350","Glo19111","Res65408","PRe52903","Res54879","Con6289","Max51265","Min29648"],Min29648,"Min29648")
+
+Actual (Unparsed): [[[[1.1791000, 0.9554000]]]]
+
+Expected (Unparsed): [[[[1.1791,0.9554]]]]
+
+Actual:   [[[[1.1791, 0.9554]]]]
+
+Expected: [[[[1.1791, 0.9554]]]]

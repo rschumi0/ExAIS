@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul89117 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Mul89117 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Max47539 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Max47539 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Con16839 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sep29656 = tf.keras.layers.Input(shape=([1, 2]))
+
+Mul89117 = keras.layers.Multiply(name = 'Mul89117', )([in0Mul89117,in1Mul89117])
+Max47539 = keras.layers.Maximum(name = 'Max47539', )([in0Max47539,in1Max47539])
+Sub97940 = keras.layers.Subtract(name = 'Sub97940', )([Mul89117,Max47539])
+Res84373 = keras.layers.Reshape((1, 2, 1), name = 'Res84373', )(Sub97940)
+Res13019 = keras.layers.Reshape((1, 2), name = 'Res13019', )(Res84373)
+Con16839 = keras.layers.Concatenate(axis=2, name = 'Con16839', )([Res13019,in0Con16839])
+Sep29656 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep29656', )(in0Sep29656)
+Den74580 = keras.layers.Dense(4,name = 'Den74580', )(Sep29656)
+Sub15236 = keras.layers.Subtract(name = 'Sub15236', )([Con16839,Den74580])
+model = tf.keras.models.Model(inputs=[in0Mul89117,in1Mul89117,in0Max47539,in1Max47539,in0Con16839,in0Sep29656], outputs=Sub15236)
+w = model.get_layer('Sep29656').get_weights() 
+w[0] = np.array([[[0.0829], [0.0796]]])
+w[1] = np.array([[[0.8555, 0.6609, 0.0898], [0.9745, 0.243, 0.5016]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep29656').set_weights(w) 
+w = model.get_layer('Den74580').get_weights() 
+w[0] = np.array([[0.5773, 0.4827, 0.5831, 0.9115], [0.0693, 0.8013, 0.491, 0.1118], [0.435, 0.197, 0.6658, 0.6722]])
+w[1] = np.array([0.4363, 0.0668, 0.1931, 0.6094])
+model.get_layer('Den74580').set_weights(w) 
+in0Mul89117 = tf.constant([[[[[0.4055]], [[0.0378]]]]])
+in1Mul89117 = tf.constant([[[[[0.6252]], [[0.8763]]]]])
+in0Max47539 = tf.constant([[[[[0.0701]], [[0.4408]]]]])
+in1Max47539 = tf.constant([[[[[0.9022]], [[0.4716]]]]])
+in0Con16839 = tf.constant([[[0.9033, 0.7041]]])
+in0Sep29656 = tf.constant([[[0.3312, 0.2824]]])
+print (np.array2string(model.predict([in0Mul89117,in1Mul89117,in0Max47539,in1Max47539,in0Con16839,in0Sep29656],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub15236.png')
+
+LMul89117 = multiply_layer([[[[[[0.4055]], [[0.0378]]]]], [[[[[0.6252]], [[0.8763]]]]]], Mul89117), 
+LMax47539 = maximum_layer([[[[[[0.0701]], [[0.4408]]]]], [[[[[0.9022]], [[0.4716]]]]]], Max47539), 
+LSub97940 = subtract_layer(Mul89117,Max47539, Sub97940), 
+LRes84373 = reshape_layer(Sub97940, [1, 2, 1], Res84373), 
+LRes13019 = reshape_layer(Res84373, [1, 2], Res13019), 
+LCon16839 = concatenate_layer([Res13019,[[[0.9033, 0.7041]]]], 2, Con16839), 
+LSep29656 = separable_conv1D_layer([[[0.3312, 0.2824]]], 1,[[[[0.0829], [0.0796]]],[[[0.8555, 0.6609, 0.0898], [0.9745, 0.243, 0.5016]]]],[0, 0, 0], 1, false, Sep29656), 
+LDen74580 = dense_layer(Sep29656, [[0.5773, 0.4827, 0.5831, 0.9115], [0.0693, 0.8013, 0.491, 0.1118], [0.435, 0.197, 0.6658, 0.6722]],[0.4363, 0.0668, 0.1931, 0.6094], Den74580), 
+LSub15236 = subtract_layer(Con16839,Den74580, Sub15236), 
+exec_layers([LMul89117,LMax47539,LSub97940,LRes84373,LRes13019,LCon16839,LSep29656,LDen74580,LSub15236],["Mul89117","Max47539","Sub97940","Res84373","Res13019","Con16839","Sep29656","Den74580","Sub15236"],Sub15236,"Sub15236")
+
+Actual (Unparsed): [[[-1.1188013, -0.5488123, 0.6629897, 0.0414464]]]
+
+Expected (Unparsed): [[[-1.1188012737518496,-0.5488123496067776,0.6629897353724816,0.04144642912859664]]]
+
+Actual:   [[[-1.1188, -0.5488, 0.663, 0.0415]]]
+
+Expected: [[[-1.1188, -0.5488, 0.663, 0.0415]]]

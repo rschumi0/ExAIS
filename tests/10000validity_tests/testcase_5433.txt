@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max92583 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Max92583 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Sep86020 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con99754 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max92583 = keras.layers.Maximum(name = 'Max92583', )([in0Max92583,in1Max92583])
+Res64527 = keras.layers.Reshape((2, 2, 2), name = 'Res64527', )(Max92583)
+Res68316 = keras.layers.Reshape((2, 4), name = 'Res68316', )(Res64527)
+Sep86020 = keras.layers.SeparableConv1D(2, (2),strides=(1), padding='valid', name = 'Sep86020', )(in0Sep86020)
+ELU57909 = keras.layers.ELU(alpha=1.7793562084939865, name = 'ELU57909', )(Sep86020)
+Zer58053 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer58053', )(ELU57909)
+Con99754 = keras.layers.Concatenate(axis=2, name = 'Con99754', )([Zer58053,in0Con99754])
+Mul78418 = keras.layers.Multiply(name = 'Mul78418', )([Res68316,Con99754])
+Glo87140 = keras.layers.GlobalMaxPool1D(name = 'Glo87140', )(Mul78418)
+model = tf.keras.models.Model(inputs=[in0Max92583,in1Max92583,in0Sep86020,in0Con99754], outputs=Glo87140)
+w = model.get_layer('Sep86020').get_weights() 
+w[0] = np.array([[[0.3455], [0.5639]], [[0.8763], [0.1616]]])
+w[1] = np.array([[[0.8622, 0.0519], [0.9868, 0.5787]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep86020').set_weights(w) 
+in0Max92583 = tf.constant([[[[[0.7137, 0.859]], [[0.8158, 0.2749]]], [[[0.9291, 0.1889]], [[0.0133, 0.7921]]]]])
+in1Max92583 = tf.constant([[[[[0.9813, 0.2243]], [[0.1054, 0.1436]]], [[[0.1454, 0.3138]], [[0.9286, 0.3217]]]]])
+in0Sep86020 = tf.constant([[[0.3666, 0.6896], [0.5983, 0.8937]]])
+in0Con99754 = tf.constant([[[0.2465, 0.1011], [0.2471, 0.1572]]])
+print (np.array2string(model.predict([in0Max92583,in1Max92583,in0Sep86020,in0Con99754],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo87140.png')
+
+LMax92583 = maximum_layer([[[[[[0.7137, 0.859]], [[0.8158, 0.2749]]], [[[0.9291, 0.1889]], [[0.0133, 0.7921]]]]], [[[[[0.9813, 0.2243]], [[0.1054, 0.1436]]], [[[0.1454, 0.3138]], [[0.9286, 0.3217]]]]]], Max92583), 
+LRes64527 = reshape_layer(Max92583, [2, 2, 2], Res64527), 
+LRes68316 = reshape_layer(Res64527, [2, 4], Res68316), 
+LSep86020 = separable_conv1D_layer([[[0.3666, 0.6896], [0.5983, 0.8937]]], 2,[[[[0.3455], [0.5639]], [[0.8763], [0.1616]]],[[[0.8622, 0.0519], [0.9868, 0.5787]]]],[0, 0], 1, false, Sep86020), 
+LELU57909 = elu_layer(Sep86020, 1.7793562084939865, ELU57909), 
+LZer58053 = zero_padding1D_layer(ELU57909, 1, 0, Zer58053), 
+LCon99754 = concatenate_layer([Zer58053,[[[0.2465, 0.1011], [0.2471, 0.1572]]]], 2, Con99754), 
+LMul78418 = multiply_layer([Res68316,Con99754], Mul78418), 
+LGlo87140 = global_max_pool1D_layer(Mul78418, Glo87140), 
+exec_layers([LMax92583,LRes64527,LRes68316,LSep86020,LELU57909,LZer58053,LCon99754,LMul78418,LGlo87140],["Max92583","Res64527","Res68316","Sep86020","ELU57909","Zer58053","Con99754","Mul78418","Glo87140"],Glo87140,"Glo87140")
+
+Actual (Unparsed): [[1.0103939, 0.1074444, 0.2294571, 0.1245181]]
+
+Expected (Unparsed): [[1.0103939881487887,0.1074444079416714,0.22945706,0.12451812000000001]]
+
+Actual:   [[1.0104, 0.1075, 0.2295, 0.1246]]
+
+Expected: [[1.0104, 0.1075, 0.2295, 0.1246]]

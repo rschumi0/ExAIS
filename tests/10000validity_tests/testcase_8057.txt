@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro91936 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con23680 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Max62237 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Max62237 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con72119 = tf.keras.layers.Input(shape=([1, 1]))
+
+Cro91936 = keras.layers.Cropping2D(cropping=((0, 0), (1, 0)), name = 'Cro91936', )(in0Cro91936)
+Res7067 = keras.layers.Reshape((1, 2), name = 'Res7067', )(Cro91936)
+Con23680 = keras.layers.Conv3D(2, (2, 1, 2),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con23680', )(in0Con23680)
+Res26050 = keras.layers.Reshape((1, 1, 2), name = 'Res26050', )(Con23680)
+Res99450 = keras.layers.Reshape((1, 2), name = 'Res99450', )(Res26050)
+Max62237 = keras.layers.Maximum(name = 'Max62237', )([in0Max62237,in1Max62237])
+Res95025 = keras.layers.Reshape((1, 1, 2), name = 'Res95025', )(Max62237)
+Res24801 = keras.layers.Reshape((1, 2), name = 'Res24801', )(Res95025)
+Dot34799 = keras.layers.Dot(axes=(2, 2), name = 'Dot34799', )([Res99450,Res24801])
+Con72119 = keras.layers.Concatenate(axis=2, name = 'Con72119', )([Dot34799,in0Con72119])
+Min81828 = keras.layers.Minimum(name = 'Min81828', )([Res7067,Con72119])
+model = tf.keras.models.Model(inputs=[in0Cro91936,in0Con23680,in0Max62237,in1Max62237,in0Con72119], outputs=Min81828)
+w = model.get_layer('Con23680').get_weights() 
+w[0] = np.array([[[[[0.7349, 0.3306]], [[0.3878, 0.9725]]]], [[[[0.3123, 0.0575]], [[0.8037, 0.2675]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con23680').set_weights(w) 
+in0Cro91936 = tf.constant([[[[1.3678, 1.4043], [1.6479, 1.7908]]]])
+in0Con23680 = tf.constant([[[[[0.8079], [0.1138]]], [[[0.2244], [0.256]]]]])
+in0Max62237 = tf.constant([[[[[0.14]]], [[[0.3665]]]]])
+in1Max62237 = tf.constant([[[[[0.1964]]], [[[0.7521]]]]])
+in0Con72119 = tf.constant([[[0.0474]]])
+print (np.array2string(model.predict([in0Cro91936,in0Con23680,in0Max62237,in1Max62237,in0Con72119],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min81828.png')
+
+LCro91936 = cropping2D_layer([[[[1.3678, 1.4043], [1.6479, 1.7908]]]], 0, 0, 1, 0, Cro91936), 
+LRes7067 = reshape_layer(Cro91936, [1, 2], Res7067), 
+LCon23680 = conv3D_layer([[[[[0.8079], [0.1138]]], [[[0.2244], [0.256]]]]], 2, 1, 2,[[[[[0.7349, 0.3306]], [[0.3878, 0.9725]]]], [[[[0.3123, 0.0575]], [[0.8037, 0.2675]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con23680), 
+LRes26050 = reshape_layer(Con23680, [1, 1, 2], Res26050), 
+LRes99450 = reshape_layer(Res26050, [1, 2], Res99450), 
+LMax62237 = maximum_layer([[[[[[0.14]]], [[[0.3665]]]]], [[[[[0.1964]]], [[[0.7521]]]]]], Max62237), 
+LRes95025 = reshape_layer(Max62237, [1, 1, 2], Res95025), 
+LRes24801 = reshape_layer(Res95025, [1, 2], Res24801), 
+LDot34799 = dot_layer(Res99450,Res24801, 2, 2, Dot34799), 
+LCon72119 = concatenate_layer([Dot34799,[[[0.0474]]]], 2, Con72119), 
+LMin81828 = minimum_layer([Res7067,Con72119], Min81828), 
+exec_layers([LCro91936,LRes7067,LCon23680,LRes26050,LRes99450,LMax62237,LRes95025,LRes24801,LDot34799,LCon72119,LMin81828],["Cro91936","Res7067","Con23680","Res26050","Res99450","Max62237","Res95025","Res24801","Dot34799","Con72119","Min81828"],Min81828,"Min81828")
+
+Actual (Unparsed): [[[0.5247708, 0.0474000]]]
+
+Expected (Unparsed): [[[0.524770804192,0.0474]]]
+
+Actual:   [[[0.5248, 0.0474]]]
+
+Expected: [[[0.5248, 0.0474]]]

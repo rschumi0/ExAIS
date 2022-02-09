@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot70299 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot70299 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con80679 = tf.keras.layers.Input(shape=([2]))
+in0Loc31878 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Dot70299 = keras.layers.Dot(axes=(1, 1), name = 'Dot70299', )([in0Dot70299,in1Dot70299])
+Res655 = keras.layers.Reshape((2, 2, 1), name = 'Res655', )(Dot70299)
+Glo37170 = keras.layers.GlobalAveragePooling2D(name = 'Glo37170', )(Res655)
+Con80679 = keras.layers.Concatenate(axis=1, name = 'Con80679', )([Glo37170,in0Con80679])
+Loc31878 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc31878', )(in0Loc31878)
+Res18775 = keras.layers.Reshape((1, 6), name = 'Res18775', )(Loc31878)
+Sim25994 = keras.layers.SimpleRNN(3,name = 'Sim25994', )(Res18775)
+Sub84984 = keras.layers.Subtract(name = 'Sub84984', )([Con80679,Sim25994])
+model = tf.keras.models.Model(inputs=[in0Dot70299,in1Dot70299,in0Con80679,in0Loc31878], outputs=Sub84984)
+w = model.get_layer('Loc31878').get_weights() 
+w[0] = np.array([[[0.1965, 0.8409, 0.1313], [0.7238, 0.7125, 0.4927]], [[0.8359, 0.6671, 0.3575], [0.8472, 0.3357, 0.0863]]])
+w[1] = np.array([[[0, 0, 0], [0, 0, 0]]])
+model.get_layer('Loc31878').set_weights(w) 
+w = model.get_layer('Sim25994').get_weights() 
+w[0] = np.array([[3, 2, 10], [4, 2, 8], [9, 9, 4], [4, 1, 2], [7, 3, 1], [6, 8, 3]])
+w[1] = np.array([[2, 3, 7], [6, 1, 3], [7, 9, 5]])
+w[2] = np.array([10, 7, 6])
+model.get_layer('Sim25994').set_weights(w) 
+in0Dot70299 = tf.constant([[[0.086, 0.7213], [0.7691, 0.5342]]])
+in1Dot70299 = tf.constant([[[0.8818, 0.9442], [0.5941, 0.6559]]])
+in0Con80679 = tf.constant([[0.596, 0.5986]])
+in0Loc31878 = tf.constant([[[[0.4343, 0.7733], [0.9507, 0.4285]]]])
+print (np.array2string(model.predict([in0Dot70299,in1Dot70299,in0Con80679,in0Loc31878],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub84984.png')
+
+LDot70299 = dot_layer([[[0.086, 0.7213], [0.7691, 0.5342]]], [[[0.8818, 0.9442], [0.5941, 0.6559]]], 1, 1, Dot70299), 
+LRes655 = reshape_layer(Dot70299, [2, 2, 1], Res655), 
+LGlo37170 = global_average_pooling2D_layer(Res655, Glo37170), 
+LCon80679 = concatenate_layer([Glo37170,[[0.596, 0.5986]]], 1, Con80679), 
+LLoc31878 = locally_connected2D_layer([[[[0.4343, 0.7733], [0.9507, 0.4285]]]], 1, 1,[[[0.1965, 0.8409, 0.1313], [0.7238, 0.7125, 0.4927]], [[0.8359, 0.6671, 0.3575], [0.8472, 0.3357, 0.0863]]],[[[0, 0, 0], [0, 0, 0]]], 1, 1, Loc31878), 
+LRes18775 = reshape_layer(Loc31878, [1, 6], Res18775), 
+LSim25994 = simple_rnn_layer(Res18775,[[3, 2, 10], [4, 2, 8], [9, 9, 4], [4, 1, 2], [7, 3, 1], [6, 8, 3]],[[2, 3, 7], [6, 1, 3], [7, 9, 5]],[10, 7, 6], Sim25994), 
+LSub84984 = subtract_layer(Con80679,Sim25994, Sub84984), 
+exec_layers([LDot70299,LRes655,LGlo37170,LCon80679,LLoc31878,LRes18775,LSim25994,LSub84984],["Dot70299","Res655","Glo37170","Con80679","Loc31878","Res18775","Sim25994","Sub84984"],Sub84984,"Sub84984")
+
+Actual (Unparsed): [[-0.2241863, -0.4040000, -0.4014000]]
+
+Expected (Unparsed): [[-0.22418629999999995,-0.404,-0.4014]]
+
+Actual:   [[-0.2241, -0.404, -0.4014]]
+
+Expected: [[-0.2241, -0.404, -0.4014]]

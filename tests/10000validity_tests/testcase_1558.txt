@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave1711 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Ave1711 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Con20600 = tf.keras.layers.Input(shape=([1]))
+in0Glo19655 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave1711 = keras.layers.Average(name = 'Ave1711', )([in0Ave1711,in1Ave1711])
+Res81608 = keras.layers.Reshape((1, 2, 1), name = 'Res81608', )(Ave1711)
+Res96709 = keras.layers.Reshape((1, 2), name = 'Res96709', )(Res81608)
+Fla28334 = keras.layers.Flatten(name = 'Fla28334', )(Res96709)
+Con20600 = keras.layers.Concatenate(axis=1, name = 'Con20600', )([Fla28334,in0Con20600])
+Glo19655 = keras.layers.GlobalMaxPool1D(name = 'Glo19655', )(in0Glo19655)
+Res92557 = keras.layers.Reshape((2, 1), name = 'Res92557', )(Glo19655)
+Loc72430 = keras.layers.LocallyConnected1D(2, (2),strides=(1), name = 'Loc72430', )(Res92557)
+GRU16039 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU16039', )(Loc72430)
+Max29212 = keras.layers.Maximum(name = 'Max29212', )([Con20600,GRU16039])
+model = tf.keras.models.Model(inputs=[in0Ave1711,in1Ave1711,in0Con20600,in0Glo19655], outputs=Max29212)
+w = model.get_layer('Loc72430').get_weights() 
+w[0] = np.array([[[0.356, 0.0291], [0.5008, 0.3828]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc72430').set_weights(w) 
+w = model.get_layer('GRU16039').get_weights() 
+w[0] = np.array([[1, 6, 6, 2, 9, 9, 10, 4, 3], [7, 2, 2, 8, 3, 6, 9, 10, 6]])
+w[1] = np.array([[1, 9, 6, 8, 8, 2, 10, 4, 5], [1, 10, 4, 10, 10, 2, 5, 2, 10], [7, 10, 10, 3, 3, 8, 10, 9, 3]])
+w[2] = np.array([8, 1, 6, 7, 9, 1, 6, 10, 10])
+model.get_layer('GRU16039').set_weights(w) 
+in0Ave1711 = tf.constant([[[[[0.5384]], [[0.5551]]]]])
+in1Ave1711 = tf.constant([[[[[0.5015]], [[0.6295]]]]])
+in0Con20600 = tf.constant([[0.1982]])
+in0Glo19655 = tf.constant([[[1.7626, 1.7779], [1.9144, 1.5519]]])
+print (np.array2string(model.predict([in0Ave1711,in1Ave1711,in0Con20600,in0Glo19655],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max29212.png')
+
+LAve1711 = average_layer([[[[[[0.5384]], [[0.5551]]]]], [[[[[0.5015]], [[0.6295]]]]]], Ave1711), 
+LRes81608 = reshape_layer(Ave1711, [1, 2, 1], Res81608), 
+LRes96709 = reshape_layer(Res81608, [1, 2], Res96709), 
+LFla28334 = flatten_layer(Res96709, Fla28334), 
+LCon20600 = concatenate_layer([Fla28334,[[0.1982]]], 1, Con20600), 
+LGlo19655 = global_max_pool1D_layer([[[1.7626, 1.7779], [1.9144, 1.5519]]], Glo19655), 
+LRes92557 = reshape_layer(Glo19655, [2, 1], Res92557), 
+LLoc72430 = locally_connected1D_layer(Res92557, 2,[[[0.356, 0.0291], [0.5008, 0.3828]]],[[0, 0]], 1, Loc72430), 
+LGRU16039 = gru_layer(Loc72430,[[1, 6, 6, 2, 9, 9, 10, 4, 3], [7, 2, 2, 8, 3, 6, 9, 10, 6]],[[1, 9, 6, 8, 8, 2, 10, 4, 5], [1, 10, 4, 10, 10, 2, 5, 2, 10], [7, 10, 10, 3, 3, 8, 10, 9, 3]],[8, 1, 6, 7, 9, 1, 6, 10, 10], false, GRU16039), 
+LMax29212 = maximum_layer([Con20600,GRU16039], Max29212), 
+exec_layers([LAve1711,LRes81608,LRes96709,LFla28334,LCon20600,LGlo19655,LRes92557,LLoc72430,LGRU16039,LMax29212],["Ave1711","Res81608","Res96709","Fla28334","Con20600","Glo19655","Res92557","Loc72430","GRU16039","Max29212"],Max29212,"Max29212")
+
+Actual (Unparsed): [[0.5199500, 0.5923000, 0.1982000]]
+
+Expected (Unparsed): [[0.5199499999999999,0.5923,0.1982]]
+
+Actual:   [[0.52, 0.5923, 0.1982]]
+
+Expected: [[0.52, 0.5923, 0.1982]]

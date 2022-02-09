@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con94321 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Mul76347 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Mul76347 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Con94321 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='same', name = 'Con94321', )(in0Con94321)
+Res80287 = keras.layers.Reshape((2, 3), name = 'Res80287', )(Con94321)
+Glo31562 = keras.layers.GlobalAveragePooling1D(name = 'Glo31562', )(Res80287)
+Lay75172 = keras.layers.LayerNormalization(axis=1, epsilon=2.4069867551441635, name = 'Lay75172', )(Glo31562)
+Res11064 = keras.layers.Reshape((3, 1), name = 'Res11064', )(Lay75172)
+Res92889 = keras.layers.Reshape((3, 1, 1), name = 'Res92889', )(Res11064)
+Zer63353 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer63353', )(Res92889)
+Mul76347 = keras.layers.Multiply(name = 'Mul76347', )([in0Mul76347,in1Mul76347])
+Zer84070 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer84070', )(Mul76347)
+Min89729 = keras.layers.Minimum(name = 'Min89729', )([Zer63353,Zer84070])
+Res49133 = keras.layers.Reshape((3, 3), name = 'Res49133', )(Min89729)
+PRe6936 = keras.layers.PReLU(name = 'PRe6936', )(Res49133)
+model = tf.keras.models.Model(inputs=[in0Con94321,in0Mul76347,in1Mul76347], outputs=PRe6936)
+w = model.get_layer('Con94321').get_weights() 
+w[0] = np.array([[[[0.452], [0.4295], [0.0048]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con94321').set_weights(w) 
+w = model.get_layer('PRe6936').get_weights() 
+w[0] = np.array([[0.1191, 0.8733, 0.4682], [0.4816, 0.43, 0.8185], [0.2217, 0.5331, 0.9826]])
+model.get_layer('PRe6936').set_weights(w) 
+in0Con94321 = tf.constant([[[[0.4895]], [[0.3042]]]])
+in0Mul76347 = tf.constant([[[[0.3669], [0.8002]], [[0.8698], [0.1206]]]])
+in1Mul76347 = tf.constant([[[[0.4451], [0.6193]], [[0.6155], [0.322]]]])
+print (np.array2string(model.predict([in0Con94321,in0Mul76347,in1Mul76347],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe6936.png')
+
+LCon94321 = conv2D_transpose_layer([[[[0.4895]], [[0.3042]]]], 1, 1,[[[[0.452], [0.4295], [0.0048]]]],[0, 0, 0], 1, 1, true, Con94321), 
+LRes80287 = reshape_layer(Con94321, [2, 3], Res80287), 
+LGlo31562 = global_average_pooling1D_layer(Res80287, Glo31562), 
+LLay75172 = layer_normalization_layer(Glo31562, 1, 2.4069867551441635, Lay75172), 
+LRes11064 = reshape_layer(Lay75172, [3, 1], Res11064), 
+LRes92889 = reshape_layer(Res11064, [3, 1, 1], Res92889), 
+LZer63353 = zero_padding2D_layer(Res92889, 0, 0, 2, 0, Zer63353), 
+LMul76347 = multiply_layer([[[[[0.3669], [0.8002]], [[0.8698], [0.1206]]]], [[[[0.4451], [0.6193]], [[0.6155], [0.322]]]]], Mul76347), 
+LZer84070 = zero_padding2D_layer(Mul76347, 1, 0, 1, 0, Zer84070), 
+LMin89729 = minimum_layer([Zer63353,Zer84070], Min89729), 
+LRes49133 = reshape_layer(Min89729, [3, 3], Res49133), 
+LPRe6936 = prelu_layer(Res49133, [[0.1191, 0.8733, 0.4682], [0.4816, 0.43, 0.8185], [0.2217, 0.5331, 0.9826]], PRe6936), 
+exec_layers([LCon94321,LRes80287,LGlo31562,LLay75172,LRes11064,LRes92889,LZer63353,LMul76347,LZer84070,LMin89729,LRes49133,LPRe6936],["Con94321","Res80287","Glo31562","Lay75172","Res11064","Res92889","Zer63353","Mul76347","Zer84070","Min89729","Res49133","PRe6936"],PRe6936,"PRe6936")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0342460], [0.0000000, 0.0000000, -0.0729476]]]
+
+Expected (Unparsed): [[[0,0,0],[0,0,0.03424600522622971],[0,0,-0.0729476473314327]]]
+
+Actual:   [[[0, 0, 0], [0, 0, 0.0343], [0, 0, -0.0729]]]
+
+Expected: [[[0, 0, 0], [0, 0, 0.0343], [0, 0, -0.0729]]]

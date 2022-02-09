@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo20030 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Con29073 = tf.keras.layers.Input(shape=([2]))
+in0Sim23427 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con60213 = tf.keras.layers.Input(shape=([1]))
+in0LST67338 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con81990 = tf.keras.layers.Input(shape=([1]))
+in0Sub23218 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub23218 = tf.keras.layers.Input(shape=([3, 2]))
+
+Glo20030 = keras.layers.GlobalMaxPool3D(name = 'Glo20030', )(in0Glo20030)
+Con29073 = keras.layers.Concatenate(axis=1, name = 'Con29073', )([Glo20030,in0Con29073])
+Sim23427 = keras.layers.SimpleRNN(2,name = 'Sim23427', )(in0Sim23427)
+Con60213 = keras.layers.Concatenate(axis=1, name = 'Con60213', )([Sim23427,in0Con60213])
+LST67338 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST67338', )(in0LST67338)
+Min73053 = keras.layers.Minimum(name = 'Min73053', )([Con60213,LST67338])
+Dot15727 = keras.layers.Dot(axes=(1, 1), name = 'Dot15727', )([Con29073,Min73053])
+Con81990 = keras.layers.Concatenate(axis=1, name = 'Con81990', )([Dot15727,in0Con81990])
+Sub23218 = keras.layers.Subtract(name = 'Sub23218', )([in0Sub23218,in1Sub23218])
+Glo1343 = keras.layers.GlobalMaxPool1D(name = 'Glo1343', )(Sub23218)
+Mul55102 = keras.layers.Multiply(name = 'Mul55102', )([Con81990,Glo1343])
+model = tf.keras.models.Model(inputs=[in0Glo20030,in0Con29073,in0Sim23427,in0Con60213,in0LST67338,in0Con81990,in0Sub23218,in1Sub23218], outputs=Mul55102)
+w = model.get_layer('Sim23427').get_weights() 
+w[0] = np.array([[2, 9], [1, 7], [7, 6]])
+w[1] = np.array([[5, 3], [10, 5]])
+w[2] = np.array([5, 5])
+model.get_layer('Sim23427').set_weights(w) 
+w = model.get_layer('LST67338').get_weights() 
+w[0] = np.array([[5, 7, 4, 6, 9, 3, 10, 7, 8, 1, 5, 4], [4, 7, 3, 4, 9, 6, 8, 2, 8, 10, 2, 7], [3, 8, 9, 6, 9, 1, 6, 10, 10, 1, 1, 5]])
+w[1] = np.array([[2, 8, 1, 4, 2, 3, 1, 5, 5, 7, 5, 3], [10, 1, 9, 3, 6, 5, 10, 7, 5, 7, 5, 8], [3, 9, 5, 2, 2, 6, 8, 9, 6, 7, 2, 3]])
+w[2] = np.array([6, 6, 10, 10, 9, 5, 6, 5, 10, 1, 5, 6])
+model.get_layer('LST67338').set_weights(w) 
+in0Glo20030 = tf.constant([[[[[1.377], [1.4602]], [[1.8634], [1.8243]]], [[[1.8844], [1.4039]], [[1.695], [1.9754]]]]])
+in0Con29073 = tf.constant([[0.5966, 0.1628]])
+in0Sim23427 = tf.constant([[[7, 4, 8], [1, 10, 2]]])
+in0Con60213 = tf.constant([[0.6187]])
+in0LST67338 = tf.constant([[[2, 9, 5], [9, 9, 10]]])
+in0Con81990 = tf.constant([[0.2949]])
+in0Sub23218 = tf.constant([[[0.9075, 0.3178], [0.2529, 0.5581], [0.2695, 0.8718]]])
+in1Sub23218 = tf.constant([[[0.4757, 0.8762], [0.2807, 0.3378], [0.2713, 0.9182]]])
+print (np.array2string(model.predict([in0Glo20030,in0Con29073,in0Sim23427,in0Con60213,in0LST67338,in0Con81990,in0Sub23218,in1Sub23218],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul55102.png')
+
+LGlo20030 = global_max_pool3D_layer([[[[[1.377], [1.4602]], [[1.8634], [1.8243]]], [[[1.8844], [1.4039]], [[1.695], [1.9754]]]]], Glo20030), 
+LCon29073 = concatenate_layer([Glo20030,[[0.5966, 0.1628]]], 1, Con29073), 
+LSim23427 = simple_rnn_layer([[[7, 4, 8], [1, 10, 2]]],[[2, 9], [1, 7], [7, 6]],[[5, 3], [10, 5]],[5, 5], Sim23427), 
+LCon60213 = concatenate_layer([Sim23427,[[0.6187]]], 1, Con60213), 
+LLST67338 = lstm_layer([[[2, 9, 5], [9, 9, 10]]],[[5, 7, 4, 6, 9, 3, 10, 7, 8, 1, 5, 4], [4, 7, 3, 4, 9, 6, 8, 2, 8, 10, 2, 7], [3, 8, 9, 6, 9, 1, 6, 10, 10, 1, 1, 5]],[[2, 8, 1, 4, 2, 3, 1, 5, 5, 7, 5, 3], [10, 1, 9, 3, 6, 5, 10, 7, 5, 7, 5, 8], [3, 9, 5, 2, 2, 6, 8, 9, 6, 7, 2, 3]],[6, 6, 10, 10, 9, 5, 6, 5, 10, 1, 5, 6], LST67338), 
+LMin73053 = minimum_layer([Con60213,LST67338], Min73053), 
+LDot15727 = dot_layer(Con29073,Min73053, 1, 1, Dot15727), 
+LCon81990 = concatenate_layer([Dot15727,[[0.2949]]], 1, Con81990), 
+LSub23218 = subtract_layer([[[0.9075, 0.3178], [0.2529, 0.5581], [0.2695, 0.8718]]], [[[0.4757, 0.8762], [0.2807, 0.3378], [0.2713, 0.9182]]], Sub23218), 
+LGlo1343 = global_max_pool1D_layer(Sub23218, Glo1343), 
+LMul55102 = multiply_layer([Con81990,Glo1343], Mul55102), 
+exec_layers([LGlo20030,LCon29073,LSim23427,LCon60213,LLST67338,LMin73053,LDot15727,LCon81990,LSub23218,LGlo1343,LMul55102],["Glo20030","Con29073","Sim23427","Con60213","LST67338","Min73053","Dot15727","Con81990","Sub23218","Glo1343","Mul55102"],Mul55102,"Mul55102")
+
+Actual (Unparsed): [[1.1141319, 0.0649665]]
+
+Expected (Unparsed): [[1.1141317831933695,0.06496647000000001]]
+
+Actual:   [[1.1142, 0.065]]
+
+Expected: [[1.1142, 0.065]]

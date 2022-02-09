@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub72542 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub72542 = tf.keras.layers.Input(shape=([2, 3]))
+in0Max10064 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max10064 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sub72542 = keras.layers.Subtract(name = 'Sub72542', )([in0Sub72542,in1Sub72542])
+Res72913 = keras.layers.Reshape((2, 3, 1), name = 'Res72913', )(Sub72542)
+Sep79639 = keras.layers.SeparableConv2D(2, (1, 2),strides=(2, 2), padding='valid', name = 'Sep79639', )(Res72913)
+Res74059 = keras.layers.Reshape((1, 2), name = 'Res74059', )(Sep79639)
+Sim44005 = keras.layers.SimpleRNN(1,name = 'Sim44005', )(Res74059)
+Res90261 = keras.layers.Reshape((1, 1), name = 'Res90261', )(Sim44005)
+Zer27335 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer27335', )(Res90261)
+Max10064 = keras.layers.Maximum(name = 'Max10064', )([in0Max10064,in1Max10064])
+Mas50516 = keras.layers.Masking(mask_value=2, name = 'Mas50516', )(Max10064)
+Den58611 = keras.layers.Dense(1,name = 'Den58611', )(Mas50516)
+Sub65774 = keras.layers.Subtract(name = 'Sub65774', )([Zer27335,Den58611])
+model = tf.keras.models.Model(inputs=[in0Sub72542,in1Sub72542,in0Max10064,in1Max10064], outputs=Sub65774)
+w = model.get_layer('Sep79639').get_weights() 
+w[0] = np.array([[[[0.8878]], [[0.4598]]]])
+w[1] = np.array([[[[0.8266, 0.6225]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep79639').set_weights(w) 
+w = model.get_layer('Sim44005').get_weights() 
+w[0] = np.array([[5], [6]])
+w[1] = np.array([[8]])
+w[2] = np.array([1])
+model.get_layer('Sim44005').set_weights(w) 
+w = model.get_layer('Den58611').get_weights() 
+w[0] = np.array([[0.6325]])
+w[1] = np.array([0.9619])
+model.get_layer('Den58611').set_weights(w) 
+in0Sub72542 = tf.constant([[[0.7443, 0.6993, 0.5493], [0.832, 0.9354, 0.591]]])
+in1Sub72542 = tf.constant([[[0.9006, 0.5772, 0.8838], [0.5199, 0.1953, 0.2303]]])
+in0Max10064 = tf.constant([[[0.9506], [0.0166]]])
+in1Max10064 = tf.constant([[[0.0512], [0.0467]]])
+print (np.array2string(model.predict([in0Sub72542,in1Sub72542,in0Max10064,in1Max10064],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub65774.png')
+
+LSub72542 = subtract_layer([[[0.7443, 0.6993, 0.5493], [0.832, 0.9354, 0.591]]], [[[0.9006, 0.5772, 0.8838], [0.5199, 0.1953, 0.2303]]], Sub72542), 
+LRes72913 = reshape_layer(Sub72542, [2, 3, 1], Res72913), 
+LSep79639 = separable_conv2D_layer(Res72913, 1, 2,[[[[[0.8878]], [[0.4598]]]],[[[[0.8266, 0.6225]]]]],[0, 0], 2, 2, false, Sep79639), 
+LRes74059 = reshape_layer(Sep79639, [1, 2], Res74059), 
+LSim44005 = simple_rnn_layer(Res74059,[[5], [6]],[[8]],[1], Sim44005), 
+LRes90261 = reshape_layer(Sim44005, [1, 1], Res90261), 
+LZer27335 = zero_padding1D_layer(Res90261, 1, 0, Zer27335), 
+LMax10064 = maximum_layer([[[[0.9506], [0.0166]]], [[[0.0512], [0.0467]]]], Max10064), 
+LMas50516 = masking_layer(Max10064, 2, Mas50516), 
+LDen58611 = dense_layer(Mas50516, [[0.6325]],[0.9619], Den58611), 
+LSub65774 = subtract_layer(Zer27335,Den58611, Sub65774), 
+exec_layers([LSub72542,LRes72913,LSep79639,LRes74059,LSim44005,LRes90261,LZer27335,LMax10064,LMas50516,LDen58611,LSub65774],["Sub72542","Res72913","Sep79639","Res74059","Sim44005","Res90261","Zer27335","Max10064","Mas50516","Den58611","Sub65774"],Sub65774,"Sub65774")
+
+Actual (Unparsed): [[[-1.5631545], [-0.6551212]]]
+
+Expected (Unparsed): [[[-1.5631545],[-0.6551211241432663]]]
+
+Actual:   [[[-1.5631], [-0.6551]]]
+
+Expected: [[[-1.5631], [-0.6551]]]

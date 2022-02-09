@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Lea4543 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con51654 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con71085 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Lea4543 = keras.layers.LeakyReLU(alpha=6.2184415522868655, name = 'Lea4543', input_shape=(2, 2, 2))(in0Lea4543)
+Con51654 = keras.layers.Concatenate(axis=3, name = 'Con51654', )([Lea4543,in0Con51654])
+Con71085 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='valid', name = 'Con71085', )(in0Con71085)
+Zer74047 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer74047', )(Con71085)
+Min24009 = keras.layers.Minimum(name = 'Min24009', )([Con51654,Zer74047])
+Res86747 = keras.layers.Reshape((2, 6), name = 'Res86747', )(Min24009)
+Per71249 = keras.layers.Permute((2,1), name = 'Per71249',)(Res86747)
+model = tf.keras.models.Model(inputs=[in0Lea4543,in0Con51654,in0Con71085], outputs=Per71249)
+w = model.get_layer('Con71085').get_weights() 
+w[0] = np.array([[[[0.5689], [0.1474], [0.2108]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con71085').set_weights(w) 
+in0Lea4543 = tf.constant([[[[0.0398, 0.8365], [0.9747, 0.5015]], [[0.8582, 0.7436], [0.8173, 0.8013]]]])
+in0Con51654 = tf.constant([[[[0.1129], [0.427]], [[0.9784], [0.6651]]]])
+in0Con71085 = tf.constant([[[[0.8668]], [[0.8995]]]])
+print (np.array2string(model.predict([in0Lea4543,in0Con51654,in0Con71085],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per71249.png')
+
+LLea4543 = leaky_relu_layer([[[[0.0398, 0.8365], [0.9747, 0.5015]], [[0.8582, 0.7436], [0.8173, 0.8013]]]], 6.2184415522868655, Lea4543), 
+LCon51654 = concatenate_layer([Lea4543,[[[[0.1129], [0.427]], [[0.9784], [0.6651]]]]], 3, Con51654), 
+LCon71085 = conv2D_transpose_layer([[[[0.8668]], [[0.8995]]]], 1, 1,[[[[0.5689], [0.1474], [0.2108]]]],[0, 0, 0], 1, 1, false, Con71085), 
+LZer74047 = zero_padding2D_layer(Con71085, 0, 0, 1, 0, Zer74047), 
+LMin24009 = minimum_layer([Con51654,Zer74047], Min24009), 
+LRes86747 = reshape_layer(Min24009, [2, 6], Res86747), 
+LPer71249 = permute_layer(Res86747, 2,1, Per71249), 
+exec_layers([LLea4543,LCon51654,LCon71085,LZer74047,LMin24009,LRes86747,LPer71249],["Lea4543","Con51654","Con71085","Zer74047","Min24009","Res86747","Per71249"],Per71249,"Per71249")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.4931225, 0.5117256], [0.1277663, 0.1325863], [0.1827214, 0.1896146]]]
+
+Expected (Unparsed): [[[0,0],[0,0],[0,0],[0.49312251999999995,0.51172555],[0.12776632000000002,0.1325863],[0.18272143999999998,0.1896146]]]
+
+Actual:   [[[0, 0], [0, 0], [0, 0], [0.4932, 0.5118], [0.1278, 0.1326], [0.1828, 0.1897]]]
+
+Expected: [[[0, 0], [0, 0], [0, 0], [0.4932, 0.5118], [0.1278, 0.1326], [0.1828, 0.1897]]]

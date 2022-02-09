@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave37872 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Ave37872 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Ave37872 = keras.layers.Average(name = 'Ave37872', )([in0Ave37872,in1Ave37872])
+Res32334 = keras.layers.Reshape((1, 1, 2), name = 'Res32334', )(Ave37872)
+Res89684 = keras.layers.Reshape((1, 2), name = 'Res89684', )(Res32334)
+Sim98344 = keras.layers.SimpleRNN(3,name = 'Sim98344', )(Res89684)
+Res29687 = keras.layers.Reshape((3, 1), name = 'Res29687', )(Sim98344)
+Up_21556 = keras.layers.UpSampling1D(size=(1), name = 'Up_21556', )(Res29687)
+Res9578 = keras.layers.Reshape((3, 1, 1), name = 'Res9578', )(Up_21556)
+Dep15585 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep15585', )(Res9578)
+model = tf.keras.models.Model(inputs=[in0Ave37872,in1Ave37872], outputs=Dep15585)
+w = model.get_layer('Sim98344').get_weights() 
+w[0] = np.array([[7, 8, 3], [3, 5, 3]])
+w[1] = np.array([[7, 9, 7], [6, 1, 3], [1, 6, 6]])
+w[2] = np.array([6, 6, 6])
+model.get_layer('Sim98344').set_weights(w) 
+w = model.get_layer('Dep15585').get_weights() 
+w[0] = np.array([[[[0.5806]]], [[[0.3811]]]])
+w[1] = np.array([0])
+model.get_layer('Dep15585').set_weights(w) 
+in0Ave37872 = tf.constant([[[[[0.8525], [0.4706]]]]])
+in1Ave37872 = tf.constant([[[[[0.1936], [0.7066]]]]])
+print (np.array2string(model.predict([in0Ave37872,in1Ave37872],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep15585.png')
+
+LAve37872 = average_layer([[[[[[0.8525], [0.4706]]]]], [[[[[0.1936], [0.7066]]]]]], Ave37872), 
+LRes32334 = reshape_layer(Ave37872, [1, 1, 2], Res32334), 
+LRes89684 = reshape_layer(Res32334, [1, 2], Res89684), 
+LSim98344 = simple_rnn_layer(Res89684,[[7, 8, 3], [3, 5, 3]],[[7, 9, 7], [6, 1, 3], [1, 6, 6]],[6, 6, 6], Sim98344), 
+LRes29687 = reshape_layer(Sim98344, [3, 1], Res29687), 
+LUp_21556 = up_sampling1D_layer(Res29687, 1, Up_21556), 
+LRes9578 = reshape_layer(Up_21556, [3, 1, 1], Res9578), 
+LDep15585 = depthwise_conv2D_layer(Res9578, 2, 1,[[[[0.5806]]], [[[0.3811]]]],[0], 2, 2, false, Dep15585), 
+exec_layers([LAve37872,LRes32334,LRes89684,LSim98344,LRes29687,LUp_21556,LRes9578,LDep15585],["Ave37872","Res32334","Res89684","Sim98344","Res29687","Up_21556","Res9578","Dep15585"],Dep15585,"Dep15585")
+
+Actual (Unparsed): [[[[0.9617000]]]]
+
+Expected (Unparsed): [[[[0.9616999998591305]]]]
+
+Actual:   [[[[0.9617]]]]
+
+Expected: [[[[0.9617]]]]

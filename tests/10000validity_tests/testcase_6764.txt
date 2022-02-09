@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot167 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot167 = tf.keras.layers.Input(shape=([3, 2]))
+in0Glo15976 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con57874 = tf.keras.layers.Input(shape=([3]))
+in0LST42301 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con58200 = tf.keras.layers.Input(shape=([1]))
+
+Dot167 = keras.layers.Dot(axes=(1, 1), name = 'Dot167', )([in0Dot167,in1Dot167])
+Fla22359 = keras.layers.Flatten(name = 'Fla22359', )(Dot167)
+Glo15976 = keras.layers.GlobalAveragePooling3D(name = 'Glo15976', )(in0Glo15976)
+Con57874 = keras.layers.Concatenate(axis=1, name = 'Con57874', )([Glo15976,in0Con57874])
+Sub43758 = keras.layers.Subtract(name = 'Sub43758', )([Fla22359,Con57874])
+LST42301 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST42301', )(in0LST42301)
+Con58200 = keras.layers.Concatenate(axis=1, name = 'Con58200', )([LST42301,in0Con58200])
+Ave13121 = keras.layers.Average(name = 'Ave13121', )([Sub43758,Con58200])
+model = tf.keras.models.Model(inputs=[in0Dot167,in1Dot167,in0Glo15976,in0Con57874,in0LST42301,in0Con58200], outputs=Ave13121)
+w = model.get_layer('LST42301').get_weights() 
+w[0] = np.array([[9, 6, 7, 5, 1, 6, 8, 2, 3, 3, 2, 7], [10, 3, 1, 5, 10, 3, 5, 7, 10, 8, 5, 5], [1, 5, 9, 1, 1, 6, 9, 10, 6, 8, 10, 4]])
+w[1] = np.array([[10, 7, 6, 1, 8, 2, 4, 5, 2, 6, 8, 8], [6, 9, 4, 9, 4, 9, 7, 7, 7, 2, 7, 1], [6, 8, 10, 3, 3, 6, 5, 5, 8, 1, 7, 10]])
+w[2] = np.array([1, 9, 8, 7, 10, 9, 4, 5, 10, 1, 8, 9])
+model.get_layer('LST42301').set_weights(w) 
+in0Dot167 = tf.constant([[[0.075, 0.92], [0.8354, 0.1466], [0.0215, 0.5062]]])
+in1Dot167 = tf.constant([[[0.3337, 0.5783], [0.5118, 0.9197], [0.3265, 0.4821]]])
+in0Glo15976 = tf.constant([[[[[1.3282], [1.1907]], [[1.542], [1.4163]]]]])
+in0Con57874 = tf.constant([[0.8843, 0.6559, 0.1079]])
+in0LST42301 = tf.constant([[[4, 5, 10], [5, 6, 8], [10, 1, 4]]])
+in0Con58200 = tf.constant([[0.9213]])
+print (np.array2string(model.predict([in0Dot167,in1Dot167,in0Glo15976,in0Con57874,in0LST42301,in0Con58200],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave13121.png')
+
+LDot167 = dot_layer([[[0.075, 0.92], [0.8354, 0.1466], [0.0215, 0.5062]]], [[[0.3337, 0.5783], [0.5118, 0.9197], [0.3265, 0.4821]]], 1, 1, Dot167), 
+LFla22359 = flatten_layer(Dot167, Fla22359), 
+LGlo15976 = global_average_pooling3D_layer([[[[[1.3282], [1.1907]], [[1.542], [1.4163]]]]], Glo15976), 
+LCon57874 = concatenate_layer([Glo15976,[[0.8843, 0.6559, 0.1079]]], 1, Con57874), 
+LSub43758 = subtract_layer(Fla22359,Con57874, Sub43758), 
+LLST42301 = lstm_layer([[[4, 5, 10], [5, 6, 8], [10, 1, 4]]],[[9, 6, 7, 5, 1, 6, 8, 2, 3, 3, 2, 7], [10, 3, 1, 5, 10, 3, 5, 7, 10, 8, 5, 5], [1, 5, 9, 1, 1, 6, 9, 10, 6, 8, 10, 4]],[[10, 7, 6, 1, 8, 2, 4, 5, 2, 6, 8, 8], [6, 9, 4, 9, 4, 9, 7, 7, 7, 2, 7, 1], [6, 8, 10, 3, 3, 6, 5, 5, 8, 1, 7, 10]],[1, 9, 8, 7, 10, 9, 4, 5, 10, 1, 8, 9], LST42301), 
+LCon58200 = concatenate_layer([LST42301,[[0.9213]]], 1, Con58200), 
+LAve13121 = average_layer([Sub43758,Con58200], Ave13121), 
+exec_layers([LDot167,LFla22359,LGlo15976,LCon57874,LSub43758,LLST42301,LCon58200,LAve13121],["Dot167","Fla22359","Glo15976","Con57874","Sub43758","LST42301","Con58200","Ave13121"],Ave13121,"Ave13121")
+
+Actual (Unparsed): [[0.0426798, 0.4664049, 0.4432315, 0.8621515]]
+
+Expected (Unparsed): [[0.04267986184336525,0.4664048918433653,0.44323146684336523,0.8621515200000001]]
+
+Actual:   [[0.0427, 0.4665, 0.4433, 0.8622]]
+
+Expected: [[0.0427, 0.4665, 0.4433, 0.8622]]

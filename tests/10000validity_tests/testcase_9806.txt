@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max10626 = tf.keras.layers.Input(shape=([2, 2]))
+in0Loc96918 = tf.keras.layers.Input(shape=([1, 2]))
+
+Max10626 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max10626', )(in0Max10626)
+Res89151 = keras.layers.Reshape((2, 2, 1), name = 'Res89151', )(Max10626)
+Zer42387 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer42387', )(Res89151)
+Res96240 = keras.layers.Reshape((4, 4), name = 'Res96240', )(Zer42387)
+Loc96918 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc96918', )(in0Loc96918)
+Zer36586 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer36586', )(Loc96918)
+Mul62587 = keras.layers.Multiply(name = 'Mul62587', )([Res96240,Zer36586])
+model = tf.keras.models.Model(inputs=[in0Max10626,in0Loc96918], outputs=Mul62587)
+w = model.get_layer('Loc96918').get_weights() 
+w[0] = np.array([[[0.7851, 0.5753, 0.7498, 0.8082], [0.1778, 0.646, 0.2276, 0.3832]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc96918').set_weights(w) 
+in0Max10626 = tf.constant([[[1.6482, 1.5749], [1.7895, 1.4569]]])
+in0Loc96918 = tf.constant([[[0.0104, 0.1755]]])
+print (np.array2string(model.predict([in0Max10626,in0Loc96918],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul62587.png')
+
+LMax10626 = max_pool1D_layer([[[1.6482, 1.5749], [1.7895, 1.4569]]], 1, Max10626), 
+LRes89151 = reshape_layer(Max10626, [2, 2, 1], Res89151), 
+LZer42387 = zero_padding2D_layer(Res89151, 1, 1, 1, 1, Zer42387), 
+LRes96240 = reshape_layer(Zer42387, [4, 4], Res96240), 
+LLoc96918 = locally_connected1D_layer([[[0.0104, 0.1755]]], 1,[[[0.7851, 0.5753, 0.7498, 0.8082], [0.1778, 0.646, 0.2276, 0.3832]]],[[0, 0, 0, 0]], 1, Loc96918), 
+LZer36586 = zero_padding1D_layer(Loc96918, 3, 0, Zer36586), 
+LMul62587 = multiply_layer([Res96240,Zer36586], Mul62587), 
+exec_layers([LMax10626,LRes89151,LZer42387,LRes96240,LLoc96918,LZer36586,LMul62587],["Max10626","Res89151","Zer42387","Res96240","Loc96918","Zer36586","Mul62587"],Mul62587,"Mul62587")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0,0,0],[0,0.0,0.0,0],[0,0.0,0.0,0],[0.0,0.0,0.0,0.0]]]
+
+Actual:   [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+
+Expected: [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]

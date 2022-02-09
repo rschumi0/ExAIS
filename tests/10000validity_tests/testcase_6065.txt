@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con56473 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max40267 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Max40267 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Con56473 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='same', name = 'Con56473', )(in0Con56473)
+Res64023 = keras.layers.Reshape((1, 1, 4, 1), name = 'Res64023', )(Con56473)
+Up_69872 = keras.layers.UpSampling3D(size=(2, 2, 1), name = 'Up_69872', )(Res64023)
+Res42786 = keras.layers.Reshape((2, 2, 4), name = 'Res42786', )(Up_69872)
+Dep70565 = keras.layers.DepthwiseConv2D((1, 2),strides=(2, 2), padding='same', name = 'Dep70565', )(Res42786)
+Fla7301 = keras.layers.Flatten(name = 'Fla7301', )(Dep70565)
+Res17329 = keras.layers.Reshape((4, 1), name = 'Res17329', )(Fla7301)
+Res69181 = keras.layers.Reshape((4, 1, 1), name = 'Res69181', )(Res17329)
+Max40267 = keras.layers.Maximum(name = 'Max40267', )([in0Max40267,in1Max40267])
+Zer98622 = keras.layers.ZeroPadding2D(padding=((3, 0), (0, 0)), name = 'Zer98622', )(Max40267)
+Ave67161 = keras.layers.Average(name = 'Ave67161', )([Res69181,Zer98622])
+model = tf.keras.models.Model(inputs=[in0Con56473,in0Max40267,in1Max40267], outputs=Ave67161)
+w = model.get_layer('Con56473').get_weights() 
+w[0] = np.array([[[[0.4501], [0.2168], [0.087], [0.9646]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con56473').set_weights(w) 
+w = model.get_layer('Dep70565').get_weights() 
+w[0] = np.array([[[[0.2258], [0.3814], [0.516], [0.269]], [[0.3834], [0.7513], [0.734], [0.0694]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Dep70565').set_weights(w) 
+in0Con56473 = tf.constant([[[[0.6134]]]])
+in0Max40267 = tf.constant([[[[0.436]]]])
+in1Max40267 = tf.constant([[[[0.9885]]]])
+print (np.array2string(model.predict([in0Con56473,in0Max40267,in1Max40267],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave67161.png')
+
+LCon56473 = conv2D_transpose_layer([[[[0.6134]]]], 1, 1,[[[[0.4501], [0.2168], [0.087], [0.9646]]]],[0, 0, 0, 0], 1, 1, true, Con56473), 
+LRes64023 = reshape_layer(Con56473, [1, 1, 4, 1], Res64023), 
+LUp_69872 = up_sampling3D_layer(Res64023, 2, 2, 1, Up_69872), 
+LRes42786 = reshape_layer(Up_69872, [2, 2, 4], Res42786), 
+LDep70565 = depthwise_conv2D_layer(Res42786, 1, 2,[[[[0.2258], [0.3814], [0.516], [0.269]], [[0.3834], [0.7513], [0.734], [0.0694]]]],[0, 0, 0, 0], 2, 2, true, Dep70565), 
+LFla7301 = flatten_layer(Dep70565, Fla7301), 
+LRes17329 = reshape_layer(Fla7301, [4, 1], Res17329), 
+LRes69181 = reshape_layer(Res17329, [4, 1, 1], Res69181), 
+LMax40267 = maximum_layer([[[[[0.436]]]], [[[[0.9885]]]]], Max40267), 
+LZer98622 = zero_padding2D_layer(Max40267, 3, 0, 0, 0, Zer98622), 
+LAve67161 = average_layer([Res69181,Zer98622], Ave67161), 
+exec_layers([LCon56473,LRes64023,LUp_69872,LRes42786,LDep70565,LFla7301,LRes17329,LRes69181,LMax40267,LZer98622,LAve67161],["Con56473","Res64023","Up_69872","Res42786","Dep70565","Fla7301","Res17329","Res69181","Max40267","Zer98622","Ave67161"],Ave67161,"Ave67161")
+
+Actual (Unparsed): [[[[0.0840974]], [[0.0753161]], [[0.0333536]], [[0.5943632]]]]
+
+Expected (Unparsed): [[[[0.08409742216399999]],[[0.07531612271199999]],[[0.033353625]],[[0.594363210288]]]]
+
+Actual:   [[[[0.0841]], [[0.0754]], [[0.0334]], [[0.5944]]]]
+
+Expected: [[[[0.0841]], [[0.0754]], [[0.0334]], [[0.5944]]]]

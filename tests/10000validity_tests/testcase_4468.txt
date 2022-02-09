@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo92022 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Max89463 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Max89463 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Glo92022 = keras.layers.GlobalMaxPool2D(name = 'Glo92022', )(in0Glo92022)
+Res67314 = keras.layers.Reshape((2, 1), name = 'Res67314', )(Glo92022)
+Glo6005 = keras.layers.GlobalAveragePooling1D(name = 'Glo6005', )(Res67314)
+Res58120 = keras.layers.Reshape((1, 1), name = 'Res58120', )(Glo6005)
+Res99528 = keras.layers.Reshape((1, 1, 1), name = 'Res99528', )(Res58120)
+Ave66395 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(5, 1), padding='valid', name = 'Ave66395', )(Res99528)
+Res29417 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res29417', )(Ave66395)
+Zer82933 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (0, 0)), name = 'Zer82933', )(Res29417)
+Max89463 = keras.layers.Maximum(name = 'Max89463', )([in0Max89463,in1Max89463])
+Sub30614 = keras.layers.Subtract(name = 'Sub30614', )([Zer82933,Max89463])
+model = tf.keras.models.Model(inputs=[in0Glo92022,in0Max89463,in1Max89463], outputs=Sub30614)
+in0Glo92022 = tf.constant([[[[1.1918, 1.561]], [[1.3023, 1.9903]]]])
+in0Max89463 = tf.constant([[[[[0.2951]], [[0.1314]]]]])
+in1Max89463 = tf.constant([[[[[0.8126]], [[0.4882]]]]])
+print (np.array2string(model.predict([in0Glo92022,in0Max89463,in1Max89463],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub30614.png')
+
+LGlo92022 = global_max_pool2D_layer([[[[1.1918, 1.561]], [[1.3023, 1.9903]]]], Glo92022), 
+LRes67314 = reshape_layer(Glo92022, [2, 1], Res67314), 
+LGlo6005 = global_average_pooling1D_layer(Res67314, Glo6005), 
+LRes58120 = reshape_layer(Glo6005, [1, 1], Res58120), 
+LRes99528 = reshape_layer(Res58120, [1, 1, 1], Res99528), 
+LAve66395 = average_pooling2D_layer(Res99528, 1, 1, 5, 1, false, Ave66395), 
+LRes29417 = reshape_layer(Ave66395, [1, 1, 1, 1], Res29417), 
+LZer82933 = zero_padding3D_layer(Res29417, 0, 0, 1, 0, 0, 0, Zer82933), 
+LMax89463 = maximum_layer([[[[[[0.2951]], [[0.1314]]]]], [[[[[0.8126]], [[0.4882]]]]]], Max89463), 
+LSub30614 = subtract_layer(Zer82933,Max89463, Sub30614), 
+exec_layers([LGlo92022,LRes67314,LGlo6005,LRes58120,LRes99528,LAve66395,LRes29417,LZer82933,LMax89463,LSub30614],["Glo92022","Res67314","Glo6005","Res58120","Res99528","Ave66395","Res29417","Zer82933","Max89463","Sub30614"],Sub30614,"Sub30614")
+
+Actual (Unparsed): [[[[[-0.8126000]], [[1.1581000]]]]]
+
+Expected (Unparsed): [[[[[-0.8126]],[[1.1581000000000001]]]]]
+
+Actual:   [[[[[-0.8126]], [[1.1581]]]]]
+
+Expected: [[[[[-0.8126]], [[1.1582]]]]]

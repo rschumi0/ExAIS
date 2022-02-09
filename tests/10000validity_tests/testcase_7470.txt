@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min32560 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min32560 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con18827 = tf.keras.layers.Input(shape=([8, 3]))
+in0Up_97138 = tf.keras.layers.Input(shape=([4, 4]))
+
+Min32560 = keras.layers.Minimum(name = 'Min32560', )([in0Min32560,in1Min32560])
+PRe96122 = keras.layers.PReLU(name = 'PRe96122', )(Min32560)
+Res68279 = keras.layers.Reshape((2, 1, 1), name = 'Res68279', )(PRe96122)
+Dep49184 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='same', name = 'Dep49184', )(Res68279)
+Res78823 = keras.layers.Reshape((2, 1), name = 'Res78823', )(Dep49184)
+Zer68408 = keras.layers.ZeroPadding1D(padding=((6, 0)), name = 'Zer68408', )(Res78823)
+Con18827 = keras.layers.Concatenate(axis=2, name = 'Con18827', )([Zer68408,in0Con18827])
+Up_97138 = keras.layers.UpSampling1D(size=(2), name = 'Up_97138', )(in0Up_97138)
+Dot93871 = keras.layers.Dot(axes=(1, 1), name = 'Dot93871', )([Con18827,Up_97138])
+model = tf.keras.models.Model(inputs=[in0Min32560,in1Min32560,in0Con18827,in0Up_97138], outputs=Dot93871)
+w = model.get_layer('PRe96122').get_weights() 
+w[0] = np.array([[0.2674], [0.4487]])
+model.get_layer('PRe96122').set_weights(w) 
+w = model.get_layer('Dep49184').get_weights() 
+w[0] = np.array([[[[0.9409]]], [[[0.707]]]])
+w[1] = np.array([0])
+model.get_layer('Dep49184').set_weights(w) 
+in0Min32560 = tf.constant([[[0.3261], [0.0424]]])
+in1Min32560 = tf.constant([[[0.631], [0.7831]]])
+in0Con18827 = tf.constant([[[0.0167, 0.1706, 0.4229], [0.8089, 0.5183, 0.9889], [0.996, 0.7381, 0.9156], [0.8561, 0.1132, 0.6499], [0.8017, 0.3464, 0.2399], [0.5929, 0.961, 0.2913], [0.0135, 0.5334, 0.7016], [0.0516, 0.1155, 0.4405]]])
+in0Up_97138 = tf.constant([[[1.1807, 1.9525, 1.9928, 1.902], [1.3147, 1.5907, 1.0065, 1.9136], [1.6262, 1.8191, 1.66, 1.7008], [1.6861, 1.5694, 1.3269, 1.0572]]])
+print (np.array2string(model.predict([in0Min32560,in1Min32560,in0Con18827,in0Up_97138],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot93871.png')
+
+LMin32560 = minimum_layer([[[[0.3261], [0.0424]]], [[[0.631], [0.7831]]]], Min32560), 
+LPRe96122 = prelu_layer(Min32560, [[0.2674], [0.4487]], PRe96122), 
+LRes68279 = reshape_layer(PRe96122, [2, 1, 1], Res68279), 
+LDep49184 = depthwise_conv2D_layer(Res68279, 2, 1,[[[[0.9409]]], [[[0.707]]]],[0], 1, 1, true, Dep49184), 
+LRes78823 = reshape_layer(Dep49184, [2, 1], Res78823), 
+LZer68408 = zero_padding1D_layer(Res78823, 6, 0, Zer68408), 
+LCon18827 = concatenate_layer([Zer68408,[[[0.0167, 0.1706, 0.4229], [0.8089, 0.5183, 0.9889], [0.996, 0.7381, 0.9156], [0.8561, 0.1132, 0.6499], [0.8017, 0.3464, 0.2399], [0.5929, 0.961, 0.2913], [0.0135, 0.5334, 0.7016], [0.0516, 0.1155, 0.4405]]]], 2, Con18827), 
+LUp_97138 = up_sampling1D_layer([[[1.1807, 1.9525, 1.9928, 1.902], [1.3147, 1.5907, 1.0065, 1.9136], [1.6262, 1.8191, 1.66, 1.7008], [1.6861, 1.5694, 1.3269, 1.0572]]], 2, Up_97138), 
+LDot93871 = dot_layer(Con18827,Up_97138, 1, 1, Dot93871), 
+exec_layers([LMin32560,LPRe96122,LRes68279,LDep49184,LRes78823,LZer68408,LCon18827,LUp_97138,LDot93871],["Min32560","PRe96122","Res68279","Dep49184","Res78823","Zer68408","Con18827","Up_97138","Dot93871"],Dot93871,"Dot93871")
+
+Actual (Unparsed): [[[0.6351512, 0.5911905, 0.4998412, 0.3982456], [5.7874053, 7.1972043, 5.9108115, 7.5552290], [5.1527924, 6.0959152, 5.2609828, 5.8489783], [6.5146073, 8.0054980, 6.7863553, 7.7918773]]]
+
+Expected (Unparsed): [[[0.6351512565449999,0.59119054743,0.499841173305,0.39824560134],[5.78740542,7.197204269999999,5.910811519999999,7.5552291600000006],[5.15279251,6.09591516,5.26098278,5.84897848],[6.51460736,8.00549801,6.786355280000001,7.791877480000001]]]
+
+Actual:   [[[0.6352, 0.5912, 0.4999, 0.3983], [5.7875, 7.1973, 5.9109, 7.5553], [5.1528, 6.096, 5.261, 5.849], [6.5147, 8.0055, 6.7864, 7.7919]]]
+
+Expected: [[[0.6352, 0.5912, 0.4999, 0.3983], [5.7875, 7.1973, 5.9109, 7.5553], [5.1528, 6.096, 5.261, 5.849], [6.5147, 8.0055, 6.7864, 7.7919]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_21030 = tf.keras.layers.Input(shape=([2, 3, 2]))
+in0Add28632 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Add28632 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con32693 = tf.keras.layers.Input(shape=([4, 4]))
+
+Up_21030 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_21030', )(in0Up_21030)
+Res40665 = keras.layers.Reshape((4, 6), name = 'Res40665', )(Up_21030)
+Add28632 = keras.layers.Add(name = 'Add28632', )([in0Add28632,in1Add28632])
+Res64737 = keras.layers.Reshape((1, 2, 2), name = 'Res64737', )(Add28632)
+Res90279 = keras.layers.Reshape((1, 4), name = 'Res90279', )(Res64737)
+Loc60595 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc60595', )(Res90279)
+Zer27510 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer27510', )(Loc60595)
+Con32693 = keras.layers.Concatenate(axis=2, name = 'Con32693', )([Zer27510,in0Con32693])
+Min97397 = keras.layers.Minimum(name = 'Min97397', )([Res40665,Con32693])
+model = tf.keras.models.Model(inputs=[in0Up_21030,in0Add28632,in1Add28632,in0Con32693], outputs=Min97397)
+w = model.get_layer('Loc60595').get_weights() 
+w[0] = np.array([[[0.8494, 0.6866], [0.8109, 0.2539], [0.4473, 0.7806], [0.8819, 0.2135]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc60595').set_weights(w) 
+in0Up_21030 = tf.constant([[[[1.3518, 1.0096], [1.1132, 1.7532], [1.7933, 1.2674]], [[1.7813, 1.6939], [1.1033, 1.2297], [1.1651, 1.9956]]]])
+in0Add28632 = tf.constant([[[[[0.5239, 0.3391]], [[0.1245, 0.9994]]]]])
+in1Add28632 = tf.constant([[[[[0.5843, 0.8235]], [[0.5072, 0.5583]]]]])
+in0Con32693 = tf.constant([[[0.5451, 0.8488, 0.868, 0.9322], [0.6631, 0.9069, 0.808, 0.7562], [0.2618, 0.9551, 0.8487, 0.7141], [0.903, 0.5972, 0.7408, 0.8307]]])
+print (np.array2string(model.predict([in0Up_21030,in0Add28632,in1Add28632,in0Con32693],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min97397.png')
+
+LUp_21030 = up_sampling2D_layer([[[[1.3518, 1.0096], [1.1132, 1.7532], [1.7933, 1.2674]], [[1.7813, 1.6939], [1.1033, 1.2297], [1.1651, 1.9956]]]], 2, 1, Up_21030), 
+LRes40665 = reshape_layer(Up_21030, [4, 6], Res40665), 
+LAdd28632 = add_layer([[[[[[0.5239, 0.3391]], [[0.1245, 0.9994]]]]], [[[[[0.5843, 0.8235]], [[0.5072, 0.5583]]]]]], Add28632), 
+LRes64737 = reshape_layer(Add28632, [1, 2, 2], Res64737), 
+LRes90279 = reshape_layer(Res64737, [1, 4], Res90279), 
+LLoc60595 = locally_connected1D_layer(Res90279, 1,[[[0.8494, 0.6866], [0.8109, 0.2539], [0.4473, 0.7806], [0.8819, 0.2135]]],[[0, 0]], 1, Loc60595), 
+LZer27510 = zero_padding1D_layer(Loc60595, 3, 0, Zer27510), 
+LCon32693 = concatenate_layer([Zer27510,[[[0.5451, 0.8488, 0.868, 0.9322], [0.6631, 0.9069, 0.808, 0.7562], [0.2618, 0.9551, 0.8487, 0.7141], [0.903, 0.5972, 0.7408, 0.8307]]]], 2, Con32693), 
+LMin97397 = minimum_layer([Res40665,Con32693], Min97397), 
+exec_layers([LUp_21030,LRes40665,LAdd28632,LRes64737,LRes90279,LLoc60595,LZer27510,LCon32693,LMin97397],["Up_21030","Res40665","Add28632","Res64737","Res90279","Loc60595","Zer27510","Con32693","Min97397"],Min97397,"Min97397")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.5451000, 0.8488000, 0.8680000, 0.9322000], [0.0000000, 0.0000000, 0.6631000, 0.9069000, 0.8080000, 0.7562000], [0.0000000, 0.0000000, 0.2618000, 0.9551000, 0.8487000, 0.7141000], [1.7812999, 1.6939000, 0.9030000, 0.5972000, 0.7408000, 0.8307000]]]
+
+Expected (Unparsed): [[[0,0,0.5451,0.8488,0.868,0.9322],[0,0,0.6631,0.9069,0.808,0.7562],[0,0,0.2618,0.9551,0.8487,0.7141],[1.7813,1.6939,0.903,0.5972,0.7408,0.8307]]]
+
+Actual:   [[[0, 0, 0.5451, 0.8488, 0.868, 0.9322], [0, 0, 0.6631, 0.9069, 0.808, 0.7562], [0, 0, 0.2618, 0.9551, 0.8487, 0.7141], [1.7813, 1.6939, 0.903, 0.5972, 0.7408, 0.8307]]]
+
+Expected: [[[0, 0, 0.5451, 0.8488, 0.868, 0.9322], [0, 0, 0.6631, 0.9069, 0.808, 0.7562], [0, 0, 0.2618, 0.9551, 0.8487, 0.7141], [1.7813, 1.6939, 0.903, 0.5972, 0.7408, 0.8307]]]

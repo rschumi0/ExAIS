@@ -1,0 +1,68 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add50720 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Add50720 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Mul12494 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Mul12494 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Con74603 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Dot25215 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot25215 = tf.keras.layers.Input(shape=([2, 3]))
+
+Add50720 = keras.layers.Add(name = 'Add50720', )([in0Add50720,in1Add50720])
+Mul12494 = keras.layers.Multiply(name = 'Mul12494', )([in0Mul12494,in1Mul12494])
+Con74603 = keras.layers.Concatenate(axis=4, name = 'Con74603', )([Mul12494,in0Con74603])
+Ave94847 = keras.layers.Average(name = 'Ave94847', )([Add50720,Con74603])
+Con89366 = keras.layers.Conv3D(2, (1, 2, 1),strides=(1, 1, 7), padding='same', dilation_rate=(1, 1, 1), name = 'Con89366', )(Ave94847)
+Res56439 = keras.layers.Reshape((1, 2, 2), name = 'Res56439', )(Con89366)
+Dot25215 = keras.layers.Dot(axes=(2, 2), name = 'Dot25215', )([in0Dot25215,in1Dot25215])
+Res12174 = keras.layers.Reshape((1, 2, 2), name = 'Res12174', )(Dot25215)
+Max5730 = keras.layers.Maximum(name = 'Max5730', )([Res56439,Res12174])
+Con47907 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con47907', )(Max5730)
+Max75312 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max75312', )(Con47907)
+model = tf.keras.models.Model(inputs=[in0Add50720,in1Add50720,in0Mul12494,in1Mul12494,in0Con74603,in0Dot25215,in1Dot25215], outputs=Max75312)
+w = model.get_layer('Con89366').get_weights() 
+w[0] = np.array([[[[[0.8014, 0.316], [0.3783, 0.5412]]], [[[0.6404, 0.3836], [0.1208, 0.3912]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con89366').set_weights(w) 
+w = model.get_layer('Con47907').get_weights() 
+w[0] = np.array([[[[0.7898, 0.6551], [0.1368, 0.402]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con47907').set_weights(w) 
+in0Add50720 = tf.constant([[[[[0.3562, 0.5692]], [[0.658, 0.4501]]]]])
+in1Add50720 = tf.constant([[[[[0.7329, 0.1862]], [[0.31, 0.4489]]]]])
+in0Mul12494 = tf.constant([[[[[0.0373]], [[0.6082]]]]])
+in1Mul12494 = tf.constant([[[[[0.0736]], [[0.9109]]]]])
+in0Con74603 = tf.constant([[[[[0.1219]], [[0.5108]]]]])
+in0Dot25215 = tf.constant([[[0.1876, 0.3235, 0.5483], [0.9261, 0.1738, 0.7768]]])
+in1Dot25215 = tf.constant([[[0.8974, 0.5545, 0.8992], [0.5104, 0.1553, 0.0367]]])
+print (np.array2string(model.predict([in0Add50720,in1Add50720,in0Mul12494,in1Mul12494,in0Con74603,in0Dot25215,in1Dot25215],steps=1), separator=', '))
+
+
+LAdd50720 = add_layer([[[[[[0.3562, 0.5692]], [[0.658, 0.4501]]]]], [[[[[0.7329, 0.1862]], [[0.31, 0.4489]]]]]], Add50720), 
+LMul12494 = multiply_layer([[[[[[0.0373]], [[0.6082]]]]], [[[[[0.0736]], [[0.9109]]]]]], Mul12494), 
+LCon74603 = concatenate_layer([Mul12494,[[[[[0.1219]], [[0.5108]]]]]], 4, Con74603), 
+LAve94847 = average_layer([Add50720,Con74603], Ave94847), 
+LCon89366 = conv3D_layer(Ave94847, 1, 2, 1,[[[[[0.8014, 0.316], [0.3783, 0.5412]]], [[[0.6404, 0.3836], [0.1208, 0.3912]]]]],[0, 0], 1, 1, 7, true, 1, 1, 1, Con89366), 
+LRes56439 = reshape_layer(Con89366, [1, 2, 2], Res56439), 
+LDot25215 = dot_layer([[[0.1876, 0.3235, 0.5483], [0.9261, 0.1738, 0.7768]]], [[[0.8974, 0.5545, 0.8992], [0.5104, 0.1553, 0.0367]]], 2, 2, Dot25215), 
+LRes12174 = reshape_layer(Dot25215, [1, 2, 2], Res12174), 
+LMax5730 = maximum_layer([Res56439,Res12174], Max5730), 
+LCon47907 = conv2D_layer(Max5730, 1, 1,[[[[0.7898, 0.6551], [0.1368, 0.402]]]],[0, 0], 1, 1, false, 1, 1, Con47907), 
+LMax75312 = max_pool1D_layer(Con47907, 1, Max75312), 
+exec_layers([LAdd50720,LMul12494,LCon74603,LAve94847,LCon89366,LRes56439,LDot25215,LRes12174,LMax5730,LCon47907,LMax75312],["Add50720","Mul12494","Con74603","Ave94847","Con89366","Res56439","Dot25215","Res12174","Max5730","Con47907","Max75312"],Max75312,"Max75312")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Max75312 is incompatible with the layer: expected ndim=3, found ndim=4. Full shape received: (None, 1, 2, 2)
+
+Expected (Unparsed): 
+Max75312: Dimension error, Input Shape [1,1,2,2]
+
+Actual:   
+
+Expected: 

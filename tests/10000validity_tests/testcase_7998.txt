@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep41454 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con49768 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min50475 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min50475 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Dep41454 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep41454', )(in0Dep41454)
+Zer61828 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer61828', )(Dep41454)
+Con49768 = keras.layers.Concatenate(axis=3, name = 'Con49768', )([Zer61828,in0Con49768])
+Min50475 = keras.layers.Minimum(name = 'Min50475', )([in0Min50475,in1Min50475])
+Ave74678 = keras.layers.Average(name = 'Ave74678', )([Con49768,Min50475])
+Res16089 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res16089', )(Ave74678)
+Cro26267 = keras.layers.Cropping3D(cropping=((1, 0), (0, 1), (0, 1)), name = 'Cro26267', )(Res16089)
+model = tf.keras.models.Model(inputs=[in0Dep41454,in0Con49768,in0Min50475,in1Min50475], outputs=Cro26267)
+w = model.get_layer('Dep41454').get_weights() 
+w[0] = np.array([[[[0.8874]]]])
+w[1] = np.array([0])
+model.get_layer('Dep41454').set_weights(w) 
+in0Dep41454 = tf.constant([[[[0.3162]]]])
+in0Con49768 = tf.constant([[[[0.2165], [0.7572]], [[0.657], [0.0191]]]])
+in0Min50475 = tf.constant([[[[0.9939, 0.9767], [0.0162, 0.4307]], [[0.0631, 0.9842], [0.2446, 0.9995]]]])
+in1Min50475 = tf.constant([[[[0.1563, 0.5252], [0.0774, 0.5796]], [[0.4177, 0.3533], [0.1709, 0.4929]]]])
+print (np.array2string(model.predict([in0Dep41454,in0Con49768,in0Min50475,in1Min50475],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro26267.png')
+
+LDep41454 = depthwise_conv2D_layer([[[[0.3162]]]], 1, 1,[[[[0.8874]]]],[0], 1, 1, true, Dep41454), 
+LZer61828 = zero_padding2D_layer(Dep41454, 1, 0, 1, 0, Zer61828), 
+LCon49768 = concatenate_layer([Zer61828,[[[[0.2165], [0.7572]], [[0.657], [0.0191]]]]], 3, Con49768), 
+LMin50475 = minimum_layer([[[[[0.9939, 0.9767], [0.0162, 0.4307]], [[0.0631, 0.9842], [0.2446, 0.9995]]]], [[[[0.1563, 0.5252], [0.0774, 0.5796]], [[0.4177, 0.3533], [0.1709, 0.4929]]]]], Min50475), 
+LAve74678 = average_layer([Con49768,Min50475], Ave74678), 
+LRes16089 = reshape_layer(Ave74678, [2, 2, 2, 1], Res16089), 
+LCro26267 = cropping3D_layer(Res16089, 1, 0, 0, 1, 0, 1, Cro26267), 
+exec_layers([LDep41454,LZer61828,LCon49768,LMin50475,LAve74678,LRes16089,LCro26267],["Dep41454","Zer61828","Con49768","Min50475","Ave74678","Res16089","Cro26267"],Cro26267,"Cro26267")
+
+Actual (Unparsed): [[[[[0.0315500]]]]]
+
+Expected (Unparsed): [[[[[0.03155]]]]]
+
+Actual:   [[[[[0.0316]]]]]
+
+Expected: [[[[[0.0316]]]]]

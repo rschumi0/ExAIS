@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave49996 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave49996 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con43845 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Add52625 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Add52625 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Ave49996 = keras.layers.Average(name = 'Ave49996', )([in0Ave49996,in1Ave49996])
+Res55403 = keras.layers.Reshape((2, 1, 1), name = 'Res55403', )(Ave49996)
+Con43845 = keras.layers.Concatenate(axis=3, name = 'Con43845', )([Res55403,in0Con43845])
+Add52625 = keras.layers.Add(name = 'Add52625', )([in0Add52625,in1Add52625])
+Res15867 = keras.layers.Reshape((1, 1, 2), name = 'Res15867', )(Add52625)
+Sep55572 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='valid', name = 'Sep55572', )(Res15867)
+Zer42563 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer42563', )(Sep55572)
+Mul53666 = keras.layers.Multiply(name = 'Mul53666', )([Con43845,Zer42563])
+Res32936 = keras.layers.Reshape((2, 3), name = 'Res32936', )(Mul53666)
+Up_98095 = keras.layers.UpSampling1D(size=(2), name = 'Up_98095', )(Res32936)
+model = tf.keras.models.Model(inputs=[in0Ave49996,in1Ave49996,in0Con43845,in0Add52625,in1Add52625], outputs=Up_98095)
+w = model.get_layer('Sep55572').get_weights() 
+w[0] = np.array([[[[0.2815], [0.1407]]]])
+w[1] = np.array([[[[0.0378, 0.1681, 0.4962], [0.8408, 0.1771, 0.06]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep55572').set_weights(w) 
+in0Ave49996 = tf.constant([[[0.1692], [0.5533]]])
+in1Ave49996 = tf.constant([[[0.6441], [0.6838]]])
+in0Con43845 = tf.constant([[[[0.34, 0.6192]], [[0.1657, 0.1973]]]])
+in0Add52625 = tf.constant([[[[[0.2832, 0.8128]]]]])
+in1Add52625 = tf.constant([[[[[0.2316, 0.7383]]]]])
+print (np.array2string(model.predict([in0Ave49996,in1Ave49996,in0Con43845,in0Add52625,in1Add52625],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_98095.png')
+
+LAve49996 = average_layer([[[[0.1692], [0.5533]]], [[[0.6441], [0.6838]]]], Ave49996), 
+LRes55403 = reshape_layer(Ave49996, [2, 1, 1], Res55403), 
+LCon43845 = concatenate_layer([Res55403,[[[[0.34, 0.6192]], [[0.1657, 0.1973]]]]], 3, Con43845), 
+LAdd52625 = add_layer([[[[[[0.2832, 0.8128]]]]], [[[[[0.2316, 0.7383]]]]]], Add52625), 
+LRes15867 = reshape_layer(Add52625, [1, 1, 2], Res15867), 
+LSep55572 = separable_conv2D_layer(Res15867, 1, 1,[[[[[0.2815], [0.1407]]]],[[[[0.0378, 0.1681, 0.4962], [0.8408, 0.1771, 0.06]]]]],[0, 0, 0], 1, 1, false, Sep55572), 
+LZer42563 = zero_padding2D_layer(Sep55572, 1, 0, 0, 0, Zer42563), 
+LMul53666 = multiply_layer([Con43845,Zer42563], Mul53666), 
+LRes32936 = reshape_layer(Mul53666, [2, 3], Res32936), 
+LUp_98095 = up_sampling1D_layer(Res32936, 2, Up_98095), 
+exec_layers([LAve49996,LRes55403,LCon43845,LAdd52625,LRes15867,LSep55572,LZer42563,LMul53666,LRes32936,LUp_98095],["Ave49996","Res55403","Con43845","Add52625","Res15867","Sep55572","Zer42563","Mul53666","Res32936","Up_98095"],Up_98095,"Up_98095")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000], [0.1168898, 0.0104409, 0.0167709], [0.1168898, 0.0104409, 0.0167709]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0],[0.0,0.0,0.0],[0.11688976315020476,0.010440869093895898,0.016770856055472],[0.11688976315020476,0.010440869093895898,0.016770856055472]]]
+
+Actual:   [[[0, 0, 0], [0, 0, 0], [0.1169, 0.0105, 0.0168], [0.1169, 0.0105, 0.0168]]]
+
+Expected: [[[0, 0, 0], [0, 0, 0], [0.1169, 0.0105, 0.0168], [0.1169, 0.0105, 0.0168]]]

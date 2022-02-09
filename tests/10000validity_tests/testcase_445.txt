@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul43331 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul43331 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con97506 = tf.keras.layers.Input(shape=([2, 1]))
+in0Min33949 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min33949 = tf.keras.layers.Input(shape=([1, 1]))
+
+Mul43331 = keras.layers.Multiply(name = 'Mul43331', )([in0Mul43331,in1Mul43331])
+Con97506 = keras.layers.Concatenate(axis=2, name = 'Con97506', )([Mul43331,in0Con97506])
+Min33949 = keras.layers.Minimum(name = 'Min33949', )([in0Min33949,in1Min33949])
+Con56175 = keras.layers.Conv1D(3, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con56175', )(Min33949)
+Zer62456 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer62456', )(Con56175)
+Add65270 = keras.layers.Add(name = 'Add65270', )([Con97506,Zer62456])
+model = tf.keras.models.Model(inputs=[in0Mul43331,in1Mul43331,in0Con97506,in0Min33949,in1Min33949], outputs=Add65270)
+w = model.get_layer('Con56175').get_weights() 
+w[0] = np.array([[[0.8885, 0.8523, 0.5317]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con56175').set_weights(w) 
+in0Mul43331 = tf.constant([[[0.267, 0.3971], [0.2799, 0.1181]]])
+in1Mul43331 = tf.constant([[[0.8321, 0.0338], [0.1474, 0.7224]]])
+in0Con97506 = tf.constant([[[0.707], [0.8301]]])
+in0Min33949 = tf.constant([[[0.6632]]])
+in1Min33949 = tf.constant([[[0.3407]]])
+print (np.array2string(model.predict([in0Mul43331,in1Mul43331,in0Con97506,in0Min33949,in1Min33949],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add65270.png')
+
+LMul43331 = multiply_layer([[[[0.267, 0.3971], [0.2799, 0.1181]]], [[[0.8321, 0.0338], [0.1474, 0.7224]]]], Mul43331), 
+LCon97506 = concatenate_layer([Mul43331,[[[0.707], [0.8301]]]], 2, Con97506), 
+LMin33949 = minimum_layer([[[[0.6632]]], [[[0.3407]]]], Min33949), 
+LCon56175 = conv1D_layer(Min33949, 1,[[[0.8885, 0.8523, 0.5317]]],[0, 0, 0], 1, true, 1, Con56175), 
+LZer62456 = zero_padding1D_layer(Con56175, 1, 0, Zer62456), 
+LAdd65270 = add_layer([Con97506,Zer62456], Add65270), 
+exec_layers([LMul43331,LCon97506,LMin33949,LCon56175,LZer62456,LAdd65270],["Mul43331","Con97506","Min33949","Con56175","Zer62456","Add65270"],Add65270,"Add65270")
+
+Actual (Unparsed): [[[0.2221707, 0.0134220, 0.7070000], [0.3439692, 0.3756941, 1.0112502]]]
+
+Expected (Unparsed): [[[0.2221707,0.013421979999999998,0.707],[0.34396921,0.37569405,1.01125019]]]
+
+Actual:   [[[0.2222, 0.0135, 0.707], [0.344, 0.3757, 1.0113]]]
+
+Expected: [[[0.2222, 0.0135, 0.707], [0.344, 0.3757, 1.0113]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con42435 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Max90553 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Max90553 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con64528 = tf.keras.layers.Input(shape=([2, 2, 3]))
+
+Con42435 = keras.layers.Conv3D(4, (2, 2, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con42435', )(in0Con42435)
+Res88831 = keras.layers.Reshape((2, 2, 4), name = 'Res88831', )(Con42435)
+Max90553 = keras.layers.Maximum(name = 'Max90553', )([in0Max90553,in1Max90553])
+Zer43878 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer43878', )(Max90553)
+Con64528 = keras.layers.Concatenate(axis=3, name = 'Con64528', )([Zer43878,in0Con64528])
+Min54809 = keras.layers.Minimum(name = 'Min54809', )([Res88831,Con64528])
+Den16238 = keras.layers.Dense(4,name = 'Den16238', )(Min54809)
+model = tf.keras.models.Model(inputs=[in0Con42435,in0Max90553,in1Max90553,in0Con64528], outputs=Den16238)
+w = model.get_layer('Con42435').get_weights() 
+w[0] = np.array([[[[[0.5844, 0.3637, 0.8161, 0.7819]]], [[[0.6734, 0.8593, 0.9521, 0.6858]]]], [[[[0.2387, 0.3832, 0.1788, 0.0679]]], [[[0.8068, 0.1779, 0.0627, 0.3218]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con42435').set_weights(w) 
+w = model.get_layer('Den16238').get_weights() 
+w[0] = np.array([[0.8092, 0.241, 0.1565, 0.7771], [0.6455, 0.7273, 0.0425, 0.7889], [0.5818, 0.4304, 0.3364, 0.6918], [0.6268, 0.2816, 0.5495, 0.9417]])
+w[1] = np.array([0.7685, 0.078, 0.7575, 0.6957])
+model.get_layer('Den16238').set_weights(w) 
+in0Con42435 = tf.constant([[[[[0.238]], [[0.2033]]], [[[0.9827]], [[0.1043]]]]])
+in0Max90553 = tf.constant([[[[0.6605], [0.6944]]]])
+in1Max90553 = tf.constant([[[[0.3029], [0.2653]]]])
+in0Con64528 = tf.constant([[[[0.9744, 0.1511, 0.1658], [0.445, 0.474, 0.1758]], [[0.4994, 0.5853, 0.7538], [0.5396, 0.2416, 0.1521]]]])
+print (np.array2string(model.predict([in0Con42435,in0Max90553,in1Max90553,in0Con64528],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Den16238.png')
+
+LCon42435 = conv3D_layer([[[[[0.238]], [[0.2033]]], [[[0.9827]], [[0.1043]]]]], 2, 2, 1,[[[[[0.5844, 0.3637, 0.8161, 0.7819]]], [[[0.6734, 0.8593, 0.9521, 0.6858]]]], [[[[0.2387, 0.3832, 0.1788, 0.0679]]], [[[0.8068, 0.1779, 0.0627, 0.3218]]]]],[0, 0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con42435), 
+LRes88831 = reshape_layer(Con42435, [2, 2, 4], Res88831), 
+LMax90553 = maximum_layer([[[[[0.6605], [0.6944]]]], [[[[0.3029], [0.2653]]]]], Max90553), 
+LZer43878 = zero_padding2D_layer(Max90553, 1, 0, 0, 0, Zer43878), 
+LCon64528 = concatenate_layer([Zer43878,[[[[0.9744, 0.1511, 0.1658], [0.445, 0.474, 0.1758]], [[0.4994, 0.5853, 0.7538], [0.5396, 0.2416, 0.1521]]]]], 3, Con64528), 
+LMin54809 = minimum_layer([Res88831,Con64528], Min54809), 
+LDen16238 = dense_layer(Min54809, [[0.8092, 0.241, 0.1565, 0.7771], [0.6455, 0.7273, 0.0425, 0.7889], [0.5818, 0.4304, 0.3364, 0.6918], [0.6268, 0.2816, 0.5495, 0.9417]],[0.7685, 0.078, 0.7575, 0.6957], Den16238), 
+exec_layers([LCon42435,LRes88831,LMax90553,LZer43878,LCon64528,LMin54809,LDen16238],["Con42435","Res88831","Max90553","Zer43878","Con64528","Min54809","Den16238"],Den16238,"Den16238")
+
+Actual (Unparsed): [[[[1.3840279, 0.6671093, 0.9273334, 1.4741845], [1.0534810, 0.2870382, 0.9156679, 1.0696039]], [[2.3916192, 1.0226409, 1.4884752, 2.6639891], [0.9429487, 0.1798794, 0.8420983, 0.9086757]]]]
+
+Expected (Unparsed): [[[[1.3840279364499999,0.66710927587,0.92733337075,1.47418452091],[1.053481024813,0.28703823325300004,0.915667946313,1.069603945787]],[[2.3916192031900003,1.0226409318540002,1.4884751623999999,2.6639890839720004],[0.9429487099389999,0.17987939412700002,0.842098349542,0.908675737534]]]]
+
+Actual:   [[[[1.3841, 0.6672, 0.9274, 1.4742], [1.0535, 0.2871, 0.9157, 1.0697]], [[2.3917, 1.0227, 1.4885, 2.664], [0.943, 0.1799, 0.8421, 0.9087]]]]
+
+Expected: [[[[1.3841, 0.6672, 0.9274, 1.4742], [1.0535, 0.2871, 0.9157, 1.0697]], [[2.3917, 1.0227, 1.4885, 2.664], [0.943, 0.1799, 0.8421, 0.9087]]]]

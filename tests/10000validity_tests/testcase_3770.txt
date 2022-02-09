@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim82023 = tf.keras.layers.Input(shape=([3, 2]))
+in0Glo46515 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Sim82023 = keras.layers.SimpleRNN(3,name = 'Sim82023', )(in0Sim82023)
+Res38615 = keras.layers.Reshape((3, 1), name = 'Res38615', )(Sim82023)
+Res90150 = keras.layers.Reshape((3, 1, 1), name = 'Res90150', )(Res38615)
+Zer79959 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer79959', )(Res90150)
+Res53912 = keras.layers.Reshape((5, 3), name = 'Res53912', )(Zer79959)
+LST69729 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST69729', )(Res53912)
+Res637 = keras.layers.Reshape((1, 1), name = 'Res637', )(LST69729)
+Glo46515 = keras.layers.GlobalMaxPool3D(name = 'Glo46515', )(in0Glo46515)
+Res71954 = keras.layers.Reshape((1, 1), name = 'Res71954', )(Glo46515)
+Cro52198 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro52198', )(Res71954)
+Min95638 = keras.layers.Minimum(name = 'Min95638', )([Res637,Cro52198])
+model = tf.keras.models.Model(inputs=[in0Sim82023,in0Glo46515], outputs=Min95638)
+w = model.get_layer('Sim82023').get_weights() 
+w[0] = np.array([[3, 6, 1], [6, 2, 4]])
+w[1] = np.array([[2, 1, 2], [6, 7, 1], [9, 5, 9]])
+w[2] = np.array([2, 7, 2])
+model.get_layer('Sim82023').set_weights(w) 
+w = model.get_layer('LST69729').get_weights() 
+w[0] = np.array([[9, 9, 5, 10], [4, 9, 7, 1], [8, 2, 10, 7]])
+w[1] = np.array([[3, 7, 10, 2]])
+w[2] = np.array([4, 8, 8, 2])
+model.get_layer('LST69729').set_weights(w) 
+in0Sim82023 = tf.constant([[[9, 4], [2, 4], [10, 5]]])
+in0Glo46515 = tf.constant([[[[[1.8954], [1.8044]]], [[[1.4886], [1.6656]]]]])
+print (np.array2string(model.predict([in0Sim82023,in0Glo46515],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min95638.png')
+
+LSim82023 = simple_rnn_layer([[[9, 4], [2, 4], [10, 5]]],[[3, 6, 1], [6, 2, 4]],[[2, 1, 2], [6, 7, 1], [9, 5, 9]],[2, 7, 2], Sim82023), 
+LRes38615 = reshape_layer(Sim82023, [3, 1], Res38615), 
+LRes90150 = reshape_layer(Res38615, [3, 1, 1], Res90150), 
+LZer79959 = zero_padding2D_layer(Res90150, 1, 1, 1, 1, Zer79959), 
+LRes53912 = reshape_layer(Zer79959, [5, 3], Res53912), 
+LLST69729 = lstm_layer(Res53912,[[9, 9, 5, 10], [4, 9, 7, 1], [8, 2, 10, 7]],[[3, 7, 10, 2]],[4, 8, 8, 2], LST69729), 
+LRes637 = reshape_layer(LST69729, [1, 1], Res637), 
+LGlo46515 = global_max_pool3D_layer([[[[[1.8954], [1.8044]]], [[[1.4886], [1.6656]]]]], Glo46515), 
+LRes71954 = reshape_layer(Glo46515, [1, 1], Res71954), 
+LCro52198 = cropping1D_layer(Res71954, 0, 0, Cro52198), 
+LMin95638 = minimum_layer([Res637,Cro52198], Min95638), 
+exec_layers([LSim82023,LRes38615,LRes90150,LZer79959,LRes53912,LLST69729,LRes637,LGlo46515,LRes71954,LCro52198,LMin95638],["Sim82023","Res38615","Res90150","Zer79959","Res53912","LST69729","Res637","Glo46515","Res71954","Cro52198","Min95638"],Min95638,"Min95638")
+
+Actual (Unparsed): [[[0.9816525]]]
+
+Expected (Unparsed): [[[0.9816524913356047]]]
+
+Actual:   [[[0.9817]]]
+
+Expected: [[[0.9817]]]

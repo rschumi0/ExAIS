@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_95238 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con74242 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0PRe74478 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Up_95238 = keras.layers.UpSampling1D(size=(1), name = 'Up_95238', )(in0Up_95238)
+Res8025 = keras.layers.Reshape((1, 2, 1), name = 'Res8025', )(Up_95238)
+Max41692 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max41692', )(Res8025)
+Glo78769 = keras.layers.GlobalMaxPool2D(name = 'Glo78769', )(Max41692)
+Res77349 = keras.layers.Reshape((1, 1), name = 'Res77349', )(Glo78769)
+Res54234 = keras.layers.Reshape((1, 1, 1), name = 'Res54234', )(Res77349)
+Zer37991 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer37991', )(Res54234)
+Con74242 = keras.layers.Concatenate(axis=3, name = 'Con74242', )([Zer37991,in0Con74242])
+PRe74478 = keras.layers.PReLU(name = 'PRe74478', input_shape=(2, 2, 2))(in0PRe74478)
+Max1228 = keras.layers.Maximum(name = 'Max1228', )([Con74242,PRe74478])
+Zer73815 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer73815', )(Max1228)
+model = tf.keras.models.Model(inputs=[in0Up_95238,in0Con74242,in0PRe74478], outputs=Zer73815)
+w = model.get_layer('PRe74478').get_weights() 
+w[0] = np.array([[[0.4444, 0.5077], [0.7539, 0.3763]], [[0.0894, 0.0833], [0.7021, 0.6336]]])
+model.get_layer('PRe74478').set_weights(w) 
+in0Up_95238 = tf.constant([[[1.0022, 1.9071]]])
+in0Con74242 = tf.constant([[[[0.1077], [0.1305]], [[0.7662], [0.1339]]]])
+in0PRe74478 = tf.constant([[[[0.2729, 0.7986], [0.7907, 0.174]], [[0.5903, 0.1025], [0.0812, 0.294]]]])
+print (np.array2string(model.predict([in0Up_95238,in0Con74242,in0PRe74478],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer73815.png')
+
+LUp_95238 = up_sampling1D_layer([[[1.0022, 1.9071]]], 1, Up_95238), 
+LRes8025 = reshape_layer(Up_95238, [1, 2, 1], Res8025), 
+LMax41692 = max_pool2D_layer(Res8025, 1, 1, Max41692), 
+LGlo78769 = global_max_pool2D_layer(Max41692, Glo78769), 
+LRes77349 = reshape_layer(Glo78769, [1, 1], Res77349), 
+LRes54234 = reshape_layer(Res77349, [1, 1, 1], Res54234), 
+LZer37991 = zero_padding2D_layer(Res54234, 1, 0, 1, 0, Zer37991), 
+LCon74242 = concatenate_layer([Zer37991,[[[[0.1077], [0.1305]], [[0.7662], [0.1339]]]]], 3, Con74242), 
+LPRe74478 = prelu_layer([[[[0.2729, 0.7986], [0.7907, 0.174]], [[0.5903, 0.1025], [0.0812, 0.294]]]], [[[0.4444, 0.5077], [0.7539, 0.3763]], [[0.0894, 0.0833], [0.7021, 0.6336]]], PRe74478), 
+LMax1228 = maximum_layer([Con74242,PRe74478], Max1228), 
+LZer73815 = zero_padding2D_layer(Max1228, 1, 1, 1, 1, Zer73815), 
+exec_layers([LUp_95238,LRes8025,LMax41692,LGlo78769,LRes77349,LRes54234,LZer37991,LCon74242,LPRe74478,LMax1228,LZer73815],["Up_95238","Res8025","Max41692","Glo78769","Res77349","Res54234","Zer37991","Con74242","PRe74478","Max1228","Zer73815"],Zer73815,"Zer73815")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.2729000, 0.7986000], [0.7907000, 0.1740000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.5903000, 0.7662000], [1.9071000, 0.2940000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0,0],[0,0],[0,0],[0,0]],[[0,0],[0.2729,0.7986],[0.7907,0.174],[0,0]],[[0,0],[0.5903,0.7662],[1.9071,0.294],[0,0]],[[0,0],[0,0],[0,0],[0,0]]]]
+
+Actual:   [[[[0, 0], [0, 0], [0, 0], [0, 0]], [[0, 0], [0.2729, 0.7986], [0.7907, 0.174], [0, 0]], [[0, 0], [0.5903, 0.7662], [1.9071, 0.294], [0, 0]], [[0, 0], [0, 0], [0, 0], [0, 0]]]]
+
+Expected: [[[[0, 0], [0, 0], [0, 0], [0, 0]], [[0, 0], [0.2729, 0.7986], [0.7907, 0.174], [0, 0]], [[0, 0], [0.5903, 0.7662], [1.9071, 0.294], [0, 0]], [[0, 0], [0, 0], [0, 0], [0, 0]]]]

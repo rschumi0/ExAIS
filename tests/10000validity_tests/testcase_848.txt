@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU94374 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con70653 = tf.keras.layers.Input(shape=([3, 1]))
+in0Max11119 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max11119 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+GRU94374 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU94374', )(in0GRU94374)
+Res61994 = keras.layers.Reshape((1, 1), name = 'Res61994', )(GRU94374)
+Res44755 = keras.layers.Reshape((1, 1, 1), name = 'Res44755', )(Res61994)
+Zer9144 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer9144', )(Res44755)
+Res19472 = keras.layers.Reshape((3, 3), name = 'Res19472', )(Zer9144)
+Con70653 = keras.layers.Concatenate(axis=2, name = 'Con70653', )([Res19472,in0Con70653])
+Max11119 = keras.layers.Maximum(name = 'Max11119', )([in0Max11119,in1Max11119])
+Res83008 = keras.layers.Reshape((2, 4), name = 'Res83008', )(Max11119)
+Cro80627 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro80627', )(Res83008)
+Lea13959 = keras.layers.LeakyReLU(alpha=5.009280522361001, name = 'Lea13959', )(Cro80627)
+Zer76511 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer76511', )(Lea13959)
+Max26973 = keras.layers.Maximum(name = 'Max26973', )([Con70653,Zer76511])
+Ave73055 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave73055', )(Max26973)
+model = tf.keras.models.Model(inputs=[in0GRU94374,in0Con70653,in0Max11119,in1Max11119], outputs=Ave73055)
+w = model.get_layer('GRU94374').get_weights() 
+w[0] = np.array([[9, 6, 9]])
+w[1] = np.array([[2, 1, 1]])
+w[2] = np.array([[9, 1, 9], [8, 4, 7]])
+model.get_layer('GRU94374').set_weights(w) 
+in0GRU94374 = tf.constant([[[1], [2]]])
+in0Con70653 = tf.constant([[[0.7966], [0.0957], [0.1714]]])
+in0Max11119 = tf.constant([[[[0.8178, 0.5207], [0.0443, 0.1353]], [[0.5429, 0.3235], [0.8288, 0.0995]]]])
+in1Max11119 = tf.constant([[[[0.1674, 0.8829], [0.6989, 0.2564]], [[0.8101, 0.056], [0.0308, 0.9531]]]])
+print (np.array2string(model.predict([in0GRU94374,in0Con70653,in0Max11119,in1Max11119],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave73055.png')
+
+LGRU94374 = gru_layer([[[1], [2]]],[[9, 6, 9]],[[2, 1, 1]],[[9, 1, 9], [8, 4, 7]], true, GRU94374), 
+LRes61994 = reshape_layer(GRU94374, [1, 1], Res61994), 
+LRes44755 = reshape_layer(Res61994, [1, 1, 1], Res44755), 
+LZer9144 = zero_padding2D_layer(Res44755, 1, 1, 1, 1, Zer9144), 
+LRes19472 = reshape_layer(Zer9144, [3, 3], Res19472), 
+LCon70653 = concatenate_layer([Res19472,[[[0.7966], [0.0957], [0.1714]]]], 2, Con70653), 
+LMax11119 = maximum_layer([[[[[0.8178, 0.5207], [0.0443, 0.1353]], [[0.5429, 0.3235], [0.8288, 0.0995]]]], [[[[0.1674, 0.8829], [0.6989, 0.2564]], [[0.8101, 0.056], [0.0308, 0.9531]]]]], Max11119), 
+LRes83008 = reshape_layer(Max11119, [2, 4], Res83008), 
+LCro80627 = cropping1D_layer(Res83008, 0, 1, Cro80627), 
+LLea13959 = leaky_relu_layer(Cro80627, 5.009280522361001, Lea13959), 
+LZer76511 = zero_padding1D_layer(Lea13959, 2, 0, Zer76511), 
+LMax26973 = maximum_layer([Con70653,Zer76511], Max26973), 
+LAve73055 = average_pooling1D_layer(Max26973, 1, Ave73055), 
+exec_layers([LGRU94374,LRes61994,LRes44755,LZer9144,LRes19472,LCon70653,LMax11119,LRes83008,LCro80627,LLea13959,LZer76511,LMax26973,LAve73055],["GRU94374","Res61994","Res44755","Zer9144","Res19472","Con70653","Max11119","Res83008","Cro80627","Lea13959","Zer76511","Max26973","Ave73055"],Ave73055,"Ave73055")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.7966000], [0.0000000, 0.0000000, 0.0000000, 0.0957000], [0.8178000, 0.8829000, 0.6989000, 0.2564000]]]
+
+Expected (Unparsed): [[[0,0,0,0.7966],[0,5.109690448534817e-12,0,0.0957],[0.8178,0.8829,0.6989,0.2564]]]
+
+Actual:   [[[0, 0, 0, 0.7966], [0, 0, 0, 0.0957], [0.8178, 0.8829, 0.6989, 0.2564]]]
+
+Expected: [[[0, 0, 0, 0.7966], [0, 0, 0, 0.0957], [0.8178, 0.8829, 0.6989, 0.2564]]]

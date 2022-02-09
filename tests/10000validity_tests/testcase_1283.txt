@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro39085 = tf.keras.layers.Input(shape=([1, 1]))
+in0Dep57237 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con48719 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Cro39085 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro39085', )(in0Cro39085)
+Res13183 = keras.layers.Reshape((1, 1, 1), name = 'Res13183', )(Cro39085)
+Glo45954 = keras.layers.GlobalAveragePooling2D(name = 'Glo45954', )(Res13183)
+Res24345 = keras.layers.Reshape((1, 1), name = 'Res24345', )(Glo45954)
+Res19449 = keras.layers.Reshape((1, 1, 1), name = 'Res19449', )(Res24345)
+Loc35704 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc35704', )(Res19449)
+Zer84432 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer84432', )(Loc35704)
+Dep57237 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='same', name = 'Dep57237', )(in0Dep57237)
+Con48719 = keras.layers.Concatenate(axis=3, name = 'Con48719', )([Dep57237,in0Con48719])
+Ave78521 = keras.layers.Average(name = 'Ave78521', )([Zer84432,Con48719])
+Res31606 = keras.layers.Reshape((2, 1, 3, 1), name = 'Res31606', )(Ave78521)
+Up_14275 = keras.layers.UpSampling3D(size=(1, 2, 2), name = 'Up_14275', )(Res31606)
+model = tf.keras.models.Model(inputs=[in0Cro39085,in0Dep57237,in0Con48719], outputs=Up_14275)
+w = model.get_layer('Loc35704').get_weights() 
+w[0] = np.array([[[0.4822, 0.817, 0.2475]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc35704').set_weights(w) 
+w = model.get_layer('Dep57237').get_weights() 
+w[0] = np.array([[[[0.3943]]], [[[0.5473]]]])
+w[1] = np.array([0])
+model.get_layer('Dep57237').set_weights(w) 
+in0Cro39085 = tf.constant([[[1.1773]]])
+in0Dep57237 = tf.constant([[[[0.2011]], [[0.3279]]]])
+in0Con48719 = tf.constant([[[[0.5545, 0.0761]], [[0.8941, 0.8813]]]])
+print (np.array2string(model.predict([in0Cro39085,in0Dep57237,in0Con48719],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_14275.png')
+
+LCro39085 = cropping1D_layer([[[1.1773]]], 0, 0, Cro39085), 
+LRes13183 = reshape_layer(Cro39085, [1, 1, 1], Res13183), 
+LGlo45954 = global_average_pooling2D_layer(Res13183, Glo45954), 
+LRes24345 = reshape_layer(Glo45954, [1, 1], Res24345), 
+LRes19449 = reshape_layer(Res24345, [1, 1, 1], Res19449), 
+LLoc35704 = locally_connected2D_layer(Res19449, 1, 1,[[[0.4822, 0.817, 0.2475]]],[[[0, 0, 0]]], 1, 1, Loc35704), 
+LZer84432 = zero_padding2D_layer(Loc35704, 1, 0, 0, 0, Zer84432), 
+LDep57237 = depthwise_conv2D_layer([[[[0.2011]], [[0.3279]]]], 2, 1,[[[[0.3943]]], [[[0.5473]]]],[0], 1, 1, true, Dep57237), 
+LCon48719 = concatenate_layer([Dep57237,[[[[0.5545, 0.0761]], [[0.8941, 0.8813]]]]], 3, Con48719), 
+LAve78521 = average_layer([Zer84432,Con48719], Ave78521), 
+LRes31606 = reshape_layer(Ave78521, [2, 1, 3, 1], Res31606), 
+LUp_14275 = up_sampling3D_layer(Res31606, 1, 2, 2, Up_14275), 
+exec_layers([LCro39085,LRes13183,LGlo45954,LRes24345,LRes19449,LLoc35704,LZer84432,LDep57237,LCon48719,LAve78521,LRes31606,LUp_14275],["Cro39085","Res13183","Glo45954","Res24345","Res19449","Loc35704","Zer84432","Dep57237","Con48719","Ave78521","Res31606","Up_14275"],Up_14275,"Up_14275")
+
+Actual (Unparsed): [[[[[0.1293767], [0.1293767], [0.2772500], [0.2772500], [0.0380500], [0.0380500]], [[0.1293767], [0.1293767], [0.2772500], [0.2772500], [0.0380500], [0.0380500]]], [[[0.3484925], [0.3484925], [0.9279770], [0.9279770], [0.5863409], [0.5863409]], [[0.3484925], [0.3484925], [0.9279770], [0.9279770], [0.5863409], [0.5863409]]]]]
+
+Expected (Unparsed): [[[[[0.1293767],[0.1293767],[0.27725],[0.27725],[0.03805],[0.03805]],[[0.1293767],[0.1293767],[0.27725],[0.27725],[0.03805],[0.03805]]],[[[0.348492515],[0.348492515],[0.92797705],[0.92797705],[0.586340875],[0.586340875]],[[0.348492515],[0.348492515],[0.92797705],[0.92797705],[0.586340875],[0.586340875]]]]]
+
+Actual:   [[[[[0.1294], [0.1294], [0.2773], [0.2773], [0.0381], [0.0381]], [[0.1294], [0.1294], [0.2773], [0.2773], [0.0381], [0.0381]]], [[[0.3485], [0.3485], [0.928], [0.928], [0.5864], [0.5864]], [[0.3485], [0.3485], [0.928], [0.928], [0.5864], [0.5864]]]]]
+
+Expected: [[[[[0.1294], [0.1294], [0.2773], [0.2773], [0.0381], [0.0381]], [[0.1294], [0.1294], [0.2773], [0.2773], [0.0381], [0.0381]]], [[[0.3485], [0.3485], [0.928], [0.928], [0.5864], [0.5864]], [[0.3485], [0.3485], [0.928], [0.928], [0.5864], [0.5864]]]]]

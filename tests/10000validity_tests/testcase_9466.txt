@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave26451 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Ave26451 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con63159 = tf.keras.layers.Input(shape=([1, 1]))
+in0Loc17596 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave26451 = keras.layers.Average(name = 'Ave26451', )([in0Ave26451,in1Ave26451])
+Res6784 = keras.layers.Reshape((1, 1, 1), name = 'Res6784', )(Ave26451)
+Res9632 = keras.layers.Reshape((1, 1), name = 'Res9632', )(Res6784)
+Con63159 = keras.layers.Concatenate(axis=2, name = 'Con63159', )([Res9632,in0Con63159])
+Loc17596 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc17596', )(in0Loc17596)
+ELU84787 = keras.layers.ELU(alpha=9.048869619209288, name = 'ELU84787', )(Loc17596)
+Min54460 = keras.layers.Minimum(name = 'Min54460', )([Con63159,ELU84787])
+Glo30702 = keras.layers.GlobalMaxPool1D(name = 'Glo30702', )(Min54460)
+Mas64486 = keras.layers.Masking(mask_value=1, name = 'Mas64486', )(Glo30702)
+model = tf.keras.models.Model(inputs=[in0Ave26451,in1Ave26451,in0Con63159,in0Loc17596], outputs=Mas64486)
+w = model.get_layer('Loc17596').get_weights() 
+w[0] = np.array([[[0.2675, 0.9934], [0.1593, 0.3765]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc17596').set_weights(w) 
+in0Ave26451 = tf.constant([[[[[0.7965]]]]])
+in1Ave26451 = tf.constant([[[[[0.2965]]]]])
+in0Con63159 = tf.constant([[[0.2816]]])
+in0Loc17596 = tf.constant([[[0.8296, 0.324]]])
+print (np.array2string(model.predict([in0Ave26451,in1Ave26451,in0Con63159,in0Loc17596],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas64486.png')
+
+LAve26451 = average_layer([[[[[[0.7965]]]]], [[[[[0.2965]]]]]], Ave26451), 
+LRes6784 = reshape_layer(Ave26451, [1, 1, 1], Res6784), 
+LRes9632 = reshape_layer(Res6784, [1, 1], Res9632), 
+LCon63159 = concatenate_layer([Res9632,[[[0.2816]]]], 2, Con63159), 
+LLoc17596 = locally_connected1D_layer([[[0.8296, 0.324]]], 1,[[[0.2675, 0.9934], [0.1593, 0.3765]]],[[0, 0]], 1, Loc17596), 
+LELU84787 = elu_layer(Loc17596, 9.048869619209288, ELU84787), 
+LMin54460 = minimum_layer([Con63159,ELU84787], Min54460), 
+LGlo30702 = global_max_pool1D_layer(Min54460, Glo30702), 
+LMas64486 = masking_layer(Glo30702, 1, Mas64486), 
+exec_layers([LAve26451,LRes6784,LRes9632,LCon63159,LLoc17596,LELU84787,LMin54460,LGlo30702,LMas64486],["Ave26451","Res6784","Res9632","Con63159","Loc17596","ELU84787","Min54460","Glo30702","Mas64486"],Mas64486,"Mas64486")
+
+Actual (Unparsed): [[0.2735312, 0.2816000]]
+
+Expected (Unparsed): [[0.2735312,0.2816]]
+
+Actual:   [[0.2736, 0.2816]]
+
+Expected: [[0.2736, 0.2816]]

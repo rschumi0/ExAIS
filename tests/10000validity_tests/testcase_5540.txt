@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub32328 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub32328 = tf.keras.layers.Input(shape=([2, 2]))
+in0Up_75506 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con57038 = tf.keras.layers.Input(shape=([3]))
+in0Con75327 = tf.keras.layers.Input(shape=([4, 1]))
+in0Mul34696 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul34696 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Sub32328 = keras.layers.Subtract(name = 'Sub32328', )([in0Sub32328,in1Sub32328])
+Fla75514 = keras.layers.Flatten(name = 'Fla75514', )(Sub32328)
+Up_75506 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_75506', )(in0Up_75506)
+Glo67064 = keras.layers.GlobalMaxPool2D(name = 'Glo67064', )(Up_75506)
+Con57038 = keras.layers.Concatenate(axis=1, name = 'Con57038', )([Glo67064,in0Con57038])
+Sub51618 = keras.layers.Subtract(name = 'Sub51618', )([Fla75514,Con57038])
+Res95302 = keras.layers.Reshape((4, 1), name = 'Res95302', )(Sub51618)
+Con75327 = keras.layers.Concatenate(axis=2, name = 'Con75327', )([Res95302,in0Con75327])
+Mul34696 = keras.layers.Multiply(name = 'Mul34696', )([in0Mul34696,in1Mul34696])
+Glo27132 = keras.layers.GlobalAveragePooling2D(name = 'Glo27132', )(Mul34696)
+Res55676 = keras.layers.Reshape((2, 1), name = 'Res55676', )(Glo27132)
+Res82903 = keras.layers.Reshape((2, 1, 1), name = 'Res82903', )(Res55676)
+Loc87347 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc87347', )(Res82903)
+Res29134 = keras.layers.Reshape((2, 2), name = 'Res29134', )(Loc87347)
+Zer1901 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer1901', )(Res29134)
+Dot88385 = keras.layers.Dot(axes=(2, 2), name = 'Dot88385', )([Con75327,Zer1901])
+model = tf.keras.models.Model(inputs=[in0Sub32328,in1Sub32328,in0Up_75506,in0Con57038,in0Con75327,in0Mul34696,in1Mul34696], outputs=Dot88385)
+w = model.get_layer('Loc87347').get_weights() 
+w[0] = np.array([[[0.0314, 0.9293]], [[0.3882, 0.7127]]])
+w[1] = np.array([[[0, 0]], [[0, 0]]])
+model.get_layer('Loc87347').set_weights(w) 
+in0Sub32328 = tf.constant([[[0.7645, 0.2403], [0.1987, 0.5719]]])
+in1Sub32328 = tf.constant([[[0.1663, 0.8171], [0.0518, 0.4241]]])
+in0Up_75506 = tf.constant([[[[1.5305], [1.3676]], [[1.2757], [1.1506]]]])
+in0Con57038 = tf.constant([[0.6842, 0.015, 0.946]])
+in0Con75327 = tf.constant([[[0.2772], [0.2001], [0.235], [0.5607]]])
+in0Mul34696 = tf.constant([[[[0.7796, 0.0959]]]])
+in1Mul34696 = tf.constant([[[[0.4358, 0.7747]]]])
+print (np.array2string(model.predict([in0Sub32328,in1Sub32328,in0Up_75506,in0Con57038,in0Con75327,in0Mul34696,in1Mul34696],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot88385.png')
+
+LSub32328 = subtract_layer([[[0.7645, 0.2403], [0.1987, 0.5719]]], [[[0.1663, 0.8171], [0.0518, 0.4241]]], Sub32328), 
+LFla75514 = flatten_layer(Sub32328, Fla75514), 
+LUp_75506 = up_sampling2D_layer([[[[1.5305], [1.3676]], [[1.2757], [1.1506]]]], 1, 1, Up_75506), 
+LGlo67064 = global_max_pool2D_layer(Up_75506, Glo67064), 
+LCon57038 = concatenate_layer([Glo67064,[[0.6842, 0.015, 0.946]]], 1, Con57038), 
+LSub51618 = subtract_layer(Fla75514,Con57038, Sub51618), 
+LRes95302 = reshape_layer(Sub51618, [4, 1], Res95302), 
+LCon75327 = concatenate_layer([Res95302,[[[0.2772], [0.2001], [0.235], [0.5607]]]], 2, Con75327), 
+LMul34696 = multiply_layer([[[[[0.7796, 0.0959]]]], [[[[0.4358, 0.7747]]]]], Mul34696), 
+LGlo27132 = global_average_pooling2D_layer(Mul34696, Glo27132), 
+LRes55676 = reshape_layer(Glo27132, [2, 1], Res55676), 
+LRes82903 = reshape_layer(Res55676, [2, 1, 1], Res82903), 
+LLoc87347 = locally_connected2D_layer(Res82903, 1, 1,[[[0.0314, 0.9293]], [[0.3882, 0.7127]]],[[[0, 0]], [[0, 0]]], 1, 1, Loc87347), 
+LRes29134 = reshape_layer(Loc87347, [2, 2], Res29134), 
+LZer1901 = zero_padding1D_layer(Res29134, 2, 0, Zer1901), 
+LDot88385 = dot_layer(Con75327,Zer1901, 2, 2, Dot88385), 
+exec_layers([LSub32328,LFla75514,LUp_75506,LGlo67064,LCon57038,LSub51618,LRes95302,LCon75327,LMul34696,LGlo27132,LRes55676,LRes82903,LLoc87347,LRes29134,LZer1901,LDot88385],["Sub32328","Fla75514","Up_75506","Glo67064","Con57038","Sub51618","Res95302","Con75327","Mul34696","Glo27132","Res55676","Res82903","Loc87347","Res29134","Zer1901","Dot88385"],Dot88385,"Dot88385")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0775743, -0.0122108], [0.0000000, 0.0000000, 0.0497249, -0.0257732], [0.0000000, 0.0000000, 0.0756035, 0.0162472], [0.0000000, 0.0000000, 0.1685142, 0.0066678]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0775742766001232,-0.012210800078706601],[0.0,0.0,0.049724923983090405,-0.025773158380008904],[0.0,0.0,0.0756035314013088,0.016247153169738397],[0.0,0.0,0.16851415272409037,0.006667836264694499]]]
+
+Actual:   [[[0, 0, 0.0776, -0.0122], [0, 0, 0.0498, -0.0257], [0, 0, 0.0757, 0.0163], [0, 0, 0.1686, 0.0067]]]
+
+Expected: [[[0, 0, 0.0776, -0.0122], [0, 0, 0.0498, -0.0257], [0, 0, 0.0757, 0.0163], [0, 0, 0.1686, 0.0067]]]

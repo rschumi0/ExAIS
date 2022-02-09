@@ -1,0 +1,83 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot96730 = tf.keras.layers.Input(shape=([3]))
+in1Dot96730 = tf.keras.layers.Input(shape=([3]))
+in0Con40472 = tf.keras.layers.Input(shape=([3, 1, 1, 1]))
+in0Max23878 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max23878 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con69736 = tf.keras.layers.Input(shape=([3, 1, 1, 1]))
+in0Cro39485 = tf.keras.layers.Input(shape=([3, 2, 3, 2]))
+
+Dot96730 = keras.layers.Dot(axes=(1, 1), name = 'Dot96730', )([in0Dot96730,in1Dot96730])
+Res20316 = keras.layers.Reshape((1, 1), name = 'Res20316', )(Dot96730)
+Res39711 = keras.layers.Reshape((1, 1, 1), name = 'Res39711', )(Res20316)
+Res89080 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res89080', )(Res39711)
+Zer75154 = keras.layers.ZeroPadding3D(padding=((2, 0), (0, 0), (0, 0)), name = 'Zer75154', )(Res89080)
+Con40472 = keras.layers.Concatenate(axis=4, name = 'Con40472', )([Zer75154,in0Con40472])
+Max23878 = keras.layers.Maximum(name = 'Max23878', )([in0Max23878,in1Max23878])
+GRU80666 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU80666', )(Max23878)
+Res38147 = keras.layers.Reshape((3, 1), name = 'Res38147', )(GRU80666)
+Res4629 = keras.layers.Reshape((3, 1, 1), name = 'Res4629', )(Res38147)
+Res98265 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res98265', )(Res4629)
+Con69736 = keras.layers.Concatenate(axis=4, name = 'Con69736', )([Res98265,in0Con69736])
+Cro39485 = keras.layers.Cropping3D(cropping=((0, 2), (1, 0), (1, 1)), name = 'Cro39485',  input_shape=(3, 2, 3, 2))(in0Cro39485)
+ReL64569 = keras.layers.ReLU(max_value=8.125789777988118, negative_slope=9.934437502311328, threshold=8.377700933115225, name = 'ReL64569', )(Cro39485)
+Zer55869 = keras.layers.ZeroPadding3D(padding=((2, 0), (0, 0), (0, 0)), name = 'Zer55869', )(ReL64569)
+Ave17396 = keras.layers.Average(name = 'Ave17396', )([Con69736,Zer55869])
+Sub81984 = keras.layers.Subtract(name = 'Sub81984', )([Con40472,Ave17396])
+Loc36766 = keras.layers.LocallyConnected2D(3, (2, 2),strides=(3, 1), name = 'Loc36766', )(Sub81984)
+model = tf.keras.models.Model(inputs=[in0Dot96730,in1Dot96730,in0Con40472,in0Max23878,in1Max23878,in0Con69736,in0Cro39485], outputs=Loc36766)
+w = model.get_layer('GRU80666').get_weights() 
+w[0] = np.array([[4, 3, 7, 1, 10, 1, 6, 5, 4]])
+w[1] = np.array([[5, 7, 10, 7, 2, 4, 10, 7, 1], [3, 8, 2, 1, 4, 1, 1, 6, 5], [4, 10, 2, 2, 1, 3, 9, 10, 6]])
+w[2] = np.array([[8, 9, 8, 10, 2, 3, 7, 1, 7], [10, 5, 1, 3, 10, 3, 2, 3, 1]])
+model.get_layer('GRU80666').set_weights(w) 
+w = model.get_layer('Loc36766').get_weights() 
+w[0] = np.array([[[0.4886, 0.4765, 0.3928], [0.1673, 0.6504, 0.9331], [0.9187, 0.9447, 0.4664], [0.9316, 0.8701, 0.1783]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc36766').set_weights(w) 
+in0Dot96730 = tf.constant([[0.6228, 0.6476, 0.5155]])
+in1Dot96730 = tf.constant([[0.887, 0.317, 0.3376]])
+in0Con40472 = tf.constant([[[[[0.2542]]], [[[0.0773]]], [[[0.7327]]]]])
+in0Max23878 = tf.constant([[[0.5006], [0.0929]]])
+in1Max23878 = tf.constant([[[0.917], [0.2011]]])
+in0Con69736 = tf.constant([[[[[0.3518]]], [[[0.2806]]], [[[0.257]]]]])
+in0Cro39485 = tf.constant([[[[[1.8002, 1.1647], [1.2823, 1.3304], [1.3684, 1.6112]], [[1.7717, 1.8765], [1.1736, 1.1421], [1.7164, 1.1762]]], [[[1.1522, 1.6315], [1.4553, 1.3867], [1.6807, 1.5405]], [[1.852, 1.7963], [1.0313, 1.6882], [1.9363, 1.8692]]], [[[1.3947, 1.1699], [1.0756, 1.2546], [1.7009, 1.9062]], [[1.8702, 1.4463], [1.6537, 1.7796], [1.7857, 1.5143]]]]])
+print (np.array2string(model.predict([in0Dot96730,in1Dot96730,in0Con40472,in0Max23878,in1Max23878,in0Con69736,in0Cro39485],steps=1), separator=', '))
+
+
+LDot96730 = dot_layer([[0.6228, 0.6476, 0.5155]], [[0.887, 0.317, 0.3376]], 1, 1, Dot96730), 
+LRes20316 = reshape_layer(Dot96730, [1, 1], Res20316), 
+LRes39711 = reshape_layer(Res20316, [1, 1, 1], Res39711), 
+LRes89080 = reshape_layer(Res39711, [1, 1, 1, 1], Res89080), 
+LZer75154 = zero_padding3D_layer(Res89080, 2, 0, 0, 0, 0, 0, Zer75154), 
+LCon40472 = concatenate_layer([Zer75154,[[[[[0.2542]]], [[[0.0773]]], [[[0.7327]]]]]], 4, Con40472), 
+LMax23878 = maximum_layer([[[[0.5006], [0.0929]]], [[[0.917], [0.2011]]]], Max23878), 
+LGRU80666 = gru_layer(Max23878,[[4, 3, 7, 1, 10, 1, 6, 5, 4]],[[5, 7, 10, 7, 2, 4, 10, 7, 1], [3, 8, 2, 1, 4, 1, 1, 6, 5], [4, 10, 2, 2, 1, 3, 9, 10, 6]],[[8, 9, 8, 10, 2, 3, 7, 1, 7], [10, 5, 1, 3, 10, 3, 2, 3, 1]], true, GRU80666), 
+LRes38147 = reshape_layer(GRU80666, [3, 1], Res38147), 
+LRes4629 = reshape_layer(Res38147, [3, 1, 1], Res4629), 
+LRes98265 = reshape_layer(Res4629, [3, 1, 1, 1], Res98265), 
+LCon69736 = concatenate_layer([Res98265,[[[[[0.3518]]], [[[0.2806]]], [[[0.257]]]]]], 4, Con69736), 
+LCro39485 = cropping3D_layer([[[[[1.8002, 1.1647], [1.2823, 1.3304], [1.3684, 1.6112]], [[1.7717, 1.8765], [1.1736, 1.1421], [1.7164, 1.1762]]], [[[1.1522, 1.6315], [1.4553, 1.3867], [1.6807, 1.5405]], [[1.852, 1.7963], [1.0313, 1.6882], [1.9363, 1.8692]]], [[[1.3947, 1.1699], [1.0756, 1.2546], [1.7009, 1.9062]], [[1.8702, 1.4463], [1.6537, 1.7796], [1.7857, 1.5143]]]]], 0, 2, 1, 0, 1, 1, Cro39485), 
+LReL64569 = relu_layer(Cro39485, 8.125789777988118, 9.934437502311328, 8.377700933115225, ReL64569), 
+LZer55869 = zero_padding3D_layer(ReL64569, 2, 0, 0, 0, 0, 0, Zer55869), 
+LAve17396 = average_layer([Con69736,Zer55869], Ave17396), 
+LSub81984 = subtract_layer(Con40472,Ave17396, Sub81984), 
+LLoc36766 = locally_connected2D_layer(Sub81984, 2, 2,[[[0.4886, 0.4765, 0.3928], [0.1673, 0.6504, 0.9331], [0.9187, 0.9447, 0.4664], [0.9316, 0.8701, 0.1783]]],[[[0, 0, 0]]], 3, 1, Loc36766), 
+exec_layers([LDot96730,LRes20316,LRes39711,LRes89080,LZer75154,LCon40472,LMax23878,LGRU80666,LRes38147,LRes4629,LRes98265,LCon69736,LCro39485,LReL64569,LZer55869,LAve17396,LSub81984,LLoc36766],["Dot96730","Res20316","Res39711","Res89080","Zer75154","Con40472","Max23878","GRU80666","Res38147","Res4629","Res98265","Con69736","Cro39485","ReL64569","Zer55869","Ave17396","Sub81984","Loc36766"],Loc36766,"Loc36766")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Loc36766 is incompatible with the layer: expected ndim=4, found ndim=5. Full shape received: (None, 3, 1, 1, 2)
+
+Expected (Unparsed): 
+Loc36766: Dimension error, Input Shape [1,3,1,1,2]
+
+Actual:   
+
+Expected: 

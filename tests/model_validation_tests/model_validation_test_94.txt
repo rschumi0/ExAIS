@@ -1,0 +1,63 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul28050 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul28050 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con39115 = tf.keras.layers.Input(shape=([4]))
+in0Fla14144 = tf.keras.layers.Input(shape=([2, 4]))
+
+Mul28050 = keras.layers.Multiply(name = 'Mul28050', )([in0Mul28050,in1Mul28050])
+Res36813 = keras.layers.Reshape((1, 1, 1), name = 'Res36813', )(Mul28050)
+Con5199 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='same', name = 'Con5199', )(Res36813)
+Res72941 = keras.layers.Reshape((1, 4), name = 'Res72941', )(Con5199)
+Fla13774 = keras.layers.Flatten(name = 'Fla13774', )(Res72941)
+Con39115 = keras.layers.Concatenate(axis=1, name = 'Con39115', )([Fla13774,in0Con39115])
+Fla14144 = keras.layers.Flatten(name = 'Fla14144',  input_shape=(2, 4))(in0Fla14144)
+Min86031 = keras.layers.Minimum(name = 'Min86031', )([Con39115,Fla14144])
+Res52211 = keras.layers.Reshape((8, 1), name = 'Res52211', )(Min86031)
+Res71088 = keras.layers.Reshape((8, 1, 1), name = 'Res71088', )(Res52211)
+Glo904 = keras.layers.GlobalAveragePooling3D(name = 'Glo904', )(Res71088)
+Emb16444 = keras.layers.Embedding(2, 2, name = 'Emb16444', )(Glo904)
+model = tf.keras.models.Model(inputs=[in0Mul28050,in1Mul28050,in0Con39115,in0Fla14144], outputs=Emb16444)
+w = model.get_layer('Con5199').get_weights() 
+w[0] = np.array([[[[0.951], [0.5498], [0.8554], [0.8368]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con5199').set_weights(w) 
+w = model.get_layer('Emb16444').get_weights() 
+w[0] =  np.array([[0.9763, 0.8829], [0.491, 0.2001]])
+model.get_layer('Emb16444').set_weights(w) 
+in0Mul28050 = tf.constant([[[0.7125]]])
+in1Mul28050 = tf.constant([[[0.6653]]])
+in0Con39115 = tf.constant([[0.4842, 0.259, 0.5966, 0.7616]])
+in0Fla14144 = tf.constant([[[1.0901, 1.9438, 1.4258, 1.2445], [1.0676, 1.9948, 1.3296, 1.661]]])
+print (np.array2string(model.predict([in0Mul28050,in1Mul28050,in0Con39115,in0Fla14144],steps=1), separator=', '))
+
+
+LMul28050 = multiply_layer([[[[0.7125]]], [[[0.6653]]]], Mul28050), 
+LRes36813 = reshape_layer(Mul28050, [1, 1, 1], Res36813), 
+LCon5199 = conv2D_transpose_layer(Res36813, 1, 1,[[[[0.951], [0.5498], [0.8554], [0.8368]]]],[0, 0, 0, 0], 1, 1, true, Con5199), 
+LRes72941 = reshape_layer(Con5199, [1, 4], Res72941), 
+LFla13774 = flatten_layer(Res72941, Fla13774), 
+LCon39115 = concatenate_layer([Fla13774,[[0.4842, 0.259, 0.5966, 0.7616]]], 1, Con39115), 
+LFla14144 = flatten_layer([[[1.0901, 1.9438, 1.4258, 1.2445], [1.0676, 1.9948, 1.3296, 1.661]]], Fla14144), 
+LMin86031 = minimum_layer([Con39115,Fla14144], Min86031), 
+LRes52211 = reshape_layer(Min86031, [8, 1], Res52211), 
+LRes71088 = reshape_layer(Res52211, [8, 1, 1], Res71088), 
+LGlo904 = global_average_pooling3D_layer(Res71088, Glo904), 
+LEmb16444 = embedding_layer(Glo904, [[0.9763, 0.8829], [0.491, 0.2001]], Emb16444), 
+exec_layers([LMul28050,LRes36813,LCon5199,LRes72941,LFla13774,LCon39115,LFla14144,LMin86031,LRes52211,LRes71088,LGlo904,LEmb16444],["Mul28050","Res36813","Con5199","Res72941","Fla13774","Con39115","Fla14144","Min86031","Res52211","Res71088","Glo904","Emb16444"],Emb16444,"Emb16444")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Glo904 is incompatible with the layer: expected ndim=5, found ndim=4. Full shape received: (None, 8, 1, 1)
+
+Expected (Unparsed): 
+Glo904: Dimension error, Input Shape [1,8,1,1]
+
+Actual:   
+
+Expected: 

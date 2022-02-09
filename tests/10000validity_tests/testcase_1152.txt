@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul23476 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul23476 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max41888 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Max41888 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Mul23476 = keras.layers.Multiply(name = 'Mul23476', )([in0Mul23476,in1Mul23476])
+Sof97374 = keras.layers.Softmax(axis=1, name = 'Sof97374', )(Mul23476)
+Res99687 = keras.layers.Reshape((1, 2, 1), name = 'Res99687', )(Sof97374)
+Res19037 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res19037', )(Res99687)
+Zer72732 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer72732', )(Res19037)
+Max41888 = keras.layers.Maximum(name = 'Max41888', )([in0Max41888,in1Max41888])
+Zer73568 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer73568', )(Max41888)
+Add21060 = keras.layers.Add(name = 'Add21060', )([Zer72732,Zer73568])
+model = tf.keras.models.Model(inputs=[in0Mul23476,in1Mul23476,in0Max41888,in1Max41888], outputs=Add21060)
+in0Mul23476 = tf.constant([[[0.5099, 0.4195]]])
+in1Mul23476 = tf.constant([[[0.6077, 0.2692]]])
+in0Max41888 = tf.constant([[[[[0.8967], [0.3044]]], [[[0.7646], [0.1855]]]]])
+in1Max41888 = tf.constant([[[[[0.1401], [0.2842]]], [[[0.1114], [0.1206]]]]])
+print (np.array2string(model.predict([in0Mul23476,in1Mul23476,in0Max41888,in1Max41888],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add21060.png')
+
+LMul23476 = multiply_layer([[[[0.5099, 0.4195]]], [[[0.6077, 0.2692]]]], Mul23476), 
+LSof97374 = softmax_layer(Mul23476, 1, Sof97374), 
+LRes99687 = reshape_layer(Sof97374, [1, 2, 1], Res99687), 
+LRes19037 = reshape_layer(Res99687, [1, 2, 1, 1], Res19037), 
+LZer72732 = zero_padding3D_layer(Res19037, 1, 0, 1, 0, 1, 0, Zer72732), 
+LMax41888 = maximum_layer([[[[[[0.8967], [0.3044]]], [[[0.7646], [0.1855]]]]], [[[[[0.1401], [0.2842]]], [[[0.1114], [0.1206]]]]]], Max41888), 
+LZer73568 = zero_padding3D_layer(Max41888, 0, 0, 2, 0, 0, 0, Zer73568), 
+LAdd21060 = add_layer([Zer72732,Zer73568], Add21060), 
+exec_layers([LMul23476,LSof97374,LRes99687,LRes19037,LZer72732,LMax41888,LZer73568,LAdd21060],["Mul23476","Sof97374","Res99687","Res19037","Zer72732","Max41888","Zer73568","Add21060"],Add21060,"Add21060")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.8967000], [0.3044000]]], [[[0.0000000], [0.0000000]], [[0.0000000], [1.0000000]], [[0.7646000], [1.1855000]]]]]
+
+Expected (Unparsed): [[[[[0],[0]],[[0],[0]],[[0.8967],[0.3044]]],[[[0],[0]],[[0],[1.0]],[[0.7646],[1.1855]]]]]
+
+Actual:   [[[[[0], [0]], [[0], [0]], [[0.8967], [0.3044]]], [[[0], [0]], [[0], [1]], [[0.7646], [1.1855]]]]]
+
+Expected: [[[[[0], [0]], [[0], [0]], [[0.8967], [0.3044]]], [[[0], [0]], [[0], [1]], [[0.7646], [1.1855]]]]]

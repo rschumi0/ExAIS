@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per73903 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave56759 = tf.keras.layers.Input(shape=([1, 1]))
+
+Per73903 = keras.layers.Permute((1,2), name = 'Per73903',)(in0Per73903)
+Ave56759 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave56759', )(in0Ave56759)
+Per41065 = keras.layers.Permute((1,2), name = 'Per41065',)(Ave56759)
+Dot1813 = keras.layers.Dot(axes=(1, 1), name = 'Dot1813', )([Per73903,Per41065])
+Res42072 = keras.layers.Reshape((2, 1, 1), name = 'Res42072', )(Dot1813)
+Loc45403 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc45403', )(Res42072)
+model = tf.keras.models.Model(inputs=[in0Per73903,in0Ave56759], outputs=Loc45403)
+w = model.get_layer('Loc45403').get_weights() 
+w[0] = np.array([[[0.3707, 0.8659, 0.6835, 0.7004]], [[0.1863, 0.8408, 0.8459, 0.0764]]])
+w[1] = np.array([[[0, 0, 0, 0]], [[0, 0, 0, 0]]])
+model.get_layer('Loc45403').set_weights(w) 
+in0Per73903 = tf.constant([[[1.2467, 1.4461]]])
+in0Ave56759 = tf.constant([[[1.0662]]])
+print (np.array2string(model.predict([in0Per73903,in0Ave56759],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc45403.png')
+
+LPer73903 = permute_layer([[[1.2467, 1.4461]]], 1,2, Per73903), 
+LAve56759 = average_pooling1D_layer([[[1.0662]]], 1, 1, true, Ave56759), 
+LPer41065 = permute_layer(Ave56759, 1,2, Per41065), 
+LDot1813 = dot_layer(Per73903,Per41065, 1, 1, Dot1813), 
+LRes42072 = reshape_layer(Dot1813, [2, 1, 1], Res42072), 
+LLoc45403 = locally_connected2D_layer(Res42072, 1, 1,[[[0.3707, 0.8659, 0.6835, 0.7004]], [[0.1863, 0.8408, 0.8459, 0.0764]]],[[[0, 0, 0, 0]], [[0, 0, 0, 0]]], 1, 1, Loc45403), 
+exec_layers([LPer73903,LAve56759,LPer41065,LDot1813,LRes42072,LLoc45403],["Per73903","Ave56759","Per41065","Dot1813","Res42072","Loc45403"],Loc45403,"Loc45403")
+
+Actual (Unparsed): [[[[0.4927462, 1.1509817, 0.9085298, 0.9309938]], [[0.2872433, 1.2963722, 1.3042356, 0.1177960]]]]
+
+Expected (Unparsed): [[[[0.4927461318779999,1.150981590486,0.9085297575899999,0.930993770616]],[[0.287243268066,1.296372194256,1.304235536538,0.117795951048]]]]
+
+Actual:   [[[[0.4928, 1.151, 0.9086, 0.931]], [[0.2873, 1.2964, 1.3043, 0.1178]]]]
+
+Expected: [[[[0.4928, 1.151, 0.9086, 0.931]], [[0.2873, 1.2964, 1.3043, 0.1178]]]]

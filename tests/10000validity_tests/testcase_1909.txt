@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave22014 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Ave22014 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Ave18146 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave18146 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave22014 = keras.layers.Average(name = 'Ave22014', )([in0Ave22014,in1Ave22014])
+Res96004 = keras.layers.Reshape((2, 2, 1), name = 'Res96004', )(Ave22014)
+Res41767 = keras.layers.Reshape((2, 2), name = 'Res41767', )(Res96004)
+Ave18146 = keras.layers.Average(name = 'Ave18146', )([in0Ave18146,in1Ave18146])
+Zer17922 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer17922', )(Ave18146)
+Mul67768 = keras.layers.Multiply(name = 'Mul67768', )([Res41767,Zer17922])
+Sep16674 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep16674', )(Mul67768)
+model = tf.keras.models.Model(inputs=[in0Ave22014,in1Ave22014,in0Ave18146,in1Ave18146], outputs=Sep16674)
+w = model.get_layer('Sep16674').get_weights() 
+w[0] = np.array([[[0.3584], [0.1788]]])
+w[1] = np.array([[[0.7091, 0.75], [0.5717, 0.4671]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep16674').set_weights(w) 
+in0Ave22014 = tf.constant([[[[[0.0832]], [[0.7946]]], [[[0.5824]], [[0.2389]]]]])
+in1Ave22014 = tf.constant([[[[[0.1335]], [[0.6657]]], [[[0.4576]], [[0.0345]]]]])
+in0Ave18146 = tf.constant([[[0.6944, 0.0162]]])
+in1Ave18146 = tf.constant([[[0.9814, 0.3988]]])
+print (np.array2string(model.predict([in0Ave22014,in1Ave22014,in0Ave18146,in1Ave18146],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep16674.png')
+
+LAve22014 = average_layer([[[[[[0.0832]], [[0.7946]]], [[[0.5824]], [[0.2389]]]]], [[[[[0.1335]], [[0.6657]]], [[[0.4576]], [[0.0345]]]]]], Ave22014), 
+LRes96004 = reshape_layer(Ave22014, [2, 2, 1], Res96004), 
+LRes41767 = reshape_layer(Res96004, [2, 2], Res41767), 
+LAve18146 = average_layer([[[[0.6944, 0.0162]]], [[[0.9814, 0.3988]]]], Ave18146), 
+LZer17922 = zero_padding1D_layer(Ave18146, 1, 0, Zer17922), 
+LMul67768 = multiply_layer([Res41767,Zer17922], Mul67768), 
+LSep16674 = separable_conv1D_layer(Mul67768, 1,[[[[0.3584], [0.1788]]],[[[0.7091, 0.75], [0.5717, 0.4671]]]],[0, 0], 1, true, Sep16674), 
+exec_layers([LAve22014,LRes96004,LRes41767,LAve18146,LZer17922,LMul67768,LSep16674],["Ave22014","Res96004","Res41767","Ave18146","Zer17922","Mul67768","Sep16674"],Sep16674,"Sep16674")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.1136310, 0.1194873]]]
+
+Expected (Unparsed): [[[0.0,0.0],[0.11363095325990999,0.11948730459957001]]]
+
+Actual:   [[[0, 0], [0.1137, 0.1195]]]
+
+Expected: [[[0, 0], [0.1137, 0.1195]]]

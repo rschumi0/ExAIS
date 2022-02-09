@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas70761 = tf.keras.layers.Input(shape=([3]))
+in0Con82138 = tf.keras.layers.Input(shape=([3, 1]))
+in0Ave80421 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave80421 = tf.keras.layers.Input(shape=([1, 2]))
+
+Mas70761 = keras.layers.Masking(mask_value=1, name = 'Mas70761', )(in0Mas70761)
+Res85484 = keras.layers.Reshape((3, 1), name = 'Res85484', )(Mas70761)
+Sim73917 = keras.layers.SimpleRNN(3,name = 'Sim73917', )(Res85484)
+ELU77989 = keras.layers.ELU(alpha=-8.452947824609936, name = 'ELU77989', )(Sim73917)
+Res36942 = keras.layers.Reshape((3, 1), name = 'Res36942', )(ELU77989)
+Con82138 = keras.layers.Concatenate(axis=2, name = 'Con82138', )([Res36942,in0Con82138])
+Ave80421 = keras.layers.Average(name = 'Ave80421', )([in0Ave80421,in1Ave80421])
+Zer61719 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer61719', )(Ave80421)
+Sub48824 = keras.layers.Subtract(name = 'Sub48824', )([Con82138,Zer61719])
+Res19235 = keras.layers.Reshape((3, 2, 1), name = 'Res19235', )(Sub48824)
+Up_70017 = keras.layers.UpSampling2D(size=(2, 2), name = 'Up_70017', )(Res19235)
+model = tf.keras.models.Model(inputs=[in0Mas70761,in0Con82138,in0Ave80421,in1Ave80421], outputs=Up_70017)
+w = model.get_layer('Sim73917').get_weights() 
+w[0] = np.array([[8, 5, 6]])
+w[1] = np.array([[8, 1, 7], [9, 4, 5], [5, 3, 2]])
+w[2] = np.array([1, 9, 8])
+model.get_layer('Sim73917').set_weights(w) 
+in0Mas70761 = tf.constant([[1.2623, 1.024, 1.5772]])
+in0Con82138 = tf.constant([[[0.6768], [0.9332], [0.2098]]])
+in0Ave80421 = tf.constant([[[0.668, 0.4302]]])
+in1Ave80421 = tf.constant([[[0.6742, 0.7326]]])
+print (np.array2string(model.predict([in0Mas70761,in0Con82138,in0Ave80421,in1Ave80421],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_70017.png')
+
+LMas70761 = masking_layer([[1.2623, 1.024, 1.5772]], 1, Mas70761), 
+LRes85484 = reshape_layer(Mas70761, [3, 1], Res85484), 
+LSim73917 = simple_rnn_layer(Res85484,[[8, 5, 6]],[[8, 1, 7], [9, 4, 5], [5, 3, 2]],[1, 9, 8], Sim73917), 
+LELU77989 = elu_layer(Sim73917, -8.452947824609936, ELU77989), 
+LRes36942 = reshape_layer(ELU77989, [3, 1], Res36942), 
+LCon82138 = concatenate_layer([Res36942,[[[0.6768], [0.9332], [0.2098]]]], 2, Con82138), 
+LAve80421 = average_layer([[[[0.668, 0.4302]]], [[[0.6742, 0.7326]]]], Ave80421), 
+LZer61719 = zero_padding1D_layer(Ave80421, 2, 0, Zer61719), 
+LSub48824 = subtract_layer(Con82138,Zer61719, Sub48824), 
+LRes19235 = reshape_layer(Sub48824, [3, 2, 1], Res19235), 
+LUp_70017 = up_sampling2D_layer(Res19235, 2, 2, Up_70017), 
+exec_layers([LMas70761,LRes85484,LSim73917,LELU77989,LRes36942,LCon82138,LAve80421,LZer61719,LSub48824,LRes19235,LUp_70017],["Mas70761","Res85484","Sim73917","ELU77989","Res36942","Con82138","Ave80421","Zer61719","Sub48824","Res19235","Up_70017"],Up_70017,"Up_70017")
+
+Actual (Unparsed): [[[[1.0000000], [1.0000000], [0.6768000], [0.6768000]], [[1.0000000], [1.0000000], [0.6768000], [0.6768000]], [[1.0000000], [1.0000000], [0.9332000], [0.9332000]], [[1.0000000], [1.0000000], [0.9332000], [0.9332000]], [[0.3289000], [0.3289000], [-0.3716000], [-0.3716000]], [[0.3289000], [0.3289000], [-0.3716000], [-0.3716000]]]]
+
+Expected (Unparsed): [[[[1.0],[1.0],[0.6768],[0.6768]],[[1.0],[1.0],[0.6768],[0.6768]],[[1.0],[1.0],[0.9332],[0.9332]],[[1.0],[1.0],[0.9332],[0.9332]],[[0.32889999999999997],[0.32889999999999997],[-0.37160000000000004],[-0.37160000000000004]],[[0.32889999999999997],[0.32889999999999997],[-0.37160000000000004],[-0.37160000000000004]]]]
+
+Actual:   [[[[1], [1], [0.6768], [0.6768]], [[1], [1], [0.6768], [0.6768]], [[1], [1], [0.9332], [0.9332]], [[1], [1], [0.9332], [0.9332]], [[0.3289], [0.3289], [-0.3716], [-0.3716]], [[0.3289], [0.3289], [-0.3716], [-0.3716]]]]
+
+Expected: [[[[1], [1], [0.6768], [0.6768]], [[1], [1], [0.6768], [0.6768]], [[1], [1], [0.9332], [0.9332]], [[1], [1], [0.9332], [0.9332]], [[0.3289], [0.3289], [-0.3716], [-0.3716]], [[0.3289], [0.3289], [-0.3716], [-0.3716]]]]

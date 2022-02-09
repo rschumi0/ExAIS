@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add58768 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Add58768 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Con62947 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Dep39305 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Add58768 = keras.layers.Add(name = 'Add58768', )([in0Add58768,in1Add58768])
+Res57100 = keras.layers.Reshape((2, 1, 2), name = 'Res57100', )(Add58768)
+Res31966 = keras.layers.Reshape((2, 2), name = 'Res31966', )(Res57100)
+Con43316 = keras.layers.Conv1D(2, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con43316', )(Res31966)
+Res75377 = keras.layers.Reshape((2, 2, 1), name = 'Res75377', )(Con43316)
+Con62947 = keras.layers.Concatenate(axis=3, name = 'Con62947', )([Res75377,in0Con62947])
+Dep39305 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='same', name = 'Dep39305', )(in0Dep39305)
+Zer67056 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer67056', )(Dep39305)
+Mul69223 = keras.layers.Multiply(name = 'Mul69223', )([Con62947,Zer67056])
+model = tf.keras.models.Model(inputs=[in0Add58768,in1Add58768,in0Con62947,in0Dep39305], outputs=Mul69223)
+w = model.get_layer('Con43316').get_weights() 
+w[0] = np.array([[[0.6535, 0.5533], [0.0867, 0.9628]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con43316').set_weights(w) 
+w = model.get_layer('Dep39305').get_weights() 
+w[0] = np.array([[[[0.4217], [0.072]]], [[[0.1883], [0.7427]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep39305').set_weights(w) 
+in0Add58768 = tf.constant([[[[[0.1983], [0.3135]]], [[[0.6147], [0.7837]]]]])
+in1Add58768 = tf.constant([[[[[0.3946], [0.0995]]], [[[0.3766], [0.7892]]]]])
+in0Con62947 = tf.constant([[[[0.6274], [0.2407]], [[0.8927], [0.1935]]]])
+in0Dep39305 = tf.constant([[[[0.9024, 0.5041]], [[0.9977, 0.6947]]]])
+print (np.array2string(model.predict([in0Add58768,in1Add58768,in0Con62947,in0Dep39305],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul69223.png')
+
+LAdd58768 = add_layer([[[[[[0.1983], [0.3135]]], [[[0.6147], [0.7837]]]]], [[[[[0.3946], [0.0995]]], [[[0.3766], [0.7892]]]]]], Add58768), 
+LRes57100 = reshape_layer(Add58768, [2, 1, 2], Res57100), 
+LRes31966 = reshape_layer(Res57100, [2, 2], Res31966), 
+LCon43316 = conv1D_layer(Res31966, 1,[[[0.6535, 0.5533], [0.0867, 0.9628]]],[0, 0], 1, true, 1, Con43316), 
+LRes75377 = reshape_layer(Con43316, [2, 2, 1], Res75377), 
+LCon62947 = concatenate_layer([Res75377,[[[[0.6274], [0.2407]], [[0.8927], [0.1935]]]]], 3, Con62947), 
+LDep39305 = depthwise_conv2D_layer([[[[0.9024, 0.5041]], [[0.9977, 0.6947]]]], 2, 1,[[[[0.4217], [0.072]]], [[[0.1883], [0.7427]]]],[0, 0], 1, 1, true, Dep39305), 
+LZer67056 = zero_padding2D_layer(Dep39305, 0, 0, 1, 0, Zer67056), 
+LMul69223 = multiply_layer([Con62947,Zer67056], Mul69223), 
+exec_layers([LAdd58768,LRes57100,LRes31966,LCon43316,LRes75377,LCon62947,LDep39305,LZer67056,LMul69223],["Add58768","Res57100","Res31966","Con43316","Res75377","Con62947","Dep39305","Zer67056","Mul69223"],Mul69223,"Mul69223")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.4124876, 0.1329263]], [[0.0000000, 0.0000000], [0.8679133, 0.0096786]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[0.41248756608285037,0.132926307823]],[[0.0,0.0],[0.867913336177997,0.0096785604]]]]
+
+Actual:   [[[[0, 0], [0.4125, 0.133]], [[0, 0], [0.868, 0.0097]]]]
+
+Expected: [[[[0, 0], [0.4125, 0.133]], [[0, 0], [0.868, 0.0097]]]]

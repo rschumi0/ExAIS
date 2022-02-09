@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min27438 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Min27438 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in0Bat92388 = tf.keras.layers.Input(shape=([2, 2]))
+
+Min27438 = keras.layers.Minimum(name = 'Min27438', )([in0Min27438,in1Min27438])
+Res80388 = keras.layers.Reshape((1, 1, 4), name = 'Res80388', )(Min27438)
+Ave76669 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave76669', )(Res80388)
+Zer99729 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer99729', )(Ave76669)
+Bat92388 = keras.layers.BatchNormalization(axis=2, epsilon=0.2574206233760674,  name = 'Bat92388', )(in0Bat92388)
+Res9579 = keras.layers.Reshape((2, 2, 1), name = 'Res9579', )(Bat92388)
+Loc90875 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 2), name = 'Loc90875', )(Res9579)
+Sub16815 = keras.layers.Subtract(name = 'Sub16815', )([Zer99729,Loc90875])
+model = tf.keras.models.Model(inputs=[in0Min27438,in1Min27438,in0Bat92388], outputs=Sub16815)
+w = model.get_layer('Bat92388').get_weights() 
+w[0] = np.array([0.9123, 0.582])
+w[1] = np.array([0.3876, 0.385])
+w[2] = np.array([0.5177, 0.36])
+w[3] = np.array([0.157, 0.8643])
+model.get_layer('Bat92388').set_weights(w) 
+w = model.get_layer('Loc90875').get_weights() 
+w[0] = np.array([[[0.0423, 0.0799, 0.1592, 0.1341]], [[0.3904, 0.3637, 0.3678, 0.6234]]])
+w[1] = np.array([[[0, 0, 0, 0]], [[0, 0, 0, 0]]])
+model.get_layer('Loc90875').set_weights(w) 
+in0Min27438 = tf.constant([[[[[0.8125, 0.3575], [0.794, 0.3475]]]]])
+in1Min27438 = tf.constant([[[[[0.7243, 0.7649], [0.5425, 0.1992]]]]])
+in0Bat92388 = tf.constant([[[1.2663, 1.6558], [1.2015, 1.1837]]])
+print (np.array2string(model.predict([in0Min27438,in1Min27438,in0Bat92388],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub16815.png')
+
+LMin27438 = minimum_layer([[[[[[0.8125, 0.3575], [0.794, 0.3475]]]]], [[[[[0.7243, 0.7649], [0.5425, 0.1992]]]]]], Min27438), 
+LRes80388 = reshape_layer(Min27438, [1, 1, 4], Res80388), 
+LAve76669 = average_pooling2D_layer(Res80388, 1, 1, Ave76669), 
+LZer99729 = zero_padding2D_layer(Ave76669, 1, 0, 0, 0, Zer99729), 
+LBat92388 = batch_normalization_layer([[[1.2663, 1.6558], [1.2015, 1.1837]]], 2, 0.2574206233760674, [0.9123, 0.582], [0.3876, 0.385], [0.5177, 0.36], [0.157, 0.8643], Bat92388), 
+LRes9579 = reshape_layer(Bat92388, [2, 2, 1], Res9579), 
+LLoc90875 = locally_connected2D_layer(Res9579, 1, 1,[[[0.0423, 0.0799, 0.1592, 0.1341]], [[0.3904, 0.3637, 0.3678, 0.6234]]],[[[0, 0, 0, 0]], [[0, 0, 0, 0]]], 1, 2, Loc90875), 
+LSub16815 = subtract_layer(Zer99729,Loc90875, Sub16815), 
+exec_layers([LMin27438,LRes80388,LAve76669,LZer99729,LBat92388,LRes9579,LLoc90875,LSub16815],["Min27438","Res80388","Ave76669","Zer99729","Bat92388","Res9579","Loc90875","Sub16815"],Sub16815,"Sub16815")
+
+Actual (Unparsed): [[[[-0.0612708, -0.1157337, -0.2305982, -0.1942413]], [[0.1946639, -0.1359136, 0.0435242, -0.6465355]]]]
+
+Expected (Unparsed): [[[[-0.061270761426448155,-0.11573366047217985,-0.23059823212980018,-0.19424135005405904]],[[0.19466392222787465,-0.13591352839580434,0.04352420746775687,-0.6465354786965751]]]]
+
+Actual:   [[[[-0.0612, -0.1157, -0.2305, -0.1942]], [[0.1947, -0.1359, 0.0436, -0.6465]]]]
+
+Expected: [[[[-0.0612, -0.1157, -0.2305, -0.1942]], [[0.1947, -0.1359, 0.0436, -0.6465]]]]

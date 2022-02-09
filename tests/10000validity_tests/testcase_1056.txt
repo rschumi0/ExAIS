@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con58957 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add33704 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add33704 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max47169 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Con58957 = keras.layers.Conv1D(2, (2),strides=(1), padding='same', dilation_rate=(1), name = 'Con58957', )(in0Con58957)
+PRe37921 = keras.layers.PReLU(name = 'PRe37921', )(Con58957)
+Res20942 = keras.layers.Reshape((2, 2, 1), name = 'Res20942', )(PRe37921)
+Add33704 = keras.layers.Add(name = 'Add33704', )([in0Add33704,in1Add33704])
+Res51683 = keras.layers.Reshape((2, 2, 1), name = 'Res51683', )(Add33704)
+Max47169 = keras.layers.MaxPool2D(pool_size=(2, 2), strides=(9, 7), padding='same', name = 'Max47169', )(in0Max47169)
+Zer56820 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer56820', )(Max47169)
+Mul18375 = keras.layers.Multiply(name = 'Mul18375', )([Res51683,Zer56820])
+Max50065 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Max50065', )(Mul18375)
+Max32742 = keras.layers.Maximum(name = 'Max32742', )([Res20942,Max50065])
+model = tf.keras.models.Model(inputs=[in0Con58957,in0Add33704,in1Add33704,in0Max47169], outputs=Max32742)
+w = model.get_layer('Con58957').get_weights() 
+w[0] = np.array([[[0.6216, 0.1425], [0.3675, 0.663]], [[0.0624, 0.3943], [0.101, 0.6806]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con58957').set_weights(w) 
+w = model.get_layer('PRe37921').get_weights() 
+w[0] = np.array([[0.2819, 0.3176], [0.8949, 0.9871]])
+model.get_layer('PRe37921').set_weights(w) 
+in0Con58957 = tf.constant([[[0.1873, 0.4959], [0.6621, 0.6083]]])
+in0Add33704 = tf.constant([[[0.8825, 0.0423], [0.6114, 0.3718]]])
+in1Add33704 = tf.constant([[[0.2879, 0.2897], [0.6064, 0.2431]]])
+in0Max47169 = tf.constant([[[[1.3117], [1.7869]], [[1.4352], [1.556]]]])
+print (np.array2string(model.predict([in0Con58957,in0Add33704,in1Add33704,in0Max47169],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max32742.png')
+
+LCon58957 = conv1D_layer([[[0.1873, 0.4959], [0.6621, 0.6083]]], 2,[[[0.6216, 0.1425], [0.3675, 0.663]], [[0.0624, 0.3943], [0.101, 0.6806]]],[0, 0], 1, true, 1, Con58957), 
+LPRe37921 = prelu_layer(Con58957, [[0.2819, 0.3176], [0.8949, 0.9871]], PRe37921), 
+LRes20942 = reshape_layer(PRe37921, [2, 2, 1], Res20942), 
+LAdd33704 = add_layer([[[[0.8825, 0.0423], [0.6114, 0.3718]]], [[[0.2879, 0.2897], [0.6064, 0.2431]]]], Add33704), 
+LRes51683 = reshape_layer(Add33704, [2, 2, 1], Res51683), 
+LMax47169 = max_pool2D_layer([[[[1.3117], [1.7869]], [[1.4352], [1.556]]]], 2, 2, 9, 7, true, Max47169), 
+LZer56820 = zero_padding2D_layer(Max47169, 1, 0, 1, 0, Zer56820), 
+LMul18375 = multiply_layer([Res51683,Zer56820], Mul18375), 
+LMax50065 = max_pool2D_layer(Mul18375, 1, 1, 1, 1, true, Max50065), 
+LMax32742 = maximum_layer([Res20942,Max50065], Max32742), 
+exec_layers([LCon58957,LPRe37921,LRes20942,LAdd33704,LRes51683,LMax47169,LZer56820,LMul18375,LMax50065,LMax32742],["Con58957","PRe37921","Res20942","Add33704","Res51683","Max47169","Zer56820","Mul18375","Max50065","Max32742"],Max32742,"Max32742")
+
+Actual (Unparsed): [[[[0.4014223], [1.0305469]], [[0.6351116], [1.0987649]]]]
+
+Expected (Unparsed): [[[[0.40142227],[1.03054696]],[[0.63511161],[1.09876481]]]]
+
+Actual:   [[[[0.4015], [1.0306]], [[0.6352], [1.0988]]]]
+
+Expected: [[[[0.4015], [1.0306]], [[0.6352], [1.0988]]]]

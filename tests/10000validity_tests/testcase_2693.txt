@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul52018 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul52018 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con6298 = tf.keras.layers.Input(shape=([4, 1, 2]))
+in0Sub59186 = tf.keras.layers.Input(shape=([3]))
+in1Sub59186 = tf.keras.layers.Input(shape=([3]))
+
+Mul52018 = keras.layers.Multiply(name = 'Mul52018', )([in0Mul52018,in1Mul52018])
+Res79033 = keras.layers.Reshape((1, 4), name = 'Res79033', )(Mul52018)
+Per71746 = keras.layers.Permute((1,2), name = 'Per71746',)(Res79033)
+Res90309 = keras.layers.Reshape((1, 4, 1), name = 'Res90309', )(Per71746)
+PRe69954 = keras.layers.PReLU(name = 'PRe69954', )(Res90309)
+Res10284 = keras.layers.Reshape((1, 4), name = 'Res10284', )(PRe69954)
+Glo36599 = keras.layers.GlobalAveragePooling1D(name = 'Glo36599', )(Res10284)
+Res26913 = keras.layers.Reshape((4, 1), name = 'Res26913', )(Glo36599)
+Res39501 = keras.layers.Reshape((4, 1, 1), name = 'Res39501', )(Res26913)
+Con6298 = keras.layers.Concatenate(axis=3, name = 'Con6298', )([Res39501,in0Con6298])
+Sub59186 = keras.layers.Subtract(name = 'Sub59186', )([in0Sub59186,in1Sub59186])
+Res29275 = keras.layers.Reshape((3, 1), name = 'Res29275', )(Sub59186)
+Res61173 = keras.layers.Reshape((3, 1, 1), name = 'Res61173', )(Res29275)
+Sep98054 = keras.layers.SeparableConv2D(3, (3, 1),strides=(2, 2), padding='same', name = 'Sep98054', )(Res61173)
+Zer76358 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer76358', )(Sep98054)
+Mul52657 = keras.layers.Multiply(name = 'Mul52657', )([Con6298,Zer76358])
+model = tf.keras.models.Model(inputs=[in0Mul52018,in1Mul52018,in0Con6298,in0Sub59186,in1Sub59186], outputs=Mul52657)
+w = model.get_layer('PRe69954').get_weights() 
+w[0] = np.array([[[0.7111], [0.6909], [0.9524], [0.1903]]])
+model.get_layer('PRe69954').set_weights(w) 
+w = model.get_layer('Sep98054').get_weights() 
+w[0] = np.array([[[[0.4942]]], [[[0.9284]]], [[[0.7693]]]])
+w[1] = np.array([[[[0.2113, 0.0866, 0.6493]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep98054').set_weights(w) 
+in0Mul52018 = tf.constant([[[[0.7114, 0.7963], [0.4841, 0.8919]]]])
+in1Mul52018 = tf.constant([[[[0.8142, 0.7437], [0.2735, 0.9486]]]])
+in0Con6298 = tf.constant([[[[0.7207, 0.2118]], [[0.3155, 0.473]], [[0.8562, 0.5583]], [[0.7689, 0.0698]]]])
+in0Sub59186 = tf.constant([[0.5133, 0.6411, 0.0342]])
+in1Sub59186 = tf.constant([[0.7872, 0.016, 0.3259]])
+print (np.array2string(model.predict([in0Mul52018,in1Mul52018,in0Con6298,in0Sub59186,in1Sub59186],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul52657.png')
+
+LMul52018 = multiply_layer([[[[[0.7114, 0.7963], [0.4841, 0.8919]]]], [[[[0.8142, 0.7437], [0.2735, 0.9486]]]]], Mul52018), 
+LRes79033 = reshape_layer(Mul52018, [1, 4], Res79033), 
+LPer71746 = permute_layer(Res79033, 1,2, Per71746), 
+LRes90309 = reshape_layer(Per71746, [1, 4, 1], Res90309), 
+LPRe69954 = prelu_layer(Res90309, [[[0.7111], [0.6909], [0.9524], [0.1903]]], PRe69954), 
+LRes10284 = reshape_layer(PRe69954, [1, 4], Res10284), 
+LGlo36599 = global_average_pooling1D_layer(Res10284, Glo36599), 
+LRes26913 = reshape_layer(Glo36599, [4, 1], Res26913), 
+LRes39501 = reshape_layer(Res26913, [4, 1, 1], Res39501), 
+LCon6298 = concatenate_layer([Res39501,[[[[0.7207, 0.2118]], [[0.3155, 0.473]], [[0.8562, 0.5583]], [[0.7689, 0.0698]]]]], 3, Con6298), 
+LSub59186 = subtract_layer([[0.5133, 0.6411, 0.0342]], [[0.7872, 0.016, 0.3259]], Sub59186), 
+LRes29275 = reshape_layer(Sub59186, [3, 1], Res29275), 
+LRes61173 = reshape_layer(Res29275, [3, 1, 1], Res61173), 
+LSep98054 = separable_conv2D_layer(Res61173, 3, 1,[[[[[0.4942]]], [[[0.9284]]], [[[0.7693]]]],[[[[0.2113, 0.0866, 0.6493]]]]],[0, 0, 0], 2, 2, true, Sep98054), 
+LZer76358 = zero_padding2D_layer(Sep98054, 2, 0, 0, 0, Zer76358), 
+LMul52657 = multiply_layer([Con6298,Zer76358], Mul52657), 
+exec_layers([LMul52018,LRes79033,LPer71746,LRes90309,LPRe69954,LRes10284,LGlo36599,LRes26913,LRes39501,LCon6298,LSub59186,LRes29275,LRes61173,LSep98054,LZer76358,LMul52657],["Mul52018","Res79033","Per71746","Res90309","PRe69954","Res10284","Glo36599","Res26913","Res39501","Con6298","Sub59186","Res29275","Res61173","Sep98054","Zer76358","Mul52657"],Mul52657,"Mul52657")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000]], [[0.0063395, 0.0168017, 0.0821437]], [[0.0068130, 0.0025376, 0.0017272]]]]
+
+Expected (Unparsed): [[[[0.0,0.0,0.0]],[[0.0,0.0,0.0]],[[0.00633947217497452,0.016801741750436392,0.08214369233180728]],[[0.006813014691945265,0.002537629983543598,0.0017271949903595988]]]]
+
+Actual:   [[[[0, 0, 0]], [[0, 0, 0]], [[0.0064, 0.0169, 0.0822]], [[0.0069, 0.0026, 0.0018]]]]
+
+Expected: [[[[0, 0, 0]], [[0, 0, 0]], [[0.0064, 0.0169, 0.0822]], [[0.0069, 0.0026, 0.0018]]]]

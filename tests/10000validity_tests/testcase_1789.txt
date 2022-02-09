@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas8021 = tf.keras.layers.Input(shape=([3, 4]))
+in0Min69675 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min69675 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Mas8021 = keras.layers.Masking(mask_value=1, name = 'Mas8021', )(in0Mas8021)
+Res72409 = keras.layers.Reshape((3, 4, 1), name = 'Res72409', )(Mas8021)
+Res28421 = keras.layers.Reshape((3, 4, 1, 1), name = 'Res28421', )(Res72409)
+Zer26244 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer26244', )(Res28421)
+Min69675 = keras.layers.Minimum(name = 'Min69675', )([in0Min69675,in1Min69675])
+Res9123 = keras.layers.Reshape((1, 2, 2, 1), name = 'Res9123', )(Min69675)
+Up_27687 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_27687', )(Res9123)
+Zer86002 = keras.layers.ZeroPadding3D(padding=((2, 0), (2, 0), (1, 0)), name = 'Zer86002', )(Up_27687)
+Max62429 = keras.layers.Maximum(name = 'Max62429', )([Zer26244,Zer86002])
+Lea37039 = keras.layers.LeakyReLU(alpha=2.250411536495215, name = 'Lea37039', )(Max62429)
+Fla95017 = keras.layers.Flatten(name = 'Fla95017', )(Lea37039)
+model = tf.keras.models.Model(inputs=[in0Mas8021,in0Min69675,in1Min69675], outputs=Fla95017)
+in0Mas8021 = tf.constant([[[1.6742, 1.4143, 1.6028, 1.2354], [1.2834, 1.4508, 1.5498, 1.654], [1.555, 1.7602, 1.8918, 1.008]]])
+in0Min69675 = tf.constant([[[[0.7263, 0.0747], [0.2637, 0.8022]]]])
+in1Min69675 = tf.constant([[[[0.7371, 0.7813], [0.8099, 0.1048]]]])
+print (np.array2string(model.predict([in0Mas8021,in0Min69675,in1Min69675],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla95017.png')
+
+LMas8021 = masking_layer([[[1.6742, 1.4143, 1.6028, 1.2354], [1.2834, 1.4508, 1.5498, 1.654], [1.555, 1.7602, 1.8918, 1.008]]], 1, Mas8021), 
+LRes72409 = reshape_layer(Mas8021, [3, 4, 1], Res72409), 
+LRes28421 = reshape_layer(Res72409, [3, 4, 1, 1], Res28421), 
+LZer26244 = zero_padding3D_layer(Res28421, 0, 0, 0, 0, 2, 0, Zer26244), 
+LMin69675 = minimum_layer([[[[[0.7263, 0.0747], [0.2637, 0.8022]]]], [[[[0.7371, 0.7813], [0.8099, 0.1048]]]]], Min69675), 
+LRes9123 = reshape_layer(Min69675, [1, 2, 2, 1], Res9123), 
+LUp_27687 = up_sampling3D_layer(Res9123, 1, 1, 1, Up_27687), 
+LZer86002 = zero_padding3D_layer(Up_27687, 2, 0, 2, 0, 1, 0, Zer86002), 
+LMax62429 = maximum_layer([Zer26244,Zer86002], Max62429), 
+LLea37039 = leaky_relu_layer(Max62429, 2.250411536495215, Lea37039), 
+LFla95017 = flatten_layer(Lea37039, Fla95017), 
+exec_layers([LMas8021,LRes72409,LRes28421,LZer26244,LMin69675,LRes9123,LUp_27687,LZer86002,LMax62429,LLea37039,LFla95017],["Mas8021","Res72409","Res28421","Zer26244","Min69675","Res9123","Up_27687","Zer86002","Max62429","Lea37039","Fla95017"],Fla95017,"Fla95017")
+
+Actual (Unparsed): [[0.0000000, 0.0000000, 1.6742001, 0.0000000, 0.0000000, 1.4143000, 0.0000000, 0.0000000, 1.6028000, 0.0000000, 0.0000000, 1.2354000, 0.0000000, 0.0000000, 1.2834001, 0.0000000, 0.0000000, 1.4507999, 0.0000000, 0.0000000, 1.5498000, 0.0000000, 0.0000000, 1.6540000, 0.0000000, 0.0000000, 1.5549999, 0.0000000, 0.0000000, 1.7602000, 0.0000000, 0.7263000, 1.8918000, 0.0000000, 0.2637000, 1.0080000]]
+
+Expected (Unparsed): [[0,0,1.6742,0,0,1.4143,0,0,1.6028,0,0,1.2354,0,0,1.2834,0,0,1.4508,0,0,1.5498,0,0,1.654,0,0,1.555,0,0,1.7602,0,0.7263,1.8918,0,0.2637,1.008]]
+
+Actual:   [[0, 0, 1.6743, 0, 0, 1.4143, 0, 0, 1.6028, 0, 0, 1.2354, 0, 0, 1.2835, 0, 0, 1.4508, 0, 0, 1.5498, 0, 0, 1.654, 0, 0, 1.555, 0, 0, 1.7602, 0, 0.7263, 1.8918, 0, 0.2637, 1.008]]
+
+Expected: [[0, 0, 1.6742, 0, 0, 1.4143, 0, 0, 1.6028, 0, 0, 1.2354, 0, 0, 1.2834, 0, 0, 1.4508, 0, 0, 1.5498, 0, 0, 1.654, 0, 0, 1.555, 0, 0, 1.7602, 0, 0.7263, 1.8918, 0, 0.2637, 1.008]]

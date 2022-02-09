@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc76624 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con88740 = tf.keras.layers.Input(shape=([2, 3, 1]))
+in0Sub86197 = tf.keras.layers.Input(shape=([2, 3, 2]))
+in1Sub86197 = tf.keras.layers.Input(shape=([2, 3, 2]))
+
+Loc76624 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc76624', )(in0Loc76624)
+Res79547 = keras.layers.Reshape((1, 3, 1), name = 'Res79547', )(Loc76624)
+Zer23661 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer23661', )(Res79547)
+Con88740 = keras.layers.Concatenate(axis=3, name = 'Con88740', )([Zer23661,in0Con88740])
+Sub86197 = keras.layers.Subtract(name = 'Sub86197', )([in0Sub86197,in1Sub86197])
+Min75769 = keras.layers.Minimum(name = 'Min75769', )([Con88740,Sub86197])
+Res3505 = keras.layers.Reshape((2, 6), name = 'Res3505', )(Min75769)
+Cro35167 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro35167', )(Res3505)
+model = tf.keras.models.Model(inputs=[in0Loc76624,in0Con88740,in0Sub86197,in1Sub86197], outputs=Cro35167)
+w = model.get_layer('Loc76624').get_weights() 
+w[0] = np.array([[[0.3884, 0.9116, 0.1518]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc76624').set_weights(w) 
+in0Loc76624 = tf.constant([[[0.2239]]])
+in0Con88740 = tf.constant([[[[0.8128], [0.1912], [0.3801]], [[0.8077], [0.824], [0.737]]]])
+in0Sub86197 = tf.constant([[[[0.4417, 0.0238], [0.1921, 0.4177], [0.3953, 0.3378]], [[0.0134, 0.0168], [0.1856, 0.4463], [0.5802, 0.8252]]]])
+in1Sub86197 = tf.constant([[[[0.4948, 0.1101], [0.5992, 0.6419], [0.2971, 0.0727]], [[0.577, 0.4602], [0.569, 0.5497], [0.6838, 0.3348]]]])
+print (np.array2string(model.predict([in0Loc76624,in0Con88740,in0Sub86197,in1Sub86197],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro35167.png')
+
+LLoc76624 = locally_connected1D_layer([[[0.2239]]], 1,[[[0.3884, 0.9116, 0.1518]]],[[0, 0, 0]], 1, Loc76624), 
+LRes79547 = reshape_layer(Loc76624, [1, 3, 1], Res79547), 
+LZer23661 = zero_padding2D_layer(Res79547, 1, 0, 0, 0, Zer23661), 
+LCon88740 = concatenate_layer([Zer23661,[[[[0.8128], [0.1912], [0.3801]], [[0.8077], [0.824], [0.737]]]]], 3, Con88740), 
+LSub86197 = subtract_layer([[[[0.4417, 0.0238], [0.1921, 0.4177], [0.3953, 0.3378]], [[0.0134, 0.0168], [0.1856, 0.4463], [0.5802, 0.8252]]]], [[[[0.4948, 0.1101], [0.5992, 0.6419], [0.2971, 0.0727]], [[0.577, 0.4602], [0.569, 0.5497], [0.6838, 0.3348]]]], Sub86197), 
+LMin75769 = minimum_layer([Con88740,Sub86197], Min75769), 
+LRes3505 = reshape_layer(Min75769, [2, 6], Res3505), 
+LCro35167 = cropping1D_layer(Res3505, 1, 0, Cro35167), 
+exec_layers([LLoc76624,LRes79547,LZer23661,LCon88740,LSub86197,LMin75769,LRes3505,LCro35167],["Loc76624","Res79547","Zer23661","Con88740","Sub86197","Min75769","Res3505","Cro35167"],Cro35167,"Cro35167")
+
+Actual (Unparsed): [[[-0.5636000, -0.4434000, -0.3834000, -0.1034000, -0.1036000, 0.4904000]]]
+
+Expected (Unparsed): [[[-0.5636,-0.4434,-0.38339999999999996,-0.10339999999999999,-0.10359999999999991,0.49040000000000006]]]
+
+Actual:   [[[-0.5636, -0.4434, -0.3834, -0.1034, -0.1036, 0.4904]]]
+
+Expected: [[[-0.5636, -0.4434, -0.3833, -0.1033, -0.1035, 0.4905]]]

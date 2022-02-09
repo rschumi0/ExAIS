@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim76028 = tf.keras.layers.Input(shape=([1, 3]))
+in0Min14562 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Min14562 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+Sim76028 = keras.layers.SimpleRNN(2,name = 'Sim76028', )(in0Sim76028)
+Res95441 = keras.layers.Reshape((2, 1), name = 'Res95441', )(Sim76028)
+Res69553 = keras.layers.Reshape((2, 1, 1), name = 'Res69553', )(Res95441)
+Res69965 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res69965', )(Res69553)
+Zer23050 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (2, 0)), name = 'Zer23050', )(Res69965)
+Min14562 = keras.layers.Minimum(name = 'Min14562', )([in0Min14562,in1Min14562])
+Zer38108 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer38108', )(Min14562)
+Add37218 = keras.layers.Add(name = 'Add37218', )([Zer23050,Zer38108])
+Thr41217 = keras.layers.ThresholdedReLU(theta=2.6981396120348626, name = 'Thr41217', )(Add37218)
+Res77900 = keras.layers.Reshape((2, 3, 3), name = 'Res77900', )(Thr41217)
+Res44230 = keras.layers.Reshape((2, 9), name = 'Res44230', )(Res77900)
+Max33613 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max33613', )(Res44230)
+model = tf.keras.models.Model(inputs=[in0Sim76028,in0Min14562,in1Min14562], outputs=Max33613)
+w = model.get_layer('Sim76028').get_weights() 
+w[0] = np.array([[6, 4], [3, 1], [1, 6]])
+w[1] = np.array([[1, 4], [9, 1]])
+w[2] = np.array([4, 9])
+model.get_layer('Sim76028').set_weights(w) 
+in0Sim76028 = tf.constant([[[4, 7, 5]]])
+in0Min14562 = tf.constant([[[[[0.5587], [0.4237]], [[0.2632], [0.3271]]]]])
+in1Min14562 = tf.constant([[[[[0.7862], [0.5614]], [[0.3276], [0.551]]]]])
+print (np.array2string(model.predict([in0Sim76028,in0Min14562,in1Min14562],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max33613.png')
+
+LSim76028 = simple_rnn_layer([[[4, 7, 5]]],[[6, 4], [3, 1], [1, 6]],[[1, 4], [9, 1]],[4, 9], Sim76028), 
+LRes95441 = reshape_layer(Sim76028, [2, 1], Res95441), 
+LRes69553 = reshape_layer(Res95441, [2, 1, 1], Res69553), 
+LRes69965 = reshape_layer(Res69553, [2, 1, 1, 1], Res69965), 
+LZer23050 = zero_padding3D_layer(Res69965, 0, 0, 2, 0, 2, 0, Zer23050), 
+LMin14562 = minimum_layer([[[[[[0.5587], [0.4237]], [[0.2632], [0.3271]]]]], [[[[[0.7862], [0.5614]], [[0.3276], [0.551]]]]]], Min14562), 
+LZer38108 = zero_padding3D_layer(Min14562, 1, 0, 1, 0, 1, 0, Zer38108), 
+LAdd37218 = add_layer([Zer23050,Zer38108], Add37218), 
+LThr41217 = thresholded_relu_layer(Add37218, 2.6981396120348626, Thr41217), 
+LRes77900 = reshape_layer(Thr41217, [2, 3, 3], Res77900), 
+LRes44230 = reshape_layer(Res77900, [2, 9], Res44230), 
+LMax33613 = max_pool1D_layer(Res44230, 1, 1, false, Max33613), 
+exec_layers([LSim76028,LRes95441,LRes69553,LRes69965,LZer23050,LMin14562,LZer38108,LAdd37218,LThr41217,LRes77900,LRes44230,LMax33613],["Sim76028","Res95441","Res69553","Res69965","Zer23050","Min14562","Zer38108","Add37218","Thr41217","Res77900","Res44230","Max33613"],Max33613,"Max33613")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]]]
+
+Actual:   [[[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]]
+
+Expected: [[[0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0]]]

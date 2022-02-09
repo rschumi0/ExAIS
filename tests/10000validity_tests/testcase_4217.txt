@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per55296 = tf.keras.layers.Input(shape=([3, 1]))
+in0Ave67620 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave67620 = tf.keras.layers.Input(shape=([2, 1]))
+
+Per55296 = keras.layers.Permute((2,1), name = 'Per55296',)(in0Per55296)
+Zer89512 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer89512', )(Per55296)
+Ave67620 = keras.layers.Average(name = 'Ave67620', )([in0Ave67620,in1Ave67620])
+Res33221 = keras.layers.Reshape((2, 1, 1), name = 'Res33221', )(Ave67620)
+Zer71350 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer71350', )(Res33221)
+Res1083 = keras.layers.Reshape((4, 3), name = 'Res1083', )(Zer71350)
+Dot40758 = keras.layers.Dot(axes=(2, 2), name = 'Dot40758', )([Zer89512,Res1083])
+model = tf.keras.models.Model(inputs=[in0Per55296,in0Ave67620,in1Ave67620], outputs=Dot40758)
+in0Per55296 = tf.constant([[[1.4357], [1.8741], [1.8036]]])
+in0Ave67620 = tf.constant([[[0.1822], [0.5511]]])
+in1Ave67620 = tf.constant([[[0.761], [0.4451]]])
+print (np.array2string(model.predict([in0Per55296,in0Ave67620,in1Ave67620],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot40758.png')
+
+LPer55296 = permute_layer([[[1.4357], [1.8741], [1.8036]]], 2,1, Per55296), 
+LZer89512 = zero_padding1D_layer(Per55296, 3, 0, Zer89512), 
+LAve67620 = average_layer([[[[0.1822], [0.5511]]], [[[0.761], [0.4451]]]], Ave67620), 
+LRes33221 = reshape_layer(Ave67620, [2, 1, 1], Res33221), 
+LZer71350 = zero_padding2D_layer(Res33221, 1, 1, 1, 1, Zer71350), 
+LRes1083 = reshape_layer(Zer71350, [4, 3], Res1083), 
+LDot40758 = dot_layer(Zer89512,Res1083, 2, 2, Dot40758), 
+exec_layers([LPer55296,LZer89512,LAve67620,LRes33221,LZer71350,LRes1083,LDot40758],["Per55296","Zer89512","Ave67620","Res33221","Zer71350","Res1083","Dot40758"],Dot40758,"Dot40758")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.8838255, 0.9334892, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0.0,0.0,0],[0,0.0,0.0,0],[0,0.0,0.0,0],[0.0,0.8838255600000001,0.9334892100000001,0.0]]]
+
+Actual:   [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0.8839, 0.9335, 0]]]
+
+Expected: [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0.8839, 0.9335, 0]]]

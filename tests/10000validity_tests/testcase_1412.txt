@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per50052 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con35244 = tf.keras.layers.Input(shape=([3, 1]))
+in0Ave54295 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave54295 = tf.keras.layers.Input(shape=([2, 2]))
+
+Per50052 = keras.layers.Permute((1,2), name = 'Per50052',)(in0Per50052)
+Con35244 = keras.layers.Concatenate(axis=2, name = 'Con35244', )([Per50052,in0Con35244])
+Ave54295 = keras.layers.Average(name = 'Ave54295', )([in0Ave54295,in1Ave54295])
+Zer11098 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer11098', )(Ave54295)
+Min71039 = keras.layers.Minimum(name = 'Min71039', )([Con35244,Zer11098])
+Den16159 = keras.layers.Dense(4,name = 'Den16159', )(Min71039)
+Res81260 = keras.layers.Reshape((3, 4, 1), name = 'Res81260', )(Den16159)
+PRe36012 = keras.layers.PReLU(name = 'PRe36012', )(Res81260)
+model = tf.keras.models.Model(inputs=[in0Per50052,in0Con35244,in0Ave54295,in1Ave54295], outputs=PRe36012)
+w = model.get_layer('Den16159').get_weights() 
+w[0] = np.array([[0.6951, 0.3192, 0.3961, 0.7295], [0.4966, 0.0128, 0.7506, 0.8681]])
+w[1] = np.array([0.5146, 0.9436, 0.749, 0.4337])
+model.get_layer('Den16159').set_weights(w) 
+w = model.get_layer('PRe36012').get_weights() 
+w[0] = np.array([[[0.9482], [0.6913], [0.0999], [0.965]], [[0.2145], [0.6283], [0.3408], [0.509]], [[0.4007], [0.869], [0.0497], [0.8841]]])
+model.get_layer('PRe36012').set_weights(w) 
+in0Per50052 = tf.constant([[[1.7322], [1.4014], [1.2314]]])
+in0Con35244 = tf.constant([[[0.093], [0.4304], [0.4094]]])
+in0Ave54295 = tf.constant([[[0.6707, 0.2235], [0.3371, 0.4365]]])
+in1Ave54295 = tf.constant([[[0.9973, 0.6261], [0.2349, 0.2373]]])
+print (np.array2string(model.predict([in0Per50052,in0Con35244,in0Ave54295,in1Ave54295],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe36012.png')
+
+LPer50052 = permute_layer([[[1.7322], [1.4014], [1.2314]]], 1,2, Per50052), 
+LCon35244 = concatenate_layer([Per50052,[[[0.093], [0.4304], [0.4094]]]], 2, Con35244), 
+LAve54295 = average_layer([[[[0.6707, 0.2235], [0.3371, 0.4365]]], [[[0.9973, 0.6261], [0.2349, 0.2373]]]], Ave54295), 
+LZer11098 = zero_padding1D_layer(Ave54295, 1, 0, Zer11098), 
+LMin71039 = minimum_layer([Con35244,Zer11098], Min71039), 
+LDen16159 = dense_layer(Min71039, [[0.6951, 0.3192, 0.3961, 0.7295], [0.4966, 0.0128, 0.7506, 0.8681]],[0.5146, 0.9436, 0.749, 0.4337], Den16159), 
+LRes81260 = reshape_layer(Den16159, [3, 4, 1], Res81260), 
+LPRe36012 = prelu_layer(Res81260, [[[0.9482], [0.6913], [0.0999], [0.965]], [[0.2145], [0.6283], [0.3408], [0.509]], [[0.4007], [0.869], [0.0497], [0.8841]]], PRe36012), 
+exec_layers([LPer50052,LCon35244,LAve54295,LZer11098,LMin71039,LDen16159,LRes81260,LPRe36012],["Per50052","Con35244","Ave54295","Zer11098","Min71039","Den16159","Res81260","PRe36012"],PRe36012,"PRe36012")
+
+Actual (Unparsed): [[[[0.5146000], [0.9436000], [0.7490000], [0.4337000]], [[1.3052691], [1.2152502], [1.3982023], [1.4108719]], [[0.8807031], [1.0392035], [1.1151617], [0.9347999]]]]
+
+Expected (Unparsed): [[[[0.5146],[0.9436],[0.749],[0.4337]],[[1.30526908],[1.2152502399999998],[1.39820228],[1.41087188]],[[0.8807031399999999],[1.0392035199999998],[1.11516174],[0.9347998900000001]]]]
+
+Actual:   [[[[0.5146], [0.9436], [0.749], [0.4337]], [[1.3053], [1.2153], [1.3983], [1.4109]], [[0.8808], [1.0393], [1.1152], [0.9348]]]]
+
+Expected: [[[[0.5146], [0.9436], [0.749], [0.4337]], [[1.3053], [1.2153], [1.3983], [1.4109]], [[0.8808], [1.0393], [1.1152], [0.9348]]]]

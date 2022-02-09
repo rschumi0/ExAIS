@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro98133 = tf.keras.layers.Input(shape=([3, 2]))
+in0Den97258 = tf.keras.layers.Input(shape=([5, 2]))
+in0Con73367 = tf.keras.layers.Input(shape=([5, 1]))
+
+Cro98133 = keras.layers.Cropping1D(cropping=((1, 1)), name = 'Cro98133', )(in0Cro98133)
+Zer26828 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer26828', )(Cro98133)
+Den97258 = keras.layers.Dense(1,name = 'Den97258', )(in0Den97258)
+Con73367 = keras.layers.Concatenate(axis=2, name = 'Con73367', )([Den97258,in0Con73367])
+Max70399 = keras.layers.Maximum(name = 'Max70399', )([Zer26828,Con73367])
+Lay13221 = keras.layers.LayerNormalization(axis=1, epsilon=1.720492635773549, name = 'Lay13221', )(Max70399)
+Cro47474 = keras.layers.Cropping1D(cropping=((2, 0)), name = 'Cro47474', )(Lay13221)
+model = tf.keras.models.Model(inputs=[in0Cro98133,in0Den97258,in0Con73367], outputs=Cro47474)
+w = model.get_layer('Den97258').get_weights() 
+w[0] = np.array([[0.5746], [0.4241]])
+w[1] = np.array([0.4416])
+model.get_layer('Den97258').set_weights(w) 
+in0Cro98133 = tf.constant([[[1.0891, 1.8998], [1.3637, 1.4268], [1.8797, 1.557]]])
+in0Den97258 = tf.constant([[[0.1313, 0.1045], [0.8118, 0.0652], [0.8122, 0.8672], [0.632, 0.3942], [0.3027, 0.5876]]])
+in0Con73367 = tf.constant([[[0.3911], [0.1246], [0.2998], [0.0077], [0.5304]]])
+print (np.array2string(model.predict([in0Cro98133,in0Den97258,in0Con73367],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro47474.png')
+
+LCro98133 = cropping1D_layer([[[1.0891, 1.8998], [1.3637, 1.4268], [1.8797, 1.557]]], 1, 1, Cro98133), 
+LZer26828 = zero_padding1D_layer(Cro98133, 4, 0, Zer26828), 
+LDen97258 = dense_layer([[[0.1313, 0.1045], [0.8118, 0.0652], [0.8122, 0.8672], [0.632, 0.3942], [0.3027, 0.5876]]], [[0.5746], [0.4241]],[0.4416], Den97258), 
+LCon73367 = concatenate_layer([Den97258,[[[0.3911], [0.1246], [0.2998], [0.0077], [0.5304]]]], 2, Con73367), 
+LMax70399 = maximum_layer([Zer26828,Con73367], Max70399), 
+LLay13221 = layer_normalization_layer(Max70399, 1, 1.720492635773549, Lay13221), 
+LCro47474 = cropping1D_layer(Lay13221, 2, 0, Cro47474), 
+exec_layers([LCro98133,LZer26828,LDen97258,LCon73367,LMax70399,LLay13221,LCro47474],["Cro98133","Zer26828","Den97258","Con73367","Max70399","Lay13221","Cro47474"],Cro47474,"Cro47474")
+
+Actual (Unparsed): [[[0.1894931, -0.1068281], [-0.0371267, -0.3145809], [0.2547875, 0.6947381]]]
+
+Expected (Unparsed): [[[0.18949314536814013,-0.10682806900963414],[-0.0371266591949106,-0.31458092491984807],[0.2547875167217449,0.6947380679667818]]]
+
+Actual:   [[[0.1895, -0.1068], [-0.0371, -0.3145], [0.2548, 0.6948]]]
+
+Expected: [[[0.1895, -0.1068], [-0.0371, -0.3145], [0.2548, 0.6948]]]

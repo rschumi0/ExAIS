@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr97066 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con28798 = tf.keras.layers.Input(shape=([3, 1]))
+in0Dot36961 = tf.keras.layers.Input(shape=([3]))
+in1Dot36961 = tf.keras.layers.Input(shape=([3]))
+
+Thr97066 = keras.layers.ThresholdedReLU(theta=2.5529888908328906, name = 'Thr97066', input_shape=(1, 2, 1))(in0Thr97066)
+Res20962 = keras.layers.Reshape((1, 2), name = 'Res20962', )(Thr97066)
+Zer22352 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer22352', )(Res20962)
+Con28798 = keras.layers.Concatenate(axis=2, name = 'Con28798', )([Zer22352,in0Con28798])
+Dot36961 = keras.layers.Dot(axes=(1, 1), name = 'Dot36961', )([in0Dot36961,in1Dot36961])
+Res5178 = keras.layers.Reshape((1, 1), name = 'Res5178', )(Dot36961)
+Per16867 = keras.layers.Permute((2,1), name = 'Per16867',)(Res5178)
+Loc59687 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc59687', )(Per16867)
+Zer89427 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer89427', )(Loc59687)
+Ave68132 = keras.layers.Average(name = 'Ave68132', )([Con28798,Zer89427])
+model = tf.keras.models.Model(inputs=[in0Thr97066,in0Con28798,in0Dot36961,in1Dot36961], outputs=Ave68132)
+w = model.get_layer('Loc59687').get_weights() 
+w[0] = np.array([[[0.5631, 0.7851, 0.5288]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc59687').set_weights(w) 
+in0Thr97066 = tf.constant([[[[0.1595], [0.8937]]]])
+in0Con28798 = tf.constant([[[0.4876], [0.4267], [0.4348]]])
+in0Dot36961 = tf.constant([[0.2714, 0.29, 0.0728]])
+in1Dot36961 = tf.constant([[0.9798, 0.8284, 0.7058]])
+print (np.array2string(model.predict([in0Thr97066,in0Con28798,in0Dot36961,in1Dot36961],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave68132.png')
+
+LThr97066 = thresholded_relu_layer([[[[0.1595], [0.8937]]]], 2.5529888908328906, Thr97066), 
+LRes20962 = reshape_layer(Thr97066, [1, 2], Res20962), 
+LZer22352 = zero_padding1D_layer(Res20962, 1, 1, Zer22352), 
+LCon28798 = concatenate_layer([Zer22352,[[[0.4876], [0.4267], [0.4348]]]], 2, Con28798), 
+LDot36961 = dot_layer([[0.2714, 0.29, 0.0728]], [[0.9798, 0.8284, 0.7058]], 1, 1, Dot36961), 
+LRes5178 = reshape_layer(Dot36961, [1, 1], Res5178), 
+LPer16867 = permute_layer(Res5178, 2,1, Per16867), 
+LLoc59687 = locally_connected1D_layer(Per16867, 1,[[[0.5631, 0.7851, 0.5288]]],[[0, 0, 0]], 1, Loc59687), 
+LZer89427 = zero_padding1D_layer(Loc59687, 2, 0, Zer89427), 
+LAve68132 = average_layer([Con28798,Zer89427], Ave68132), 
+exec_layers([LThr97066,LRes20962,LZer22352,LCon28798,LDot36961,LRes5178,LPer16867,LLoc59687,LZer89427,LAve68132],["Thr97066","Res20962","Zer22352","Con28798","Dot36961","Res5178","Per16867","Loc59687","Zer89427","Ave68132"],Ave68132,"Ave68132")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.2438000], [0.0000000, 0.0000000, 0.2133500], [0.1569742, 0.2188607, 0.3648125]]]
+
+Expected (Unparsed): [[[0,0,0.2438],[0,0,0.21335],[0.156974249538,0.218860741098,0.364812507824]]]
+
+Actual:   [[[0, 0, 0.2438], [0, 0, 0.2134], [0.157, 0.2189, 0.3649]]]
+
+Expected: [[[0, 0, 0.2438], [0, 0, 0.2134], [0.157, 0.2189, 0.3649]]]

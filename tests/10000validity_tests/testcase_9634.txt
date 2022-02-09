@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave17607 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave17607 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min9075 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min9075 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con36284 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Ave17607 = keras.layers.Average(name = 'Ave17607', )([in0Ave17607,in1Ave17607])
+Zer95721 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer95721', )(Ave17607)
+Min9075 = keras.layers.Minimum(name = 'Min9075', )([in0Min9075,in1Min9075])
+Con36284 = keras.layers.Concatenate(axis=3, name = 'Con36284', )([Min9075,in0Con36284])
+Add19078 = keras.layers.Add(name = 'Add19078', )([Zer95721,Con36284])
+Res56417 = keras.layers.Reshape((1, 4), name = 'Res56417', )(Add19078)
+Sep64751 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep64751', )(Res56417)
+Res24461 = keras.layers.Reshape((1, 2, 1), name = 'Res24461', )(Sep64751)
+Dep91852 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='same', name = 'Dep91852', )(Res24461)
+model = tf.keras.models.Model(inputs=[in0Ave17607,in1Ave17607,in0Min9075,in1Min9075,in0Con36284], outputs=Dep91852)
+w = model.get_layer('Sep64751').get_weights() 
+w[0] = np.array([[[0.1633], [0.2579], [0.0806], [0.3163]]])
+w[1] = np.array([[[0.8886, 0.5612], [0.8905, 0.2669], [0.0828, 0.4904], [0.761, 0.8814]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep64751').set_weights(w) 
+w = model.get_layer('Dep91852').get_weights() 
+w[0] = np.array([[[[0.4064]], [[0.3068]]]])
+w[1] = np.array([0])
+model.get_layer('Dep91852').set_weights(w) 
+in0Ave17607 = tf.constant([[[[0.9825, 0.5063]]]])
+in1Ave17607 = tf.constant([[[[0.2979, 0.5843]]]])
+in0Min9075 = tf.constant([[[[0.2767], [0.1715]]]])
+in1Min9075 = tf.constant([[[[0.5702], [0.4032]]]])
+in0Con36284 = tf.constant([[[[0.059], [0.8152]]]])
+print (np.array2string(model.predict([in0Ave17607,in1Ave17607,in0Min9075,in1Min9075,in0Con36284],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep91852.png')
+
+LAve17607 = average_layer([[[[[0.9825, 0.5063]]]], [[[[0.2979, 0.5843]]]]], Ave17607), 
+LZer95721 = zero_padding2D_layer(Ave17607, 0, 0, 1, 0, Zer95721), 
+LMin9075 = minimum_layer([[[[[0.2767], [0.1715]]]], [[[[0.5702], [0.4032]]]]], Min9075), 
+LCon36284 = concatenate_layer([Min9075,[[[[0.059], [0.8152]]]]], 3, Con36284), 
+LAdd19078 = add_layer([Zer95721,Con36284], Add19078), 
+LRes56417 = reshape_layer(Add19078, [1, 4], Res56417), 
+LSep64751 = separable_conv1D_layer(Res56417, 1,[[[[0.1633], [0.2579], [0.0806], [0.3163]]],[[[0.8886, 0.5612], [0.8905, 0.2669], [0.0828, 0.4904], [0.761, 0.8814]]]],[0, 0], 1, true, Sep64751), 
+LRes24461 = reshape_layer(Sep64751, [1, 2, 1], Res24461), 
+LDep91852 = depthwise_conv2D_layer(Res24461, 1, 2,[[[[0.4064]], [[0.3068]]]],[0], 1, 1, true, Dep91852), 
+exec_layers([LAve17607,LZer95721,LMin9075,LCon36284,LAdd19078,LRes56417,LSep64751,LRes24461,LDep91852],["Ave17607","Zer95721","Min9075","Con36284","Add19078","Res56417","Sep64751","Res24461","Dep91852"],Dep91852,"Dep91852")
+
+Actual (Unparsed): [[[[0.2923478], [0.1791379]]]]
+
+Expected (Unparsed): [[[[0.29234785835900484],[0.17913786003801602]]]]
+
+Actual:   [[[[0.2924], [0.1792]]]]
+
+Expected: [[[[0.2924], [0.1792]]]]

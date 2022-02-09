@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con64964 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con77647 = tf.keras.layers.Input(shape=([6]))
+in0Loc54513 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Dot43050 = tf.keras.layers.Input(shape=([2]))
+in1Dot43050 = tf.keras.layers.Input(shape=([2]))
+in0Con43903 = tf.keras.layers.Input(shape=([7]))
+
+Con64964 = keras.layers.Conv1D(2, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con64964', )(in0Con64964)
+Ave68624 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave68624', )(Con64964)
+Fla8951 = keras.layers.Flatten(name = 'Fla8951', )(Ave68624)
+Con77647 = keras.layers.Concatenate(axis=1, name = 'Con77647', )([Fla8951,in0Con77647])
+Loc54513 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc54513', )(in0Loc54513)
+Res52982 = keras.layers.Reshape((2, 4), name = 'Res52982', )(Loc54513)
+Fla86042 = keras.layers.Flatten(name = 'Fla86042', )(Res52982)
+Dot43050 = keras.layers.Dot(axes=(1, 1), name = 'Dot43050', )([in0Dot43050,in1Dot43050])
+Con43903 = keras.layers.Concatenate(axis=1, name = 'Con43903', )([Dot43050,in0Con43903])
+Mul23053 = keras.layers.Multiply(name = 'Mul23053', )([Fla86042,Con43903])
+Max93050 = keras.layers.Maximum(name = 'Max93050', )([Con77647,Mul23053])
+Lay97905 = keras.layers.LayerNormalization(axis=1, epsilon=2.11285668671118, name = 'Lay97905', )(Max93050)
+model = tf.keras.models.Model(inputs=[in0Con64964,in0Con77647,in0Loc54513,in0Dot43050,in1Dot43050,in0Con43903], outputs=Lay97905)
+w = model.get_layer('Con64964').get_weights() 
+w[0] = np.array([[[0.8857, 0.2226], [0.4956, 0.9212]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con64964').set_weights(w) 
+w = model.get_layer('Loc54513').get_weights() 
+w[0] = np.array([[[0.4924, 0.7498, 0.8799, 0.6263], [0.3062, 0.683, 0.0943, 0.9683]], [[0.6023, 0.5924, 0.7063, 0.0436], [0.9814, 0.062, 0.1161, 0.434]]])
+w[1] = np.array([[[0, 0, 0, 0]], [[0, 0, 0, 0]]])
+model.get_layer('Loc54513').set_weights(w) 
+in0Con64964 = tf.constant([[[0.256, 0.1257]]])
+in0Con77647 = tf.constant([[0.3812, 0.1579, 0.3977, 0.9227, 0.863, 0.282]])
+in0Loc54513 = tf.constant([[[[0.8957, 0.0311]], [[0.9212, 0.9262]]]])
+in0Dot43050 = tf.constant([[0.2255, 0.9373]])
+in1Dot43050 = tf.constant([[0.5295, 0.0621]])
+in0Con43903 = tf.constant([[0.1209, 0.6656, 0.0906, 0.8063, 0.14, 0.3327, 0.0194]])
+print (np.array2string(model.predict([in0Con64964,in0Con77647,in0Loc54513,in0Dot43050,in1Dot43050,in0Con43903],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay97905.png')
+
+LCon64964 = conv1D_layer([[[0.256, 0.1257]]], 1,[[[0.8857, 0.2226], [0.4956, 0.9212]]],[0, 0], 1, true, 1, Con64964), 
+LAve68624 = average_pooling1D_layer(Con64964, 1, Ave68624), 
+LFla8951 = flatten_layer(Ave68624, Fla8951), 
+LCon77647 = concatenate_layer([Fla8951,[[0.3812, 0.1579, 0.3977, 0.9227, 0.863, 0.282]]], 1, Con77647), 
+LLoc54513 = locally_connected2D_layer([[[[0.8957, 0.0311]], [[0.9212, 0.9262]]]], 1, 1,[[[0.4924, 0.7498, 0.8799, 0.6263], [0.3062, 0.683, 0.0943, 0.9683]], [[0.6023, 0.5924, 0.7063, 0.0436], [0.9814, 0.062, 0.1161, 0.434]]],[[[0, 0, 0, 0]], [[0, 0, 0, 0]]], 1, 1, Loc54513), 
+LRes52982 = reshape_layer(Loc54513, [2, 4], Res52982), 
+LFla86042 = flatten_layer(Res52982, Fla86042), 
+LDot43050 = dot_layer([[0.2255, 0.9373]], [[0.5295, 0.0621]], 1, 1, Dot43050), 
+LCon43903 = concatenate_layer([Dot43050,[[0.1209, 0.6656, 0.0906, 0.8063, 0.14, 0.3327, 0.0194]]], 1, Con43903), 
+LMul23053 = multiply_layer([Fla86042,Con43903], Mul23053), 
+LMax93050 = maximum_layer([Con77647,Mul23053], Max93050), 
+LLay97905 = layer_normalization_layer(Max93050, 1, 2.11285668671118, Lay97905), 
+exec_layers([LCon64964,LAve68624,LFla8951,LCon77647,LLoc54513,LRes52982,LFla86042,LDot43050,LCon43903,LMul23053,LMax93050,LLay97905],["Con64964","Ave68624","Fla8951","Con77647","Loc54513","Res52982","Fla86042","Dot43050","Con43903","Mul23053","Max93050","Lay97905"],Lay97905,"Lay97905")
+
+Actual (Unparsed): [[-0.1736219, -0.2511829, -0.0151766, -0.2611105, 0.4209729, 0.2491322, 0.2093028, -0.1783161]]
+
+Expected (Unparsed): [[-0.17362193001497833,-0.25118287563134767,-0.015176591619582529,-0.26111048516911517,0.42097295588368006,0.24913220755264487,0.20930285510038407,-0.17831613610168523]]
+
+Actual:   [[-0.1736, -0.2511, -0.0151, -0.2611, 0.421, 0.2492, 0.2094, -0.1783]]
+
+Expected: [[-0.1736, -0.2511, -0.0151, -0.2611, 0.421, 0.2492, 0.2094, -0.1783]]

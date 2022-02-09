@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_55698 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Glo15849 = tf.keras.layers.Input(shape=([2, 1]))
+
+Up_55698 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_55698', )(in0Up_55698)
+Max9313 = keras.layers.MaxPool2D(pool_size=(2, 1), name = 'Max9313', )(Up_55698)
+Res21100 = keras.layers.Reshape((2, 2), name = 'Res21100', )(Max9313)
+Glo15849 = keras.layers.GlobalAveragePooling1D(name = 'Glo15849', )(in0Glo15849)
+Res66245 = keras.layers.Reshape((1, 1), name = 'Res66245', )(Glo15849)
+Con31677 = keras.layers.Conv1D(3, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con31677', )(Res66245)
+Zer86196 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer86196', )(Con31677)
+Dot28305 = keras.layers.Dot(axes=(1, 1), name = 'Dot28305', )([Res21100,Zer86196])
+model = tf.keras.models.Model(inputs=[in0Up_55698,in0Glo15849], outputs=Dot28305)
+w = model.get_layer('Con31677').get_weights() 
+w[0] = np.array([[[0.463, 0.2845, 0.9248]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con31677').set_weights(w) 
+in0Up_55698 = tf.constant([[[[1.7766], [1.6764]], [[1.2131], [1.1581]]]])
+in0Glo15849 = tf.constant([[[1.834], [1.1504]]])
+print (np.array2string(model.predict([in0Up_55698,in0Glo15849],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot28305.png')
+
+LUp_55698 = up_sampling2D_layer([[[[1.7766], [1.6764]], [[1.2131], [1.1581]]]], 2, 1, Up_55698), 
+LMax9313 = max_pool2D_layer(Up_55698, 2, 1, Max9313), 
+LRes21100 = reshape_layer(Max9313, [2, 2], Res21100), 
+LGlo15849 = global_average_pooling1D_layer([[[1.834], [1.1504]]], Glo15849), 
+LRes66245 = reshape_layer(Glo15849, [1, 1], Res66245), 
+LCon31677 = conv1D_layer(Res66245, 1,[[[0.463, 0.2845, 0.9248]]],[0, 0, 0], 1, true, 1, Con31677), 
+LZer86196 = zero_padding1D_layer(Con31677, 1, 0, Zer86196), 
+LDot28305 = dot_layer(Res21100,Zer86196, 1, 1, Dot28305), 
+exec_layers([LUp_55698,LMax9313,LRes21100,LGlo15849,LRes66245,LCon31677,LZer86196,LDot28305],["Up_55698","Max9313","Res21100","Glo15849","Res66245","Con31677","Zer86196","Dot28305"],Dot28305,"Dot28305")
+
+Actual (Unparsed): [[[0.8381169, 0.5149984, 1.6740617], [0.8001181, 0.4916492, 1.5981625]]]
+
+Expected (Unparsed): [[[0.8381169606600002,0.51499843479,1.674061695936],[0.80011808766,0.4916492352899999,1.5981624351359998]]]
+
+Actual:   [[[0.8382, 0.515, 1.6741], [0.8002, 0.4917, 1.5982]]]
+
+Expected: [[[0.8382, 0.515, 1.6741], [0.8002, 0.4917, 1.5982]]]

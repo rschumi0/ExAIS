@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc48112 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max16791 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max16791 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max32263 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con91561 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Loc48112 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc48112', )(in0Loc48112)
+Zer84639 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer84639', )(Loc48112)
+Max16791 = keras.layers.Maximum(name = 'Max16791', )([in0Max16791,in1Max16791])
+Res46210 = keras.layers.Reshape((2, 2, 1), name = 'Res46210', )(Max16791)
+Max32263 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Max32263', )(in0Max32263)
+Zer56022 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer56022', )(Max32263)
+Min83996 = keras.layers.Minimum(name = 'Min83996', )([Res46210,Zer56022])
+Con91561 = keras.layers.Concatenate(axis=3, name = 'Con91561', )([Min83996,in0Con91561])
+Ave55030 = keras.layers.Average(name = 'Ave55030', )([Zer84639,Con91561])
+model = tf.keras.models.Model(inputs=[in0Loc48112,in0Max16791,in1Max16791,in0Max32263,in0Con91561], outputs=Ave55030)
+w = model.get_layer('Loc48112').get_weights() 
+w[0] = np.array([[[0.8233, 0.3478, 0.9821]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc48112').set_weights(w) 
+in0Loc48112 = tf.constant([[[[0.0498]]]])
+in0Max16791 = tf.constant([[[0.0468, 0.1453], [0.113, 0.8527]]])
+in1Max16791 = tf.constant([[[0.5639, 0.4979], [0.4549, 0.3059]]])
+in0Max32263 = tf.constant([[[[1.3844], [1.6666]]]])
+in0Con91561 = tf.constant([[[[0.6438, 0.4244], [0.5831, 0.5644]], [[0.6855, 0.9102], [0.4383, 0.9957]]]])
+print (np.array2string(model.predict([in0Loc48112,in0Max16791,in1Max16791,in0Max32263,in0Con91561],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave55030.png')
+
+LLoc48112 = locally_connected2D_layer([[[[0.0498]]]], 1, 1,[[[0.8233, 0.3478, 0.9821]]],[[[0, 0, 0]]], 1, 1, Loc48112), 
+LZer84639 = zero_padding2D_layer(Loc48112, 1, 0, 1, 0, Zer84639), 
+LMax16791 = maximum_layer([[[[0.0468, 0.1453], [0.113, 0.8527]]], [[[0.5639, 0.4979], [0.4549, 0.3059]]]], Max16791), 
+LRes46210 = reshape_layer(Max16791, [2, 2, 1], Res46210), 
+LMax32263 = max_pool2D_layer([[[[1.3844], [1.6666]]]], 1, 1, 1, 1, false, Max32263), 
+LZer56022 = zero_padding2D_layer(Max32263, 1, 0, 0, 0, Zer56022), 
+LMin83996 = minimum_layer([Res46210,Zer56022], Min83996), 
+LCon91561 = concatenate_layer([Min83996,[[[[0.6438, 0.4244], [0.5831, 0.5644]], [[0.6855, 0.9102], [0.4383, 0.9957]]]]], 3, Con91561), 
+LAve55030 = average_layer([Zer84639,Con91561], Ave55030), 
+exec_layers([LLoc48112,LZer84639,LMax16791,LRes46210,LMax32263,LZer56022,LMin83996,LCon91561,LAve55030],["Loc48112","Zer84639","Max16791","Res46210","Max32263","Zer56022","Min83996","Con91561","Ave55030"],Ave55030,"Ave55030")
+
+Actual (Unparsed): [[[[0.0000000, 0.3219000, 0.2122000], [0.0000000, 0.2915500, 0.2822000]], [[0.2274500, 0.3427500, 0.4551000], [0.4468502, 0.2278102, 0.5223043]]]]
+
+Expected (Unparsed): [[[[0,0.3219,0.2122],[0,0.29155,0.2822]],[[0.22745,0.34275,0.4551],[0.44685017,0.22781022,0.52230429]]]]
+
+Actual:   [[[[0, 0.3219, 0.2122], [0, 0.2916, 0.2822]], [[0.2275, 0.3428, 0.4551], [0.4469, 0.2279, 0.5224]]]]
+
+Expected: [[[[0, 0.3219, 0.2122], [0, 0.2916, 0.2822]], [[0.2275, 0.3428, 0.4551], [0.4469, 0.2279, 0.5224]]]]

@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max94519 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con58799 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max71823 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max71823 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Max94519 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max94519', )(in0Max94519)
+Res90243 = keras.layers.Reshape((1, 2), name = 'Res90243', )(Max94519)
+Con58799 = keras.layers.Concatenate(axis=2, name = 'Con58799', )([Res90243,in0Con58799])
+Max71823 = keras.layers.Maximum(name = 'Max71823', )([in0Max71823,in1Max71823])
+Res35856 = keras.layers.Reshape((2, 4), name = 'Res35856', )(Max71823)
+Dot38080 = keras.layers.Dot(axes=(2, 2), name = 'Dot38080', )([Con58799,Res35856])
+LST22621 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST22621', )(Dot38080)
+Mas29421 = keras.layers.Masking(mask_value=2, name = 'Mas29421', )(LST22621)
+model = tf.keras.models.Model(inputs=[in0Max94519,in0Con58799,in0Max71823,in1Max71823], outputs=Mas29421)
+w = model.get_layer('LST22621').get_weights() 
+w[0] = np.array([[7, 8, 7, 1], [3, 7, 3, 5]])
+w[1] = np.array([[2, 2, 5, 3]])
+w[2] = np.array([8, 1, 7, 5])
+model.get_layer('LST22621').set_weights(w) 
+in0Max94519 = tf.constant([[[[1.2421, 1.1214]]]])
+in0Con58799 = tf.constant([[[0.6914, 0.9771]]])
+in0Max71823 = tf.constant([[[[0.9448, 0.741], [0.1121, 0.465]], [[0.4188, 0.405], [0.2686, 0.7993]]]])
+in1Max71823 = tf.constant([[[[0.1944, 0.1266], [0.2422, 0.0639]], [[0.0495, 0.6629], [0.6015, 0.7731]]]])
+print (np.array2string(model.predict([in0Max94519,in0Con58799,in0Max71823,in1Max71823],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas29421.png')
+
+LMax94519 = max_pool2D_layer([[[[1.2421, 1.1214]]]], 1, 1, Max94519), 
+LRes90243 = reshape_layer(Max94519, [1, 2], Res90243), 
+LCon58799 = concatenate_layer([Res90243,[[[0.6914, 0.9771]]]], 2, Con58799), 
+LMax71823 = maximum_layer([[[[[0.9448, 0.741], [0.1121, 0.465]], [[0.4188, 0.405], [0.2686, 0.7993]]]], [[[[0.1944, 0.1266], [0.2422, 0.0639]], [[0.0495, 0.6629], [0.6015, 0.7731]]]]], Max71823), 
+LRes35856 = reshape_layer(Max71823, [2, 4], Res35856), 
+LDot38080 = dot_layer(Con58799,Res35856, 2, 2, Dot38080), 
+LLST22621 = lstm_layer(Dot38080,[[7, 8, 7, 1], [3, 7, 3, 5]],[[2, 2, 5, 3]],[8, 1, 7, 5], LST22621), 
+LMas29421 = masking_layer(LST22621, 2, Mas29421), 
+exec_layers([LMax94519,LRes90243,LCon58799,LMax71823,LRes35856,LDot38080,LLST22621,LMas29421],["Max94519","Res90243","Con58799","Max71823","Res35856","Dot38080","LST22621","Mas29421"],Mas29421,"Mas29421")
+
+Actual (Unparsed): [[0.7615942]]
+
+Expected (Unparsed): [[0.7615941542696626]]
+
+Actual:   [[0.7616]]
+
+Expected: [[0.7616]]

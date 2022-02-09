@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc42131 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add85944 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add85944 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con51469 = tf.keras.layers.Input(shape=([2, 1]))
+
+Loc42131 = keras.layers.LocallyConnected1D(3, (1),strides=(10), name = 'Loc42131', )(in0Loc42131)
+Zer97272 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer97272', )(Loc42131)
+Add85944 = keras.layers.Add(name = 'Add85944', )([in0Add85944,in1Add85944])
+Con51469 = keras.layers.Concatenate(axis=2, name = 'Con51469', )([Add85944,in0Con51469])
+Max44191 = keras.layers.Maximum(name = 'Max44191', )([Zer97272,Con51469])
+Fla30516 = keras.layers.Flatten(name = 'Fla30516', )(Max44191)
+model = tf.keras.models.Model(inputs=[in0Loc42131,in0Add85944,in1Add85944,in0Con51469], outputs=Fla30516)
+w = model.get_layer('Loc42131').get_weights() 
+w[0] = np.array([[[0.3524, 0.4169, 0.6741], [0.8934, 0.1487, 0.6126]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc42131').set_weights(w) 
+in0Loc42131 = tf.constant([[[0.5588, 0.27]]])
+in0Add85944 = tf.constant([[[0.023, 0.8055], [0.4783, 0.5143]]])
+in1Add85944 = tf.constant([[[0.6889, 0.8538], [0.1589, 0.0245]]])
+in0Con51469 = tf.constant([[[0.5679], [0.5424]]])
+print (np.array2string(model.predict([in0Loc42131,in0Add85944,in1Add85944,in0Con51469],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla30516.png')
+
+LLoc42131 = locally_connected1D_layer([[[0.5588, 0.27]]], 1,[[[0.3524, 0.4169, 0.6741], [0.8934, 0.1487, 0.6126]]],[[0, 0, 0]], 10, Loc42131), 
+LZer97272 = zero_padding1D_layer(Loc42131, 1, 0, Zer97272), 
+LAdd85944 = add_layer([[[[0.023, 0.8055], [0.4783, 0.5143]]], [[[0.6889, 0.8538], [0.1589, 0.0245]]]], Add85944), 
+LCon51469 = concatenate_layer([Add85944,[[[0.5679], [0.5424]]]], 2, Con51469), 
+LMax44191 = maximum_layer([Zer97272,Con51469], Max44191), 
+LFla30516 = flatten_layer(Max44191, Fla30516), 
+exec_layers([LLoc42131,LZer97272,LAdd85944,LCon51469,LMax44191,LFla30516],["Loc42131","Zer97272","Add85944","Con51469","Max44191","Fla30516"],Fla30516,"Fla30516")
+
+Actual (Unparsed): [[0.7119000, 1.6593000, 0.5679000, 0.6372000, 0.5388000, 0.5424000]]
+
+Expected (Unparsed): [[0.7119,1.6593,0.5679,0.6372,0.5388,0.5424]]
+
+Actual:   [[0.7119, 1.6593, 0.5679, 0.6372, 0.5388, 0.5424]]
+
+Expected: [[0.7119, 1.6593, 0.5679, 0.6372, 0.5388, 0.5424]]

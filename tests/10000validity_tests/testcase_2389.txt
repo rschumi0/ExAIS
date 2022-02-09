@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo42653 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Dot25531 = tf.keras.layers.Input(shape=([2]))
+in1Dot25531 = tf.keras.layers.Input(shape=([2]))
+
+Glo42653 = keras.layers.GlobalMaxPool3D(name = 'Glo42653', )(in0Glo42653)
+Dot25531 = keras.layers.Dot(axes=(1, 1), name = 'Dot25531', )([in0Dot25531,in1Dot25531])
+Fla23699 = keras.layers.Flatten(name = 'Fla23699', )(Dot25531)
+Max23897 = keras.layers.Maximum(name = 'Max23897', )([Glo42653,Fla23699])
+Res36684 = keras.layers.Reshape((1, 1), name = 'Res36684', )(Max23897)
+Res61755 = keras.layers.Reshape((1, 1, 1), name = 'Res61755', )(Res36684)
+Loc29238 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc29238', )(Res61755)
+Res33312 = keras.layers.Reshape((1, 2), name = 'Res33312', )(Loc29238)
+Sep24442 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep24442', )(Res33312)
+model = tf.keras.models.Model(inputs=[in0Glo42653,in0Dot25531,in1Dot25531], outputs=Sep24442)
+w = model.get_layer('Loc29238').get_weights() 
+w[0] = np.array([[[0.4953, 0.122]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc29238').set_weights(w) 
+w = model.get_layer('Sep24442').get_weights() 
+w[0] = np.array([[[0.1372], [0.4818]]])
+w[1] = np.array([[[0.0056, 0.3152, 0.145], [0.812, 0.3957, 0.5177]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep24442').set_weights(w) 
+in0Glo42653 = tf.constant([[[[[1.8682], [1.2332]]]]])
+in0Dot25531 = tf.constant([[0.1641, 0.158]])
+in1Dot25531 = tf.constant([[0.3352, 0.939]])
+print (np.array2string(model.predict([in0Glo42653,in0Dot25531,in1Dot25531],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep24442.png')
+
+LGlo42653 = global_max_pool3D_layer([[[[[1.8682], [1.2332]]]]], Glo42653), 
+LDot25531 = dot_layer([[0.1641, 0.158]], [[0.3352, 0.939]], 1, 1, Dot25531), 
+LFla23699 = flatten_layer(Dot25531, Fla23699), 
+LMax23897 = maximum_layer([Glo42653,Fla23699], Max23897), 
+LRes36684 = reshape_layer(Max23897, [1, 1], Res36684), 
+LRes61755 = reshape_layer(Res36684, [1, 1, 1], Res61755), 
+LLoc29238 = locally_connected2D_layer(Res61755, 1, 1,[[[0.4953, 0.122]]],[[[0, 0]]], 1, 1, Loc29238), 
+LRes33312 = reshape_layer(Loc29238, [1, 2], Res33312), 
+LSep24442 = separable_conv1D_layer(Res33312, 1,[[[[0.1372], [0.4818]]],[[[0.0056, 0.3152, 0.145], [0.812, 0.3957, 0.5177]]]],[0, 0, 0], 1, false, Sep24442), 
+exec_layers([LGlo42653,LDot25531,LFla23699,LMax23897,LRes36684,LRes61755,LLoc29238,LRes33312,LSep24442],["Glo42653","Dot25531","Fla23699","Max23897","Res36684","Res61755","Loc29238","Res33312","Sep24442"],Sep24442,"Sep24442")
+
+Actual (Unparsed): [[[0.0898783, 0.0834685, 0.0752580]]]
+
+Expected (Unparsed): [[[0.08987832500814721,0.0834684748667664,0.075258002959584]]]
+
+Actual:   [[[0.0899, 0.0835, 0.0753]]]
+
+Expected: [[[0.0899, 0.0835, 0.0753]]]

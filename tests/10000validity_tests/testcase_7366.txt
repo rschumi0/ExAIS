@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min87417 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min87417 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con70857 = tf.keras.layers.Input(shape=([1]))
+in0Sim5124 = tf.keras.layers.Input(shape=([2, 2]))
+
+Min87417 = keras.layers.Minimum(name = 'Min87417', )([in0Min87417,in1Min87417])
+Res74074 = keras.layers.Reshape((1, 2), name = 'Res74074', )(Min87417)
+Fla16206 = keras.layers.Flatten(name = 'Fla16206', )(Res74074)
+Con70857 = keras.layers.Concatenate(axis=1, name = 'Con70857', )([Fla16206,in0Con70857])
+Sim5124 = keras.layers.SimpleRNN(3,name = 'Sim5124', )(in0Sim5124)
+Ave78253 = keras.layers.Average(name = 'Ave78253', )([Con70857,Sim5124])
+Res71521 = keras.layers.Reshape((3, 1), name = 'Res71521', )(Ave78253)
+Res80701 = keras.layers.Reshape((3, 1, 1), name = 'Res80701', )(Res71521)
+Max63680 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max63680', )(Res80701)
+model = tf.keras.models.Model(inputs=[in0Min87417,in1Min87417,in0Con70857,in0Sim5124], outputs=Max63680)
+w = model.get_layer('Sim5124').get_weights() 
+w[0] = np.array([[2, 3, 7], [10, 9, 9]])
+w[1] = np.array([[7, 1, 4], [1, 6, 4], [10, 6, 7]])
+w[2] = np.array([1, 3, 1])
+model.get_layer('Sim5124').set_weights(w) 
+in0Min87417 = tf.constant([[[[0.8019], [0.2608]]]])
+in1Min87417 = tf.constant([[[[0.8697], [0.2863]]]])
+in0Con70857 = tf.constant([[0.5608]])
+in0Sim5124 = tf.constant([[[3, 7], [9, 2]]])
+print (np.array2string(model.predict([in0Min87417,in1Min87417,in0Con70857,in0Sim5124],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max63680.png')
+
+LMin87417 = minimum_layer([[[[[0.8019], [0.2608]]]], [[[[0.8697], [0.2863]]]]], Min87417), 
+LRes74074 = reshape_layer(Min87417, [1, 2], Res74074), 
+LFla16206 = flatten_layer(Res74074, Fla16206), 
+LCon70857 = concatenate_layer([Fla16206,[[0.5608]]], 1, Con70857), 
+LSim5124 = simple_rnn_layer([[[3, 7], [9, 2]]],[[2, 3, 7], [10, 9, 9]],[[7, 1, 4], [1, 6, 4], [10, 6, 7]],[1, 3, 1], Sim5124), 
+LAve78253 = average_layer([Con70857,Sim5124], Ave78253), 
+LRes71521 = reshape_layer(Ave78253, [3, 1], Res71521), 
+LRes80701 = reshape_layer(Res71521, [3, 1, 1], Res80701), 
+LMax63680 = max_pool2D_layer(Res80701, 1, 1, Max63680), 
+exec_layers([LMin87417,LRes74074,LFla16206,LCon70857,LSim5124,LAve78253,LRes71521,LRes80701,LMax63680],["Min87417","Res74074","Fla16206","Con70857","Sim5124","Ave78253","Res71521","Res80701","Max63680"],Max63680,"Max63680")
+
+Actual (Unparsed): [[[[0.9009500]], [[0.6304000]], [[0.7804000]]]]
+
+Expected (Unparsed): [[[[0.9009499999999999]],[[0.6304]],[[0.7804]]]]
+
+Actual:   [[[[0.901]], [[0.6304]], [[0.7804]]]]
+
+Expected: [[[[0.901]], [[0.6304]], [[0.7804]]]]

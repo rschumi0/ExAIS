@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc16634 = tf.keras.layers.Input(shape=([1, 2]))
+in0Up_77680 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Loc16634 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc16634', )(in0Loc16634)
+Res69976 = keras.layers.Reshape((1, 4, 1), name = 'Res69976', )(Loc16634)
+Up_77680 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_77680', )(in0Up_77680)
+Zer76382 = keras.layers.ZeroPadding2D(padding=((0, 0), (3, 0)), name = 'Zer76382', )(Up_77680)
+Max61756 = keras.layers.Maximum(name = 'Max61756', )([Res69976,Zer76382])
+Loc37994 = keras.layers.LocallyConnected2D(3, (1, 4),strides=(1, 1), name = 'Loc37994', )(Max61756)
+Con26774 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='valid', name = 'Con26774', )(Loc37994)
+Zer50503 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer50503', )(Con26774)
+model = tf.keras.models.Model(inputs=[in0Loc16634,in0Up_77680], outputs=Zer50503)
+w = model.get_layer('Loc16634').get_weights() 
+w[0] = np.array([[[0.7749, 0.3014, 0.6488, 0.2222], [0.5235, 0.906, 0.3423, 0.7696]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc16634').set_weights(w) 
+w = model.get_layer('Loc37994').get_weights() 
+w[0] = np.array([[[0.6961, 0.3893, 0.8912], [0.5978, 0.4206, 0.4608], [0.7039, 0.0859, 0.2159], [0.863, 0.7663, 0.5412]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc37994').set_weights(w) 
+w = model.get_layer('Con26774').get_weights() 
+w[0] = np.array([[[[0.808, 0.3178, 0.3536], [0.6625, 0.5715, 0.3623], [0.2559, 0.3041, 0.5945], [0.1685, 0.0236, 0.8532]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con26774').set_weights(w) 
+in0Loc16634 = tf.constant([[[0.8898, 0.1909]]])
+in0Up_77680 = tf.constant([[[[1.9389]]]])
+print (np.array2string(model.predict([in0Loc16634,in0Up_77680],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer50503.png')
+
+LLoc16634 = locally_connected1D_layer([[[0.8898, 0.1909]]], 1,[[[0.7749, 0.3014, 0.6488, 0.2222], [0.5235, 0.906, 0.3423, 0.7696]]],[[0, 0, 0, 0]], 1, Loc16634), 
+LRes69976 = reshape_layer(Loc16634, [1, 4, 1], Res69976), 
+LUp_77680 = up_sampling2D_layer([[[[1.9389]]]], 1, 1, Up_77680), 
+LZer76382 = zero_padding2D_layer(Up_77680, 0, 0, 3, 0, Zer76382), 
+LMax61756 = maximum_layer([Res69976,Zer76382], Max61756), 
+LLoc37994 = locally_connected2D_layer(Max61756, 1, 4,[[[0.6961, 0.3893, 0.8912], [0.5978, 0.4206, 0.4608], [0.7039, 0.0859, 0.2159], [0.863, 0.7663, 0.5412]]],[[[0, 0, 0]]], 1, 1, Loc37994), 
+LCon26774 = conv2D_transpose_layer(Loc37994, 1, 1,[[[[0.808, 0.3178, 0.3536], [0.6625, 0.5715, 0.3623], [0.2559, 0.3041, 0.5945], [0.1685, 0.0236, 0.8532]]]],[0, 0, 0, 0], 1, 1, false, Con26774), 
+LZer50503 = zero_padding2D_layer(Con26774, 1, 1, 1, 1, Zer50503), 
+exec_layers([LLoc16634,LRes69976,LUp_77680,LZer76382,LMax61756,LLoc37994,LCon26774,LZer50503],["Loc16634","Res69976","Up_77680","Zer76382","Max61756","Loc37994","Con26774","Zer50503"],Zer50503,"Zer50503")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000], [3.7617303, 3.8683391, 2.6159772, 2.3305757], [0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0,0,0,0],[0,0,0,0],[0,0,0,0]],[[0,0,0,0],[3.7617303149191503,3.868339045040655,2.615977157759681,2.3305757391172053],[0,0,0,0]],[[0,0,0,0],[0,0,0,0],[0,0,0,0]]]]
+
+Actual:   [[[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [3.7618, 3.8684, 2.616, 2.3306], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]]
+
+Expected: [[[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [3.7618, 3.8684, 2.616, 2.3306], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]]

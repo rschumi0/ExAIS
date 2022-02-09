@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min19802 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min19802 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo17015 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Con60648 = tf.keras.layers.Input(shape=([2]))
+in0Con86136 = tf.keras.layers.Input(shape=([4, 2]))
+in0Ave11452 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Min19802 = keras.layers.Minimum(name = 'Min19802', )([in0Min19802,in1Min19802])
+Fla89999 = keras.layers.Flatten(name = 'Fla89999', )(Min19802)
+Glo17015 = keras.layers.GlobalMaxPool3D(name = 'Glo17015', )(in0Glo17015)
+Con60648 = keras.layers.Concatenate(axis=1, name = 'Con60648', )([Glo17015,in0Con60648])
+Ave80655 = keras.layers.Average(name = 'Ave80655', )([Fla89999,Con60648])
+Res92363 = keras.layers.Reshape((4, 1), name = 'Res92363', )(Ave80655)
+Con86136 = keras.layers.Concatenate(axis=2, name = 'Con86136', )([Res92363,in0Con86136])
+Ave11452 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Ave11452', )(in0Ave11452)
+Res42567 = keras.layers.Reshape((1, 2), name = 'Res42567', )(Ave11452)
+Sep64915 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep64915', )(Res42567)
+Zer38843 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer38843', )(Sep64915)
+Min87486 = keras.layers.Minimum(name = 'Min87486', )([Con86136,Zer38843])
+Glo19579 = keras.layers.GlobalMaxPool1D(name = 'Glo19579', )(Min87486)
+model = tf.keras.models.Model(inputs=[in0Min19802,in1Min19802,in0Glo17015,in0Con60648,in0Con86136,in0Ave11452], outputs=Glo19579)
+w = model.get_layer('Sep64915').get_weights() 
+w[0] = np.array([[[0.7119], [0.4854]]])
+w[1] = np.array([[[0.2002, 0.786, 0.7999], [0.9456, 0.2722, 0.0175]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep64915').set_weights(w) 
+in0Min19802 = tf.constant([[[0.5326, 0.5213], [0.486, 0.2383]]])
+in1Min19802 = tf.constant([[[0.8651, 0.1026], [0.6772, 0.3659]]])
+in0Glo17015 = tf.constant([[[[[1.0485, 1.4567], [1.8764, 1.8352]], [[1.4954, 1.1526], [1.0607, 1.5258]]], [[[1.5921, 1.9644], [1.8201, 1.1634]], [[1.8077, 1.9757], [1.1191, 1.135]]]]])
+in0Con60648 = tf.constant([[0.0308, 0.4007]])
+in0Con86136 = tf.constant([[[0.119, 0.6865], [0.5755, 0.7926], [0.1892, 0.193], [0.5585, 0.3639]]])
+in0Ave11452 = tf.constant([[[[1.2695], [1.9656]]]])
+print (np.array2string(model.predict([in0Min19802,in1Min19802,in0Glo17015,in0Con60648,in0Con86136,in0Ave11452],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo19579.png')
+
+LMin19802 = minimum_layer([[[[0.5326, 0.5213], [0.486, 0.2383]]], [[[0.8651, 0.1026], [0.6772, 0.3659]]]], Min19802), 
+LFla89999 = flatten_layer(Min19802, Fla89999), 
+LGlo17015 = global_max_pool3D_layer([[[[[1.0485, 1.4567], [1.8764, 1.8352]], [[1.4954, 1.1526], [1.0607, 1.5258]]], [[[1.5921, 1.9644], [1.8201, 1.1634]], [[1.8077, 1.9757], [1.1191, 1.135]]]]], Glo17015), 
+LCon60648 = concatenate_layer([Glo17015,[[0.0308, 0.4007]]], 1, Con60648), 
+LAve80655 = average_layer([Fla89999,Con60648], Ave80655), 
+LRes92363 = reshape_layer(Ave80655, [4, 1], Res92363), 
+LCon86136 = concatenate_layer([Res92363,[[[0.119, 0.6865], [0.5755, 0.7926], [0.1892, 0.193], [0.5585, 0.3639]]]], 2, Con86136), 
+LAve11452 = average_pooling2D_layer([[[[1.2695], [1.9656]]]], 1, 1, 1, 1, true, Ave11452), 
+LRes42567 = reshape_layer(Ave11452, [1, 2], Res42567), 
+LSep64915 = separable_conv1D_layer(Res42567, 1,[[[[0.7119], [0.4854]]],[[[0.2002, 0.786, 0.7999], [0.9456, 0.2722, 0.0175]]]],[0, 0, 0], 1, false, Sep64915), 
+LZer38843 = zero_padding1D_layer(Sep64915, 3, 0, Zer38843), 
+LMin87486 = minimum_layer([Con86136,Zer38843], Min87486), 
+LGlo19579 = global_max_pool1D_layer(Min87486, Glo19579), 
+exec_layers([LMin19802,LFla89999,LGlo17015,LCon60648,LAve80655,LRes92363,LCon86136,LAve11452,LRes42567,LSep64915,LZer38843,LMin87486,LGlo19579],["Min19802","Fla89999","Glo17015","Con60648","Ave80655","Res92363","Con86136","Ave11452","Res42567","Sep64915","Zer38843","Min87486","Glo19579"],Glo19579,"Glo19579")
+
+Actual (Unparsed): [[0.3195000, 0.5585000, 0.3639000]]
+
+Expected (Unparsed): [[0.3195,0.5585,0.3639]]
+
+Actual:   [[0.3195, 0.5585, 0.3639]]
+
+Expected: [[0.3195, 0.5585, 0.3639]]

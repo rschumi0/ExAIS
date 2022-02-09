@@ -1,0 +1,76 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim5802 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con92998 = tf.keras.layers.Input(shape=([3, 1]))
+in0Max94083 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max94083 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con60985 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max88164 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max88164 = tf.keras.layers.Input(shape=([1, 2]))
+in0Mul36945 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Mul36945 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Sim5802 = keras.layers.SimpleRNN(3,name = 'Sim5802', )(in0Sim5802)
+Res45281 = keras.layers.Reshape((3, 1), name = 'Res45281', )(Sim5802)
+Con92998 = keras.layers.Concatenate(axis=2, name = 'Con92998', )([Res45281,in0Con92998])
+Max94083 = keras.layers.Maximum(name = 'Max94083', )([in0Max94083,in1Max94083])
+Con60985 = keras.layers.Concatenate(axis=2, name = 'Con60985', )([Max94083,in0Con60985])
+Max88164 = keras.layers.Maximum(name = 'Max88164', )([in0Max88164,in1Max88164])
+Zer76029 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer76029', )(Max88164)
+Min6875 = keras.layers.Minimum(name = 'Min6875', )([Con60985,Zer76029])
+Zer96149 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer96149', )(Min6875)
+Add39817 = keras.layers.Add(name = 'Add39817', )([Con92998,Zer96149])
+Sof80540 = keras.layers.Softmax(axis=1, name = 'Sof80540', )(Add39817)
+Res98909 = keras.layers.Reshape((3, 2, 1), name = 'Res98909', )(Sof80540)
+Res88930 = keras.layers.Reshape((3, 2, 1, 1), name = 'Res88930', )(Res98909)
+Mul36945 = keras.layers.Multiply(name = 'Mul36945', )([in0Mul36945,in1Mul36945])
+Zer7209 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (0, 0)), name = 'Zer7209', )(Mul36945)
+Mul40251 = keras.layers.Multiply(name = 'Mul40251', )([Res88930,Zer7209])
+model = tf.keras.models.Model(inputs=[in0Sim5802,in0Con92998,in0Max94083,in1Max94083,in0Con60985,in0Max88164,in1Max88164,in0Mul36945,in1Mul36945], outputs=Mul40251)
+w = model.get_layer('Sim5802').get_weights() 
+w[0] = np.array([[3, 10, 4]])
+w[1] = np.array([[1, 5, 9], [1, 9, 1], [6, 9, 3]])
+w[2] = np.array([6, 5, 3])
+model.get_layer('Sim5802').set_weights(w) 
+in0Sim5802 = tf.constant([[[8], [9], [5]]])
+in0Con92998 = tf.constant([[[0.2806], [0.2683], [0.078]]])
+in0Max94083 = tf.constant([[[0.8642], [0.0333]]])
+in1Max94083 = tf.constant([[[0.3047], [0.3614]]])
+in0Con60985 = tf.constant([[[0.8254], [0.0643]]])
+in0Max88164 = tf.constant([[[0.2518, 0.3259]]])
+in1Max88164 = tf.constant([[[0.4492, 0.6646]]])
+in0Mul36945 = tf.constant([[[[[0.7171]]]]])
+in1Mul36945 = tf.constant([[[[[0.7022]]]]])
+print (np.array2string(model.predict([in0Sim5802,in0Con92998,in0Max94083,in1Max94083,in0Con60985,in0Max88164,in1Max88164,in0Mul36945,in1Mul36945],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul40251.png')
+
+LSim5802 = simple_rnn_layer([[[8], [9], [5]]],[[3, 10, 4]],[[1, 5, 9], [1, 9, 1], [6, 9, 3]],[6, 5, 3], Sim5802), 
+LRes45281 = reshape_layer(Sim5802, [3, 1], Res45281), 
+LCon92998 = concatenate_layer([Res45281,[[[0.2806], [0.2683], [0.078]]]], 2, Con92998), 
+LMax94083 = maximum_layer([[[[0.8642], [0.0333]]], [[[0.3047], [0.3614]]]], Max94083), 
+LCon60985 = concatenate_layer([Max94083,[[[0.8254], [0.0643]]]], 2, Con60985), 
+LMax88164 = maximum_layer([[[[0.2518, 0.3259]]], [[[0.4492, 0.6646]]]], Max88164), 
+LZer76029 = zero_padding1D_layer(Max88164, 1, 0, Zer76029), 
+LMin6875 = minimum_layer([Con60985,Zer76029], Min6875), 
+LZer96149 = zero_padding1D_layer(Min6875, 1, 0, Zer96149), 
+LAdd39817 = add_layer([Con92998,Zer96149], Add39817), 
+LSof80540 = softmax_layer(Add39817, 1, Sof80540), 
+LRes98909 = reshape_layer(Sof80540, [3, 2, 1], Res98909), 
+LRes88930 = reshape_layer(Res98909, [3, 2, 1, 1], Res88930), 
+LMul36945 = multiply_layer([[[[[[0.7171]]]]], [[[[[0.7022]]]]]], Mul36945), 
+LZer7209 = zero_padding3D_layer(Mul36945, 2, 0, 1, 0, 0, 0, Zer7209), 
+LMul40251 = multiply_layer([Res88930,Zer7209], Mul40251), 
+exec_layers([LSim5802,LRes45281,LCon92998,LMax94083,LCon60985,LMax88164,LZer76029,LMin6875,LZer96149,LAdd39817,LSof80540,LRes98909,LRes88930,LMul36945,LZer7209,LMul40251],["Sim5802","Res45281","Con92998","Max94083","Con60985","Max88164","Zer76029","Min6875","Zer96149","Add39817","Sof80540","Res98909","Res88930","Mul36945","Zer7209","Mul40251"],Mul40251,"Mul40251")
+
+Actual (Unparsed): [[[[[0.0000000]], [[0.0000000]]], [[[0.0000000]], [[0.0000000]]], [[[0.0000000]], [[0.1533989]]]]]
+
+Expected (Unparsed): [[[[[0.0]],[[0.0]]],[[[0.0]],[[0.0]]],[[[0.0]],[[0.1533989179965801]]]]]
+
+Actual:   [[[[[0]], [[0]]], [[[0]], [[0]]], [[[0]], [[0.1534]]]]]
+
+Expected: [[[[[0]], [[0]]], [[[0]], [[0]]], [[[0]], [[0.1534]]]]]

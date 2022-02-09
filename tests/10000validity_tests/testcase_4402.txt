@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min26901 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Min26901 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Glo20376 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con2775 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max24795 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Min26901 = keras.layers.Minimum(name = 'Min26901', )([in0Min26901,in1Min26901])
+Res32559 = keras.layers.Reshape((1, 1), name = 'Res32559', )(Min26901)
+Glo20376 = keras.layers.GlobalMaxPool1D(name = 'Glo20376', )(in0Glo20376)
+Res76317 = keras.layers.Reshape((1, 1), name = 'Res76317', )(Glo20376)
+Per5974 = keras.layers.Permute((2,1), name = 'Per5974',)(Res76317)
+Dot43183 = keras.layers.Dot(axes=(2, 2), name = 'Dot43183', )([Res32559,Per5974])
+Zer74077 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer74077', )(Dot43183)
+Con2775 = keras.layers.Concatenate(axis=2, name = 'Con2775', )([Zer74077,in0Con2775])
+Max24795 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 11), padding='same', name = 'Max24795', )(in0Max24795)
+Bat7606 = keras.layers.BatchNormalization(axis=3, epsilon=0.20003385948869548,  name = 'Bat7606', )(Max24795)
+Res74959 = keras.layers.Reshape((2, 2), name = 'Res74959', )(Bat7606)
+Ave19190 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave19190', )(Res74959)
+Ave81663 = keras.layers.Average(name = 'Ave81663', )([Con2775,Ave19190])
+model = tf.keras.models.Model(inputs=[in0Min26901,in1Min26901,in0Glo20376,in0Con2775,in0Max24795], outputs=Ave81663)
+w = model.get_layer('Bat7606').get_weights() 
+w[0] = np.array([0.0203, 0.6198])
+w[1] = np.array([0.0233, 0.2303])
+w[2] = np.array([0.6366, 0.1557])
+w[3] = np.array([0.6845, 0.8708])
+model.get_layer('Bat7606').set_weights(w) 
+in0Min26901 = tf.constant([[[[0.1955]]]])
+in1Min26901 = tf.constant([[[[0.5882]]]])
+in0Glo20376 = tf.constant([[[1.5143]]])
+in0Con2775 = tf.constant([[[0.5405], [0.1897]]])
+in0Max24795 = tf.constant([[[[1.8179, 1.8096], [1.6043, 1.9554]], [[1.7246, 1.3471], [1.4729, 1.9893]]]])
+print (np.array2string(model.predict([in0Min26901,in1Min26901,in0Glo20376,in0Con2775,in0Max24795],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave81663.png')
+
+LMin26901 = minimum_layer([[[[[0.1955]]]], [[[[0.5882]]]]], Min26901), 
+LRes32559 = reshape_layer(Min26901, [1, 1], Res32559), 
+LGlo20376 = global_max_pool1D_layer([[[1.5143]]], Glo20376), 
+LRes76317 = reshape_layer(Glo20376, [1, 1], Res76317), 
+LPer5974 = permute_layer(Res76317, 2,1, Per5974), 
+LDot43183 = dot_layer(Res32559,Per5974, 2, 2, Dot43183), 
+LZer74077 = zero_padding1D_layer(Dot43183, 1, 0, Zer74077), 
+LCon2775 = concatenate_layer([Zer74077,[[[0.5405], [0.1897]]]], 2, Con2775), 
+LMax24795 = max_pool2D_layer([[[[1.8179, 1.8096], [1.6043, 1.9554]], [[1.7246, 1.3471], [1.4729, 1.9893]]]], 1, 1, 1, 11, true, Max24795), 
+LBat7606 = batch_normalization_layer(Max24795, 3, 0.20003385948869548, [0.0203, 0.6198], [0.0233, 0.2303], [0.6366, 0.1557], [0.6845, 0.8708], Bat7606), 
+LRes74959 = reshape_layer(Bat7606, [2, 2], Res74959), 
+LAve19190 = average_pooling1D_layer(Res74959, 1, Ave19190), 
+LAve81663 = average_layer([Con2775,Ave19190], Ave81663), 
+exec_layers([LMin26901,LRes32559,LGlo20376,LRes76317,LPer5974,LDot43183,LZer74077,LCon2775,LMax24795,LBat7606,LRes74959,LAve19190,LAve81663],["Min26901","Res32559","Glo20376","Res76317","Per5974","Dot43183","Zer74077","Con2775","Max24795","Bat7606","Res74959","Ave19190","Ave81663"],Ave81663,"Ave81663")
+
+Actual (Unparsed): [[[0.0243988, 0.8807016], [0.1714147, 0.5667945]]]
+
+Expected (Unparsed): [[[0.024398791401206855,0.8807016513472729],[0.17141470686278934,0.5667944781517268]]]
+
+Actual:   [[[0.0244, 0.8808], [0.1715, 0.5668]]]
+
+Expected: [[[0.0244, 0.8808], [0.1715, 0.5668]]]

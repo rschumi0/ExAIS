@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add6831 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Add6831 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con98466 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+Add6831 = keras.layers.Add(name = 'Add6831', )([in0Add6831,in1Add6831])
+Res64973 = keras.layers.Reshape((2, 2), name = 'Res64973', )(Add6831)
+Con98466 = keras.layers.Conv3DTranspose(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con98466', )(in0Con98466)
+Mas71908 = keras.layers.Masking(mask_value=2, name = 'Mas71908', )(Con98466)
+Res43766 = keras.layers.Reshape((3, 1, 2), name = 'Res43766', )(Mas71908)
+Res78482 = keras.layers.Reshape((3, 2), name = 'Res78482', )(Res43766)
+Dot96236 = keras.layers.Dot(axes=(2, 2), name = 'Dot96236', )([Res64973,Res78482])
+model = tf.keras.models.Model(inputs=[in0Add6831,in1Add6831,in0Con98466], outputs=Dot96236)
+w = model.get_layer('Con98466').get_weights() 
+w[0] = np.array([[[[[0.8378], [0.8561]]]], [[[[0.14], [0.9684]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con98466').set_weights(w) 
+in0Add6831 = tf.constant([[[[0.0973], [0.2124]], [[0.2347], [0.6274]]]])
+in1Add6831 = tf.constant([[[[0.7246], [0.5127]], [[0.6757], [0.7147]]]])
+in0Con98466 = tf.constant([[[[[0.5506]]], [[[0.8687]]]]])
+print (np.array2string(model.predict([in0Add6831,in1Add6831,in0Con98466],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot96236.png')
+
+LAdd6831 = add_layer([[[[[0.0973], [0.2124]], [[0.2347], [0.6274]]]], [[[[0.7246], [0.5127]], [[0.6757], [0.7147]]]]], Add6831), 
+LRes64973 = reshape_layer(Add6831, [2, 2], Res64973), 
+LCon98466 = conv3D_transpose_layer([[[[[0.5506]]], [[[0.8687]]]]], 2, 1, 1,[[[[[0.8378], [0.8561]]]], [[[[0.14], [0.9684]]]]],[0, 0], 1, 1, 1, false, Con98466), 
+LMas71908 = masking_layer(Con98466, 2, Mas71908), 
+LRes43766 = reshape_layer(Mas71908, [3, 1, 2], Res43766), 
+LRes78482 = reshape_layer(Res43766, [3, 2], Res78482), 
+LDot96236 = dot_layer(Res64973,Res78482, 2, 2, Dot96236), 
+exec_layers([LAdd6831,LRes64973,LCon98466,LMas71908,LRes43766,LRes78482,LDot96236],["Add6831","Res64973","Con98466","Mas71908","Res43766","Res78482","Dot96236"],Dot96236,"Dot96236")
+
+Actual (Unparsed): [[[0.7209259, 1.5874083, 0.7099476], [1.0525847, 2.4464845, 1.2397614]]]
+
+Expected (Unparsed): [[[0.720925869058,1.5874082230950002,0.7099475421080002],[1.0525847344579997,2.4464844620749995,1.239761417468]]]
+
+Actual:   [[[0.721, 1.5875, 0.71], [1.0526, 2.4465, 1.2398]]]
+
+Expected: [[[0.721, 1.5875, 0.71], [1.0526, 2.4465, 1.2398]]]

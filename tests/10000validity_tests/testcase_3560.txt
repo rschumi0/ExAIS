@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep76920 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Dep76920 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='same', name = 'Dep76920', )(in0Dep76920)
+Res69217 = keras.layers.Reshape((1, 4), name = 'Res69217', )(Dep76920)
+GRU49446 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU49446', )(Res69217)
+Den30947 = keras.layers.Dense(4,name = 'Den30947', )(GRU49446)
+Res82844 = keras.layers.Reshape((4, 1), name = 'Res82844', )(Den30947)
+Res83514 = keras.layers.Reshape((4, 1, 1), name = 'Res83514', )(Res82844)
+Con25762 = keras.layers.Conv2D(2, (1, 1),strides=(3, 1), padding='same', dilation_rate=(1, 1), name = 'Con25762', )(Res83514)
+Loc91721 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc91721', )(Con25762)
+model = tf.keras.models.Model(inputs=[in0Dep76920], outputs=Loc91721)
+w = model.get_layer('Dep76920').get_weights() 
+w[0] = np.array([[[[0.8745], [0.1288]], [[0.8403], [0.5672]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep76920').set_weights(w) 
+w = model.get_layer('GRU49446').get_weights() 
+w[0] = np.array([[3, 6, 8, 2, 3, 2], [2, 1, 6, 7, 8, 5], [1, 2, 9, 9, 4, 7], [5, 6, 9, 3, 8, 6]])
+w[1] = np.array([[3, 8, 1, 5, 9, 10], [7, 9, 9, 9, 2, 6]])
+w[2] = np.array([[1, 5, 5, 10, 4, 9], [10, 8, 8, 4, 2, 1]])
+model.get_layer('GRU49446').set_weights(w) 
+w = model.get_layer('Den30947').get_weights() 
+w[0] = np.array([[0.683, 0.4866, 0.7678, 0.7441], [0.8346, 0.1318, 0.1546, 0.5848]])
+w[1] = np.array([0.9422, 0.2696, 0.171, 0.1591])
+model.get_layer('Den30947').set_weights(w) 
+w = model.get_layer('Con25762').get_weights() 
+w[0] = np.array([[[[0.2673, 0.2718]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con25762').set_weights(w) 
+w = model.get_layer('Loc91721').get_weights() 
+w[0] = np.array([[[0.7649, 0.5261], [0.3898, 0.5702], [0.7572, 0.592], [0.2652, 0.5353]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc91721').set_weights(w) 
+in0Dep76920 = tf.constant([[[[0.0783, 0.0123], [0.6795, 0.3578]]]])
+print (np.array2string(model.predict([in0Dep76920],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc91721.png')
+
+LDep76920 = depthwise_conv2D_layer([[[[0.0783, 0.0123], [0.6795, 0.3578]]]], 1, 2,[[[[0.8745], [0.1288]], [[0.8403], [0.5672]]]],[0, 0], 1, 1, true, Dep76920), 
+LRes69217 = reshape_layer(Dep76920, [1, 4], Res69217), 
+LGRU49446 = gru_layer(Res69217,[[3, 6, 8, 2, 3, 2], [2, 1, 6, 7, 8, 5], [1, 2, 9, 9, 4, 7], [5, 6, 9, 3, 8, 6]],[[3, 8, 1, 5, 9, 10], [7, 9, 9, 9, 2, 6]],[[1, 5, 5, 10, 4, 9], [10, 8, 8, 4, 2, 1]], true, GRU49446), 
+LDen30947 = dense_layer(GRU49446, [[0.683, 0.4866, 0.7678, 0.7441], [0.8346, 0.1318, 0.1546, 0.5848]],[0.9422, 0.2696, 0.171, 0.1591], Den30947), 
+LRes82844 = reshape_layer(Den30947, [4, 1], Res82844), 
+LRes83514 = reshape_layer(Res82844, [4, 1, 1], Res83514), 
+LCon25762 = conv2D_layer(Res83514, 1, 1,[[[[0.2673, 0.2718]]]],[0, 0], 3, 1, true, 1, 1, Con25762), 
+LLoc91721 = locally_connected2D_layer(Con25762, 2, 1,[[[0.7649, 0.5261], [0.3898, 0.5702], [0.7572, 0.592], [0.2652, 0.5353]]],[[[0, 0]]], 1, 1, Loc91721), 
+exec_layers([LDep76920,LRes69217,LGRU49446,LDen30947,LRes82844,LRes83514,LCon25762,LLoc91721],["Dep76920","Res69217","GRU49446","Den30947","Res82844","Res83514","Con25762","Loc91721"],Loc91721,"Loc91721")
+
+Actual (Unparsed): [[[[0.3361342, 0.3268455]]]]
+
+Expected (Unparsed): [[[[0.33613419281847756,0.32684554114897024]]]]
+
+Actual:   [[[[0.3362, 0.3269]]]]
+
+Expected: [[[[0.3362, 0.3269]]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot28665 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot28665 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot28665 = keras.layers.Dot(axes=(2, 2), name = 'Dot28665', )([in0Dot28665,in1Dot28665])
+Res50719 = keras.layers.Reshape((2, 2, 1), name = 'Res50719', )(Dot28665)
+Res57532 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res57532', )(Res50719)
+Con83936 = keras.layers.Conv3D(3, (2, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con83936', )(Res57532)
+Res28987 = keras.layers.Reshape((1, 1, 3), name = 'Res28987', )(Con83936)
+Res16670 = keras.layers.Reshape((1, 3), name = 'Res16670', )(Res28987)
+Sep74379 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep74379', )(Res16670)
+Con96218 = keras.layers.Conv1D(4, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con96218', )(Sep74379)
+Glo28515 = keras.layers.GlobalMaxPool1D(name = 'Glo28515', )(Con96218)
+model = tf.keras.models.Model(inputs=[in0Dot28665,in1Dot28665], outputs=Glo28515)
+w = model.get_layer('Con83936').get_weights() 
+w[0] = np.array([[[[[0.3886, 0.7871, 0.827]]], [[[0.99, 0.9147, 0.2346]]]], [[[[0.2804, 0.0497, 0.8033]]], [[[0.3119, 0.7015, 0.0035]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con83936').set_weights(w) 
+w = model.get_layer('Sep74379').get_weights() 
+w[0] = np.array([[[0.2308], [0.9054], [0.3189]]])
+w[1] = np.array([[[0.2676, 0.0321, 0.9268], [0.6108, 0.457, 0.8149], [0.4516, 0.123, 0.9582]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep74379').set_weights(w) 
+w = model.get_layer('Con96218').get_weights() 
+w[0] = np.array([[[0.3284, 0.9311, 0.152, 0.9685], [0.7707, 0.8167, 0.5717, 0.8386], [0.5172, 0.9235, 0.4711, 0.9902]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con96218').set_weights(w) 
+in0Dot28665 = tf.constant([[[0.5239, 0.0117], [0.8214, 0.0594]]])
+in1Dot28665 = tf.constant([[[0.5217, 0.6527], [0.163, 0.0467]]])
+print (np.array2string(model.predict([in0Dot28665,in1Dot28665],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo28515.png')
+
+LDot28665 = dot_layer([[[0.5239, 0.0117], [0.8214, 0.0594]]], [[[0.5217, 0.6527], [0.163, 0.0467]]], 2, 2, Dot28665), 
+LRes50719 = reshape_layer(Dot28665, [2, 2, 1], Res50719), 
+LRes57532 = reshape_layer(Res50719, [2, 2, 1, 1], Res57532), 
+LCon83936 = conv3D_layer(Res57532, 2, 2, 1,[[[[[0.3886, 0.7871, 0.827]]], [[[0.99, 0.9147, 0.2346]]]], [[[[0.2804, 0.0497, 0.8033]]], [[[0.3119, 0.7015, 0.0035]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con83936), 
+LRes28987 = reshape_layer(Con83936, [1, 1, 3], Res28987), 
+LRes16670 = reshape_layer(Res28987, [1, 3], Res16670), 
+LSep74379 = separable_conv1D_layer(Res16670, 1,[[[[0.2308], [0.9054], [0.3189]]],[[[0.2676, 0.0321, 0.9268], [0.6108, 0.457, 0.8149], [0.4516, 0.123, 0.9582]]]],[0, 0, 0], 1, true, Sep74379), 
+LCon96218 = conv1D_layer(Sep74379, 1,[[[0.3284, 0.9311, 0.152, 0.9685], [0.7707, 0.8167, 0.5717, 0.8386], [0.5172, 0.9235, 0.4711, 0.9902]]],[0, 0, 0, 0], 1, true, 1, Con96218), 
+LGlo28515 = global_max_pool1D_layer(Con96218, Glo28515), 
+exec_layers([LDot28665,LRes50719,LRes57532,LCon83936,LRes28987,LRes16670,LSep74379,LCon96218,LGlo28515],["Dot28665","Res50719","Res57532","Con83936","Res28987","Res16670","Sep74379","Con96218","Glo28515"],Glo28515,"Glo28515")
+
+Actual (Unparsed): [[0.5677499, 1.0203672, 0.4402583, 1.0763278]]
+
+Expected (Unparsed): [[0.5677498821405985,1.020367228413806,0.4402582610685153,1.0763278008525363]]
+
+Actual:   [[0.5678, 1.0204, 0.4403, 1.0764]]
+
+Expected: [[0.5678, 1.0204, 0.4403, 1.0764]]

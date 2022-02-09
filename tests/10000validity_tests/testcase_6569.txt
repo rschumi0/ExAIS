@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep28088 = tf.keras.layers.Input(shape=([2, 1]))
+in0Loc2381 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con97738 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sep28088 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='valid', name = 'Sep28088', )(in0Sep28088)
+Loc2381 = keras.layers.LocallyConnected1D(3, (1),strides=(10), name = 'Loc2381', )(in0Loc2381)
+Lay65581 = keras.layers.LayerNormalization(axis=2, epsilon=2.3440084744789442, name = 'Lay65581', )(Loc2381)
+Zer1094 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer1094', )(Lay65581)
+Con97738 = keras.layers.Concatenate(axis=2, name = 'Con97738', )([Zer1094,in0Con97738])
+Ave65329 = keras.layers.Average(name = 'Ave65329', )([Sep28088,Con97738])
+model = tf.keras.models.Model(inputs=[in0Sep28088,in0Loc2381,in0Con97738], outputs=Ave65329)
+w = model.get_layer('Sep28088').get_weights() 
+w[0] = np.array([[[0.8752]]])
+w[1] = np.array([[[0.2237, 0.3761, 0.8441, 0.4881]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep28088').set_weights(w) 
+w = model.get_layer('Loc2381').get_weights() 
+w[0] = np.array([[[0.5307, 0.0727, 0.32]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc2381').set_weights(w) 
+in0Sep28088 = tf.constant([[[0.2931], [0.9748]]])
+in0Loc2381 = tf.constant([[[0.6448]]])
+in0Con97738 = tf.constant([[[0.1907], [0.4439]]])
+print (np.array2string(model.predict([in0Sep28088,in0Loc2381,in0Con97738],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave65329.png')
+
+LSep28088 = separable_conv1D_layer([[[0.2931], [0.9748]]], 1,[[[[0.8752]]],[[[0.2237, 0.3761, 0.8441, 0.4881]]]],[0, 0, 0, 0], 1, false, Sep28088), 
+LLoc2381 = locally_connected1D_layer([[[0.6448]]], 1,[[[0.5307, 0.0727, 0.32]]],[[0, 0, 0]], 10, Loc2381), 
+LLay65581 = layer_normalization_layer(Loc2381, 2, 2.3440084744789442, Lay65581), 
+LZer1094 = zero_padding1D_layer(Lay65581, 1, 0, Zer1094), 
+LCon97738 = concatenate_layer([Zer1094,[[[0.1907], [0.4439]]]], 2, Con97738), 
+LAve65329 = average_layer([Sep28088,Con97738], Ave65329), 
+exec_layers([LSep28088,LLoc2381,LLay65581,LZer1094,LCon97738,LAve65329],["Sep28088","Loc2381","Lay65581","Zer1094","Con97738","Ave65329"],Ave65329,"Ave65329")
+
+Actual (Unparsed): [[[0.0286919, 0.0482388, 0.1082647, 0.1579540], [0.1422172, 0.1110799, 0.3626309, 0.4301600]]]
+
+Expected (Unparsed): [[[0.028691887272,0.048238796615999995,0.10826473869599999,0.157953979336],[0.1422171964288983,0.11107985649024138,0.36263095095286024,0.430160027488]]]
+
+Actual:   [[[0.0287, 0.0483, 0.1083, 0.158], [0.1423, 0.1111, 0.3627, 0.4302]]]
+
+Expected: [[[0.0287, 0.0483, 0.1083, 0.158], [0.1423, 0.1111, 0.3627, 0.4302]]]

@@ -1,0 +1,42 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep77764 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sep77764 = keras.layers.SeparableConv1D(4, (2),strides=(1), padding='valid', name = 'Sep77764', )(in0Sep77764)
+Res69838 = keras.layers.Reshape((1, 4, 1), name = 'Res69838', )(Sep77764)
+Dep55728 = keras.layers.DepthwiseConv2D((1, 4),strides=(1, 1), padding='same', name = 'Dep55728', )(Res69838)
+Res49384 = keras.layers.Reshape((1, 4), name = 'Res49384', )(Dep55728)
+Glo12335 = keras.layers.GlobalAveragePooling1D(name = 'Glo12335', )(Res49384)
+model = tf.keras.models.Model(inputs=[in0Sep77764], outputs=Glo12335)
+w = model.get_layer('Sep77764').get_weights() 
+w[0] = np.array([[[0.5622], [0.7646]], [[0.5095], [0.6477]]])
+w[1] = np.array([[[0.7122, 0.1578, 0.266, 0.2585], [0.3615, 0.0078, 0.8405, 0.8892]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep77764').set_weights(w) 
+w = model.get_layer('Dep55728').get_weights() 
+w[0] = np.array([[[[0.6347]], [[0.1936]], [[0.6197]], [[0.6055]]]])
+w[1] = np.array([0])
+model.get_layer('Dep55728').set_weights(w) 
+in0Sep77764 = tf.constant([[[0.6528, 0.9286], [0.9855, 0.0187]]])
+print (np.array2string(model.predict([in0Sep77764],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo12335.png')
+
+LSep77764 = separable_conv1D_layer([[[0.6528, 0.9286], [0.9855, 0.0187]]], 2,[[[[0.5622], [0.7646]], [[0.5095], [0.6477]]],[[[0.7122, 0.1578, 0.266, 0.2585], [0.3615, 0.0078, 0.8405, 0.8892]]]],[0, 0, 0, 0], 1, false, Sep77764), 
+LRes69838 = reshape_layer(Sep77764, [1, 4, 1], Res69838), 
+LDep55728 = depthwise_conv2D_layer(Res69838, 1, 4,[[[[0.6347]], [[0.1936]], [[0.6197]], [[0.6055]]]],[0], 1, 1, true, Dep55728), 
+LRes49384 = reshape_layer(Dep55728, [1, 4], Res49384), 
+LGlo12335 = global_average_pooling1D_layer(Res49384, Glo12335), 
+exec_layers([LSep77764,LRes69838,LDep55728,LRes49384,LGlo12335],["Sep77764","Res69838","Dep55728","Res49384","Glo12335"],Glo12335,"Glo12335")
+
+Actual (Unparsed): [[0.7663398, 1.6304171, 0.7900238, 0.6997666]]
+
+Expected (Unparsed): [[0.7663397600489834,1.6304170626799608,0.7900238269741862,0.6997665530817665]]
+
+Actual:   [[0.7664, 1.6305, 0.7901, 0.6998]]
+
+Expected: [[0.7664, 1.6305, 0.7901, 0.6998]]

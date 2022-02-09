@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot10748 = tf.keras.layers.Input(shape=([3]))
+in1Dot10748 = tf.keras.layers.Input(shape=([3]))
+in0Con97300 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Mul59048 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Mul59048 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+
+Dot10748 = keras.layers.Dot(axes=(1, 1), name = 'Dot10748', )([in0Dot10748,in1Dot10748])
+Res40216 = keras.layers.Reshape((1, 1), name = 'Res40216', )(Dot10748)
+Cro68884 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro68884', )(Res40216)
+Res94896 = keras.layers.Reshape((1, 1, 1), name = 'Res94896', )(Cro68884)
+Res54445 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res54445', )(Res94896)
+Zer67777 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer67777', )(Res54445)
+Con97300 = keras.layers.Concatenate(axis=4, name = 'Con97300', )([Zer67777,in0Con97300])
+Mul59048 = keras.layers.Multiply(name = 'Mul59048', )([in0Mul59048,in1Mul59048])
+Sub94999 = keras.layers.Subtract(name = 'Sub94999', )([Con97300,Mul59048])
+model = tf.keras.models.Model(inputs=[in0Dot10748,in1Dot10748,in0Con97300,in0Mul59048,in1Mul59048], outputs=Sub94999)
+in0Dot10748 = tf.constant([[0.861, 0.9228, 0.9852]])
+in1Dot10748 = tf.constant([[0.6303, 0.6117, 0.9889]])
+in0Con97300 = tf.constant([[[[[0.4013]], [[0.016]]], [[[0.7283]], [[0.7641]]]]])
+in0Mul59048 = tf.constant([[[[[0.7013, 0.902]], [[0.0224, 0.4271]]], [[[0.3773, 0.3002]], [[0.6973, 0.3944]]]]])
+in1Mul59048 = tf.constant([[[[[0.7527, 0.6083]], [[0.1801, 0.0722]]], [[[0.7422, 0.4181]], [[0.8508, 0.0943]]]]])
+print (np.array2string(model.predict([in0Dot10748,in1Dot10748,in0Con97300,in0Mul59048,in1Mul59048],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub94999.png')
+
+LDot10748 = dot_layer([[0.861, 0.9228, 0.9852]], [[0.6303, 0.6117, 0.9889]], 1, 1, Dot10748), 
+LRes40216 = reshape_layer(Dot10748, [1, 1], Res40216), 
+LCro68884 = cropping1D_layer(Res40216, 0, 0, Cro68884), 
+LRes94896 = reshape_layer(Cro68884, [1, 1, 1], Res94896), 
+LRes54445 = reshape_layer(Res94896, [1, 1, 1, 1], Res54445), 
+LZer67777 = zero_padding3D_layer(Res54445, 1, 0, 1, 0, 0, 0, Zer67777), 
+LCon97300 = concatenate_layer([Zer67777,[[[[[0.4013]], [[0.016]]], [[[0.7283]], [[0.7641]]]]]], 4, Con97300), 
+LMul59048 = multiply_layer([[[[[[0.7013, 0.902]], [[0.0224, 0.4271]]], [[[0.3773, 0.3002]], [[0.6973, 0.3944]]]]], [[[[[0.7527, 0.6083]], [[0.1801, 0.0722]]], [[[0.7422, 0.4181]], [[0.8508, 0.0943]]]]]], Mul59048), 
+LSub94999 = subtract_layer(Con97300,Mul59048, Sub94999), 
+exec_layers([LDot10748,LRes40216,LCro68884,LRes94896,LRes54445,LZer67777,LCon97300,LMul59048,LSub94999],["Dot10748","Res40216","Cro68884","Res94896","Res54445","Zer67777","Con97300","Mul59048","Sub94999"],Sub94999,"Sub94999")
+
+Actual (Unparsed): [[[[[-0.5278685, -0.1473866]], [[-0.0040342, -0.0148366]]], [[[-0.2800321, 0.6027864]], [[1.4881665, 0.7269081]]]]]
+
+Expected (Unparsed): [[[[[-0.52786851,-0.14738660000000003]],[[-0.004034240000000001,-0.014836619999999998]]],[[[-0.28003206,0.60278638]],[[1.4881665000000002,0.72690808]]]]]
+
+Actual:   [[[[[-0.5278, -0.1473]], [[-0.004, -0.0148]]], [[[-0.28, 0.6028]], [[1.4882, 0.727]]]]]
+
+Expected: [[[[[-0.5278, -0.1473]], [[-0.004, -0.0148]]], [[[-0.28, 0.6028]], [[1.4882, 0.727]]]]]

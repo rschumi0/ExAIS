@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot65917 = tf.keras.layers.Input(shape=([3]))
+in1Dot65917 = tf.keras.layers.Input(shape=([3]))
+in0Glo62545 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dot65917 = keras.layers.Dot(axes=(1, 1), name = 'Dot65917', )([in0Dot65917,in1Dot65917])
+Res53336 = keras.layers.Reshape((1, 1), name = 'Res53336', )(Dot65917)
+Ave22316 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave22316', )(Res53336)
+Fla39916 = keras.layers.Flatten(name = 'Fla39916', )(Ave22316)
+Glo62545 = keras.layers.GlobalAveragePooling1D(name = 'Glo62545', )(in0Glo62545)
+Sub39051 = keras.layers.Subtract(name = 'Sub39051', )([Fla39916,Glo62545])
+Res99413 = keras.layers.Reshape((1, 1), name = 'Res99413', )(Sub39051)
+Res86284 = keras.layers.Reshape((1, 1, 1), name = 'Res86284', )(Res99413)
+Dep68955 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep68955', )(Res86284)
+model = tf.keras.models.Model(inputs=[in0Dot65917,in1Dot65917,in0Glo62545], outputs=Dep68955)
+w = model.get_layer('Dep68955').get_weights() 
+w[0] = np.array([[[[0.5968]]]])
+w[1] = np.array([0])
+model.get_layer('Dep68955').set_weights(w) 
+in0Dot65917 = tf.constant([[0.9098, 0.6903, 0.246]])
+in1Dot65917 = tf.constant([[0.2291, 0.203, 0.6897]])
+in0Glo62545 = tf.constant([[[1.0205], [1.7289]]])
+print (np.array2string(model.predict([in0Dot65917,in1Dot65917,in0Glo62545],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep68955.png')
+
+LDot65917 = dot_layer([[0.9098, 0.6903, 0.246]], [[0.2291, 0.203, 0.6897]], 1, 1, Dot65917), 
+LRes53336 = reshape_layer(Dot65917, [1, 1], Res53336), 
+LAve22316 = average_pooling1D_layer(Res53336, 1, 1, true, Ave22316), 
+LFla39916 = flatten_layer(Ave22316, Fla39916), 
+LGlo62545 = global_average_pooling1D_layer([[[1.0205], [1.7289]]], Glo62545), 
+LSub39051 = subtract_layer(Fla39916,Glo62545, Sub39051), 
+LRes99413 = reshape_layer(Sub39051, [1, 1], Res99413), 
+LRes86284 = reshape_layer(Res99413, [1, 1, 1], Res86284), 
+LDep68955 = depthwise_conv2D_layer(Res86284, 1, 1,[[[[0.5968]]]],[0], 1, 1, false, Dep68955), 
+exec_layers([LDot65917,LRes53336,LAve22316,LFla39916,LGlo62545,LSub39051,LRes99413,LRes86284,LDep68955],["Dot65917","Res53336","Ave22316","Fla39916","Glo62545","Sub39051","Res99413","Res86284","Dep68955"],Dep68955,"Dep68955")
+
+Actual (Unparsed): [[[[-0.5111399]]]]
+
+Expected (Unparsed): [[[[-0.511139935296]]]]
+
+Actual:   [[[[-0.5111]]]]
+
+Expected: [[[[-0.5111]]]]

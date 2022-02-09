@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ReL40131 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Con7158 = tf.keras.layers.Input(shape=([3, 1, 1]))
+in0Loc57199 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+ReL40131 = keras.layers.ReLU(max_value=7.277359562839481, negative_slope=8.227798720833759, threshold=4.506863690062866, name = 'ReL40131', input_shape=(2, 2, 2, 1))(in0ReL40131)
+Res73155 = keras.layers.Reshape((2, 2, 2), name = 'Res73155', )(ReL40131)
+Res37581 = keras.layers.Reshape((2, 4), name = 'Res37581', )(Res73155)
+GRU48682 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU48682', )(Res37581)
+Res51493 = keras.layers.Reshape((3, 1), name = 'Res51493', )(GRU48682)
+Res51936 = keras.layers.Reshape((3, 1, 1), name = 'Res51936', )(Res51493)
+Con7158 = keras.layers.Concatenate(axis=3, name = 'Con7158', )([Res51936,in0Con7158])
+Loc57199 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 10), name = 'Loc57199', )(in0Loc57199)
+Zer84144 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer84144', )(Loc57199)
+Mul86508 = keras.layers.Multiply(name = 'Mul86508', )([Con7158,Zer84144])
+model = tf.keras.models.Model(inputs=[in0ReL40131,in0Con7158,in0Loc57199], outputs=Mul86508)
+w = model.get_layer('GRU48682').get_weights() 
+w[0] = np.array([[3, 2, 10, 8, 5, 8, 1, 7, 8], [2, 5, 5, 5, 1, 1, 6, 3, 9], [5, 9, 4, 4, 1, 2, 1, 10, 6], [4, 8, 6, 2, 1, 7, 2, 8, 10]])
+w[1] = np.array([[4, 2, 3, 8, 8, 9, 3, 1, 4], [9, 5, 7, 8, 3, 4, 10, 4, 4], [10, 3, 5, 1, 8, 1, 8, 10, 5]])
+w[2] = np.array([[2, 6, 5, 9, 4, 1, 8, 4, 2], [6, 7, 9, 1, 2, 2, 5, 4, 5]])
+model.get_layer('GRU48682').set_weights(w) 
+w = model.get_layer('Loc57199').get_weights() 
+w[0] = np.array([[[0.1641, 0.5422], [0.9937, 0.3022]], [[0.19, 0.2814], [0.1148, 0.895]]])
+w[1] = np.array([[[0, 0]], [[0, 0]]])
+model.get_layer('Loc57199').set_weights(w) 
+in0ReL40131 = tf.constant([[[[[0.4614], [0.4816]], [[0.6433], [0.051]]], [[[0.5689], [0.9539]], [[0.5938], [0.5392]]]]])
+in0Con7158 = tf.constant([[[[0.2659]], [[0.4091]], [[0.388]]]])
+in0Loc57199 = tf.constant([[[[0.5756, 0.9383]], [[0.5051, 0.9645]]]])
+print (np.array2string(model.predict([in0ReL40131,in0Con7158,in0Loc57199],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul86508.png')
+
+LReL40131 = relu_layer([[[[[0.4614], [0.4816]], [[0.6433], [0.051]]], [[[0.5689], [0.9539]], [[0.5938], [0.5392]]]]], 7.277359562839481, 8.227798720833759, 4.506863690062866, ReL40131), 
+LRes73155 = reshape_layer(ReL40131, [2, 2, 2], Res73155), 
+LRes37581 = reshape_layer(Res73155, [2, 4], Res37581), 
+LGRU48682 = gru_layer(Res37581,[[3, 2, 10, 8, 5, 8, 1, 7, 8], [2, 5, 5, 5, 1, 1, 6, 3, 9], [5, 9, 4, 4, 1, 2, 1, 10, 6], [4, 8, 6, 2, 1, 7, 2, 8, 10]],[[4, 2, 3, 8, 8, 9, 3, 1, 4], [9, 5, 7, 8, 3, 4, 10, 4, 4], [10, 3, 5, 1, 8, 1, 8, 10, 5]],[[2, 6, 5, 9, 4, 1, 8, 4, 2], [6, 7, 9, 1, 2, 2, 5, 4, 5]], true, GRU48682), 
+LRes51493 = reshape_layer(GRU48682, [3, 1], Res51493), 
+LRes51936 = reshape_layer(Res51493, [3, 1, 1], Res51936), 
+LCon7158 = concatenate_layer([Res51936,[[[[0.2659]], [[0.4091]], [[0.388]]]]], 3, Con7158), 
+LLoc57199 = locally_connected2D_layer([[[[0.5756, 0.9383]], [[0.5051, 0.9645]]]], 1, 1,[[[0.1641, 0.5422], [0.9937, 0.3022]], [[0.19, 0.2814], [0.1148, 0.895]]],[[[0, 0]], [[0, 0]]], 1, 10, Loc57199), 
+LZer84144 = zero_padding2D_layer(Loc57199, 1, 0, 0, 0, Zer84144), 
+LMul86508 = multiply_layer([Con7158,Zer84144], Mul86508), 
+exec_layers([LReL40131,LRes73155,LRes37581,LGRU48682,LRes51493,LRes51936,LCon7158,LLoc57199,LZer84144,LMul86508],["ReL40131","Res73155","Res37581","GRU48682","Res51493","Res51936","Con7158","Loc57199","Zer84144","Mul86508"],Mul86508,"Mul86508")
+
+Actual (Unparsed): [[[[-0.0000000, 0.0000000]], [[-1.0268447, 0.2436782]], [[-0.2066936, 0.3900807]]]]
+
+Expected (Unparsed): [[[[-0.0,0.0]],[[-1.02684467,0.24367819767800006]],[[-0.2066936,0.39008070432]]]]
+
+Actual:   [[[[-0, 0]], [[-1.0268, 0.2437]], [[-0.2066, 0.3901]]]]
+
+Expected: [[[[-0, 0]], [[-1.0268, 0.2437]], [[-0.2066, 0.3901]]]]

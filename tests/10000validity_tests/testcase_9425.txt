@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add96412 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add96412 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con19946 = tf.keras.layers.Input(shape=([3, 2]))
+in0Sub42849 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub42849 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con29372 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sep87508 = tf.keras.layers.Input(shape=([1, 1]))
+
+Add96412 = keras.layers.Add(name = 'Add96412', )([in0Add96412,in1Add96412])
+Zer75622 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer75622', )(Add96412)
+Con19946 = keras.layers.Concatenate(axis=2, name = 'Con19946', )([Zer75622,in0Con19946])
+Sub42849 = keras.layers.Subtract(name = 'Sub42849', )([in0Sub42849,in1Sub42849])
+Per88802 = keras.layers.Permute((2,1), name = 'Per88802',)(Sub42849)
+Con29372 = keras.layers.Concatenate(axis=2, name = 'Con29372', )([Per88802,in0Con29372])
+Sep87508 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep87508', )(in0Sep87508)
+Zer32293 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer32293', )(Sep87508)
+Min64973 = keras.layers.Minimum(name = 'Min64973', )([Con29372,Zer32293])
+Add80265 = keras.layers.Add(name = 'Add80265', )([Con19946,Min64973])
+model = tf.keras.models.Model(inputs=[in0Add96412,in1Add96412,in0Con19946,in0Sub42849,in1Sub42849,in0Con29372,in0Sep87508], outputs=Add80265)
+w = model.get_layer('Sep87508').get_weights() 
+w[0] = np.array([[[0.5394]]])
+w[1] = np.array([[[0.9925, 0.7238, 0.7768]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep87508').set_weights(w) 
+in0Add96412 = tf.constant([[[0.845]]])
+in1Add96412 = tf.constant([[[0.8669]]])
+in0Con19946 = tf.constant([[[0.8052, 0.8214], [0.4306, 0.8696], [0.4941, 0.7566]]])
+in0Sub42849 = tf.constant([[[0.2801, 0.3243, 0.5932], [0.7639, 0.8802, 0.0138]]])
+in1Sub42849 = tf.constant([[[0.157, 0.3983, 0.6647], [0.1189, 0.3776, 0.3699]]])
+in0Con29372 = tf.constant([[[0.3517], [0.8732], [0.6665]]])
+in0Sep87508 = tf.constant([[[0.4466]]])
+print (np.array2string(model.predict([in0Add96412,in1Add96412,in0Con19946,in0Sub42849,in1Sub42849,in0Con29372,in0Sep87508],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add80265.png')
+
+LAdd96412 = add_layer([[[[0.845]]], [[[0.8669]]]], Add96412), 
+LZer75622 = zero_padding1D_layer(Add96412, 2, 0, Zer75622), 
+LCon19946 = concatenate_layer([Zer75622,[[[0.8052, 0.8214], [0.4306, 0.8696], [0.4941, 0.7566]]]], 2, Con19946), 
+LSub42849 = subtract_layer([[[0.2801, 0.3243, 0.5932], [0.7639, 0.8802, 0.0138]]], [[[0.157, 0.3983, 0.6647], [0.1189, 0.3776, 0.3699]]], Sub42849), 
+LPer88802 = permute_layer(Sub42849, 2,1, Per88802), 
+LCon29372 = concatenate_layer([Per88802,[[[0.3517], [0.8732], [0.6665]]]], 2, Con29372), 
+LSep87508 = separable_conv1D_layer([[[0.4466]]], 1,[[[[0.5394]]],[[[0.9925, 0.7238, 0.7768]]]],[0, 0, 0], 1, true, Sep87508), 
+LZer32293 = zero_padding1D_layer(Sep87508, 2, 0, Zer32293), 
+LMin64973 = minimum_layer([Con29372,Zer32293], Min64973), 
+LAdd80265 = add_layer([Con19946,Min64973], Add80265), 
+exec_layers([LAdd96412,LZer75622,LCon19946,LSub42849,LPer88802,LCon29372,LSep87508,LZer32293,LMin64973,LAdd80265],["Add96412","Zer75622","Con19946","Sub42849","Per88802","Con29372","Sep87508","Zer32293","Min64973","Add80265"],Add80265,"Add80265")
+
+Actual (Unparsed): [[[0.0000000, 0.8052000, 0.8214000], [-0.0740000, 0.4306000, 0.8696000], [1.6404001, 0.1380000, 0.9437281]]]
+
+Expected (Unparsed): [[[0,0.8052,0.8214],[-0.07400000000000001,0.4306,0.8696],[1.6404,0.13799999999999996,0.943728043872]]]
+
+Actual:   [[[0, 0.8052, 0.8214], [-0.074, 0.4306, 0.8696], [1.6405, 0.138, 0.9438]]]
+
+Expected: [[[0, 0.8052, 0.8214], [-0.074, 0.4306, 0.8696], [1.6404, 0.138, 0.9438]]]

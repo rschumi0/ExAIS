@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo51873 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Con38114 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max30133 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max30133 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Glo51873 = keras.layers.GlobalAveragePooling3D(name = 'Glo51873', )(in0Glo51873)
+Lay21174 = keras.layers.LayerNormalization(axis=1, epsilon=2.6508517869104815, name = 'Lay21174', )(Glo51873)
+Res99264 = keras.layers.Reshape((2, 1), name = 'Res99264', )(Lay21174)
+LST69971 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST69971', )(Res99264)
+Res44834 = keras.layers.Reshape((1, 1), name = 'Res44834', )(LST69971)
+Res95054 = keras.layers.Reshape((1, 1, 1), name = 'Res95054', )(Res44834)
+Con38114 = keras.layers.Concatenate(axis=3, name = 'Con38114', )([Res95054,in0Con38114])
+Max30133 = keras.layers.Maximum(name = 'Max30133', )([in0Max30133,in1Max30133])
+Max59892 = keras.layers.Maximum(name = 'Max59892', )([Con38114,Max30133])
+model = tf.keras.models.Model(inputs=[in0Glo51873,in0Con38114,in0Max30133,in1Max30133], outputs=Max59892)
+w = model.get_layer('LST69971').get_weights() 
+w[0] = np.array([[9, 2, 7, 1]])
+w[1] = np.array([[9, 7, 8, 7]])
+w[2] = np.array([5, 9, 10, 7])
+model.get_layer('LST69971').set_weights(w) 
+in0Glo51873 = tf.constant([[[[[1.6793, 1.9067]]], [[[1.574, 1.3959]]]]])
+in0Con38114 = tf.constant([[[[0.7625]]]])
+in0Max30133 = tf.constant([[[[0.5409, 0.0108]]]])
+in1Max30133 = tf.constant([[[[0.377, 0.1025]]]])
+print (np.array2string(model.predict([in0Glo51873,in0Con38114,in0Max30133,in1Max30133],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max59892.png')
+
+LGlo51873 = global_average_pooling3D_layer([[[[[1.6793, 1.9067]]], [[[1.574, 1.3959]]]]], Glo51873), 
+LLay21174 = layer_normalization_layer(Glo51873, 1, 2.6508517869104815, Lay21174), 
+LRes99264 = reshape_layer(Lay21174, [2, 1], Res99264), 
+LLST69971 = lstm_layer(Res99264,[[9, 2, 7, 1]],[[9, 7, 8, 7]],[5, 9, 10, 7], LST69971), 
+LRes44834 = reshape_layer(LST69971, [1, 1], Res44834), 
+LRes95054 = reshape_layer(Res44834, [1, 1, 1], Res95054), 
+LCon38114 = concatenate_layer([Res95054,[[[[0.7625]]]]], 3, Con38114), 
+LMax30133 = maximum_layer([[[[[0.5409, 0.0108]]]], [[[[0.377, 0.1025]]]]], Max30133), 
+LMax59892 = maximum_layer([Con38114,Max30133], Max59892), 
+exec_layers([LGlo51873,LLay21174,LRes99264,LLST69971,LRes44834,LRes95054,LCon38114,LMax30133,LMax59892],["Glo51873","Lay21174","Res99264","LST69971","Res44834","Res95054","Con38114","Max30133","Max59892"],Max59892,"Max59892")
+
+Actual (Unparsed): [[[[0.9635133, 0.7625000]]]]
+
+Expected (Unparsed): [[[[0.9635132521622181,0.7625]]]]
+
+Actual:   [[[[0.9636, 0.7625]]]]
+
+Expected: [[[[0.9636, 0.7625]]]]

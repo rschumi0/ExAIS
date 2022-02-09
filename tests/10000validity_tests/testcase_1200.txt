@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot12059 = tf.keras.layers.Input(shape=([3]))
+in1Dot12059 = tf.keras.layers.Input(shape=([3]))
+in0Sub44491 = tf.keras.layers.Input(shape=([3]))
+in1Sub44491 = tf.keras.layers.Input(shape=([3]))
+in0Con73598 = tf.keras.layers.Input(shape=([4, 2]))
+in0Mas69926 = tf.keras.layers.Input(shape=([4, 3]))
+
+Dot12059 = keras.layers.Dot(axes=(1, 1), name = 'Dot12059', )([in0Dot12059,in1Dot12059])
+Sub44491 = keras.layers.Subtract(name = 'Sub44491', )([in0Sub44491,in1Sub44491])
+Res88843 = keras.layers.Reshape((3, 1), name = 'Res88843', )(Sub44491)
+Glo13650 = keras.layers.GlobalAveragePooling1D(name = 'Glo13650', )(Res88843)
+Min51108 = keras.layers.Minimum(name = 'Min51108', )([Dot12059,Glo13650])
+Res47992 = keras.layers.Reshape((1, 1), name = 'Res47992', )(Min51108)
+Zer61379 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer61379', )(Res47992)
+Con73598 = keras.layers.Concatenate(axis=2, name = 'Con73598', )([Zer61379,in0Con73598])
+Mas69926 = keras.layers.Masking(mask_value=2, name = 'Mas69926', )(in0Mas69926)
+Min43648 = keras.layers.Minimum(name = 'Min43648', )([Con73598,Mas69926])
+model = tf.keras.models.Model(inputs=[in0Dot12059,in1Dot12059,in0Sub44491,in1Sub44491,in0Con73598,in0Mas69926], outputs=Min43648)
+in0Dot12059 = tf.constant([[0.057, 0.5092, 0.2883]])
+in1Dot12059 = tf.constant([[0.2325, 0.9971, 0.1348]])
+in0Sub44491 = tf.constant([[0.5006, 0.1594, 0.2901]])
+in1Sub44491 = tf.constant([[0.7479, 0.3158, 0.4289]])
+in0Con73598 = tf.constant([[[0.8819, 0.0737], [0.853, 0.0587], [0.6265, 0.8412], [0.5769, 0.199]]])
+in0Mas69926 = tf.constant([[[1.0493, 1.3262, 1.9011], [1.4697, 1.8668, 1.2489], [1.9833, 1.1669, 1.359], [1.5564, 1.9002, 1.7328]]])
+print (np.array2string(model.predict([in0Dot12059,in1Dot12059,in0Sub44491,in1Sub44491,in0Con73598,in0Mas69926],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min43648.png')
+
+LDot12059 = dot_layer([[0.057, 0.5092, 0.2883]], [[0.2325, 0.9971, 0.1348]], 1, 1, Dot12059), 
+LSub44491 = subtract_layer([[0.5006, 0.1594, 0.2901]], [[0.7479, 0.3158, 0.4289]], Sub44491), 
+LRes88843 = reshape_layer(Sub44491, [3, 1], Res88843), 
+LGlo13650 = global_average_pooling1D_layer(Res88843, Glo13650), 
+LMin51108 = minimum_layer([Dot12059,Glo13650], Min51108), 
+LRes47992 = reshape_layer(Min51108, [1, 1], Res47992), 
+LZer61379 = zero_padding1D_layer(Res47992, 3, 0, Zer61379), 
+LCon73598 = concatenate_layer([Zer61379,[[[0.8819, 0.0737], [0.853, 0.0587], [0.6265, 0.8412], [0.5769, 0.199]]]], 2, Con73598), 
+LMas69926 = masking_layer([[[1.0493, 1.3262, 1.9011], [1.4697, 1.8668, 1.2489], [1.9833, 1.1669, 1.359], [1.5564, 1.9002, 1.7328]]], 2, Mas69926), 
+LMin43648 = minimum_layer([Con73598,Mas69926], Min43648), 
+exec_layers([LDot12059,LSub44491,LRes88843,LGlo13650,LMin51108,LRes47992,LZer61379,LCon73598,LMas69926,LMin43648],["Dot12059","Sub44491","Res88843","Glo13650","Min51108","Res47992","Zer61379","Con73598","Mas69926","Min43648"],Min43648,"Min43648")
+
+Actual (Unparsed): [[[0.0000000, 0.8819000, 0.0737000], [0.0000000, 0.8530000, 0.0587000], [0.0000000, 0.6265000, 0.8412000], [-0.1808333, 0.5769000, 0.1990000]]]
+
+Expected (Unparsed): [[[0,0.8819,0.0737],[0,0.853,0.0587],[0,0.6265,0.8412],[-0.18083333333333332,0.5769,0.199]]]
+
+Actual:   [[[0, 0.8819, 0.0737], [0, 0.853, 0.0587], [0, 0.6265, 0.8412], [-0.1808, 0.5769, 0.199]]]
+
+Expected: [[[0, 0.8819, 0.0737], [0, 0.853, 0.0587], [0, 0.6265, 0.8412], [-0.1808, 0.5769, 0.199]]]

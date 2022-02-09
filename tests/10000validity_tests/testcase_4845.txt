@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc27324 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Ave98640 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Ave98640 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con78363 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Loc27324 = keras.layers.LocallyConnected2D(3, (1, 2),strides=(1, 1), name = 'Loc27324', )(in0Loc27324)
+Ave98640 = keras.layers.Average(name = 'Ave98640', )([in0Ave98640,in1Ave98640])
+Con78363 = keras.layers.Concatenate(axis=3, name = 'Con78363', )([Ave98640,in0Con78363])
+Mul64736 = keras.layers.Multiply(name = 'Mul64736', )([Loc27324,Con78363])
+model = tf.keras.models.Model(inputs=[in0Loc27324,in0Ave98640,in1Ave98640,in0Con78363], outputs=Mul64736)
+w = model.get_layer('Loc27324').get_weights() 
+w[0] = np.array([[[0.9065, 0.7632, 0.9032], [0.0413, 0.0143, 0.7949], [0.1682, 0.8479, 0.1368], [0.7436, 0.836, 0.3632]], [[0.0995, 0.9055, 0.2715], [0.6167, 0.2678, 0.4862], [0.7376, 0.9359, 0.3934], [0.716, 0.3002, 0.3892]]])
+w[1] = np.array([[[0, 0, 0]], [[0, 0, 0]]])
+model.get_layer('Loc27324').set_weights(w) 
+in0Loc27324 = tf.constant([[[[0.1776, 0.5992], [0.4446, 0.7714]], [[0.5417, 0.5158], [0.2848, 0.8634]]]])
+in0Ave98640 = tf.constant([[[[0.2146]], [[0.7847]]]])
+in1Ave98640 = tf.constant([[[[0.9455]], [[0.8518]]]])
+in0Con78363 = tf.constant([[[[0.4112, 0.5057]], [[0.3922, 0.5207]]]])
+print (np.array2string(model.predict([in0Loc27324,in0Ave98640,in1Ave98640,in0Con78363],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul64736.png')
+
+LLoc27324 = locally_connected2D_layer([[[[0.1776, 0.5992], [0.4446, 0.7714]], [[0.5417, 0.5158], [0.2848, 0.8634]]]], 1, 2,[[[0.9065, 0.7632, 0.9032], [0.0413, 0.0143, 0.7949], [0.1682, 0.8479, 0.1368], [0.7436, 0.836, 0.3632]], [[0.0995, 0.9055, 0.2715], [0.6167, 0.2678, 0.4862], [0.7376, 0.9359, 0.3934], [0.716, 0.3002, 0.3892]]],[[[0, 0, 0]], [[0, 0, 0]]], 1, 1, Loc27324), 
+LAve98640 = average_layer([[[[[0.2146]], [[0.7847]]]], [[[[0.9455]], [[0.8518]]]]], Ave98640), 
+LCon78363 = concatenate_layer([Ave98640,[[[[0.4112, 0.5057]], [[0.3922, 0.5207]]]]], 3, Con78363), 
+LMul64736 = multiply_layer([Loc27324,Con78363], Mul64736), 
+exec_layers([LLoc27324,LAve98640,LCon78363,LMul64736],["Loc27324","Ave98640","Con78363","Mul64736"],Mul64736,"Mul64736")
+
+Actual (Unparsed): [[[[0.4838406, 0.4794508, 0.4944260]], [[0.9821094, 0.4527469, 0.4404753]]]]
+
+Expected (Unparsed): [[[[0.483840656406,0.47945081974399995,0.4944260051120001]],[[0.9821093819924999,0.45274689079799996,0.440475287577]]]]
+
+Actual:   [[[[0.4839, 0.4795, 0.4945]], [[0.9822, 0.4528, 0.4405]]]]
+
+Expected: [[[[0.4839, 0.4795, 0.4945]], [[0.9822, 0.4528, 0.4405]]]]

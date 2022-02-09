@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot18312 = tf.keras.layers.Input(shape=([2]))
+in1Dot18312 = tf.keras.layers.Input(shape=([2]))
+in0Con46650 = tf.keras.layers.Input(shape=([2, 1]))
+in0Dot53478 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot53478 = tf.keras.layers.Input(shape=([3, 2]))
+in0Max10955 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Max10955 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Dot18312 = keras.layers.Dot(axes=(1, 1), name = 'Dot18312', )([in0Dot18312,in1Dot18312])
+Res12680 = keras.layers.Reshape((1, 1), name = 'Res12680', )(Dot18312)
+Zer40827 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer40827', )(Res12680)
+Con46650 = keras.layers.Concatenate(axis=2, name = 'Con46650', )([Zer40827,in0Con46650])
+Dot53478 = keras.layers.Dot(axes=(1, 1), name = 'Dot53478', )([in0Dot53478,in1Dot53478])
+Add11082 = keras.layers.Add(name = 'Add11082', )([Con46650,Dot53478])
+Res54326 = keras.layers.Reshape((2, 2, 1), name = 'Res54326', )(Add11082)
+Res31328 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res31328', )(Res54326)
+Max10955 = keras.layers.Maximum(name = 'Max10955', )([in0Max10955,in1Max10955])
+Zer38053 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer38053', )(Max10955)
+Mul58895 = keras.layers.Multiply(name = 'Mul58895', )([Res31328,Zer38053])
+model = tf.keras.models.Model(inputs=[in0Dot18312,in1Dot18312,in0Con46650,in0Dot53478,in1Dot53478,in0Max10955,in1Max10955], outputs=Mul58895)
+in0Dot18312 = tf.constant([[0.4115, 0.7096]])
+in1Dot18312 = tf.constant([[0.0771, 0.4226]])
+in0Con46650 = tf.constant([[[0.0203], [0.2872]]])
+in0Dot53478 = tf.constant([[[0.5634, 0.208], [0.215, 0.7413], [0.4237, 0.2531]]])
+in1Dot53478 = tf.constant([[[0.6753, 0.3771], [0.4749, 0.6756], [0.2223, 0.0662]]])
+in0Max10955 = tf.constant([[[[[0.9224]], [[0.8193]]]]])
+in1Max10955 = tf.constant([[[[[0.3136]], [[0.1954]]]]])
+print (np.array2string(model.predict([in0Dot18312,in1Dot18312,in0Con46650,in0Dot53478,in1Dot53478,in0Max10955,in1Max10955],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul58895.png')
+
+LDot18312 = dot_layer([[0.4115, 0.7096]], [[0.0771, 0.4226]], 1, 1, Dot18312), 
+LRes12680 = reshape_layer(Dot18312, [1, 1], Res12680), 
+LZer40827 = zero_padding1D_layer(Res12680, 1, 0, Zer40827), 
+LCon46650 = concatenate_layer([Zer40827,[[[0.0203], [0.2872]]]], 2, Con46650), 
+LDot53478 = dot_layer([[[0.5634, 0.208], [0.215, 0.7413], [0.4237, 0.2531]]], [[[0.6753, 0.3771], [0.4749, 0.6756], [0.2223, 0.0662]]], 1, 1, Dot53478), 
+LAdd11082 = add_layer([Con46650,Dot53478], Add11082), 
+LRes54326 = reshape_layer(Add11082, [2, 2, 1], Res54326), 
+LRes31328 = reshape_layer(Res54326, [2, 2, 1, 1], Res31328), 
+LMax10955 = maximum_layer([[[[[[0.9224]], [[0.8193]]]]], [[[[[0.3136]], [[0.1954]]]]]], Max10955), 
+LZer38053 = zero_padding3D_layer(Max10955, 1, 0, 0, 0, 0, 0, Zer38053), 
+LMul58895 = multiply_layer([Res31328,Zer38053], Mul58895), 
+exec_layers([LDot18312,LRes12680,LZer40827,LCon46650,LDot53478,LAdd11082,LRes54326,LRes31328,LMax10955,LZer38053,LMul58895],["Dot18312","Res12680","Zer40827","Con46650","Dot53478","Add11082","Res54326","Res31328","Max10955","Zer38053","Mul58895"],Mul58895,"Mul58895")
+
+Actual (Unparsed): [[[[[0.0000000]], [[0.0000000]]], [[[0.8120565]], [[0.7236175]]]]]
+
+Expected (Unparsed): [[[[[0.0]],[[0.0]]],[[[0.8120565256239999]],[[0.7236174759899999]]]]]
+
+Actual:   [[[[[0]], [[0]]], [[[0.8121]], [[0.7237]]]]]
+
+Expected: [[[[[0]], [[0]]], [[[0.8121]], [[0.7237]]]]]

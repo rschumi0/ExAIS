@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave15116 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave15116 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con61597 = tf.keras.layers.Input(shape=([1, 2, 3]))
+in0Sep80873 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Ave15116 = keras.layers.Average(name = 'Ave15116', )([in0Ave15116,in1Ave15116])
+Res65535 = keras.layers.Reshape((1, 2, 1), name = 'Res65535', )(Ave15116)
+Con61597 = keras.layers.Concatenate(axis=3, name = 'Con61597', )([Res65535,in0Con61597])
+Sep80873 = keras.layers.SeparableConv2D(4, (1, 2),strides=(1, 1), padding='same', name = 'Sep80873', )(in0Sep80873)
+Min80200 = keras.layers.Minimum(name = 'Min80200', )([Con61597,Sep80873])
+model = tf.keras.models.Model(inputs=[in0Ave15116,in1Ave15116,in0Con61597,in0Sep80873], outputs=Min80200)
+w = model.get_layer('Sep80873').get_weights() 
+w[0] = np.array([[[[0.6383], [0.4621]], [[0.798], [0.8616]]]])
+w[1] = np.array([[[[0.4675, 0.2405, 0.5422, 0.5337], [0.8348, 0.6838, 0.3913, 0.9982]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep80873').set_weights(w) 
+in0Ave15116 = tf.constant([[[0.2821, 0.2237]]])
+in1Ave15116 = tf.constant([[[0.8921, 0.8451]]])
+in0Con61597 = tf.constant([[[[0.5411, 0.9491, 0.7442], [0.3293, 0.8542, 0.8058]]]])
+in0Sep80873 = tf.constant([[[[0.3473, 0.6603], [0.4564, 0.6144]]]])
+print (np.array2string(model.predict([in0Ave15116,in1Ave15116,in0Con61597,in0Sep80873],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min80200.png')
+
+LAve15116 = average_layer([[[[0.2821, 0.2237]]], [[[0.8921, 0.8451]]]], Ave15116), 
+LRes65535 = reshape_layer(Ave15116, [1, 2, 1], Res65535), 
+LCon61597 = concatenate_layer([Res65535,[[[[0.5411, 0.9491, 0.7442], [0.3293, 0.8542, 0.8058]]]]], 3, Con61597), 
+LSep80873 = separable_conv2D_layer([[[[0.3473, 0.6603], [0.4564, 0.6144]]]], 1, 2,[[[[[0.6383], [0.4621]], [[0.798], [0.8616]]]],[[[[0.4675, 0.2405, 0.5422, 0.5337], [0.8348, 0.6838, 0.3913, 0.9982]]]]],[0, 0, 0, 0], 1, 1, true, Sep80873), 
+LMin80200 = minimum_layer([Con61597,Sep80873], Min80200), 
+exec_layers([LAve15116,LRes65535,LCon61597,LSep80873,LMin80200],["Ave15116","Res65535","Con61597","Sep80873","Min80200"],Min80200,"Min80200")
+
+Actual (Unparsed): [[[[0.5871000, 0.5411000, 0.6442055, 0.7442000], [0.3732038, 0.2642031, 0.2690494, 0.4388808]]]]
+
+Expected (Unparsed): [[[[0.5871,0.5411,0.644205492409,0.7442],[0.373203763652,0.26420304617199997,0.269049411176,0.4388807424119999]]]]
+
+Actual:   [[[[0.5871, 0.5411, 0.6443, 0.7442], [0.3733, 0.2643, 0.2691, 0.4389]]]]
+
+Expected: [[[[0.5871, 0.5411, 0.6443, 0.7442], [0.3733, 0.2643, 0.2691, 0.4389]]]]

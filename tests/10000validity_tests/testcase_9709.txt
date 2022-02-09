@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot15468 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot15468 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con9985 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Add20615 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add20615 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Dot15468 = keras.layers.Dot(axes=(2, 2), name = 'Dot15468', )([in0Dot15468,in1Dot15468])
+Res27571 = keras.layers.Reshape((2, 2, 1), name = 'Res27571', )(Dot15468)
+Con9985 = keras.layers.Concatenate(axis=3, name = 'Con9985', )([Res27571,in0Con9985])
+Add20615 = keras.layers.Add(name = 'Add20615', )([in0Add20615,in1Add20615])
+Loc71795 = keras.layers.LocallyConnected2D(3, (2, 1),strides=(1, 1), name = 'Loc71795', )(Add20615)
+ReL50322 = keras.layers.ReLU(max_value=1.475751423118669, negative_slope=4.280524198259585, threshold=2.130943458024128, name = 'ReL50322', )(Loc71795)
+Zer23775 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer23775', )(ReL50322)
+Add29325 = keras.layers.Add(name = 'Add29325', )([Con9985,Zer23775])
+model = tf.keras.models.Model(inputs=[in0Dot15468,in1Dot15468,in0Con9985,in0Add20615,in1Add20615], outputs=Add29325)
+w = model.get_layer('Loc71795').get_weights() 
+w[0] = np.array([[[0.3351, 0.8405, 0.6243], [0.5935, 0.4403, 0.341], [0.1517, 0.5407, 0.9853], [0.0145, 0.2071, 0.3176]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc71795').set_weights(w) 
+in0Dot15468 = tf.constant([[[0.188, 0.2355], [0.7316, 0.9323]]])
+in1Dot15468 = tf.constant([[[0.2303, 0.8767], [0.3734, 0.6653]]])
+in0Con9985 = tf.constant([[[[0.3409, 0.3334], [0.0299, 0.3271]], [[0.1924, 0.6327], [0.6067, 0.6171]]]])
+in0Add20615 = tf.constant([[[[0.3363, 0.2325]], [[0.8498, 0.3403]]]])
+in1Add20615 = tf.constant([[[[0.0271, 0.2057]], [[0.2203, 0.4541]]]])
+print (np.array2string(model.predict([in0Dot15468,in1Dot15468,in0Con9985,in0Add20615,in1Add20615],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add29325.png')
+
+LDot15468 = dot_layer([[[0.188, 0.2355], [0.7316, 0.9323]]], [[[0.2303, 0.8767], [0.3734, 0.6653]]], 2, 2, Dot15468), 
+LRes27571 = reshape_layer(Dot15468, [2, 2, 1], Res27571), 
+LCon9985 = concatenate_layer([Res27571,[[[[0.3409, 0.3334], [0.0299, 0.3271]], [[0.1924, 0.6327], [0.6067, 0.6171]]]]], 3, Con9985), 
+LAdd20615 = add_layer([[[[[0.3363, 0.2325]], [[0.8498, 0.3403]]]], [[[[0.0271, 0.2057]], [[0.2203, 0.4541]]]]], Add20615), 
+LLoc71795 = locally_connected2D_layer(Add20615, 2, 1,[[[0.3351, 0.8405, 0.6243], [0.5935, 0.4403, 0.341], [0.1517, 0.5407, 0.9853], [0.0145, 0.2071, 0.3176]]],[[[0, 0, 0]]], 1, 1, Loc71795), 
+LReL50322 = relu_layer(Loc71795, 1.475751423118669, 4.280524198259585, 2.130943458024128, ReL50322), 
+LZer23775 = zero_padding2D_layer(ReL50322, 1, 0, 1, 0, Zer23775), 
+LAdd29325 = add_layer([Con9985,Zer23775], Add29325), 
+exec_layers([LDot15468,LRes27571,LCon9985,LAdd20615,LLoc71795,LReL50322,LZer23775,LAdd29325],["Dot15468","Res27571","Con9985","Add20615","Loc71795","ReL50322","Zer23775","Add29325"],Add29325,"Add29325")
+
+Actual (Unparsed): [[[[0.2497592, 0.3409000, 0.3334000], [0.2268773, 0.0299000, 0.3271000]], [[0.9858348, 0.1924000, 0.6327000], [-5.8494291, -3.2005823, -1.3004707]]]]
+
+Expected (Unparsed): [[[[0.24975925,0.3409,0.3334],[0.22687734999999998,0.0299,0.3271]],[[0.98583489,0.1924,0.6327],[-5.8494290674171445,-3.200582233209591,-1.3004706872087846]]]]
+
+Actual:   [[[[0.2498, 0.3409, 0.3334], [0.2269, 0.0299, 0.3271]], [[0.9859, 0.1924, 0.6327], [-5.8494, -3.2005, -1.3004]]]]
+
+Expected: [[[[0.2498, 0.3409, 0.3334], [0.2269, 0.0299, 0.3271]], [[0.9859, 0.1924, 0.6327], [-5.8494, -3.2005, -1.3004]]]]

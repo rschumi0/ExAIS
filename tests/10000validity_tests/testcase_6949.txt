@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro8045 = tf.keras.layers.Input(shape=([1, 4, 2, 3]))
+in0Add1870 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add1870 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con68941 = tf.keras.layers.Input(shape=([2]))
+
+Cro8045 = keras.layers.Cropping3D(cropping=((0, 0), (3, 0), (0, 1)), name = 'Cro8045', )(in0Cro8045)
+Res18020 = keras.layers.Reshape((1, 1, 3), name = 'Res18020', )(Cro8045)
+Dep30497 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep30497', )(Res18020)
+Res28760 = keras.layers.Reshape((1, 3), name = 'Res28760', )(Dep30497)
+Loc72879 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc72879', )(Res28760)
+Fla21635 = keras.layers.Flatten(name = 'Fla21635', )(Loc72879)
+Add1870 = keras.layers.Add(name = 'Add1870', )([in0Add1870,in1Add1870])
+Res17584 = keras.layers.Reshape((1, 1, 1), name = 'Res17584', )(Add1870)
+Glo2585 = keras.layers.GlobalAveragePooling2D(name = 'Glo2585', )(Res17584)
+Con68941 = keras.layers.Concatenate(axis=1, name = 'Con68941', )([Glo2585,in0Con68941])
+Ave15596 = keras.layers.Average(name = 'Ave15596', )([Fla21635,Con68941])
+model = tf.keras.models.Model(inputs=[in0Cro8045,in0Add1870,in1Add1870,in0Con68941], outputs=Ave15596)
+w = model.get_layer('Dep30497').get_weights() 
+w[0] = np.array([[[[0.502], [0.3733], [0.2117]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Dep30497').set_weights(w) 
+w = model.get_layer('Loc72879').get_weights() 
+w[0] = np.array([[[0.2814, 0.0788, 0.6227], [0.2964, 0.2175, 0.6994], [0.6824, 0.4582, 0.6964]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc72879').set_weights(w) 
+in0Cro8045 = tf.constant([[[[[1.6469, 1.8598, 1.1294], [1.0636, 1.8503, 1.0794]], [[1.8391, 1.56, 1.3047], [1.979, 1.5682, 1.3756]], [[1.9763, 1.2721, 1.1963], [1.9191, 1.657, 1.7245]], [[1.7291, 1.9665, 1.8799], [1.9576, 1.0403, 1.3311]]]]])
+in0Add1870 = tf.constant([[[0.7723]]])
+in1Add1870 = tf.constant([[[0.2584]]])
+in0Con68941 = tf.constant([[0.7803, 0.5376]])
+print (np.array2string(model.predict([in0Cro8045,in0Add1870,in1Add1870,in0Con68941],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave15596.png')
+
+LCro8045 = cropping3D_layer([[[[[1.6469, 1.8598, 1.1294], [1.0636, 1.8503, 1.0794]], [[1.8391, 1.56, 1.3047], [1.979, 1.5682, 1.3756]], [[1.9763, 1.2721, 1.1963], [1.9191, 1.657, 1.7245]], [[1.7291, 1.9665, 1.8799], [1.9576, 1.0403, 1.3311]]]]], 0, 0, 3, 0, 0, 1, Cro8045), 
+LRes18020 = reshape_layer(Cro8045, [1, 1, 3], Res18020), 
+LDep30497 = depthwise_conv2D_layer(Res18020, 1, 1,[[[[0.502], [0.3733], [0.2117]]]],[0, 0, 0], 1, 1, false, Dep30497), 
+LRes28760 = reshape_layer(Dep30497, [1, 3], Res28760), 
+LLoc72879 = locally_connected1D_layer(Res28760, 1,[[[0.2814, 0.0788, 0.6227], [0.2964, 0.2175, 0.6994], [0.6824, 0.4582, 0.6964]]],[[0, 0, 0]], 1, Loc72879), 
+LFla21635 = flatten_layer(Loc72879, Fla21635), 
+LAdd1870 = add_layer([[[[0.7723]]], [[[0.2584]]]], Add1870), 
+LRes17584 = reshape_layer(Add1870, [1, 1, 1], Res17584), 
+LGlo2585 = global_average_pooling2D_layer(Res17584, Glo2585), 
+LCon68941 = concatenate_layer([Glo2585,[[0.7803, 0.5376]]], 1, Con68941), 
+LAve15596 = average_layer([Fla21635,Con68941], Ave15596), 
+exec_layers([LCro8045,LRes18020,LDep30497,LRes28760,LLoc72879,LFla21635,LAdd1870,LRes17584,LGlo2585,LCon68941,LAve15596],["Cro8045","Res18020","Dep30497","Res28760","Loc72879","Fla21635","Add1870","Res17584","Glo2585","Con68941","Ave15596"],Ave15596,"Ave15596")
+
+Actual (Unparsed): [[0.8820606, 0.5953583, 0.9343420]]
+
+Expected (Unparsed): [[0.8820605632259999,0.5953583280704999,0.9343420180409998]]
+
+Actual:   [[0.8821, 0.5954, 0.9344]]
+
+Expected: [[0.8821, 0.5954, 0.9344]]

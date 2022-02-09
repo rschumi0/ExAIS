@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr46215 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0ELU81190 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Thr46215 = keras.layers.ThresholdedReLU(theta=1.2066783869533542, name = 'Thr46215', input_shape=(2, 1, 1, 1))(in0Thr46215)
+Zer30447 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer30447', )(Thr46215)
+ELU81190 = keras.layers.ELU(alpha=-4.522101467465413, name = 'ELU81190', input_shape=(2, 1, 2, 1))(in0ELU81190)
+Min31626 = keras.layers.Minimum(name = 'Min31626', )([Zer30447,ELU81190])
+Res30455 = keras.layers.Reshape((2, 1, 2), name = 'Res30455', )(Min31626)
+Res31767 = keras.layers.Reshape((2, 2), name = 'Res31767', )(Res30455)
+Up_48670 = keras.layers.UpSampling1D(size=(1), name = 'Up_48670', )(Res31767)
+model = tf.keras.models.Model(inputs=[in0Thr46215,in0ELU81190], outputs=Up_48670)
+in0Thr46215 = tf.constant([[[[[0.8098]]], [[[0.2613]]]]])
+in0ELU81190 = tf.constant([[[[[0.1825], [0.2416]]], [[[0.7762], [0.2454]]]]])
+print (np.array2string(model.predict([in0Thr46215,in0ELU81190],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_48670.png')
+
+LThr46215 = thresholded_relu_layer([[[[[0.8098]]], [[[0.2613]]]]], 1.2066783869533542, Thr46215), 
+LZer30447 = zero_padding3D_layer(Thr46215, 0, 0, 0, 0, 1, 0, Zer30447), 
+LELU81190 = elu_layer([[[[[0.1825], [0.2416]]], [[[0.7762], [0.2454]]]]], -4.522101467465413, ELU81190), 
+LMin31626 = minimum_layer([Zer30447,ELU81190], Min31626), 
+LRes30455 = reshape_layer(Min31626, [2, 1, 2], Res30455), 
+LRes31767 = reshape_layer(Res30455, [2, 2], Res31767), 
+LUp_48670 = up_sampling1D_layer(Res31767, 1, Up_48670), 
+exec_layers([LThr46215,LZer30447,LELU81190,LMin31626,LRes30455,LRes31767,LUp_48670],["Thr46215","Zer30447","ELU81190","Min31626","Res30455","Res31767","Up_48670"],Up_48670,"Up_48670")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0],[0,0]]]
+
+Actual:   [[[0, 0], [0, 0]]]
+
+Expected: [[[0, 0], [0, 0]]]

@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul2394 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Mul2394 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Sof22036 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con44539 = tf.keras.layers.Input(shape=([2, 2, 3]))
+
+Mul2394 = keras.layers.Multiply(name = 'Mul2394', )([in0Mul2394,in1Mul2394])
+ReL62613 = keras.layers.ReLU(max_value=5.510599685464839, negative_slope=2.1777376362678416, threshold=4.230980840240015, name = 'ReL62613', )(Mul2394)
+Res11332 = keras.layers.Reshape((2, 1, 4), name = 'Res11332', )(ReL62613)
+Zer59044 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer59044', )(Res11332)
+Sof22036 = keras.layers.Softmax(axis=1, name = 'Sof22036', input_shape=(2, 2, 1))(in0Sof22036)
+Con44539 = keras.layers.Concatenate(axis=3, name = 'Con44539', )([Sof22036,in0Con44539])
+Ave68874 = keras.layers.Average(name = 'Ave68874', )([Zer59044,Con44539])
+Dep33898 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep33898', )(Ave68874)
+model = tf.keras.models.Model(inputs=[in0Mul2394,in1Mul2394,in0Sof22036,in0Con44539], outputs=Dep33898)
+w = model.get_layer('Dep33898').get_weights() 
+w[0] = np.array([[[[0.4575], [0.9233], [0.713], [0.8899]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Dep33898').set_weights(w) 
+in0Mul2394 = tf.constant([[[[[0.9373, 0.2602], [0.8642, 0.8639]]], [[[0.6543, 0.9531], [0.2036, 0.5317]]]]])
+in1Mul2394 = tf.constant([[[[[0.1102, 0.47], [0.4751, 0.103]]], [[[0.8952, 0.2819], [0.797, 0.7924]]]]])
+in0Sof22036 = tf.constant([[[[0.1054], [0.4305]], [[0.4082], [0.7055]]]])
+in0Con44539 = tf.constant([[[[0.6999, 0.1981, 0.2292], [0.4065, 0.5464, 0.9962]], [[0.8381, 0.9502, 0.7647], [0.5804, 0.4359, 0.7399]]]])
+print (np.array2string(model.predict([in0Mul2394,in1Mul2394,in0Sof22036,in0Con44539],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep33898.png')
+
+LMul2394 = multiply_layer([[[[[[0.9373, 0.2602], [0.8642, 0.8639]]], [[[0.6543, 0.9531], [0.2036, 0.5317]]]]], [[[[[0.1102, 0.47], [0.4751, 0.103]]], [[[0.8952, 0.2819], [0.797, 0.7924]]]]]], Mul2394), 
+LReL62613 = relu_layer(Mul2394, 5.510599685464839, 2.1777376362678416, 4.230980840240015, ReL62613), 
+LRes11332 = reshape_layer(ReL62613, [2, 1, 4], Res11332), 
+LZer59044 = zero_padding2D_layer(Res11332, 0, 0, 1, 0, Zer59044), 
+LSof22036 = softmax_layer([[[[0.1054], [0.4305]], [[0.4082], [0.7055]]]], 1, Sof22036), 
+LCon44539 = concatenate_layer([Sof22036,[[[[0.6999, 0.1981, 0.2292], [0.4065, 0.5464, 0.9962]], [[0.8381, 0.9502, 0.7647], [0.5804, 0.4359, 0.7399]]]]], 3, Con44539), 
+LAve68874 = average_layer([Zer59044,Con44539], Ave68874), 
+LDep33898 = depthwise_conv2D_layer(Ave68874, 1, 1,[[[[0.4575], [0.9233], [0.713], [0.8899]]]],[0, 0, 0, 0], 1, 1, true, Dep33898), 
+exec_layers([LMul2394,LReL62613,LRes11332,LZer59044,LSof22036,LCon44539,LAve68874,LDep33898],["Mul2394","ReL62613","Res11332","Zer59044","Sof22036","Con44539","Ave68874","Dep33898"],Dep33898,"Dep33898")
+
+Actual (Unparsed): [[[[0.0971897, 0.3231088, 0.0706227, 0.1019825], [-1.9574930, -3.9430182, -2.7712269, -3.5702732]], [[0.1315603, 0.3869089, 0.3387463, 0.3402533], [-1.6859061, -3.7155688, -3.0034007, -3.3622842]]]]
+
+Expected (Unparsed): [[[[0.09718973146260525,0.323108835,0.07062265,0.10198254],[-1.9574930519949243,-3.9430181893559633,-2.771226940481094,-3.5702732012340723]],[[0.13156026853739475,0.386908865,0.3387463,0.340253265],[-1.6859061108029665,-3.7155688275532053,-3.003400726580576,-3.362284162352822]]]]
+
+Actual:   [[[[0.0972, 0.3232, 0.0707, 0.102], [-1.9574, -3.943, -2.7712, -3.5702]], [[0.1316, 0.387, 0.3388, 0.3403], [-1.6859, -3.7155, -3.0034, -3.3622]]]]
+
+Expected: [[[[0.0972, 0.3232, 0.0707, 0.102], [-1.9574, -3.943, -2.7712, -3.5702]], [[0.1316, 0.387, 0.3388, 0.3403], [-1.6859, -3.7155, -3.0034, -3.3622]]]]

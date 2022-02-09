@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr75030 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Con91445 = tf.keras.layers.Input(shape=([2, 14]))
+in0Max20814 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max20814 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Thr75030 = keras.layers.ThresholdedReLU(theta=2.30113441300632, name = 'Thr75030', input_shape=(2, 1, 2, 1))(in0Thr75030)
+Res80967 = keras.layers.Reshape((2, 1, 2), name = 'Res80967', )(Thr75030)
+Res63601 = keras.layers.Reshape((2, 2), name = 'Res63601', )(Res80967)
+Con91445 = keras.layers.Concatenate(axis=2, name = 'Con91445', )([Res63601,in0Con91445])
+Max20814 = keras.layers.Maximum(name = 'Max20814', )([in0Max20814,in1Max20814])
+Res50386 = keras.layers.Reshape((1, 2), name = 'Res50386', )(Max20814)
+Loc67988 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc67988', )(Res50386)
+Res95244 = keras.layers.Reshape((1, 2, 1), name = 'Res95244', )(Loc67988)
+Res96888 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res96888', )(Res95244)
+Con6628 = keras.layers.Conv3DTranspose(4, (1, 2, 1),strides=(1, 2, 1), padding='same', name = 'Con6628', )(Res96888)
+Res52602 = keras.layers.Reshape((1, 4, 4), name = 'Res52602', )(Con6628)
+Res66260 = keras.layers.Reshape((1, 16), name = 'Res66260', )(Res52602)
+Dot42546 = keras.layers.Dot(axes=(2, 2), name = 'Dot42546', )([Con91445,Res66260])
+model = tf.keras.models.Model(inputs=[in0Thr75030,in0Con91445,in0Max20814,in1Max20814], outputs=Dot42546)
+w = model.get_layer('Loc67988').get_weights() 
+w[0] = np.array([[[0.7235, 0.442], [0.4597, 0.3841]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc67988').set_weights(w) 
+w = model.get_layer('Con6628').get_weights() 
+w[0] = np.array([[[[[0.9673], [0.0164], [0.7528], [0.5693]]], [[[0.8416], [0.4317], [0.8147], [0.9161]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con6628').set_weights(w) 
+in0Thr75030 = tf.constant([[[[[0.5533], [0.8218]]], [[[0.0958], [0.1]]]]])
+in0Con91445 = tf.constant([[[0.4954, 0.4666, 0.6002, 0.247, 0.6387, 0.3351, 0.5557, 0.7281, 0.0825, 0.0012, 0.3137, 0.6828, 0.437, 0.3335], [0.1019, 0.0288, 0.5746, 0.7381, 0.7423, 0.7695, 0.4209, 0.0609, 0.1885, 0.9292, 0.8754, 0.7558, 0.8102, 0.575]]])
+in0Max20814 = tf.constant([[[[0.3485, 0.7931]]]])
+in1Max20814 = tf.constant([[[[0.9377, 0.4536]]]])
+print (np.array2string(model.predict([in0Thr75030,in0Con91445,in0Max20814,in1Max20814],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot42546.png')
+
+LThr75030 = thresholded_relu_layer([[[[[0.5533], [0.8218]]], [[[0.0958], [0.1]]]]], 2.30113441300632, Thr75030), 
+LRes80967 = reshape_layer(Thr75030, [2, 1, 2], Res80967), 
+LRes63601 = reshape_layer(Res80967, [2, 2], Res63601), 
+LCon91445 = concatenate_layer([Res63601,[[[0.4954, 0.4666, 0.6002, 0.247, 0.6387, 0.3351, 0.5557, 0.7281, 0.0825, 0.0012, 0.3137, 0.6828, 0.437, 0.3335], [0.1019, 0.0288, 0.5746, 0.7381, 0.7423, 0.7695, 0.4209, 0.0609, 0.1885, 0.9292, 0.8754, 0.7558, 0.8102, 0.575]]]], 2, Con91445), 
+LMax20814 = maximum_layer([[[[[0.3485, 0.7931]]]], [[[[0.9377, 0.4536]]]]], Max20814), 
+LRes50386 = reshape_layer(Max20814, [1, 2], Res50386), 
+LLoc67988 = locally_connected1D_layer(Res50386, 1,[[[0.7235, 0.442], [0.4597, 0.3841]]],[[0, 0]], 1, Loc67988), 
+LRes95244 = reshape_layer(Loc67988, [1, 2, 1], Res95244), 
+LRes96888 = reshape_layer(Res95244, [1, 2, 1, 1], Res96888), 
+LCon6628 = conv3D_transpose_layer(Res96888, 1, 2, 1,[[[[[0.9673], [0.0164], [0.7528], [0.5693]]], [[[0.8416], [0.4317], [0.8147], [0.9161]]]]],[0, 0, 0, 0], 1, 2, 1, true, Con6628), 
+LRes52602 = reshape_layer(Con6628, [1, 4, 4], Res52602), 
+LRes66260 = reshape_layer(Res52602, [1, 16], Res66260), 
+LDot42546 = dot_layer(Con91445,Res66260, 2, 2, Dot42546), 
+exec_layers([LThr75030,LRes80967,LRes63601,LCon91445,LMax20814,LRes50386,LLoc67988,LRes95244,LRes96888,LCon6628,LRes52602,LRes66260,LDot42546],["Thr75030","Res80967","Res63601","Con91445","Max20814","Res50386","Loc67988","Res95244","Res96888","Con6628","Res52602","Res66260","Dot42546"],Dot42546,"Dot42546")
+
+Actual (Unparsed): [[[3.4848265], [4.6936354]]]
+
+Expected (Unparsed): [[[3.484826595281014],[4.69363555098986]]]
+
+Actual:   [[[3.4849], [4.6937]]]
+
+Expected: [[[3.4849], [4.6937]]]

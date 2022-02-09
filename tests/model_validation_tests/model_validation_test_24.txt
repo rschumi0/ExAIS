@@ -1,0 +1,79 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_900 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Max46715 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max46715 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Max28180 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0GRU51203 = tf.keras.layers.Input(shape=([1, 3]))
+in0Max67586 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Max67586 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+Up_900 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_900',  input_shape=(2, 2, 3))(in0Up_900)
+Res46249 = keras.layers.Reshape((2, 6), name = 'Res46249', )(Up_900)
+Max46715 = keras.layers.Maximum(name = 'Max46715', )([in0Max46715,in1Max46715])
+Res38503 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res38503', )(Max46715)
+Max28180 = keras.layers.MaxPool2D(pool_size=(1, 2), name = 'Max28180', )(in0Max28180)
+Res31673 = keras.layers.Reshape((1, 1), name = 'Res31673', )(Max28180)
+GRU51203 = keras.layers.RNN(keras.layers.GRUCell(1,reset_after=True, recurrent_activation='sigmoid', ), name = 'GRU51203', input_shape=(1, 3))(in0GRU51203)
+Res68089 = keras.layers.Reshape((1, 1), name = 'Res68089', )(GRU51203)
+Max71220 = keras.layers.Maximum(name = 'Max71220', )([Res31673,Res68089])
+Res74285 = keras.layers.Reshape((1, 1, 1), name = 'Res74285', )(Max71220)
+Res2569 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res2569', )(Res74285)
+Zer14569 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer14569', )(Res2569)
+Max67586 = keras.layers.Maximum(name = 'Max67586', )([in0Max67586,in1Max67586])
+Sub26242 = keras.layers.Subtract(name = 'Sub26242', )([Zer14569,Max67586])
+Zer27062 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer27062', )(Sub26242)
+Mul87227 = keras.layers.Multiply(name = 'Mul87227', )([Res38503,Zer27062])
+Res3354 = keras.layers.Reshape((2, 2, 2), name = 'Res3354', )(Mul87227)
+Dot24791 = keras.layers.Dot(axes=(2, 1), name = 'Dot24791', )([Res46249,Res3354])
+model = tf.keras.models.Model(inputs=[in0Up_900,in0Max46715,in1Max46715,in0Max28180,in0GRU51203,in0Max67586,in1Max67586], outputs=Dot24791)
+w = model.get_layer('GRU51203').get_weights() 
+w[0] = np.array([[8, 1, 4], [1, 3, 10], [8, 1, 4]])
+w[1] = np.array([[4, 7, 9]])
+w[2] = np.array([[9, 10, 5], [8, 2, 5]])
+model.get_layer('GRU51203').set_weights(w) 
+in0Up_900 = tf.constant([[[[1.9473, 1.1444, 1.4408], [1.3802, 1.4244, 1.4451]], [[1.4851, 1.9204, 1.065], [1.7749, 1.1151, 1.4862]]]])
+in0Max46715 = tf.constant([[[[0.4916, 0.2863], [0.4198, 0.2026]], [[0.8291, 0.9752], [0.5409, 0.5058]]]])
+in1Max46715 = tf.constant([[[[0.1089, 0.2135], [0.9237, 0.1119]], [[0.0863, 0.9766], [0.5551, 0.1036]]]])
+in0Max28180 = tf.constant([[[[1.3998], [1.6929]]]])
+in0GRU51203 = tf.constant([[[10, 4, 4]]])
+in0Max67586 = tf.constant([[[[[0.9139]]], [[[0.8385]]]]])
+in1Max67586 = tf.constant([[[[[0.2746]]], [[[0.5478]]]]])
+print (np.array2string(model.predict([in0Up_900,in0Max46715,in1Max46715,in0Max28180,in0GRU51203,in0Max67586,in1Max67586],steps=1), separator=', '))
+
+
+LUp_900 = up_sampling2D_layer([[[[1.9473, 1.1444, 1.4408], [1.3802, 1.4244, 1.4451]], [[1.4851, 1.9204, 1.065], [1.7749, 1.1151, 1.4862]]]], 1, 1, Up_900), 
+LRes46249 = reshape_layer(Up_900, [2, 6], Res46249), 
+LMax46715 = maximum_layer([[[[[0.4916, 0.2863], [0.4198, 0.2026]], [[0.8291, 0.9752], [0.5409, 0.5058]]]], [[[[0.1089, 0.2135], [0.9237, 0.1119]], [[0.0863, 0.9766], [0.5551, 0.1036]]]]], Max46715), 
+LRes38503 = reshape_layer(Max46715, [2, 2, 2, 1], Res38503), 
+LMax28180 = max_pool2D_layer([[[[1.3998], [1.6929]]]], 1, 2, Max28180), 
+LRes31673 = reshape_layer(Max28180, [1, 1], Res31673), 
+LGRU51203 = grucell_layer([[[10, 4, 4]]],[[8, 1, 4], [1, 3, 10], [8, 1, 4]],[[4, 7, 9]],[[9, 10, 5], [8, 2, 5]], true, GRU51203), 
+LRes68089 = reshape_layer(GRU51203, [1, 1], Res68089), 
+LMax71220 = maximum_layer([Res31673,Res68089], Max71220), 
+LRes74285 = reshape_layer(Max71220, [1, 1, 1], Res74285), 
+LRes2569 = reshape_layer(Res74285, [1, 1, 1, 1], Res2569), 
+LZer14569 = zero_padding3D_layer(Res2569, 1, 0, 0, 0, 0, 0, Zer14569), 
+LMax67586 = maximum_layer([[[[[[0.9139]]], [[[0.8385]]]]], [[[[[0.2746]]], [[[0.5478]]]]]], Max67586), 
+LSub26242 = subtract_layer(Zer14569,Max67586, Sub26242), 
+LZer27062 = zero_padding3D_layer(Sub26242, 0, 0, 1, 0, 1, 0, Zer27062), 
+LMul87227 = multiply_layer([Res38503,Zer27062], Mul87227), 
+LRes3354 = reshape_layer(Mul87227, [2, 2, 2], Res3354), 
+LDot24791 = dot_layer(Res46249,Res3354, 2, 1, Dot24791), 
+exec_layers([LUp_900,LRes46249,LMax46715,LRes38503,LMax28180,LRes31673,LGRU51203,LRes68089,LMax71220,LRes74285,LRes2569,LZer14569,LMax67586,LSub26242,LZer27062,LMul87227,LRes3354,LDot24791],["Up_900","Res46249","Max46715","Res38503","Max28180","Res31673","GRU51203","Res68089","Max71220","Res74285","Res2569","Zer14569","Max67586","Sub26242","Zer27062","Mul87227","Res3354","Dot24791"],Dot24791,"Dot24791")
+
+Actual (Unparsed): 
+ ValueError('Dimension incompatibility 'ValueError: Dimension incompatibility 6 != 2. Layer shapes: (None, 2, 6), (None, 2, 2, 2). Chosen axes: 2, 1
+
+Expected (Unparsed): 
+Dot24791: Dimension error, Input Shape [1,2,2,2]
+
+Actual:   
+
+Expected: 

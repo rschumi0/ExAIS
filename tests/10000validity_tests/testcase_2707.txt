@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min25784 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min25784 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con84349 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot51928 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot51928 = tf.keras.layers.Input(shape=([3, 2]))
+
+Min25784 = keras.layers.Minimum(name = 'Min25784', )([in0Min25784,in1Min25784])
+Zer56486 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer56486', )(Min25784)
+Con84349 = keras.layers.Concatenate(axis=2, name = 'Con84349', )([Zer56486,in0Con84349])
+Dot51928 = keras.layers.Dot(axes=(2, 2), name = 'Dot51928', )([in0Dot51928,in1Dot51928])
+Sub12832 = keras.layers.Subtract(name = 'Sub12832', )([Con84349,Dot51928])
+model = tf.keras.models.Model(inputs=[in0Min25784,in1Min25784,in0Con84349,in0Dot51928,in1Dot51928], outputs=Sub12832)
+in0Min25784 = tf.constant([[[0.1319], [0.3275]]])
+in1Min25784 = tf.constant([[[0.9354], [0.6808]]])
+in0Con84349 = tf.constant([[[0.6621, 0.5175], [0.8085, 0.9791], [0.3994, 0.1686]]])
+in0Dot51928 = tf.constant([[[0.6339, 0.6506], [0.2509, 0.2714], [0.4031, 0.0136]]])
+in1Dot51928 = tf.constant([[[0.9076, 0.2107], [0.5304, 0.7504], [0.7453, 0.7816]]])
+print (np.array2string(model.predict([in0Min25784,in1Min25784,in0Con84349,in0Dot51928,in1Dot51928],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub12832.png')
+
+LMin25784 = minimum_layer([[[[0.1319], [0.3275]]], [[[0.9354], [0.6808]]]], Min25784), 
+LZer56486 = zero_padding1D_layer(Min25784, 1, 0, Zer56486), 
+LCon84349 = concatenate_layer([Zer56486,[[[0.6621, 0.5175], [0.8085, 0.9791], [0.3994, 0.1686]]]], 2, Con84349), 
+LDot51928 = dot_layer([[[0.6339, 0.6506], [0.2509, 0.2714], [0.4031, 0.0136]]], [[[0.9076, 0.2107], [0.5304, 0.7504], [0.7453, 0.7816]]], 2, 2, Dot51928), 
+LSub12832 = subtract_layer(Con84349,Dot51928, Sub12832), 
+exec_layers([LMin25784,LZer56486,LCon84349,LDot51928,LSub12832],["Min25784","Zer56486","Con84349","Dot51928","Sub12832"],Sub12832,"Sub12832")
+
+Actual (Unparsed): [[[-0.7124090, -0.1623308, -0.4634546], [-0.1530008, 0.4717641, 0.5799780], [-0.0412191, 0.1753903, -0.1424602]]]
+
+Expected (Unparsed): [[[-0.71240906,-0.1623308,-0.46345462999999987],[-0.15300082,0.47176408000000003,0.5799779899999999],[-0.04121908000000002,0.17539031999999996,-0.14246018999999996]]]
+
+Actual:   [[[-0.7124, -0.1623, -0.4634], [-0.153, 0.4718, 0.58], [-0.0412, 0.1754, -0.1424]]]
+
+Expected: [[[-0.7124, -0.1623, -0.4634], [-0.153, 0.4718, 0.58], [-0.0412, 0.1754, -0.1424]]]

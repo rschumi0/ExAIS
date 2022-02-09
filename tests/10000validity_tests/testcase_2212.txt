@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep29359 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Dot28525 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot28525 = tf.keras.layers.Input(shape=([3, 2]))
+
+Sep29359 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep29359', )(in0Sep29359)
+Res79567 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res79567', )(Sep29359)
+Zer38739 = keras.layers.ZeroPadding3D(padding=((4, 0), (4, 0), (1, 0)), name = 'Zer38739', )(Res79567)
+Dot28525 = keras.layers.Dot(axes=(2, 2), name = 'Dot28525', )([in0Dot28525,in1Dot28525])
+Res49106 = keras.layers.Reshape((3, 3, 1), name = 'Res49106', )(Dot28525)
+Res27000 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res27000', )(Res49106)
+Zer24758 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer24758', )(Res27000)
+Max40348 = keras.layers.Maximum(name = 'Max40348', )([Zer38739,Zer24758])
+Res48861 = keras.layers.Reshape((5, 5, 3), name = 'Res48861', )(Max40348)
+Res93913 = keras.layers.Reshape((5, 15), name = 'Res93913', )(Res48861)
+Glo234 = keras.layers.GlobalAveragePooling1D(name = 'Glo234', )(Res93913)
+Res39225 = keras.layers.Reshape((15, 1), name = 'Res39225', )(Glo234)
+Per47776 = keras.layers.Permute((1,2), name = 'Per47776',)(Res39225)
+model = tf.keras.models.Model(inputs=[in0Sep29359,in0Dot28525,in1Dot28525], outputs=Per47776)
+w = model.get_layer('Sep29359').get_weights() 
+w[0] = np.array([[[[0.4974]]]])
+w[1] = np.array([[[[0.5849, 0.4286]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep29359').set_weights(w) 
+in0Sep29359 = tf.constant([[[[0.9131]]]])
+in0Dot28525 = tf.constant([[[0.7213, 0.4609], [0.9938, 0.7999], [0.5606, 0.301]]])
+in1Dot28525 = tf.constant([[[0.1396, 0.4631], [0.2908, 0.551], [0.3013, 0.1448]]])
+print (np.array2string(model.predict([in0Sep29359,in0Dot28525,in1Dot28525],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per47776.png')
+
+LSep29359 = separable_conv2D_layer([[[[0.9131]]]], 1, 1,[[[[[0.4974]]]],[[[[0.5849, 0.4286]]]]],[0, 0], 1, 1, true, Sep29359), 
+LRes79567 = reshape_layer(Sep29359, [1, 1, 2, 1], Res79567), 
+LZer38739 = zero_padding3D_layer(Res79567, 4, 0, 4, 0, 1, 0, Zer38739), 
+LDot28525 = dot_layer([[[0.7213, 0.4609], [0.9938, 0.7999], [0.5606, 0.301]]], [[[0.1396, 0.4631], [0.2908, 0.551], [0.3013, 0.1448]]], 2, 2, Dot28525), 
+LRes49106 = reshape_layer(Dot28525, [3, 3, 1], Res49106), 
+LRes27000 = reshape_layer(Res49106, [3, 3, 1, 1], Res27000), 
+LZer24758 = zero_padding3D_layer(Res27000, 1, 1, 1, 1, 1, 1, Zer24758), 
+LMax40348 = maximum_layer([Zer38739,Zer24758], Max40348), 
+LRes48861 = reshape_layer(Max40348, [5, 5, 3], Res48861), 
+LRes93913 = reshape_layer(Res48861, [5, 15], Res93913), 
+LGlo234 = global_average_pooling1D_layer(Res93913, Glo234), 
+LRes39225 = reshape_layer(Glo234, [15, 1], Res39225), 
+LPer47776 = permute_layer(Res39225, 1,2, Per47776), 
+exec_layers([LSep29359,LRes79567,LZer38739,LDot28525,LRes49106,LRes27000,LZer24758,LMax40348,LRes48861,LRes93913,LGlo234,LRes39225,LPer47776],["Sep29359","Res79567","Zer38739","Dot28525","Res49106","Res27000","Zer24758","Max40348","Res48861","Res93913","Glo234","Res39225","Per47776"],Per47776,"Per47776")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.2081915], [0.0000000], [0.0000000], [0.3044651], [0.0000000], [0.0000000], [0.1823634], [0.0000000], [0.0000000], [0.0531295], [0.0389320]]]
+
+Expected (Unparsed): [[[0],[0],[0],[0],[0.20819146000000002],[0],[0],[0.304465072],[0],[0],[0.18236341],[0],[0],[0.053129501461200004],[0.0389319615768]]]
+
+Actual:   [[[0], [0], [0], [0], [0.2082], [0], [0], [0.3045], [0], [0], [0.1824], [0], [0], [0.0532], [0.039]]]
+
+Expected: [[[0], [0], [0], [0], [0.2082], [0], [0], [0.3045], [0], [0], [0.1824], [0], [0], [0.0532], [0.039]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim45660 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con39873 = tf.keras.layers.Input(shape=([2]))
+in0Dot42628 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot42628 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sim45660 = keras.layers.SimpleRNN(2,name = 'Sim45660', )(in0Sim45660)
+Con39873 = keras.layers.Concatenate(axis=1, name = 'Con39873', )([Sim45660,in0Con39873])
+Dot42628 = keras.layers.Dot(axes=(1, 1), name = 'Dot42628', )([in0Dot42628,in1Dot42628])
+Sep98117 = keras.layers.SeparableConv1D(4, (2),strides=(2), padding='same', name = 'Sep98117', )(Dot42628)
+Glo42789 = keras.layers.GlobalAveragePooling1D(name = 'Glo42789', )(Sep98117)
+Sub6564 = keras.layers.Subtract(name = 'Sub6564', )([Con39873,Glo42789])
+model = tf.keras.models.Model(inputs=[in0Sim45660,in0Con39873,in0Dot42628,in1Dot42628], outputs=Sub6564)
+w = model.get_layer('Sim45660').get_weights() 
+w[0] = np.array([[7, 4], [1, 10]])
+w[1] = np.array([[2, 9], [8, 7]])
+w[2] = np.array([5, 10])
+model.get_layer('Sim45660').set_weights(w) 
+w = model.get_layer('Sep98117').get_weights() 
+w[0] = np.array([[[0.4484], [0.2636]], [[0.179], [0.7905]]])
+w[1] = np.array([[[0.6977, 0.0568, 0.0308, 0.5616], [0.7692, 0.0927, 0.0193, 0.9737]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep98117').set_weights(w) 
+in0Sim45660 = tf.constant([[[10, 1], [7, 6]]])
+in0Con39873 = tf.constant([[0.5347, 0.0118]])
+in0Dot42628 = tf.constant([[[0.0376, 0.1953], [0.4441, 0.1018]]])
+in1Dot42628 = tf.constant([[[0.1589, 0.3356], [0.3318, 0.7184]]])
+print (np.array2string(model.predict([in0Sim45660,in0Con39873,in0Dot42628,in1Dot42628],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub6564.png')
+
+LSim45660 = simple_rnn_layer([[[10, 1], [7, 6]]],[[7, 4], [1, 10]],[[2, 9], [8, 7]],[5, 10], Sim45660), 
+LCon39873 = concatenate_layer([Sim45660,[[0.5347, 0.0118]]], 1, Con39873), 
+LDot42628 = dot_layer([[[0.0376, 0.1953], [0.4441, 0.1018]]], [[[0.1589, 0.3356], [0.3318, 0.7184]]], 1, 1, Dot42628), 
+LSep98117 = separable_conv1D_layer(Dot42628, 2,[[[[0.4484], [0.2636]], [[0.179], [0.7905]]],[[[0.6977, 0.0568, 0.0308, 0.5616], [0.7692, 0.0927, 0.0193, 0.9737]]]],[0, 0, 0, 0], 2, true, Sep98117), 
+LGlo42789 = global_average_pooling1D_layer(Sep98117, Glo42789), 
+LSub6564 = subtract_layer(Con39873,Glo42789, Sub6564), 
+exec_layers([LSim45660,LCon39873,LDot42628,LSep98117,LGlo42789,LSub6564],["Sim45660","Con39873","Dot42628","Sep98117","Glo42789","Sub6564"],Sub6564,"Sub6564")
+
+Actual (Unparsed): [[0.7923678, 0.9771695, 0.5284221, -0.2251926]]
+
+Expected (Unparsed): [[0.7923678484511834,0.9771695319478956,0.5284220889450636,-0.2251926007349628]]
+
+Actual:   [[0.7924, 0.9772, 0.5285, -0.2251]]
+
+Expected: [[0.7924, 0.9772, 0.5285, -0.2251]]

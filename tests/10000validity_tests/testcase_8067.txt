@@ -1,0 +1,68 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul8908 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Mul8908 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Mul94510 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul94510 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con77235 = tf.keras.layers.Input(shape=([1]))
+in0Dot55840 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot55840 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con7241 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul8908 = keras.layers.Multiply(name = 'Mul8908', )([in0Mul8908,in1Mul8908])
+Res16468 = keras.layers.Reshape((2, 2), name = 'Res16468', )(Mul8908)
+Mul94510 = keras.layers.Multiply(name = 'Mul94510', )([in0Mul94510,in1Mul94510])
+Glo10288 = keras.layers.GlobalAveragePooling2D(name = 'Glo10288', )(Mul94510)
+Con77235 = keras.layers.Concatenate(axis=1, name = 'Con77235', )([Glo10288,in0Con77235])
+Dot55840 = keras.layers.Dot(axes=(1, 1), name = 'Dot55840', )([in0Dot55840,in1Dot55840])
+LST40353 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST40353', )(Dot55840)
+Dot95053 = keras.layers.Dot(axes=(1, 1), name = 'Dot95053', )([Con77235,LST40353])
+Res72249 = keras.layers.Reshape((1, 1), name = 'Res72249', )(Dot95053)
+Cro98048 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro98048', )(Res72249)
+Zer91892 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer91892', )(Cro98048)
+Con7241 = keras.layers.Concatenate(axis=2, name = 'Con7241', )([Zer91892,in0Con7241])
+Add62606 = keras.layers.Add(name = 'Add62606', )([Res16468,Con7241])
+model = tf.keras.models.Model(inputs=[in0Mul8908,in1Mul8908,in0Mul94510,in1Mul94510,in0Con77235,in0Dot55840,in1Dot55840,in0Con7241], outputs=Add62606)
+w = model.get_layer('LST40353').get_weights() 
+w[0] = np.array([[7, 4, 10, 4, 10, 6, 8, 4, 10, 6, 6, 4], [8, 10, 7, 6, 7, 10, 4, 1, 3, 10, 7, 10]])
+w[1] = np.array([[8, 5, 3, 5, 9, 5, 1, 7, 2, 10, 9, 4], [7, 2, 2, 2, 7, 1, 3, 4, 10, 6, 10, 9], [7, 3, 9, 9, 3, 8, 9, 1, 8, 6, 3, 8]])
+w[2] = np.array([9, 6, 3, 1, 5, 7, 8, 8, 6, 3, 8, 10])
+model.get_layer('LST40353').set_weights(w) 
+in0Mul8908 = tf.constant([[[[0.697], [0.3558]], [[0.6342], [0.3419]]]])
+in1Mul8908 = tf.constant([[[[0.4312], [0.7006]], [[0.584], [0.6517]]]])
+in0Mul94510 = tf.constant([[[[0.344, 0.7103]]]])
+in1Mul94510 = tf.constant([[[[0.093, 0.1484]]]])
+in0Con77235 = tf.constant([[0.0498]])
+in0Dot55840 = tf.constant([[[0.6562, 0.7587], [0.7865, 0.9337], [0.1784, 0.6131]]])
+in1Dot55840 = tf.constant([[[0.8544, 0.3124], [0.8823, 0.7801], [0.75, 0.826]]])
+in0Con7241 = tf.constant([[[0.3011], [0.2786]]])
+print (np.array2string(model.predict([in0Mul8908,in1Mul8908,in0Mul94510,in1Mul94510,in0Con77235,in0Dot55840,in1Dot55840,in0Con7241],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add62606.png')
+
+LMul8908 = multiply_layer([[[[[0.697], [0.3558]], [[0.6342], [0.3419]]]], [[[[0.4312], [0.7006]], [[0.584], [0.6517]]]]], Mul8908), 
+LRes16468 = reshape_layer(Mul8908, [2, 2], Res16468), 
+LMul94510 = multiply_layer([[[[[0.344, 0.7103]]]], [[[[0.093, 0.1484]]]]], Mul94510), 
+LGlo10288 = global_average_pooling2D_layer(Mul94510, Glo10288), 
+LCon77235 = concatenate_layer([Glo10288,[[0.0498]]], 1, Con77235), 
+LDot55840 = dot_layer([[[0.6562, 0.7587], [0.7865, 0.9337], [0.1784, 0.6131]]], [[[0.8544, 0.3124], [0.8823, 0.7801], [0.75, 0.826]]], 1, 1, Dot55840), 
+LLST40353 = lstm_layer(Dot55840,[[7, 4, 10, 4, 10, 6, 8, 4, 10, 6, 6, 4], [8, 10, 7, 6, 7, 10, 4, 1, 3, 10, 7, 10]],[[8, 5, 3, 5, 9, 5, 1, 7, 2, 10, 9, 4], [7, 2, 2, 2, 7, 1, 3, 4, 10, 6, 10, 9], [7, 3, 9, 9, 3, 8, 9, 1, 8, 6, 3, 8]],[9, 6, 3, 1, 5, 7, 8, 8, 6, 3, 8, 10], LST40353), 
+LDot95053 = dot_layer(Con77235,LST40353, 1, 1, Dot95053), 
+LRes72249 = reshape_layer(Dot95053, [1, 1], Res72249), 
+LCro98048 = cropping1D_layer(Res72249, 0, 0, Cro98048), 
+LZer91892 = zero_padding1D_layer(Cro98048, 1, 0, Zer91892), 
+LCon7241 = concatenate_layer([Zer91892,[[[0.3011], [0.2786]]]], 2, Con7241), 
+LAdd62606 = add_layer([Res16468,Con7241], Add62606), 
+exec_layers([LMul8908,LRes16468,LMul94510,LGlo10288,LCon77235,LDot55840,LLST40353,LDot95053,LRes72249,LCro98048,LZer91892,LCon7241,LAdd62606],["Mul8908","Res16468","Mul94510","Glo10288","Con77235","Dot55840","LST40353","Dot95053","Res72249","Cro98048","Zer91892","Con7241","Add62606"],Add62606,"Add62606")
+
+Actual (Unparsed): [[[0.3005464, 0.5503735], [0.5508392, 0.5014162]]]
+
+Expected (Unparsed): [[[0.3005464,0.55037348],[0.5508392642797684,0.50141623]]]
+
+Actual:   [[[0.3006, 0.5504], [0.5509, 0.5015]]]
+
+Expected: [[[0.3006, 0.5504], [0.5509, 0.5015]]]

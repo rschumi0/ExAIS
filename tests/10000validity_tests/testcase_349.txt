@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add47664 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Add47664 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Add30864 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Add30864 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con55664 = tf.keras.layers.Input(shape=([2]))
+
+Add47664 = keras.layers.Add(name = 'Add47664', )([in0Add47664,in1Add47664])
+Res99627 = keras.layers.Reshape((1, 1, 2), name = 'Res99627', )(Add47664)
+Res24409 = keras.layers.Reshape((1, 2), name = 'Res24409', )(Res99627)
+Sim80357 = keras.layers.SimpleRNN(3,name = 'Sim80357', )(Res24409)
+Add30864 = keras.layers.Add(name = 'Add30864', )([in0Add30864,in1Add30864])
+Res34645 = keras.layers.Reshape((1, 2), name = 'Res34645', )(Add30864)
+Per71305 = keras.layers.Permute((1,2), name = 'Per71305',)(Res34645)
+Res84342 = keras.layers.Reshape((1, 2, 1), name = 'Res84342', )(Per71305)
+Res50662 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res50662', )(Res84342)
+Glo3219 = keras.layers.GlobalAveragePooling3D(name = 'Glo3219', )(Res50662)
+Con55664 = keras.layers.Concatenate(axis=1, name = 'Con55664', )([Glo3219,in0Con55664])
+Add9415 = keras.layers.Add(name = 'Add9415', )([Sim80357,Con55664])
+model = tf.keras.models.Model(inputs=[in0Add47664,in1Add47664,in0Add30864,in1Add30864,in0Con55664], outputs=Add9415)
+w = model.get_layer('Sim80357').get_weights() 
+w[0] = np.array([[2, 1, 9], [9, 10, 8]])
+w[1] = np.array([[10, 8, 8], [7, 2, 5], [9, 3, 7]])
+w[2] = np.array([8, 4, 9])
+model.get_layer('Sim80357').set_weights(w) 
+in0Add47664 = tf.constant([[[[[0.7506], [0.6554]]]]])
+in1Add47664 = tf.constant([[[[[0.783], [0.5683]]]]])
+in0Add30864 = tf.constant([[[[0.1575, 0.0887]]]])
+in1Add30864 = tf.constant([[[[0.1045, 0.2838]]]])
+in0Con55664 = tf.constant([[0.5663, 0.5883]])
+print (np.array2string(model.predict([in0Add47664,in1Add47664,in0Add30864,in1Add30864,in0Con55664],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add9415.png')
+
+LAdd47664 = add_layer([[[[[[0.7506], [0.6554]]]]], [[[[[0.783], [0.5683]]]]]], Add47664), 
+LRes99627 = reshape_layer(Add47664, [1, 1, 2], Res99627), 
+LRes24409 = reshape_layer(Res99627, [1, 2], Res24409), 
+LSim80357 = simple_rnn_layer(Res24409,[[2, 1, 9], [9, 10, 8]],[[10, 8, 8], [7, 2, 5], [9, 3, 7]],[8, 4, 9], Sim80357), 
+LAdd30864 = add_layer([[[[[0.1575, 0.0887]]]], [[[[0.1045, 0.2838]]]]], Add30864), 
+LRes34645 = reshape_layer(Add30864, [1, 2], Res34645), 
+LPer71305 = permute_layer(Res34645, 1,2, Per71305), 
+LRes84342 = reshape_layer(Per71305, [1, 2, 1], Res84342), 
+LRes50662 = reshape_layer(Res84342, [1, 2, 1, 1], Res50662), 
+LGlo3219 = global_average_pooling3D_layer(Res50662, Glo3219), 
+LCon55664 = concatenate_layer([Glo3219,[[0.5663, 0.5883]]], 1, Con55664), 
+LAdd9415 = add_layer([Sim80357,Con55664], Add9415), 
+exec_layers([LAdd47664,LRes99627,LRes24409,LSim80357,LAdd30864,LRes34645,LPer71305,LRes84342,LRes50662,LGlo3219,LCon55664,LAdd9415],["Add47664","Res99627","Res24409","Sim80357","Add30864","Res34645","Per71305","Res84342","Res50662","Glo3219","Con55664","Add9415"],Add9415,"Add9415")
+
+Actual (Unparsed): [[1.3172500, 1.5663000, 1.5883000]]
+
+Expected (Unparsed): [[1.31725,1.5662999999999991,1.5883]]
+
+Actual:   [[1.3173, 1.5663, 1.5883]]
+
+Expected: [[1.3173, 1.5663, 1.5883]]

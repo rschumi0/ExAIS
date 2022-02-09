@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub32798 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub32798 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con41269 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Mul12075 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in1Mul12075 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+
+Sub32798 = keras.layers.Subtract(name = 'Sub32798', )([in0Sub32798,in1Sub32798])
+Res98462 = keras.layers.Reshape((2, 2, 1), name = 'Res98462', )(Sub32798)
+Res78018 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res78018', )(Res98462)
+Zer83965 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer83965', )(Res78018)
+Con41269 = keras.layers.Concatenate(axis=4, name = 'Con41269', )([Zer83965,in0Con41269])
+Mul12075 = keras.layers.Multiply(name = 'Mul12075', )([in0Mul12075,in1Mul12075])
+Bat2384 = keras.layers.BatchNormalization(axis=3, epsilon=0.3508633534826384,  name = 'Bat2384', )(Mul12075)
+Sub66530 = keras.layers.Subtract(name = 'Sub66530', )([Con41269,Bat2384])
+model = tf.keras.models.Model(inputs=[in0Sub32798,in1Sub32798,in0Con41269,in0Mul12075,in1Mul12075], outputs=Sub66530)
+w = model.get_layer('Bat2384').get_weights() 
+w[0] = np.array([0.3638, 0.9508])
+w[1] = np.array([0.4051, 0.8648])
+w[2] = np.array([0.3259, 0.1648])
+w[3] = np.array([0.6158, 0.7734])
+model.get_layer('Bat2384').set_weights(w) 
+in0Sub32798 = tf.constant([[[0.087, 0.9439], [0.9152, 0.6334]]])
+in1Sub32798 = tf.constant([[[0.5879, 0.607], [0.1135, 0.5839]]])
+in0Con41269 = tf.constant([[[[[0.6827], [0.2034]], [[0.5935], [0.8832]]], [[[0.0754], [0.533]], [[0.939], [0.6742]]]]])
+in0Mul12075 = tf.constant([[[[[0.7995, 0.3513], [0.1268, 0.9852]], [[0.1829, 0.4065], [0.6357, 0.6532]]], [[[0.5079, 0.1412], [0.3938, 0.5734]], [[0.1307, 0.9176], [0.0034, 0.8563]]]]])
+in1Mul12075 = tf.constant([[[[[0.1013, 0.3532], [0.5932, 0.9869]], [[0.1087, 0.6624], [0.6523, 0.3887]]], [[[0.1186, 0.3574], [0.4528, 0.3786]], [[0.3123, 0.3499], [0.0746, 0.3083]]]]])
+print (np.array2string(model.predict([in0Sub32798,in1Sub32798,in0Con41269,in0Mul12075,in1Mul12075],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub66530.png')
+
+LSub32798 = subtract_layer([[[0.087, 0.9439], [0.9152, 0.6334]]], [[[0.5879, 0.607], [0.1135, 0.5839]]], Sub32798), 
+LRes98462 = reshape_layer(Sub32798, [2, 2, 1], Res98462), 
+LRes78018 = reshape_layer(Res98462, [2, 2, 1, 1], Res78018), 
+LZer83965 = zero_padding3D_layer(Res78018, 0, 0, 0, 0, 1, 0, Zer83965), 
+LCon41269 = concatenate_layer([Zer83965,[[[[[0.6827], [0.2034]], [[0.5935], [0.8832]]], [[[0.0754], [0.533]], [[0.939], [0.6742]]]]]], 4, Con41269), 
+LMul12075 = multiply_layer([[[[[[0.7995, 0.3513], [0.1268, 0.9852]], [[0.1829, 0.4065], [0.6357, 0.6532]]], [[[0.5079, 0.1412], [0.3938, 0.5734]], [[0.1307, 0.9176], [0.0034, 0.8563]]]]], [[[[[0.1013, 0.3532], [0.5932, 0.9869]], [[0.1087, 0.6624], [0.6523, 0.3887]]], [[[0.1186, 0.3574], [0.4528, 0.3786]], [[0.3123, 0.3499], [0.0746, 0.3083]]]]]], Mul12075), 
+LBat2384 = batch_normalization_layer(Mul12075, 3, 0.3508633534826384, [0.3638, 0.9508], [0.4051, 0.8648], [0.3259, 0.1648], [0.6158, 0.7734], Bat2384), 
+LSub66530 = subtract_layer(Con41269,Bat2384, Sub66530), 
+exec_layers([LSub32798,LRes98462,LRes78018,LZer83965,LCon41269,LMul12075,LBat2384,LSub66530],["Sub32798","Res98462","Res78018","Zer83965","Con41269","Mul12075","Bat2384","Sub66530"],Sub66530,"Sub66530")
+
+Actual (Unparsed): [[[[[-0.3144782, 0.3522777], [-1.2853701, -1.3854930]], [[-0.2918670, 0.2093559], [-0.7519599, -0.0614964]]], [[[-0.3067994, -0.2277835], [-0.0752170, -0.3786886]], [[-0.2996138, 0.5356879], [-0.6677485, -0.2795518]]]]]
+
+Expected (Unparsed): [[[[[-0.3144781887083288,0.35227772462000556],[-1.2853701301162732,-1.3854930603242985]],[[-0.29186696898787645,0.20935585434695075],[-0.7519599524473031,-0.06149639714290478]]],[[[-0.30679938428366454,-0.22778352773658953],[-0.07521700681949506,-0.3786886226278665]],[[-0.2996138459713425,0.5356878472942137],[-0.6677485691735228,-0.27955184356316976]]]]]
+
+Actual:   [[[[[-0.3144, 0.3523], [-1.2853, -1.3854]], [[-0.2918, 0.2094], [-0.7519, -0.0614]]], [[[-0.3067, -0.2277], [-0.0752, -0.3786]], [[-0.2996, 0.5357], [-0.6677, -0.2795]]]]]
+
+Expected: [[[[[-0.3144, 0.3523], [-1.2853, -1.3854]], [[-0.2918, 0.2094], [-0.7519, -0.0614]]], [[[-0.3067, -0.2277], [-0.0752, -0.3786]], [[-0.2996, 0.5357], [-0.6677, -0.2795]]]]]

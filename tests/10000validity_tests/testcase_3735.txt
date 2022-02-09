@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer21112 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con59874 = tf.keras.layers.Input(shape=([1, 7]))
+in0Dot27393 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot27393 = tf.keras.layers.Input(shape=([2, 3]))
+
+Zer21112 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer21112', )(in0Zer21112)
+Res28421 = keras.layers.Reshape((4, 1, 1), name = 'Res28421', )(Zer21112)
+Glo56008 = keras.layers.GlobalMaxPool2D(name = 'Glo56008', )(Res28421)
+Res7844 = keras.layers.Reshape((1, 1), name = 'Res7844', )(Glo56008)
+Glo78601 = keras.layers.GlobalAveragePooling1D(name = 'Glo78601', )(Res7844)
+Res10786 = keras.layers.Reshape((1, 1), name = 'Res10786', )(Glo78601)
+Con59874 = keras.layers.Concatenate(axis=2, name = 'Con59874', )([Res10786,in0Con59874])
+Dot27393 = keras.layers.Dot(axes=(2, 2), name = 'Dot27393', )([in0Dot27393,in1Dot27393])
+Bat89477 = keras.layers.BatchNormalization(axis=1, epsilon=0.39209909948599264,  name = 'Bat89477', )(Dot27393)
+Res32621 = keras.layers.Reshape((2, 2, 1), name = 'Res32621', )(Bat89477)
+Res27869 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res27869', )(Res32621)
+Con9955 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(7, 1, 1), padding='valid', name = 'Con9955', )(Res27869)
+Res73136 = keras.layers.Reshape((14, 2, 4), name = 'Res73136', )(Con9955)
+Res36436 = keras.layers.Reshape((14, 8), name = 'Res36436', )(Res73136)
+Dot20286 = keras.layers.Dot(axes=(2, 2), name = 'Dot20286', )([Con59874,Res36436])
+model = tf.keras.models.Model(inputs=[in0Zer21112,in0Con59874,in0Dot27393,in1Dot27393], outputs=Dot20286)
+w = model.get_layer('Bat89477').get_weights() 
+w[0] = np.array([0.2472, 0.8722])
+w[1] = np.array([0.1581, 0.2535])
+w[2] = np.array([0.2523, 0.3517])
+w[3] = np.array([0.3706, 0.9408])
+model.get_layer('Bat89477').set_weights(w) 
+w = model.get_layer('Con9955').get_weights() 
+w[0] = np.array([[[[[0.5976], [0.5963], [0.0596], [0.4322]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con9955').set_weights(w) 
+in0Zer21112 = tf.constant([[[1.8532], [1.8392]]])
+in0Con59874 = tf.constant([[[0.6166, 0.8311, 0.0671, 0.6277, 0.6859, 0.9087, 0.6564]]])
+in0Dot27393 = tf.constant([[[0.1755, 0.4181, 0.112], [0.6824, 0.2053, 0.6649]]])
+in1Dot27393 = tf.constant([[[0.4351, 0.1821, 0.8013], [0.0243, 0.3545, 0.7183]]])
+print (np.array2string(model.predict([in0Zer21112,in0Con59874,in0Dot27393,in1Dot27393],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot20286.png')
+
+LZer21112 = zero_padding1D_layer([[[1.8532], [1.8392]]], 1, 1, Zer21112), 
+LRes28421 = reshape_layer(Zer21112, [4, 1, 1], Res28421), 
+LGlo56008 = global_max_pool2D_layer(Res28421, Glo56008), 
+LRes7844 = reshape_layer(Glo56008, [1, 1], Res7844), 
+LGlo78601 = global_average_pooling1D_layer(Res7844, Glo78601), 
+LRes10786 = reshape_layer(Glo78601, [1, 1], Res10786), 
+LCon59874 = concatenate_layer([Res10786,[[[0.6166, 0.8311, 0.0671, 0.6277, 0.6859, 0.9087, 0.6564]]]], 2, Con59874), 
+LDot27393 = dot_layer([[[0.1755, 0.4181, 0.112], [0.6824, 0.2053, 0.6649]]], [[[0.4351, 0.1821, 0.8013], [0.0243, 0.3545, 0.7183]]], 2, 2, Dot27393), 
+LBat89477 = batch_normalization_layer(Dot27393, 1, 0.39209909948599264, [0.2472, 0.8722], [0.1581, 0.2535], [0.2523, 0.3517], [0.3706, 0.9408], Bat89477), 
+LRes32621 = reshape_layer(Bat89477, [2, 2, 1], Res32621), 
+LRes27869 = reshape_layer(Res32621, [2, 2, 1, 1], Res27869), 
+LCon9955 = conv3D_transpose_layer(Res27869, 1, 1, 1,[[[[[0.5976], [0.5963], [0.0596], [0.4322]]]]],[0, 0, 0, 0], 7, 1, 1, false, Con9955), 
+LRes73136 = reshape_layer(Con9955, [14, 2, 4], Res73136), 
+LRes36436 = reshape_layer(Res73136, [14, 8], Res36436), 
+LDot20286 = dot_layer(Con59874,Res36436, 2, 2, Dot20286), 
+exec_layers([LZer21112,LRes28421,LGlo56008,LRes7844,LGlo78601,LRes10786,LCon59874,LDot27393,LBat89477,LRes32621,LRes27869,LCon9955,LRes73136,LRes36436,LDot20286],["Zer21112","Res28421","Glo56008","Res7844","Glo78601","Res10786","Con59874","Dot27393","Bat89477","Res32621","Res27869","Con9955","Res73136","Res36436","Dot20286"],Dot20286,"Dot20286")
+
+Actual (Unparsed): [[[0.4124464, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 1.4656713, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.4124463604760036,0.0,0.0,0.0,0.0,0.0,0.0,1.4656713807196204,0.0,0.0,0.0,0.0,0.0,0.0]]]
+
+Actual:   [[[0.4125, 0, 0, 0, 0, 0, 0, 1.4657, 0, 0, 0, 0, 0, 0]]]
+
+Expected: [[[0.4125, 0, 0, 0, 0, 0, 0, 1.4657, 0, 0, 0, 0, 0, 0]]]

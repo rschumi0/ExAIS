@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas81358 = tf.keras.layers.Input(shape=([4, 2]))
+in0Ave31868 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave31868 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Mas81358 = keras.layers.Masking(mask_value=2, name = 'Mas81358', )(in0Mas81358)
+Ave31868 = keras.layers.Average(name = 'Ave31868', )([in0Ave31868,in1Ave31868])
+Res31149 = keras.layers.Reshape((2, 1, 2), name = 'Res31149', )(Ave31868)
+Res53088 = keras.layers.Reshape((2, 2), name = 'Res53088', )(Res31149)
+Dot19626 = keras.layers.Dot(axes=(2, 1), name = 'Dot19626', )([Mas81358,Res53088])
+Con1549 = keras.layers.Conv1D(4, (2),strides=(1), padding='valid', dilation_rate=(1), name = 'Con1549', )(Dot19626)
+model = tf.keras.models.Model(inputs=[in0Mas81358,in0Ave31868,in1Ave31868], outputs=Con1549)
+w = model.get_layer('Con1549').get_weights() 
+w[0] = np.array([[[0.1139, 0.0393, 0.536, 0.0461], [0.6889, 0.2405, 0.3269, 0.8613]], [[0.4277, 0.0193, 0.0269, 0.9994], [0.1631, 0.6737, 0.2125, 0.8644]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con1549').set_weights(w) 
+in0Mas81358 = tf.constant([[[1.4518, 1.0337], [1.6645, 1.3699], [1.4784, 1.038], [1.2391, 1.6847]]])
+in0Ave31868 = tf.constant([[[[[0.3768], [0.0414]]], [[[0.67], [0.7688]]]]])
+in1Ave31868 = tf.constant([[[[[0.9018], [0.3776]]], [[[0.6839], [0.3251]]]]])
+print (np.array2string(model.predict([in0Mas81358,in0Ave31868,in1Ave31868],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con1549.png')
+
+LMas81358 = masking_layer([[[1.4518, 1.0337], [1.6645, 1.3699], [1.4784, 1.038], [1.2391, 1.6847]]], 2, Mas81358), 
+LAve31868 = average_layer([[[[[[0.3768], [0.0414]]], [[[0.67], [0.7688]]]]], [[[[[0.9018], [0.3776]]], [[[0.6839], [0.3251]]]]]], Ave31868), 
+LRes31149 = reshape_layer(Ave31868, [2, 1, 2], Res31149), 
+LRes53088 = reshape_layer(Res31149, [2, 2], Res53088), 
+LDot19626 = dot_layer(Mas81358,Res53088, 2, 1, Dot19626), 
+LCon1549 = conv1D_layer(Dot19626, 2,[[[0.1139, 0.0393, 0.536, 0.0461], [0.6889, 0.2405, 0.3269, 0.8613]], [[0.4277, 0.0193, 0.0269, 0.9994], [0.1631, 0.6737, 0.2125, 0.8644]]],[0, 0, 0, 0], 1, false, 1, Con1549), 
+exec_layers([LMas81358,LAve31868,LRes31149,LRes53088,LDot19626,LCon1549],["Mas81358","Ave31868","Res31149","Res53088","Dot19626","Con1549"],Con1549,"Con1549")
+
+Actual (Unparsed): [[[1.8152715, 1.0512436, 1.4436958, 3.7633434], [1.8311105, 0.9652757, 1.6571430, 3.4427985], [1.8113741, 1.1087529, 1.4730282, 3.7840637]]]
+
+Expected (Unparsed): [[[1.8152714897420001,1.051243602934,1.4436957697105002,3.7633433484839998],[1.8311105114280002,0.9652756957949999,1.6571429612774997,3.442798499745],[1.8113740402960001,1.108752837565,1.473028196303,3.7840637052409996]]]
+
+Actual:   [[[1.8153, 1.0513, 1.4437, 3.7634], [1.8312, 0.9653, 1.6572, 3.4428], [1.8114, 1.1088, 1.4731, 3.7841]]]
+
+Expected: [[[1.8153, 1.0513, 1.4437, 3.7634], [1.8312, 0.9653, 1.6572, 3.4428], [1.8114, 1.1088, 1.4731, 3.7841]]]

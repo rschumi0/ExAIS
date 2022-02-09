@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min92673 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min92673 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Add89260 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add89260 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con4891 = tf.keras.layers.Input(shape=([4, 3, 1]))
+
+Min92673 = keras.layers.Minimum(name = 'Min92673', )([in0Min92673,in1Min92673])
+Zer15805 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer15805', )(Min92673)
+Add89260 = keras.layers.Add(name = 'Add89260', )([in0Add89260,in1Add89260])
+Res65042 = keras.layers.Reshape((2, 1, 1), name = 'Res65042', )(Add89260)
+Up_27814 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_27814', )(Res65042)
+Zer365 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer365', )(Up_27814)
+Con4891 = keras.layers.Concatenate(axis=3, name = 'Con4891', )([Zer365,in0Con4891])
+Mul89262 = keras.layers.Multiply(name = 'Mul89262', )([Zer15805,Con4891])
+Mas10686 = keras.layers.Masking(mask_value=2, name = 'Mas10686', )(Mul89262)
+model = tf.keras.models.Model(inputs=[in0Min92673,in1Min92673,in0Add89260,in1Add89260,in0Con4891], outputs=Mas10686)
+in0Min92673 = tf.constant([[[[0.8598, 0.5168], [0.8886, 0.9133]], [[0.0645, 0.2533], [0.3033, 0.9568]]]])
+in1Min92673 = tf.constant([[[[0.6244, 0.3778], [0.3529, 0.7563]], [[0.2266, 0.4277], [0.756, 0.9002]]]])
+in0Add89260 = tf.constant([[[0.4649], [0.1519]]])
+in1Add89260 = tf.constant([[[0.6934], [0.5202]]])
+in0Con4891 = tf.constant([[[[0.7381], [0.7321], [0.6752]], [[0.2145], [0.4509], [0.6394]], [[0.2412], [0.3757], [0.9916]], [[0.9091], [0.5123], [0.4111]]]])
+print (np.array2string(model.predict([in0Min92673,in1Min92673,in0Add89260,in1Add89260,in0Con4891],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas10686.png')
+
+LMin92673 = minimum_layer([[[[[0.8598, 0.5168], [0.8886, 0.9133]], [[0.0645, 0.2533], [0.3033, 0.9568]]]], [[[[0.6244, 0.3778], [0.3529, 0.7563]], [[0.2266, 0.4277], [0.756, 0.9002]]]]], Min92673), 
+LZer15805 = zero_padding2D_layer(Min92673, 2, 0, 1, 0, Zer15805), 
+LAdd89260 = add_layer([[[[0.4649], [0.1519]]], [[[0.6934], [0.5202]]]], Add89260), 
+LRes65042 = reshape_layer(Add89260, [2, 1, 1], Res65042), 
+LUp_27814 = up_sampling2D_layer(Res65042, 2, 1, Up_27814), 
+LZer365 = zero_padding2D_layer(Up_27814, 0, 0, 2, 0, Zer365), 
+LCon4891 = concatenate_layer([Zer365,[[[[0.7381], [0.7321], [0.6752]], [[0.2145], [0.4509], [0.6394]], [[0.2412], [0.3757], [0.9916]], [[0.9091], [0.5123], [0.4111]]]]], 3, Con4891), 
+LMul89262 = multiply_layer([Zer15805,Con4891], Mul89262), 
+LMas10686 = masking_layer(Mul89262, 2, Mas10686), 
+exec_layers([LMin92673,LZer15805,LAdd89260,LRes65042,LUp_27814,LZer365,LCon4891,LMul89262,LMas10686],["Min92673","Zer15805","Add89260","Res65042","Up_27814","Zer365","Con4891","Mul89262","Mas10686"],Mas10686,"Mas10686")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.1419395], [0.2371841, 0.7499470]], [[0.0000000, 0.0000000], [0.0000000, 0.1297656], [0.2038479, 0.3700722]]]]
+
+Expected (Unparsed): [[[[0,0.0],[0,0.0],[0.0,0.0]],[[0,0.0],[0,0.0],[0.0,0.0]],[[0,0.0],[0.0,0.14193946],[0.23718409000000001,0.74994708]],[[0,0.0],[0.0,0.12976559000000001],[0.20384793,0.37007222]]]]
+
+Actual:   [[[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0.142], [0.2372, 0.75]], [[0, 0], [0, 0.1298], [0.2039, 0.3701]]]]
+
+Expected: [[[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0.142], [0.2372, 0.75]], [[0, 0], [0, 0.1298], [0.2039, 0.3701]]]]

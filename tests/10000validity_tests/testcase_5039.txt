@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot56022 = tf.keras.layers.Input(shape=([2]))
+in1Dot56022 = tf.keras.layers.Input(shape=([2]))
+in0Con40831 = tf.keras.layers.Input(shape=([1, 7]))
+in0Loc66976 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Dot56022 = keras.layers.Dot(axes=(1, 1), name = 'Dot56022', )([in0Dot56022,in1Dot56022])
+Res91214 = keras.layers.Reshape((1, 1), name = 'Res91214', )(Dot56022)
+Res47262 = keras.layers.Reshape((1, 1, 1), name = 'Res47262', )(Res91214)
+Glo61217 = keras.layers.GlobalAveragePooling2D(name = 'Glo61217', )(Res47262)
+Res97858 = keras.layers.Reshape((1, 1), name = 'Res97858', )(Glo61217)
+Con40831 = keras.layers.Concatenate(axis=2, name = 'Con40831', )([Res97858,in0Con40831])
+Loc66976 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc66976', )(in0Loc66976)
+Res6130 = keras.layers.Reshape((1, 8), name = 'Res6130', )(Loc66976)
+Cro7304 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro7304', )(Res6130)
+Sub75567 = keras.layers.Subtract(name = 'Sub75567', )([Con40831,Cro7304])
+model = tf.keras.models.Model(inputs=[in0Dot56022,in1Dot56022,in0Con40831,in0Loc66976], outputs=Sub75567)
+w = model.get_layer('Loc66976').get_weights() 
+w[0] = np.array([[[0.951, 0.8464, 0.2731, 0.1415], [0.8649, 0.4302, 0.6619, 0.1117]], [[0.0724, 0.5608, 0.2842, 0.9245], [0.9314, 0.1545, 0.9292, 0.3436]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc66976').set_weights(w) 
+in0Dot56022 = tf.constant([[0.3075, 0.3816]])
+in1Dot56022 = tf.constant([[0.4616, 0.6047]])
+in0Con40831 = tf.constant([[[0.6407, 0.8671, 0.5185, 0.4617, 0.6301, 0.7552, 0.6572]]])
+in0Loc66976 = tf.constant([[[[0.7259, 0.7706], [0.1299, 0.9263]]]])
+print (np.array2string(model.predict([in0Dot56022,in1Dot56022,in0Con40831,in0Loc66976],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub75567.png')
+
+LDot56022 = dot_layer([[0.3075, 0.3816]], [[0.4616, 0.6047]], 1, 1, Dot56022), 
+LRes91214 = reshape_layer(Dot56022, [1, 1], Res91214), 
+LRes47262 = reshape_layer(Res91214, [1, 1, 1], Res47262), 
+LGlo61217 = global_average_pooling2D_layer(Res47262, Glo61217), 
+LRes97858 = reshape_layer(Glo61217, [1, 1], Res97858), 
+LCon40831 = concatenate_layer([Res97858,[[[0.6407, 0.8671, 0.5185, 0.4617, 0.6301, 0.7552, 0.6572]]]], 2, Con40831), 
+LLoc66976 = locally_connected2D_layer([[[[0.7259, 0.7706], [0.1299, 0.9263]]]], 1, 1,[[[0.951, 0.8464, 0.2731, 0.1415], [0.8649, 0.4302, 0.6619, 0.1117]], [[0.0724, 0.5608, 0.2842, 0.9245], [0.9314, 0.1545, 0.9292, 0.3436]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 1, 1, Loc66976), 
+LRes6130 = reshape_layer(Loc66976, [1, 8], Res6130), 
+LCro7304 = cropping1D_layer(Res6130, 0, 0, Cro7304), 
+LSub75567 = subtract_layer(Con40831,Cro7304, Sub75567), 
+exec_layers([LDot56022,LRes91214,LRes47262,LGlo61217,LRes97858,LCon40831,LLoc66976,LRes6130,LCro7304,LSub75567],["Dot56022","Res91214","Res47262","Glo61217","Res97858","Con40831","Loc66976","Res6130","Cro7304","Sub75567"],Sub75567,"Sub75567")
+
+Actual (Unparsed): [[[-0.9841273, -0.3052139, 0.1587966, 0.3297091, -0.4104606, 0.4141387, -0.1424355, 0.2188308]]]
+
+Expected (Unparsed): [[[-0.98412732,-0.30521387999999994,0.15879657000000003,0.32970913,-0.4104605800000001,0.41413873,-0.14243554000000003,0.21883076999999995]]]
+
+Actual:   [[[-0.9841, -0.3052, 0.1588, 0.3298, -0.4104, 0.4142, -0.1424, 0.2189]]]
+
+Expected: [[[-0.9841, -0.3052, 0.1588, 0.3298, -0.4104, 0.4142, -0.1424, 0.2189]]]

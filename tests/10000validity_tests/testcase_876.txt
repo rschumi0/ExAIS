@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo55583 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max2844 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max2844 = tf.keras.layers.Input(shape=([1, 1]))
+
+Glo55583 = keras.layers.GlobalAveragePooling1D(name = 'Glo55583', )(in0Glo55583)
+Res3272 = keras.layers.Reshape((2, 1), name = 'Res3272', )(Glo55583)
+Max2844 = keras.layers.Maximum(name = 'Max2844', )([in0Max2844,in1Max2844])
+Zer56229 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer56229', )(Max2844)
+Max60125 = keras.layers.Maximum(name = 'Max60125', )([Res3272,Zer56229])
+Per24255 = keras.layers.Permute((2,1), name = 'Per24255',)(Max60125)
+Loc1485 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc1485', )(Per24255)
+model = tf.keras.models.Model(inputs=[in0Glo55583,in0Max2844,in1Max2844], outputs=Loc1485)
+w = model.get_layer('Loc1485').get_weights() 
+w[0] = np.array([[[0.8925, 0.6262, 0.7106], [0.5507, 0.4986, 0.4868]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc1485').set_weights(w) 
+in0Glo55583 = tf.constant([[[1.7416, 1.5088]]])
+in0Max2844 = tf.constant([[[0.6101]]])
+in1Max2844 = tf.constant([[[0.6266]]])
+print (np.array2string(model.predict([in0Glo55583,in0Max2844,in1Max2844],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc1485.png')
+
+LGlo55583 = global_average_pooling1D_layer([[[1.7416, 1.5088]]], Glo55583), 
+LRes3272 = reshape_layer(Glo55583, [2, 1], Res3272), 
+LMax2844 = maximum_layer([[[[0.6101]]], [[[0.6266]]]], Max2844), 
+LZer56229 = zero_padding1D_layer(Max2844, 1, 0, Zer56229), 
+LMax60125 = maximum_layer([Res3272,Zer56229], Max60125), 
+LPer24255 = permute_layer(Max60125, 2,1, Per24255), 
+LLoc1485 = locally_connected1D_layer(Per24255, 1,[[[0.8925, 0.6262, 0.7106], [0.5507, 0.4986, 0.4868]]],[[0, 0, 0]], 1, Loc1485), 
+exec_layers([LGlo55583,LRes3272,LMax2844,LZer56229,LMax60125,LPer24255,LLoc1485],["Glo55583","Res3272","Max2844","Zer56229","Max60125","Per24255","Loc1485"],Loc1485,"Loc1485")
+
+Actual (Unparsed): [[[2.3852742, 1.8428776, 1.9720648]]]
+
+Expected (Unparsed): [[[2.38527416,1.8428776,1.9720648]]]
+
+Actual:   [[[2.3853, 1.8429, 1.9721]]]
+
+Expected: [[[2.3853, 1.8429, 1.9721]]]

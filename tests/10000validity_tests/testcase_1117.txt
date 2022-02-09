@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU14952 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Max28047 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max28047 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Max62169 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max62169 = tf.keras.layers.Input(shape=([1, 2]))
+
+ELU14952 = keras.layers.ELU(alpha=1.9969441699152384, name = 'ELU14952', input_shape=(2, 1, 2))(in0ELU14952)
+Res68751 = keras.layers.Reshape((2, 2), name = 'Res68751', )(ELU14952)
+PRe46786 = keras.layers.PReLU(name = 'PRe46786', )(Res68751)
+Mas98134 = keras.layers.Masking(mask_value=1, name = 'Mas98134', )(PRe46786)
+Zer18045 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer18045', )(Mas98134)
+Max28047 = keras.layers.Maximum(name = 'Max28047', )([in0Max28047,in1Max28047])
+Res51297 = keras.layers.Reshape((1, 2), name = 'Res51297', )(Max28047)
+Con7726 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con7726', )(Res51297)
+Res47634 = keras.layers.Reshape((1, 2, 1), name = 'Res47634', )(Con7726)
+Sep83752 = keras.layers.SeparableConv2D(4, (1, 2),strides=(1, 1), padding='valid', name = 'Sep83752', )(Res47634)
+Res69629 = keras.layers.Reshape((1, 4), name = 'Res69629', )(Sep83752)
+Max62169 = keras.layers.Maximum(name = 'Max62169', )([in0Max62169,in1Max62169])
+Dot81871 = keras.layers.Dot(axes=(1, 1), name = 'Dot81871', )([Res69629,Max62169])
+Min34715 = keras.layers.Minimum(name = 'Min34715', )([Zer18045,Dot81871])
+model = tf.keras.models.Model(inputs=[in0ELU14952,in0Max28047,in1Max28047,in0Max62169,in1Max62169], outputs=Min34715)
+w = model.get_layer('PRe46786').get_weights() 
+w[0] = np.array([[0.4454, 0.1076], [0.3862, 0.5599]])
+model.get_layer('PRe46786').set_weights(w) 
+w = model.get_layer('Con7726').get_weights() 
+w[0] = np.array([[[0.9499, 0.0491], [0.5246, 0.357]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con7726').set_weights(w) 
+w = model.get_layer('Sep83752').get_weights() 
+w[0] = np.array([[[[0.3619]], [[0.1997]]]])
+w[1] = np.array([[[[0.8288, 0.5414, 0.1651, 0.8668]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep83752').set_weights(w) 
+in0ELU14952 = tf.constant([[[[0.8425, 0.6686]], [[0.0517, 0.2176]]]])
+in0Max28047 = tf.constant([[[[0.9289, 0.6101]]]])
+in1Max28047 = tf.constant([[[[0.381, 0.8242]]]])
+in0Max62169 = tf.constant([[[0.5539, 0.5853]]])
+in1Max62169 = tf.constant([[[0.6019, 0.9349]]])
+print (np.array2string(model.predict([in0ELU14952,in0Max28047,in1Max28047,in0Max62169,in1Max62169],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min34715.png')
+
+LELU14952 = elu_layer([[[[0.8425, 0.6686]], [[0.0517, 0.2176]]]], 1.9969441699152384, ELU14952), 
+LRes68751 = reshape_layer(ELU14952, [2, 2], Res68751), 
+LPRe46786 = prelu_layer(Res68751, [[0.4454, 0.1076], [0.3862, 0.5599]], PRe46786), 
+LMas98134 = masking_layer(PRe46786, 1, Mas98134), 
+LZer18045 = zero_padding1D_layer(Mas98134, 2, 0, Zer18045), 
+LMax28047 = maximum_layer([[[[[0.9289, 0.6101]]]], [[[[0.381, 0.8242]]]]], Max28047), 
+LRes51297 = reshape_layer(Max28047, [1, 2], Res51297), 
+LCon7726 = conv1D_layer(Res51297, 1,[[[0.9499, 0.0491], [0.5246, 0.357]]],[0, 0], 1, false, 1, Con7726), 
+LRes47634 = reshape_layer(Con7726, [1, 2, 1], Res47634), 
+LSep83752 = separable_conv2D_layer(Res47634, 1, 2,[[[[[0.3619]], [[0.1997]]]],[[[[0.8288, 0.5414, 0.1651, 0.8668]]]]],[0, 0, 0, 0], 1, 1, false, Sep83752), 
+LRes69629 = reshape_layer(Sep83752, [1, 4], Res69629), 
+LMax62169 = maximum_layer([[[[0.5539, 0.5853]]], [[[0.6019, 0.9349]]]], Max62169), 
+LDot81871 = dot_layer(Res69629,Max62169, 1, 1, Dot81871), 
+LMin34715 = minimum_layer([Zer18045,Dot81871], Min34715), 
+exec_layers([LELU14952,LRes68751,LPRe46786,LMas98134,LZer18045,LMax28047,LRes51297,LCon7726,LRes47634,LSep83752,LRes69629,LMax62169,LDot81871,LMin34715],["ELU14952","Res68751","PRe46786","Mas98134","Zer18045","Max28047","Res51297","Con7726","Res47634","Sep83752","Res69629","Max62169","Dot81871","Min34715"],Min34715,"Min34715")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0540266, 0.0839167], [0.0517000, 0.2176000]]]
+
+Expected (Unparsed): [[[0,0],[0,0],[0.054026613231103776,0.08391673153307679],[0.0517,0.2176]]]
+
+Actual:   [[[0, 0], [0, 0], [0.0541, 0.084], [0.0517, 0.2176]]]
+
+Expected: [[[0, 0], [0, 0], [0.0541, 0.084], [0.0517, 0.2176]]]

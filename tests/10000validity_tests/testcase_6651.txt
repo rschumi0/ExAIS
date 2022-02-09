@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave49889 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Ave49889 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0GRU18128 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave49889 = keras.layers.Average(name = 'Ave49889', )([in0Ave49889,in1Ave49889])
+GRU18128 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU18128', )(in0GRU18128)
+Res44744 = keras.layers.Reshape((2, 1), name = 'Res44744', )(GRU18128)
+Res9953 = keras.layers.Reshape((2, 1, 1), name = 'Res9953', )(Res44744)
+Res51811 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res51811', )(Res9953)
+Con23549 = keras.layers.Conv3D(2, (1, 1, 1),strides=(1, 12, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con23549', )(Res51811)
+Max42767 = keras.layers.Maximum(name = 'Max42767', )([Ave49889,Con23549])
+model = tf.keras.models.Model(inputs=[in0Ave49889,in1Ave49889,in0GRU18128], outputs=Max42767)
+w = model.get_layer('GRU18128').get_weights() 
+w[0] = np.array([[2, 1, 4, 2, 5, 9], [8, 1, 1, 10, 5, 1]])
+w[1] = np.array([[9, 1, 1, 2, 1, 5], [6, 9, 4, 2, 5, 6]])
+w[2] = np.array([[6, 10, 9, 2, 7, 10], [2, 4, 5, 8, 2, 7]])
+model.get_layer('GRU18128').set_weights(w) 
+w = model.get_layer('Con23549').get_weights() 
+w[0] = np.array([[[[[0.0853, 0.4955]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con23549').set_weights(w) 
+in0Ave49889 = tf.constant([[[[[0.1228, 0.1375]]], [[[0.2783, 0.8731]]]]])
+in1Ave49889 = tf.constant([[[[[0.7386, 0.3522]]], [[[0.3489, 0.8604]]]]])
+in0GRU18128 = tf.constant([[[7, 4], [3, 9]]])
+print (np.array2string(model.predict([in0Ave49889,in1Ave49889,in0GRU18128],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max42767.png')
+
+LAve49889 = average_layer([[[[[[0.1228, 0.1375]]], [[[0.2783, 0.8731]]]]], [[[[[0.7386, 0.3522]]], [[[0.3489, 0.8604]]]]]], Ave49889), 
+LGRU18128 = gru_layer([[[7, 4], [3, 9]]],[[2, 1, 4, 2, 5, 9], [8, 1, 1, 10, 5, 1]],[[9, 1, 1, 2, 1, 5], [6, 9, 4, 2, 5, 6]],[[6, 10, 9, 2, 7, 10], [2, 4, 5, 8, 2, 7]], true, GRU18128), 
+LRes44744 = reshape_layer(GRU18128, [2, 1], Res44744), 
+LRes9953 = reshape_layer(Res44744, [2, 1, 1], Res9953), 
+LRes51811 = reshape_layer(Res9953, [2, 1, 1, 1], Res51811), 
+LCon23549 = conv3D_layer(Res51811, 1, 1, 1,[[[[[0.0853, 0.4955]]]]],[0, 0], 1, 12, 1, true, 1, 1, 1, Con23549), 
+LMax42767 = maximum_layer([Ave49889,Con23549], Max42767), 
+exec_layers([LAve49889,LGRU18128,LRes44744,LRes9953,LRes51811,LCon23549,LMax42767],["Ave49889","GRU18128","Res44744","Res9953","Res51811","Con23549","Max42767"],Max42767,"Max42767")
+
+Actual (Unparsed): [[[[[0.4307000, 0.2448500]]], [[[0.3136000, 0.8667500]]]]]
+
+Expected (Unparsed): [[[[[0.4307,0.24485]]],[[[0.3136,0.86675]]]]]
+
+Actual:   [[[[[0.4307, 0.2449]]], [[[0.3136, 0.8668]]]]]
+
+Expected: [[[[[0.4307, 0.2449]]], [[[0.3136, 0.8668]]]]]

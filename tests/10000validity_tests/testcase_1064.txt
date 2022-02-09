@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con27654 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Con27654 = keras.layers.Conv2DTranspose(2, (2, 1),strides=(1, 1), padding='same', name = 'Con27654', )(in0Con27654)
+Res15405 = keras.layers.Reshape((2, 2), name = 'Res15405', )(Con27654)
+Cro381 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro381', )(Res15405)
+Res80727 = keras.layers.Reshape((1, 2, 1), name = 'Res80727', )(Cro381)
+Res75634 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res75634', )(Res80727)
+Con86895 = keras.layers.Conv3D(3, (1, 2, 1),strides=(1, 4, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con86895', )(Res75634)
+Glo90960 = keras.layers.GlobalMaxPool3D(name = 'Glo90960', )(Con86895)
+model = tf.keras.models.Model(inputs=[in0Con27654], outputs=Glo90960)
+w = model.get_layer('Con27654').get_weights() 
+w[0] = np.array([[[[0.3447, 0.4706], [0.1269, 0.809]]], [[[0.762, 0.8016], [0.7751, 0.9369]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con27654').set_weights(w) 
+w = model.get_layer('Con86895').get_weights() 
+w[0] = np.array([[[[[0.9829, 0.7373, 0.9256]]], [[[0.8909, 0.3034, 0.0558]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con86895').set_weights(w) 
+in0Con27654 = tf.constant([[[[0.4073, 0.4571]], [[0.1646, 0.3024]]]])
+print (np.array2string(model.predict([in0Con27654],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo90960.png')
+
+LCon27654 = conv2D_transpose_layer([[[[0.4073, 0.4571]], [[0.1646, 0.3024]]]], 2, 1,[[[[0.3447, 0.4706], [0.1269, 0.809]]], [[[0.762, 0.8016], [0.7751, 0.9369]]]],[0, 0], 1, 1, true, Con27654), 
+LRes15405 = reshape_layer(Con27654, [2, 2], Res15405), 
+LCro381 = cropping1D_layer(Res15405, 0, 1, Cro381), 
+LRes80727 = reshape_layer(Cro381, [1, 2, 1], Res80727), 
+LRes75634 = reshape_layer(Res80727, [1, 2, 1, 1], Res75634), 
+LCon86895 = conv3D_layer(Res75634, 1, 2, 1,[[[[[0.9829, 0.7373, 0.9256]]], [[[0.8909, 0.3034, 0.0558]]]]],[0, 0, 0], 1, 4, 1, false, 1, 1, 1, Con86895), 
+LGlo90960 = global_max_pool3D_layer(Con86895, Glo90960), 
+exec_layers([LCon27654,LRes15405,LCro381,LRes80727,LRes75634,LCon86895,LGlo90960],["Con27654","Res15405","Cro381","Res80727","Res75634","Con86895","Glo90960"],Glo90960,"Glo90960")
+
+Actual (Unparsed): [[0.7249252, 0.3899928, 0.3525764]]
+
+Expected (Unparsed): [[0.7249251630960001,0.38999284527899997,0.352576405858]]
+
+Actual:   [[0.725, 0.39, 0.3526]]
+
+Expected: [[0.725, 0.39, 0.3526]]

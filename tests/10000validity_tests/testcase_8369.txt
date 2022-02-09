@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo7309 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add93509 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Add93509 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con53678 = tf.keras.layers.Input(shape=([2]))
+
+Glo7309 = keras.layers.GlobalMaxPool1D(name = 'Glo7309', )(in0Glo7309)
+Den74162 = keras.layers.Dense(1,name = 'Den74162', )(Glo7309)
+Res92546 = keras.layers.Reshape((1, 1), name = 'Res92546', )(Den74162)
+Loc80460 = keras.layers.LocallyConnected1D(3, (1),strides=(6), name = 'Loc80460', )(Res92546)
+Fla44579 = keras.layers.Flatten(name = 'Fla44579', )(Loc80460)
+Add93509 = keras.layers.Add(name = 'Add93509', )([in0Add93509,in1Add93509])
+Res90337 = keras.layers.Reshape((1, 1), name = 'Res90337', )(Add93509)
+Per87327 = keras.layers.Permute((2,1), name = 'Per87327',)(Res90337)
+LST27703 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST27703', )(Per87327)
+Con53678 = keras.layers.Concatenate(axis=1, name = 'Con53678', )([LST27703,in0Con53678])
+Add96284 = keras.layers.Add(name = 'Add96284', )([Fla44579,Con53678])
+model = tf.keras.models.Model(inputs=[in0Glo7309,in0Add93509,in1Add93509,in0Con53678], outputs=Add96284)
+w = model.get_layer('Den74162').get_weights() 
+w[0] = np.array([[0.07], [0.1245]])
+w[1] = np.array([0.6818])
+model.get_layer('Den74162').set_weights(w) 
+w = model.get_layer('Loc80460').get_weights() 
+w[0] = np.array([[[0.4739, 0.5807, 0.3646]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc80460').set_weights(w) 
+w = model.get_layer('LST27703').get_weights() 
+w[0] = np.array([[2, 4, 9, 7]])
+w[1] = np.array([[7, 8, 4, 2]])
+w[2] = np.array([1, 3, 2, 8])
+model.get_layer('LST27703').set_weights(w) 
+in0Glo7309 = tf.constant([[[1.3224, 1.2706]]])
+in0Add93509 = tf.constant([[[[0.1543]]]])
+in1Add93509 = tf.constant([[[[0.4434]]]])
+in0Con53678 = tf.constant([[0.9227, 0.2072]])
+print (np.array2string(model.predict([in0Glo7309,in0Add93509,in1Add93509,in0Con53678],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add96284.png')
+
+LGlo7309 = global_max_pool1D_layer([[[1.3224, 1.2706]]], Glo7309), 
+LDen74162 = dense_layer(Glo7309, [[0.07], [0.1245]],[0.6818], Den74162), 
+LRes92546 = reshape_layer(Den74162, [1, 1], Res92546), 
+LLoc80460 = locally_connected1D_layer(Res92546, 1,[[[0.4739, 0.5807, 0.3646]]],[[0, 0, 0]], 6, Loc80460), 
+LFla44579 = flatten_layer(Loc80460, Fla44579), 
+LAdd93509 = add_layer([[[[[0.1543]]]], [[[[0.4434]]]]], Add93509), 
+LRes90337 = reshape_layer(Add93509, [1, 1], Res90337), 
+LPer87327 = permute_layer(Res90337, 2,1, Per87327), 
+LLST27703 = lstm_layer(Per87327,[[2, 4, 9, 7]],[[7, 8, 4, 2]],[1, 3, 2, 8], LST27703), 
+LCon53678 = concatenate_layer([LST27703,[[0.9227, 0.2072]]], 1, Con53678), 
+LAdd96284 = add_layer([Fla44579,Con53678], Add96284), 
+exec_layers([LGlo7309,LDen74162,LRes92546,LLoc80460,LFla44579,LAdd93509,LRes90337,LPer87327,LLST27703,LCon53678,LAdd96284],["Glo7309","Den74162","Res92546","Loc80460","Fla44579","Add93509","Res90337","Per87327","LST27703","Con53678","Add96284"],Add96284,"Add96284")
+
+Actual (Unparsed): [[1.1581529, 1.4642362, 0.5472105]]
+
+Expected (Unparsed): [[1.1581529360935394,1.46423625639,0.54721053742]]
+
+Actual:   [[1.1582, 1.4643, 0.5473]]
+
+Expected: [[1.1582, 1.4643, 0.5473]]

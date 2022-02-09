@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con21469 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Max88214 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Max88214 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Con21469 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con21469', )(in0Con21469)
+Bat36353 = keras.layers.BatchNormalization(axis=1, epsilon=0.8495317327409162,  name = 'Bat36353', )(Con21469)
+Max88214 = keras.layers.Maximum(name = 'Max88214', )([in0Max88214,in1Max88214])
+Sof79108 = keras.layers.Softmax(axis=1, name = 'Sof79108', )(Max88214)
+Zer79770 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer79770', )(Sof79108)
+Add44042 = keras.layers.Add(name = 'Add44042', )([Bat36353,Zer79770])
+model = tf.keras.models.Model(inputs=[in0Con21469,in0Max88214,in1Max88214], outputs=Add44042)
+w = model.get_layer('Con21469').get_weights() 
+w[0] = np.array([[[[[0.4978, 0.1342], [0.2849, 0.9801]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con21469').set_weights(w) 
+w = model.get_layer('Bat36353').get_weights() 
+w[0] = np.array([0.6914, 0.3859])
+w[1] = np.array([0.494, 0.9792])
+w[2] = np.array([0.1783, 0.0874])
+w[3] = np.array([0.8522, 0.6192])
+model.get_layer('Bat36353').set_weights(w) 
+in0Con21469 = tf.constant([[[[[0.4936, 0.8788], [0.3482, 0.7178]], [[0.993, 0.858], [0.3964, 0.7458]]], [[[0.3342, 0.2584], [0.8983, 0.8361]], [[0.6152, 0.65], [0.7217, 0.3192]]]]])
+in0Max88214 = tf.constant([[[[[0.1005, 0.3354]]]]])
+in1Max88214 = tf.constant([[[[[0.9432, 0.2884]]]]])
+print (np.array2string(model.predict([in0Con21469,in0Max88214,in1Max88214],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add44042.png')
+
+LCon21469 = conv3D_transpose_layer([[[[[0.4936, 0.8788], [0.3482, 0.7178]], [[0.993, 0.858], [0.3964, 0.7458]]], [[[0.3342, 0.2584], [0.8983, 0.8361]], [[0.6152, 0.65], [0.7217, 0.3192]]]]], 1, 1, 1,[[[[[0.4978, 0.1342], [0.2849, 0.9801]]]]],[0, 0], 1, 1, 1, true, Con21469), 
+LBat36353 = batch_normalization_layer(Con21469, 1, 0.8495317327409162, [0.6914, 0.3859], [0.494, 0.9792], [0.1783, 0.0874], [0.8522, 0.6192], Bat36353), 
+LMax88214 = maximum_layer([[[[[[0.1005, 0.3354]]]]], [[[[[0.9432, 0.2884]]]]]], Max88214), 
+LSof79108 = softmax_layer(Max88214, 1, Sof79108), 
+LZer79770 = zero_padding3D_layer(Sof79108, 1, 0, 1, 0, 1, 0, Zer79770), 
+LAdd44042 = add_layer([Bat36353,Zer79770], Add44042), 
+exec_layers([LCon21469,LBat36353,LMax88214,LSof79108,LZer79770,LAdd44042],["Con21469","Bat36353","Max88214","Sof79108","Zer79770","Add44042"],Add44042,"Add44042")
+
+Actual (Unparsed): [[[[[0.5922368, 0.9305364], [0.5424231, 0.8249476]], [[0.7225184, 0.9951409], [0.5571317, 0.8467707]]], [[[1.0153862, 1.0623310], [1.1294885, 1.2937972]], [[1.0766616, 1.2100356], [2.0794072, 2.1164592]]]]]
+
+Expected (Unparsed): [[[[[0.5922367910284276,0.9305364135266272],[0.5424231287760042,0.8249475821990611]],[[0.7225184567615015,0.9951408765661568],[0.5571317250570147,0.8467707214279434]]],[[[1.0153861651293923,1.0623309743707958],[1.1294884572686288,1.2937972288056359]],[[1.076661616690411,1.210035657186683],[2.079407162432478,2.1164592166351213]]]]]
+
+Actual:   [[[[[0.5923, 0.9306], [0.5425, 0.825]], [[0.7226, 0.9952], [0.5572, 0.8468]]], [[[1.0154, 1.0624], [1.1295, 1.2938]], [[1.0767, 1.2101], [2.0795, 2.1165]]]]]
+
+Expected: [[[[[0.5923, 0.9306], [0.5425, 0.825]], [[0.7226, 0.9952], [0.5572, 0.8468]]], [[[1.0154, 1.0624], [1.1295, 1.2938]], [[1.0767, 1.2101], [2.0795, 2.1165]]]]]

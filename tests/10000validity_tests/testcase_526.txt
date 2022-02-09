@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave48740 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave48740 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Sub81907 = tf.keras.layers.Input(shape=([3]))
+in1Sub81907 = tf.keras.layers.Input(shape=([3]))
+
+Ave48740 = keras.layers.Average(name = 'Ave48740', )([in0Ave48740,in1Ave48740])
+ELU44124 = keras.layers.ELU(alpha=4.417204358054223, name = 'ELU44124', )(Ave48740)
+Sub81907 = keras.layers.Subtract(name = 'Sub81907', )([in0Sub81907,in1Sub81907])
+Res76321 = keras.layers.Reshape((3, 1), name = 'Res76321', )(Sub81907)
+Res53458 = keras.layers.Reshape((3, 1, 1), name = 'Res53458', )(Res76321)
+Con79058 = keras.layers.Conv2D(2, (3, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con79058', )(Res53458)
+Mul93235 = keras.layers.Multiply(name = 'Mul93235', )([ELU44124,Con79058])
+Res36630 = keras.layers.Reshape((1, 2), name = 'Res36630', )(Mul93235)
+Glo95353 = keras.layers.GlobalAveragePooling1D(name = 'Glo95353', )(Res36630)
+model = tf.keras.models.Model(inputs=[in0Ave48740,in1Ave48740,in0Sub81907,in1Sub81907], outputs=Glo95353)
+w = model.get_layer('Con79058').get_weights() 
+w[0] = np.array([[[[0.8436, 0.5849]]], [[[0.7152, 0.2932]]], [[[0.1789, 0.5127]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con79058').set_weights(w) 
+in0Ave48740 = tf.constant([[[[0.6993, 0.816]]]])
+in1Ave48740 = tf.constant([[[[0.2157, 0.0579]]]])
+in0Sub81907 = tf.constant([[0.7, 0.0104, 0.1072]])
+in1Sub81907 = tf.constant([[0.1735, 0.096, 0.7063]])
+print (np.array2string(model.predict([in0Ave48740,in1Ave48740,in0Sub81907,in1Sub81907],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo95353.png')
+
+LAve48740 = average_layer([[[[[0.6993, 0.816]]]], [[[[0.2157, 0.0579]]]]], Ave48740), 
+LELU44124 = elu_layer(Ave48740, 4.417204358054223, ELU44124), 
+LSub81907 = subtract_layer([[0.7, 0.0104, 0.1072]], [[0.1735, 0.096, 0.7063]], Sub81907), 
+LRes76321 = reshape_layer(Sub81907, [3, 1], Res76321), 
+LRes53458 = reshape_layer(Res76321, [3, 1, 1], Res53458), 
+LCon79058 = conv2D_layer(Res53458, 3, 1,[[[[0.8436, 0.5849]]], [[[0.7152, 0.2932]]], [[[0.1789, 0.5127]]]],[0, 0], 1, 1, false, 1, 1, Con79058), 
+LMul93235 = multiply_layer([ELU44124,Con79058], Mul93235), 
+LRes36630 = reshape_layer(Mul93235, [1, 2], Res36630), 
+LGlo95353 = global_average_pooling1D_layer(Res36630, Glo95353), 
+exec_layers([LAve48740,LELU44124,LSub81907,LRes76321,LRes53458,LCon79058,LMul93235,LRes36630,LGlo95353],["Ave48740","ELU44124","Sub81907","Res76321","Res53458","Con79058","Mul93235","Res36630","Glo95353"],Glo95353,"Glo95353")
+
+Actual (Unparsed): [[0.1261580, -0.0106208]]
+
+Expected (Unparsed): [[0.12615804517499998,-0.010620786348000044]]
+
+Actual:   [[0.1262, -0.0106]]
+
+Expected: [[0.1262, -0.0106]]

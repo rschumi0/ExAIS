@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo19648 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con21561 = tf.keras.layers.Input(shape=([2]))
+in0Ave87163 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave87163 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Glo19648 = keras.layers.GlobalAveragePooling2D(name = 'Glo19648', )(in0Glo19648)
+Con21561 = keras.layers.Concatenate(axis=1, name = 'Con21561', )([Glo19648,in0Con21561])
+Ave87163 = keras.layers.Average(name = 'Ave87163', )([in0Ave87163,in1Ave87163])
+Res8619 = keras.layers.Reshape((2, 1, 2), name = 'Res8619', )(Ave87163)
+Res18346 = keras.layers.Reshape((2, 2), name = 'Res18346', )(Res8619)
+GRU12319 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU12319', )(Res18346)
+Max6503 = keras.layers.Maximum(name = 'Max6503', )([Con21561,GRU12319])
+Sof18353 = keras.layers.Softmax(axis=1, name = 'Sof18353', )(Max6503)
+Res12418 = keras.layers.Reshape((3, 1), name = 'Res12418', )(Sof18353)
+Res66261 = keras.layers.Reshape((3, 1, 1), name = 'Res66261', )(Res12418)
+Cro96340 = keras.layers.Cropping2D(cropping=((2, 0), (0, 0)), name = 'Cro96340', )(Res66261)
+model = tf.keras.models.Model(inputs=[in0Glo19648,in0Con21561,in0Ave87163,in1Ave87163], outputs=Cro96340)
+w = model.get_layer('GRU12319').get_weights() 
+w[0] = np.array([[3, 6, 8, 5, 4, 4, 2, 5, 2], [1, 7, 7, 8, 1, 6, 5, 9, 8]])
+w[1] = np.array([[4, 3, 5, 7, 6, 2, 5, 5, 8], [9, 10, 1, 9, 6, 7, 6, 2, 6], [10, 5, 4, 7, 8, 6, 3, 8, 8]])
+w[2] = np.array([[10, 9, 6, 3, 7, 8, 1, 8, 10], [9, 8, 10, 8, 4, 5, 3, 5, 1]])
+model.get_layer('GRU12319').set_weights(w) 
+in0Glo19648 = tf.constant([[[[1.9948], [1.9116]]]])
+in0Con21561 = tf.constant([[0.5579, 0.521]])
+in0Ave87163 = tf.constant([[[[[0.9889], [0.241]]], [[[0.7653], [0.3906]]]]])
+in1Ave87163 = tf.constant([[[[[0.8438], [0.4566]]], [[[0.733], [0.1157]]]]])
+print (np.array2string(model.predict([in0Glo19648,in0Con21561,in0Ave87163,in1Ave87163],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro96340.png')
+
+LGlo19648 = global_average_pooling2D_layer([[[[1.9948], [1.9116]]]], Glo19648), 
+LCon21561 = concatenate_layer([Glo19648,[[0.5579, 0.521]]], 1, Con21561), 
+LAve87163 = average_layer([[[[[[0.9889], [0.241]]], [[[0.7653], [0.3906]]]]], [[[[[0.8438], [0.4566]]], [[[0.733], [0.1157]]]]]], Ave87163), 
+LRes8619 = reshape_layer(Ave87163, [2, 1, 2], Res8619), 
+LRes18346 = reshape_layer(Res8619, [2, 2], Res18346), 
+LGRU12319 = gru_layer(Res18346,[[3, 6, 8, 5, 4, 4, 2, 5, 2], [1, 7, 7, 8, 1, 6, 5, 9, 8]],[[4, 3, 5, 7, 6, 2, 5, 5, 8], [9, 10, 1, 9, 6, 7, 6, 2, 6], [10, 5, 4, 7, 8, 6, 3, 8, 8]],[[10, 9, 6, 3, 7, 8, 1, 8, 10], [9, 8, 10, 8, 4, 5, 3, 5, 1]], true, GRU12319), 
+LMax6503 = maximum_layer([Con21561,GRU12319], Max6503), 
+LSof18353 = softmax_layer(Max6503, 1, Sof18353), 
+LRes12418 = reshape_layer(Sof18353, [3, 1], Res12418), 
+LRes66261 = reshape_layer(Res12418, [3, 1, 1], Res66261), 
+LCro96340 = cropping2D_layer(Res66261, 2, 0, 0, 0, Cro96340), 
+exec_layers([LGlo19648,LCon21561,LAve87163,LRes8619,LRes18346,LGRU12319,LMax6503,LSof18353,LRes12418,LRes66261,LCro96340],["Glo19648","Con21561","Ave87163","Res8619","Res18346","GRU12319","Max6503","Sof18353","Res12418","Res66261","Cro96340"],Cro96340,"Cro96340")
+
+Actual (Unparsed): [[[[0.1606299]]]]
+
+Expected (Unparsed): [[[[0.16062988228175953]]]]
+
+Actual:   [[[[0.1607]]]]
+
+Expected: [[[[0.1607]]]]

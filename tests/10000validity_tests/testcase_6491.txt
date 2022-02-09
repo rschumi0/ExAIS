@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con99092 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con37753 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0ELU14077 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Con99092 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con99092', )(in0Con99092)
+Res45045 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res45045', )(Con99092)
+Con37753 = keras.layers.Concatenate(axis=4, name = 'Con37753', )([Res45045,in0Con37753])
+ELU14077 = keras.layers.ELU(alpha=-3.6506737826484077, name = 'ELU14077', input_shape=(2, 1, 1, 2))(in0ELU14077)
+Zer76195 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer76195', )(ELU14077)
+Mul88451 = keras.layers.Multiply(name = 'Mul88451', )([Con37753,Zer76195])
+Res83065 = keras.layers.Reshape((2, 2, 4), name = 'Res83065', )(Mul88451)
+Glo66673 = keras.layers.GlobalAveragePooling2D(name = 'Glo66673', )(Res83065)
+Res37323 = keras.layers.Reshape((4, 1), name = 'Res37323', )(Glo66673)
+Res13303 = keras.layers.Reshape((4, 1, 1), name = 'Res13303', )(Res37323)
+Res88626 = keras.layers.Reshape((4, 1, 1, 1), name = 'Res88626', )(Res13303)
+Cro56138 = keras.layers.Cropping3D(cropping=((3, 0), (0, 0), (0, 0)), name = 'Cro56138', )(Res88626)
+model = tf.keras.models.Model(inputs=[in0Con99092,in0Con37753,in0ELU14077], outputs=Cro56138)
+w = model.get_layer('Con99092').get_weights() 
+w[0] = np.array([[[[0.661], [0.8986]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con99092').set_weights(w) 
+in0Con99092 = tf.constant([[[[0.3489], [0.0483]], [[0.3081], [0.5601]]]])
+in0Con37753 = tf.constant([[[[[0.7055], [0.7674]], [[0.2379], [0.668]]], [[[0.9399], [0.0299]], [[0.8369], [0.9793]]]]])
+in0ELU14077 = tf.constant([[[[[0.1368, 0.6725]]], [[[0.8765, 0.8389]]]]])
+print (np.array2string(model.predict([in0Con99092,in0Con37753,in0ELU14077],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro56138.png')
+
+LCon99092 = conv2D_transpose_layer([[[[0.3489], [0.0483]], [[0.3081], [0.5601]]]], 1, 1,[[[[0.661], [0.8986]]]],[0, 0], 1, 1, false, Con99092), 
+LRes45045 = reshape_layer(Con99092, [2, 2, 2, 1], Res45045), 
+LCon37753 = concatenate_layer([Res45045,[[[[[0.7055], [0.7674]], [[0.2379], [0.668]]], [[[0.9399], [0.0299]], [[0.8369], [0.9793]]]]]], 4, Con37753), 
+LELU14077 = elu_layer([[[[[0.1368, 0.6725]]], [[[0.8765, 0.8389]]]]], -3.6506737826484077, ELU14077), 
+LZer76195 = zero_padding3D_layer(ELU14077, 0, 0, 1, 0, 1, 0, Zer76195), 
+LMul88451 = multiply_layer([Con37753,Zer76195], Mul88451), 
+LRes83065 = reshape_layer(Mul88451, [2, 2, 4], Res83065), 
+LGlo66673 = global_average_pooling2D_layer(Res83065, Glo66673), 
+LRes37323 = reshape_layer(Glo66673, [4, 1], Res37323), 
+LRes13303 = reshape_layer(Res37323, [4, 1, 1], Res13303), 
+LRes88626 = reshape_layer(Res13303, [4, 1, 1, 1], Res88626), 
+LCro56138 = cropping3D_layer(Res88626, 3, 0, 0, 0, 0, 0, Cro56138), 
+exec_layers([LCon99092,LRes45045,LCon37753,LELU14077,LZer76195,LMul88451,LRes83065,LGlo66673,LRes37323,LRes13303,LRes88626,LCro56138],["Con99092","Res45045","Con37753","ELU14077","Zer76195","Mul88451","Res83065","Glo66673","Res37323","Res13303","Res88626","Cro56138"],Cro56138,"Cro56138")
+
+Actual (Unparsed): [[[[[0.3176912]]]]]
+
+Expected (Unparsed): [[[[[0.3176911925]]]]]
+
+Actual:   [[[[[0.3177]]]]]
+
+Expected: [[[[[0.3177]]]]]

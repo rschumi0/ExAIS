@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min75583 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min75583 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con29131 = tf.keras.layers.Input(shape=([3]))
+in0Max2192 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max2192 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Min75583 = keras.layers.Minimum(name = 'Min75583', )([in0Min75583,in1Min75583])
+Res3645 = keras.layers.Reshape((2, 2), name = 'Res3645', )(Min75583)
+GRU19240 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU19240', )(Res3645)
+Con29131 = keras.layers.Concatenate(axis=1, name = 'Con29131', )([GRU19240,in0Con29131])
+Max2192 = keras.layers.Maximum(name = 'Max2192', )([in0Max2192,in1Max2192])
+Res83419 = keras.layers.Reshape((2, 4), name = 'Res83419', )(Max2192)
+Ave19166 = keras.layers.AveragePooling1D(pool_size=(2), name = 'Ave19166', )(Res83419)
+Fla99213 = keras.layers.Flatten(name = 'Fla99213', )(Ave19166)
+Dot85552 = keras.layers.Dot(axes=(1, 1), name = 'Dot85552', )([Con29131,Fla99213])
+Res41732 = keras.layers.Reshape((1, 1), name = 'Res41732', )(Dot85552)
+GRU49960 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU49960', )(Res41732)
+model = tf.keras.models.Model(inputs=[in0Min75583,in1Min75583,in0Con29131,in0Max2192,in1Max2192], outputs=GRU49960)
+w = model.get_layer('GRU19240').get_weights() 
+w[0] = np.array([[5, 5, 10], [7, 6, 1]])
+w[1] = np.array([[8, 8, 6]])
+w[2] = np.array([[1, 4, 10], [3, 7, 9]])
+model.get_layer('GRU19240').set_weights(w) 
+w = model.get_layer('GRU49960').get_weights() 
+w[0] = np.array([[7, 5, 9, 5, 3, 2]])
+w[1] = np.array([[5, 9, 10, 2, 9, 3], [4, 6, 1, 8, 8, 3]])
+w[2] = np.array([6, 8, 10, 1, 4, 10])
+model.get_layer('GRU49960').set_weights(w) 
+in0Min75583 = tf.constant([[[[0.2662], [0.1711]], [[0.3876], [0.642]]]])
+in1Min75583 = tf.constant([[[[0.4016], [0.5404]], [[0.533], [0.7267]]]])
+in0Con29131 = tf.constant([[0.6044, 0.6233, 0.3183]])
+in0Max2192 = tf.constant([[[[0.5082, 0.3362], [0.5755, 0.3045]], [[0.3581, 0.6426], [0.7003, 0.8745]]]])
+in1Max2192 = tf.constant([[[[0.6936, 0.7416], [0.6978, 0.2111]], [[0.0032, 0.1305], [0.5239, 0.4331]]]])
+print (np.array2string(model.predict([in0Min75583,in1Min75583,in0Con29131,in0Max2192,in1Max2192],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU49960.png')
+
+LMin75583 = minimum_layer([[[[[0.2662], [0.1711]], [[0.3876], [0.642]]]], [[[[0.4016], [0.5404]], [[0.533], [0.7267]]]]], Min75583), 
+LRes3645 = reshape_layer(Min75583, [2, 2], Res3645), 
+LGRU19240 = gru_layer(Res3645,[[5, 5, 10], [7, 6, 1]],[[8, 8, 6]],[[1, 4, 10], [3, 7, 9]], true, GRU19240), 
+LCon29131 = concatenate_layer([GRU19240,[[0.6044, 0.6233, 0.3183]]], 1, Con29131), 
+LMax2192 = maximum_layer([[[[[0.5082, 0.3362], [0.5755, 0.3045]], [[0.3581, 0.6426], [0.7003, 0.8745]]]], [[[[0.6936, 0.7416], [0.6978, 0.2111]], [[0.0032, 0.1305], [0.5239, 0.4331]]]]], Max2192), 
+LRes83419 = reshape_layer(Max2192, [2, 4], Res83419), 
+LAve19166 = average_pooling1D_layer(Res83419, 2, Ave19166), 
+LFla99213 = flatten_layer(Ave19166, Fla99213), 
+LDot85552 = dot_layer(Con29131,Fla99213, 1, 1, Dot85552), 
+LRes41732 = reshape_layer(Dot85552, [1, 1], Res41732), 
+LGRU49960 = gru_layer(Res41732,[[7, 5, 9, 5, 3, 2]],[[5, 9, 10, 2, 9, 3], [4, 6, 1, 8, 8, 3]],[6, 8, 10, 1, 4, 10], false, GRU49960), 
+exec_layers([LMin75583,LRes3645,LGRU19240,LCon29131,LMax2192,LRes83419,LAve19166,LFla99213,LDot85552,LRes41732,LGRU49960],["Min75583","Res3645","GRU19240","Con29131","Max2192","Res83419","Ave19166","Fla99213","Dot85552","Res41732","GRU49960"],GRU49960,"GRU49960")
+
+Actual (Unparsed): [[0.0000017, 0.0000018]]
+
+Expected (Unparsed): [[1.6793455450428595e-6,1.828127090813911e-6]]
+
+Actual:   [[0, 0]]
+
+Expected: [[0, 0]]

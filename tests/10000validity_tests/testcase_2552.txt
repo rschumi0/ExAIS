@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con73827 = tf.keras.layers.Input(shape=([2, 1]))
+in0Min61725 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min61725 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con32810 = tf.keras.layers.Input(shape=([1, 2]))
+
+Con73827 = keras.layers.Conv1D(2, (2),strides=(12), padding='same', dilation_rate=(1), name = 'Con73827', )(in0Con73827)
+Con82106 = keras.layers.Conv1D(4, (1),strides=(7), padding='same', dilation_rate=(1), name = 'Con82106', )(Con73827)
+Min61725 = keras.layers.Minimum(name = 'Min61725', )([in0Min61725,in1Min61725])
+Con32810 = keras.layers.Concatenate(axis=2, name = 'Con32810', )([Min61725,in0Con32810])
+Mul12693 = keras.layers.Multiply(name = 'Mul12693', )([Con82106,Con32810])
+Res61260 = keras.layers.Reshape((1, 4, 1), name = 'Res61260', )(Mul12693)
+Up_97835 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_97835', )(Res61260)
+model = tf.keras.models.Model(inputs=[in0Con73827,in0Min61725,in1Min61725,in0Con32810], outputs=Up_97835)
+w = model.get_layer('Con73827').get_weights() 
+w[0] = np.array([[[0.6685, 0.5404]], [[0.9538, 0.3711]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con73827').set_weights(w) 
+w = model.get_layer('Con82106').get_weights() 
+w[0] = np.array([[[0.8046, 0.5949, 0.8339, 0.28], [0.5159, 0.0723, 0.2469, 0.5931]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con82106').set_weights(w) 
+in0Con73827 = tf.constant([[[0.3084], [0.5939]]])
+in0Min61725 = tf.constant([[[0.7044, 0.5208]]])
+in1Min61725 = tf.constant([[[0.1721, 0.959]]])
+in0Con32810 = tf.constant([[[0.2298, 0.6782]]])
+print (np.array2string(model.predict([in0Con73827,in0Min61725,in1Min61725,in0Con32810],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_97835.png')
+
+LCon73827 = conv1D_layer([[[0.3084], [0.5939]]], 2,[[[0.6685, 0.5404]], [[0.9538, 0.3711]]],[0, 0], 12, true, 1, Con73827), 
+LCon82106 = conv1D_layer(Con73827, 1,[[[0.8046, 0.5949, 0.8339, 0.28], [0.5159, 0.0723, 0.2469, 0.5931]]],[0, 0, 0, 0], 7, true, 1, Con82106), 
+LMin61725 = minimum_layer([[[[0.7044, 0.5208]]], [[[0.1721, 0.959]]]], Min61725), 
+LCon32810 = concatenate_layer([Min61725,[[[0.2298, 0.6782]]]], 2, Con32810), 
+LMul12693 = multiply_layer([Con82106,Con32810], Mul12693), 
+LRes61260 = reshape_layer(Mul12693, [1, 4, 1], Res61260), 
+LUp_97835 = up_sampling2D_layer(Res61260, 2, 1, Up_97835), 
+exec_layers([LCon73827,LCon82106,LMin61725,LCon32810,LMul12693,LRes61260,LUp_97835],["Con73827","Con82106","Min61725","Con32810","Mul12693","Res61260","Up_97835"],Up_97835,"Up_97835")
+
+Actual (Unparsed): [[[[0.1413522], [0.2539525], [0.1700193], [0.3024083]], [[0.1413522], [0.2539525], [0.1700193], [0.3024083]]]]
+
+Expected (Unparsed): [[[[0.14135224760718867],[0.2539525255152984],[0.1700193405351414],[0.302408245788493]],[[0.14135224760718867],[0.2539525255152984],[0.1700193405351414],[0.302408245788493]]]]
+
+Actual:   [[[[0.1414], [0.254], [0.1701], [0.3025]], [[0.1414], [0.254], [0.1701], [0.3025]]]]
+
+Expected: [[[[0.1414], [0.254], [0.1701], [0.3025]], [[0.1414], [0.254], [0.1701], [0.3025]]]]

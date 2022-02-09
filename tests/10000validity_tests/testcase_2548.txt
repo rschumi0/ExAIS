@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max63476 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max63476 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con42559 = tf.keras.layers.Input(shape=([1, 3]))
+in0Ave2560 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Ave2560 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+Max63476 = keras.layers.Maximum(name = 'Max63476', )([in0Max63476,in1Max63476])
+Res91623 = keras.layers.Reshape((1, 2, 1), name = 'Res91623', )(Max63476)
+Glo84736 = keras.layers.GlobalAveragePooling2D(name = 'Glo84736', )(Res91623)
+Res35998 = keras.layers.Reshape((1, 1), name = 'Res35998', )(Glo84736)
+Con42559 = keras.layers.Concatenate(axis=2, name = 'Con42559', )([Res35998,in0Con42559])
+Ave2560 = keras.layers.Average(name = 'Ave2560', )([in0Ave2560,in1Ave2560])
+Res75894 = keras.layers.Reshape((1, 2, 2), name = 'Res75894', )(Ave2560)
+Res27030 = keras.layers.Reshape((1, 4), name = 'Res27030', )(Res75894)
+Ave87236 = keras.layers.AveragePooling1D(pool_size=(1), strides=(4), padding='valid', name = 'Ave87236', )(Res27030)
+Ave65331 = keras.layers.Average(name = 'Ave65331', )([Con42559,Ave87236])
+LST62507 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST62507', )(Ave65331)
+model = tf.keras.models.Model(inputs=[in0Max63476,in1Max63476,in0Con42559,in0Ave2560,in1Ave2560], outputs=LST62507)
+w = model.get_layer('LST62507').get_weights() 
+w[0] = np.array([[2, 10, 1, 1], [1, 1, 8, 6], [7, 6, 1, 5], [10, 9, 6, 7]])
+w[1] = np.array([[9, 1, 5, 1]])
+w[2] = np.array([2, 1, 1, 3])
+model.get_layer('LST62507').set_weights(w) 
+in0Max63476 = tf.constant([[[0.6259, 0.4032]]])
+in1Max63476 = tf.constant([[[0.1566, 0.9847]]])
+in0Con42559 = tf.constant([[[0.7917, 0.1826, 0.3843]]])
+in0Ave2560 = tf.constant([[[[[0.1448, 0.0308]], [[0.4882, 0.6083]]]]])
+in1Ave2560 = tf.constant([[[[[0.5436, 0.0139]], [[0.9715, 0.3032]]]]])
+print (np.array2string(model.predict([in0Max63476,in1Max63476,in0Con42559,in0Ave2560,in1Ave2560],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='LST62507.png')
+
+LMax63476 = maximum_layer([[[[0.6259, 0.4032]]], [[[0.1566, 0.9847]]]], Max63476), 
+LRes91623 = reshape_layer(Max63476, [1, 2, 1], Res91623), 
+LGlo84736 = global_average_pooling2D_layer(Res91623, Glo84736), 
+LRes35998 = reshape_layer(Glo84736, [1, 1], Res35998), 
+LCon42559 = concatenate_layer([Res35998,[[[0.7917, 0.1826, 0.3843]]]], 2, Con42559), 
+LAve2560 = average_layer([[[[[[0.1448, 0.0308]], [[0.4882, 0.6083]]]]], [[[[[0.5436, 0.0139]], [[0.9715, 0.3032]]]]]], Ave2560), 
+LRes75894 = reshape_layer(Ave2560, [1, 2, 2], Res75894), 
+LRes27030 = reshape_layer(Res75894, [1, 4], Res27030), 
+LAve87236 = average_pooling1D_layer(Res27030, 1, 4, false, Ave87236), 
+LAve65331 = average_layer([Con42559,Ave87236], Ave65331), 
+LLST62507 = lstm_layer(Ave65331,[[2, 10, 1, 1], [1, 1, 8, 6], [7, 6, 1, 5], [10, 9, 6, 7]],[[9, 1, 5, 1]],[2, 1, 1, 3], LST62507), 
+exec_layers([LMax63476,LRes91623,LGlo84736,LRes35998,LCon42559,LAve2560,LRes75894,LRes27030,LAve87236,LAve65331,LLST62507],["Max63476","Res91623","Glo84736","Res35998","Con42559","Ave2560","Res75894","Res27030","Ave87236","Ave65331","LST62507"],LST62507,"LST62507")
+
+Actual (Unparsed): [[0.7615766]]
+
+Expected (Unparsed): [[0.7615766220500839]]
+
+Actual:   [[0.7616]]
+
+Expected: [[0.7616]]

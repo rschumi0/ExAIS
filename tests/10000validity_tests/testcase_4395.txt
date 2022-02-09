@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_81415 = tf.keras.layers.Input(shape=([1, 1, 4, 1]))
+
+Up_81415 = keras.layers.UpSampling3D(size=(2, 1, 2), name = 'Up_81415', )(in0Up_81415)
+Res63473 = keras.layers.Reshape((2, 1, 8), name = 'Res63473', )(Up_81415)
+Loc33927 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc33927', )(Res63473)
+Bat62746 = keras.layers.BatchNormalization(axis=3, epsilon=0.3699487676229736,  name = 'Bat62746', )(Loc33927)
+Res11994 = keras.layers.Reshape((2, 3), name = 'Res11994', )(Bat62746)
+Glo41740 = keras.layers.GlobalAveragePooling1D(name = 'Glo41740', )(Res11994)
+model = tf.keras.models.Model(inputs=[in0Up_81415], outputs=Glo41740)
+w = model.get_layer('Loc33927').get_weights() 
+w[0] = np.array([[[0.4219, 0.2584, 0.779], [0.236, 0.509, 0.018], [0.2354, 0.0706, 0.2235], [0.6599, 0.5149, 0.8595], [0.8867, 0.9616, 0.7625], [0.881, 0.4548, 0.5198], [0.1278, 0.2537, 0.7553], [0.2623, 0.1564, 0.4102]], [[0.0614, 0.6311, 0.6718], [0.1112, 0.5065, 0.1271], [0.5771, 0.787, 0.3209], [0.5489, 0.8673, 0.6539], [0.3796, 0.179, 0.5472], [0.4879, 0.0912, 0.3774], [0.0793, 0.1601, 0.2295], [0.5265, 0.446, 0.0385]]])
+w[1] = np.array([[[0, 0, 0]], [[0, 0, 0]]])
+model.get_layer('Loc33927').set_weights(w) 
+w = model.get_layer('Bat62746').get_weights() 
+w[0] = np.array([0.1274, 0.4187, 0.2827])
+w[1] = np.array([0.8785, 0.6099, 0.6876])
+w[2] = np.array([0.6403, 0.8776, 0.0882])
+w[3] = np.array([0.9775, 0.4541, 0.6885])
+model.get_layer('Bat62746').set_weights(w) 
+in0Up_81415 = tf.constant([[[[[1.0654], [1.6683], [1.9138], [1.4429]]]]])
+print (np.array2string(model.predict([in0Up_81415],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo41740.png')
+
+LUp_81415 = up_sampling3D_layer([[[[[1.0654], [1.6683], [1.9138], [1.4429]]]]], 2, 1, 2, Up_81415), 
+LRes63473 = reshape_layer(Up_81415, [2, 1, 8], Res63473), 
+LLoc33927 = locally_connected2D_layer(Res63473, 1, 1,[[[0.4219, 0.2584, 0.779], [0.236, 0.509, 0.018], [0.2354, 0.0706, 0.2235], [0.6599, 0.5149, 0.8595], [0.8867, 0.9616, 0.7625], [0.881, 0.4548, 0.5198], [0.1278, 0.2537, 0.7553], [0.2623, 0.1564, 0.4102]], [[0.0614, 0.6311, 0.6718], [0.1112, 0.5065, 0.1271], [0.5771, 0.787, 0.3209], [0.5489, 0.8673, 0.6539], [0.3796, 0.179, 0.5472], [0.4879, 0.0912, 0.3774], [0.0793, 0.1601, 0.2295], [0.5265, 0.446, 0.0385]]],[[[0, 0, 0]], [[0, 0, 0]]], 1, 1, Loc33927), 
+LBat62746 = batch_normalization_layer(Loc33927, 3, 0.3699487676229736, [0.1274, 0.4187, 0.2827], [0.8785, 0.6099, 0.6876], [0.6403, 0.8776, 0.0882], [0.9775, 0.4541, 0.6885], Bat62746), 
+LRes11994 = reshape_layer(Bat62746, [2, 3], Res11994), 
+LGlo41740 = global_average_pooling1D_layer(Res11994, Glo41740), 
+exec_layers([LUp_81415,LRes63473,LLoc33927,LBat62746,LRes11994,LGlo41740],["Up_81415","Res63473","Loc33927","Bat62746","Res11994","Glo41740"],Glo41740,"Glo41740")
+
+Actual (Unparsed): [[1.3974403, 2.6174762, 2.2331017]]
+
+Expected (Unparsed): [[1.397440269575589,2.6174762009875643,2.2331016739777065]]
+
+Actual:   [[1.3975, 2.6175, 2.2332]]
+
+Expected: [[1.3975, 2.6175, 2.2332]]

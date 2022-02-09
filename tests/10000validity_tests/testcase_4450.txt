@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo29889 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Mul89792 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Mul89792 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Glo29889 = keras.layers.GlobalAveragePooling3D(name = 'Glo29889', )(in0Glo29889)
+Res15379 = keras.layers.Reshape((2, 1), name = 'Res15379', )(Glo29889)
+Res65029 = keras.layers.Reshape((2, 1, 1), name = 'Res65029', )(Res15379)
+Res11219 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res11219', )(Res65029)
+Zer6763 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer6763', )(Res11219)
+Mul89792 = keras.layers.Multiply(name = 'Mul89792', )([in0Mul89792,in1Mul89792])
+Zer97436 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer97436', )(Mul89792)
+Ave29788 = keras.layers.Average(name = 'Ave29788', )([Zer6763,Zer97436])
+Res18328 = keras.layers.Reshape((2, 1, 3), name = 'Res18328', )(Ave29788)
+Sep66807 = keras.layers.SeparableConv2D(3, (2, 1),strides=(1, 1), padding='valid', name = 'Sep66807', )(Res18328)
+Zer61561 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer61561', )(Sep66807)
+model = tf.keras.models.Model(inputs=[in0Glo29889,in0Mul89792,in1Mul89792], outputs=Zer61561)
+w = model.get_layer('Sep66807').get_weights() 
+w[0] = np.array([[[[0.8176], [0.8653], [0.9226]]], [[[0.8583], [0.151], [0.167]]]])
+w[1] = np.array([[[[0.1935, 0.9431, 0.2575], [0.772, 0.1411, 0.5595], [0.0793, 0.0735, 0.0344]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep66807').set_weights(w) 
+in0Glo29889 = tf.constant([[[[[1.9687, 1.528], [1.9195, 1.6296]], [[1.3723, 1.046], [1.4977, 1.3405]]]]])
+in0Mul89792 = tf.constant([[[[[0.6293], [0.424]]]]])
+in1Mul89792 = tf.constant([[[[[0.1844], [0.1798]]]]])
+print (np.array2string(model.predict([in0Glo29889,in0Mul89792,in1Mul89792],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer61561.png')
+
+LGlo29889 = global_average_pooling3D_layer([[[[[1.9687, 1.528], [1.9195, 1.6296]], [[1.3723, 1.046], [1.4977, 1.3405]]]]], Glo29889), 
+LRes15379 = reshape_layer(Glo29889, [2, 1], Res15379), 
+LRes65029 = reshape_layer(Res15379, [2, 1, 1], Res65029), 
+LRes11219 = reshape_layer(Res65029, [2, 1, 1, 1], Res11219), 
+LZer6763 = zero_padding3D_layer(Res11219, 0, 0, 0, 0, 2, 0, Zer6763), 
+LMul89792 = multiply_layer([[[[[[0.6293], [0.424]]]]], [[[[[0.1844], [0.1798]]]]]], Mul89792), 
+LZer97436 = zero_padding3D_layer(Mul89792, 1, 0, 0, 0, 1, 0, Zer97436), 
+LAve29788 = average_layer([Zer6763,Zer97436], Ave29788), 
+LRes18328 = reshape_layer(Ave29788, [2, 1, 3], Res18328), 
+LSep66807 = separable_conv2D_layer(Res18328, 2, 1,[[[[[0.8176], [0.8653], [0.9226]]], [[[0.8583], [0.151], [0.167]]]],[[[[0.1935, 0.9431, 0.2575], [0.772, 0.1411, 0.5595], [0.0793, 0.0735, 0.0344]]]]],[0, 0, 0], 1, 1, false, Sep66807), 
+LZer61561 = zero_padding2D_layer(Sep66807, 1, 1, 1, 1, Zer61561), 
+exec_layers([LGlo29889,LRes15379,LRes65029,LRes11219,LZer6763,LMul89792,LZer97436,LAve29788,LRes18328,LSep66807,LZer61561],["Glo29889","Res15379","Res65029","Res11219","Zer6763","Mul89792","Zer97436","Ave29788","Res18328","Sep66807","Zer61561"],Zer61561,"Zer61561")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000], [0.0782517, 0.0674956, 0.0359131], [0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0,0,0],[0,0,0],[0,0,0]],[[0,0,0],[0.07825168727192999,0.067495589443856,0.03591310611185],[0,0,0]],[[0,0,0],[0,0,0],[0,0,0]]]]
+
+Actual:   [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0.0783, 0.0675, 0.036], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]]
+
+Expected: [[[[0, 0, 0], [0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0.0783, 0.0675, 0.036], [0, 0, 0]], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]]

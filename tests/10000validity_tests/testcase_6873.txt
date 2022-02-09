@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub98678 = tf.keras.layers.Input(shape=([2]))
+in1Sub98678 = tf.keras.layers.Input(shape=([2]))
+in0PRe37713 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con58916 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Sub98678 = keras.layers.Subtract(name = 'Sub98678', )([in0Sub98678,in1Sub98678])
+Res3723 = keras.layers.Reshape((2, 1), name = 'Res3723', )(Sub98678)
+Res88727 = keras.layers.Reshape((2, 1, 1), name = 'Res88727', )(Res3723)
+Dep55088 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep55088', )(Res88727)
+Loc78671 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc78671', )(Dep55088)
+Zer34017 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer34017', )(Loc78671)
+PRe37713 = keras.layers.PReLU(name = 'PRe37713', input_shape=(2, 1, 2))(in0PRe37713)
+Con58916 = keras.layers.Concatenate(axis=3, name = 'Con58916', )([PRe37713,in0Con58916])
+Add26369 = keras.layers.Add(name = 'Add26369', )([Zer34017,Con58916])
+model = tf.keras.models.Model(inputs=[in0Sub98678,in1Sub98678,in0PRe37713,in0Con58916], outputs=Add26369)
+w = model.get_layer('Dep55088').get_weights() 
+w[0] = np.array([[[[0.4111]]], [[[0.5913]]]])
+w[1] = np.array([0])
+model.get_layer('Dep55088').set_weights(w) 
+w = model.get_layer('Loc78671').get_weights() 
+w[0] = np.array([[[0.7088, 0.3814, 0.9789, 0.3824]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc78671').set_weights(w) 
+w = model.get_layer('PRe37713').get_weights() 
+w[0] = np.array([[[0.8528, 0.045]], [[0.7952, 0.5837]]])
+model.get_layer('PRe37713').set_weights(w) 
+in0Sub98678 = tf.constant([[0.7805, 0.6818]])
+in1Sub98678 = tf.constant([[0.2679, 0.7394]])
+in0PRe37713 = tf.constant([[[[0.2481, 0.4807]], [[0.3318, 0.8092]]]])
+in0Con58916 = tf.constant([[[[0.7099, 0.1586]], [[0.8328, 0.13]]]])
+print (np.array2string(model.predict([in0Sub98678,in1Sub98678,in0PRe37713,in0Con58916],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add26369.png')
+
+LSub98678 = subtract_layer([[0.7805, 0.6818]], [[0.2679, 0.7394]], Sub98678), 
+LRes3723 = reshape_layer(Sub98678, [2, 1], Res3723), 
+LRes88727 = reshape_layer(Res3723, [2, 1, 1], Res88727), 
+LDep55088 = depthwise_conv2D_layer(Res88727, 2, 1,[[[[0.4111]]], [[[0.5913]]]],[0], 2, 2, false, Dep55088), 
+LLoc78671 = locally_connected2D_layer(Dep55088, 1, 1,[[[0.7088, 0.3814, 0.9789, 0.3824]]],[[[0, 0, 0, 0]]], 1, 1, Loc78671), 
+LZer34017 = zero_padding2D_layer(Loc78671, 1, 0, 0, 0, Zer34017), 
+LPRe37713 = prelu_layer([[[[0.2481, 0.4807]], [[0.3318, 0.8092]]]], [[[0.8528, 0.045]], [[0.7952, 0.5837]]], PRe37713), 
+LCon58916 = concatenate_layer([PRe37713,[[[[0.7099, 0.1586]], [[0.8328, 0.13]]]]], 3, Con58916), 
+LAdd26369 = add_layer([Zer34017,Con58916], Add26369), 
+exec_layers([LSub98678,LRes3723,LRes88727,LDep55088,LLoc78671,LZer34017,LPRe37713,LCon58916,LAdd26369],["Sub98678","Res3723","Res88727","Dep55088","Loc78671","Zer34017","PRe37713","Con58916","Add26369"],Add26369,"Add26369")
+
+Actual (Unparsed): [[[[0.2481000, 0.4807000, 0.7099000, 0.1586000]], [[0.4570244, 0.8765823, 1.0057432, 0.1975590]]]]
+
+Expected (Unparsed): [[[[0.2481,0.4807,0.7099,0.1586]],[[0.457024390624,0.8765823117720001,1.005743222322,0.197558982752]]]]
+
+Actual:   [[[[0.2481, 0.4807, 0.7099, 0.1586]], [[0.4571, 0.8766, 1.0058, 0.1976]]]]
+
+Expected: [[[[0.2481, 0.4807, 0.7099, 0.1586]], [[0.4571, 0.8766, 1.0058, 0.1976]]]]

@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep53090 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con79815 = tf.keras.layers.Input(shape=([1, 5]))
+in0Sub3994 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub3994 = tf.keras.layers.Input(shape=([3, 3]))
+
+Sep53090 = keras.layers.SeparableConv2D(4, (1, 2),strides=(1, 1), padding='valid', name = 'Sep53090', )(in0Sep53090)
+Res52217 = keras.layers.Reshape((1, 4), name = 'Res52217', )(Sep53090)
+Loc95097 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc95097', )(Res52217)
+Res21695 = keras.layers.Reshape((1, 4, 1), name = 'Res21695', )(Loc95097)
+Ave67001 = keras.layers.AveragePooling2D(pool_size=(1, 4), strides=(1, 1), padding='same', name = 'Ave67001', )(Res21695)
+Res2467 = keras.layers.Reshape((1, 4), name = 'Res2467', )(Ave67001)
+Con79815 = keras.layers.Concatenate(axis=2, name = 'Con79815', )([Res2467,in0Con79815])
+Sub3994 = keras.layers.Subtract(name = 'Sub3994', )([in0Sub3994,in1Sub3994])
+Fla9407 = keras.layers.Flatten(name = 'Fla9407', )(Sub3994)
+Res18576 = keras.layers.Reshape((9, 1), name = 'Res18576', )(Fla9407)
+Per50547 = keras.layers.Permute((2,1), name = 'Per50547',)(Res18576)
+ELU41506 = keras.layers.ELU(alpha=-4.298562612737873, name = 'ELU41506', )(Per50547)
+Min90698 = keras.layers.Minimum(name = 'Min90698', )([Con79815,ELU41506])
+model = tf.keras.models.Model(inputs=[in0Sep53090,in0Con79815,in0Sub3994,in1Sub3994], outputs=Min90698)
+w = model.get_layer('Sep53090').get_weights() 
+w[0] = np.array([[[[0.4665], [0.2792]], [[0.8733], [0.4681]]]])
+w[1] = np.array([[[[0.2855, 0.2032, 0.124, 0.0447], [0.9012, 0.2382, 0.8779, 0.0697]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep53090').set_weights(w) 
+w = model.get_layer('Loc95097').get_weights() 
+w[0] = np.array([[[0.4861, 0.0695, 0.3374, 0.1869], [0.9902, 0.7819, 0.9055, 0.371], [0.6906, 0.9936, 0.602, 0.0445], [0.2213, 0.8903, 0.7257, 0.2729]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc95097').set_weights(w) 
+in0Sep53090 = tf.constant([[[[0.1994, 0.3428], [0.9096, 0.4106]]]])
+in0Con79815 = tf.constant([[[0.0397, 0.1212, 0.9854, 0.7331, 0.7462]]])
+in0Sub3994 = tf.constant([[[0.9819, 0.9486, 0.9397], [0.6131, 0.7645, 0.6943], [0.4926, 0.2194, 0.6318]]])
+in1Sub3994 = tf.constant([[[0.2272, 0.4477, 0.9956], [0.922, 0.7053, 0.9193], [0.6892, 0.4682, 0.3284]]])
+print (np.array2string(model.predict([in0Sep53090,in0Con79815,in0Sub3994,in1Sub3994],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min90698.png')
+
+LSep53090 = separable_conv2D_layer([[[[0.1994, 0.3428], [0.9096, 0.4106]]]], 1, 2,[[[[[0.4665], [0.2792]], [[0.8733], [0.4681]]]],[[[[0.2855, 0.2032, 0.124, 0.0447], [0.9012, 0.2382, 0.8779, 0.0697]]]]],[0, 0, 0, 0], 1, 1, false, Sep53090), 
+LRes52217 = reshape_layer(Sep53090, [1, 4], Res52217), 
+LLoc95097 = locally_connected1D_layer(Res52217, 1,[[[0.4861, 0.0695, 0.3374, 0.1869], [0.9902, 0.7819, 0.9055, 0.371], [0.6906, 0.9936, 0.602, 0.0445], [0.2213, 0.8903, 0.7257, 0.2729]]],[[0, 0, 0, 0]], 1, Loc95097), 
+LRes21695 = reshape_layer(Loc95097, [1, 4, 1], Res21695), 
+LAve67001 = average_pooling2D_layer(Res21695, 1, 4, 1, 1, true, Ave67001), 
+LRes2467 = reshape_layer(Ave67001, [1, 4], Res2467), 
+LCon79815 = concatenate_layer([Res2467,[[[0.0397, 0.1212, 0.9854, 0.7331, 0.7462]]]], 2, Con79815), 
+LSub3994 = subtract_layer([[[0.9819, 0.9486, 0.9397], [0.6131, 0.7645, 0.6943], [0.4926, 0.2194, 0.6318]]], [[[0.2272, 0.4477, 0.9956], [0.922, 0.7053, 0.9193], [0.6892, 0.4682, 0.3284]]], Sub3994), 
+LFla9407 = flatten_layer(Sub3994, Fla9407), 
+LRes18576 = reshape_layer(Fla9407, [9, 1], Res18576), 
+LPer50547 = permute_layer(Res18576, 2,1, Per50547), 
+LELU41506 = elu_layer(Per50547, -4.298562612737873, ELU41506), 
+LMin90698 = minimum_layer([Con79815,ELU41506], Min90698), 
+exec_layers([LSep53090,LRes52217,LLoc95097,LRes21695,LAve67001,LRes2467,LCon79815,LSub3994,LFla9407,LRes18576,LPer50547,LELU41506,LMin90698],["Sep53090","Res52217","Loc95097","Res21695","Ave67001","Res2467","Con79815","Sub3994","Fla9407","Res18576","Per50547","ELU41506","Min90698"],Min90698,"Min90698")
+
+Actual (Unparsed): [[[0.6878480, 0.5009000, 0.2336969, 0.4403878, 0.0397000, 0.1212000, 0.7672110, 0.7331000, 0.3034000]]]
+
+Expected (Unparsed): [[[0.6878479543928552,0.5009,0.23369696807812546,0.4403878289642406,0.0397,0.1212,0.7672110002750256,0.7331,0.3034]]]
+
+Actual:   [[[0.6879, 0.5009, 0.2337, 0.4404, 0.0397, 0.1212, 0.7673, 0.7331, 0.3034]]]
+
+Expected: [[[0.6879, 0.5009, 0.2337, 0.4404, 0.0397, 0.1212, 0.7673, 0.7331, 0.3034]]]

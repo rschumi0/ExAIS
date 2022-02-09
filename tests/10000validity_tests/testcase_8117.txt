@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc66114 = tf.keras.layers.Input(shape=([2, 2]))
+
+Loc66114 = keras.layers.LocallyConnected1D(3, (2),strides=(1), name = 'Loc66114', )(in0Loc66114)
+Glo81104 = keras.layers.GlobalAveragePooling1D(name = 'Glo81104', )(Loc66114)
+Res55832 = keras.layers.Reshape((3, 1), name = 'Res55832', )(Glo81104)
+Res56439 = keras.layers.Reshape((3, 1, 1), name = 'Res56439', )(Res55832)
+Res24291 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res24291', )(Res56439)
+Con10081 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con10081', )(Res24291)
+model = tf.keras.models.Model(inputs=[in0Loc66114], outputs=Con10081)
+w = model.get_layer('Loc66114').get_weights() 
+w[0] = np.array([[[0.5895, 0.2844, 0.9956], [0.7044, 0.996, 0.6805], [0.6264, 0.7706, 0.8225], [0.3725, 0.7511, 0.1148]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc66114').set_weights(w) 
+w = model.get_layer('Con10081').get_weights() 
+w[0] = np.array([[[[[0.0541], [0.5218], [0.2072]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con10081').set_weights(w) 
+in0Loc66114 = tf.constant([[[0.003, 0.8676], [0.1239, 0.7439]]])
+print (np.array2string(model.predict([in0Loc66114],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con10081.png')
+
+LLoc66114 = locally_connected1D_layer([[[0.003, 0.8676], [0.1239, 0.7439]]], 2,[[[0.5895, 0.2844, 0.9956], [0.7044, 0.996, 0.6805], [0.6264, 0.7706, 0.8225], [0.3725, 0.7511, 0.1148]]],[[0, 0, 0]], 1, Loc66114), 
+LGlo81104 = global_average_pooling1D_layer(Loc66114, Glo81104), 
+LRes55832 = reshape_layer(Glo81104, [3, 1], Res55832), 
+LRes56439 = reshape_layer(Res55832, [3, 1, 1], Res56439), 
+LRes24291 = reshape_layer(Res56439, [3, 1, 1, 1], Res24291), 
+LCon10081 = conv3D_transpose_layer(Res24291, 1, 1, 1,[[[[[0.0541], [0.5218], [0.2072]]]]],[0, 0, 0], 1, 1, 1, true, Con10081), 
+exec_layers([LLoc66114,LGlo81104,LRes55832,LRes56439,LRes24291,LCon10081],["Loc66114","Glo81104","Res55832","Res56439","Res24291","Con10081"],Con10081,"Con10081")
+
+Actual (Unparsed): [[[[[0.0523482, 0.5049039, 0.2004908]]], [[[0.0821889, 0.7927204, 0.3147790]]], [[[0.0422357, 0.4073672, 0.1617602]]]]]
+
+Expected (Unparsed): [[[[[0.052348223065000005,0.5049039333700001,0.20049079148]]],[[[0.08218890556300001,0.7927203497740001,0.31477895069600004]]],[[[0.042235657387,0.407367209326,0.16176022570399998]]]]]
+
+Actual:   [[[[[0.0524, 0.505, 0.2005]]], [[[0.0822, 0.7928, 0.3148]]], [[[0.0423, 0.4074, 0.1618]]]]]
+
+Expected: [[[[[0.0524, 0.505, 0.2005]]], [[[0.0822, 0.7928, 0.3148]]], [[[0.0423, 0.4074, 0.1618]]]]]

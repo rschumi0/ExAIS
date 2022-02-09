@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo92196 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0ReL82703 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Glo92196 = keras.layers.GlobalMaxPool3D(name = 'Glo92196', )(in0Glo92196)
+Res78901 = keras.layers.Reshape((2, 1), name = 'Res78901', )(Glo92196)
+Res68964 = keras.layers.Reshape((2, 1, 1), name = 'Res68964', )(Res78901)
+Glo24665 = keras.layers.GlobalMaxPool2D(name = 'Glo24665', )(Res68964)
+Res24875 = keras.layers.Reshape((1, 1), name = 'Res24875', )(Glo24665)
+Res42652 = keras.layers.Reshape((1, 1, 1), name = 'Res42652', )(Res24875)
+Zer40880 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer40880', )(Res42652)
+Res73844 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res73844', )(Zer40880)
+ReL82703 = keras.layers.ReLU(max_value=7.7642313644164265, negative_slope=5.238589759600315, threshold=7.571482492820332, name = 'ReL82703', input_shape=(1, 2, 1, 1))(in0ReL82703)
+Zer89179 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (0, 0)), name = 'Zer89179', )(ReL82703)
+Ave14993 = keras.layers.Average(name = 'Ave14993', )([Res73844,Zer89179])
+Res16952 = keras.layers.Reshape((3, 3, 1), name = 'Res16952', )(Ave14993)
+Res302 = keras.layers.Reshape((3, 3), name = 'Res302', )(Res16952)
+Loc39828 = keras.layers.LocallyConnected1D(2, (3),strides=(1), name = 'Loc39828', )(Res302)
+Sep53039 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep53039', )(Loc39828)
+model = tf.keras.models.Model(inputs=[in0Glo92196,in0ReL82703], outputs=Sep53039)
+w = model.get_layer('Loc39828').get_weights() 
+w[0] = np.array([[[0.6609, 0.1459], [0.7949, 0.1491], [0.3372, 0.8298], [0.8577, 0.4767], [0.513, 0.4396], [0.7638, 0.4349], [0.4311, 0.3387], [0.4274, 0.1634], [0.0815, 0.3464]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc39828').set_weights(w) 
+w = model.get_layer('Sep53039').get_weights() 
+w[0] = np.array([[[0.3888], [0.7089]]])
+w[1] = np.array([[[0.7541, 0.9467], [0.5753, 0.8935]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep53039').set_weights(w) 
+in0Glo92196 = tf.constant([[[[[1.3747, 1.1127]], [[1.7991, 1.2839]]]]])
+in0ReL82703 = tf.constant([[[[[0.9634]], [[0.1741]]]]])
+print (np.array2string(model.predict([in0Glo92196,in0ReL82703],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep53039.png')
+
+LGlo92196 = global_max_pool3D_layer([[[[[1.3747, 1.1127]], [[1.7991, 1.2839]]]]], Glo92196), 
+LRes78901 = reshape_layer(Glo92196, [2, 1], Res78901), 
+LRes68964 = reshape_layer(Res78901, [2, 1, 1], Res68964), 
+LGlo24665 = global_max_pool2D_layer(Res68964, Glo24665), 
+LRes24875 = reshape_layer(Glo24665, [1, 1], Res24875), 
+LRes42652 = reshape_layer(Res24875, [1, 1, 1], Res42652), 
+LZer40880 = zero_padding2D_layer(Res42652, 1, 1, 1, 1, Zer40880), 
+LRes73844 = reshape_layer(Zer40880, [3, 3, 1, 1], Res73844), 
+LReL82703 = relu_layer([[[[[0.9634]], [[0.1741]]]]], 7.7642313644164265, 5.238589759600315, 7.571482492820332, ReL82703), 
+LZer89179 = zero_padding3D_layer(ReL82703, 2, 0, 1, 0, 0, 0, Zer89179), 
+LAve14993 = average_layer([Res73844,Zer89179], Ave14993), 
+LRes16952 = reshape_layer(Ave14993, [3, 3, 1], Res16952), 
+LRes302 = reshape_layer(Res16952, [3, 3], Res302), 
+LLoc39828 = locally_connected1D_layer(Res302, 3,[[[0.6609, 0.1459], [0.7949, 0.1491], [0.3372, 0.8298], [0.8577, 0.4767], [0.513, 0.4396], [0.7638, 0.4349], [0.4311, 0.3387], [0.4274, 0.1634], [0.0815, 0.3464]]],[[0, 0]], 1, Loc39828), 
+LSep53039 = separable_conv1D_layer(Loc39828, 1,[[[[0.3888], [0.7089]]],[[[0.7541, 0.9467], [0.5753, 0.8935]]]],[0, 0], 1, false, Sep53039), 
+exec_layers([LGlo92196,LRes78901,LRes68964,LGlo24665,LRes24875,LRes42652,LZer40880,LRes73844,LReL82703,LZer89179,LAve14993,LRes16952,LRes302,LLoc39828,LSep53039],["Glo92196","Res78901","Res68964","Glo24665","Res24875","Res42652","Zer40880","Res73844","ReL82703","Zer89179","Ave14993","Res16952","Res302","Loc39828","Sep53039"],Sep53039,"Sep53039")
+
+Actual (Unparsed): [[[-6.2260838, -8.9264995]]]
+
+Expected (Unparsed): [[[-6.226083794711295,-8.926499467907355]]]
+
+Actual:   [[[-6.226, -8.9264]]]
+
+Expected: [[[-6.226, -8.9264]]]

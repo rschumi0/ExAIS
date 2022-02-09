@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave37860 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave37860 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Loc42233 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave37860 = keras.layers.Average(name = 'Ave37860', )([in0Ave37860,in1Ave37860])
+Res43239 = keras.layers.Reshape((2, 2), name = 'Res43239', )(Ave37860)
+Loc42233 = keras.layers.LocallyConnected1D(2, (2),strides=(1), name = 'Loc42233', )(in0Loc42233)
+Zer2237 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer2237', )(Loc42233)
+Add84799 = keras.layers.Add(name = 'Add84799', )([Res43239,Zer2237])
+Den78308 = keras.layers.Dense(3,name = 'Den78308', )(Add84799)
+model = tf.keras.models.Model(inputs=[in0Ave37860,in1Ave37860,in0Loc42233], outputs=Den78308)
+w = model.get_layer('Loc42233').get_weights() 
+w[0] = np.array([[[0.5185, 0.2115], [0.6856, 0.2509], [0.2706, 0.7073], [0.8695, 0.3765]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc42233').set_weights(w) 
+w = model.get_layer('Den78308').get_weights() 
+w[0] = np.array([[0.4563, 0.7558, 0.9335], [0.2274, 0.7752, 0.4008]])
+w[1] = np.array([0.2296, 0.1784, 0.4498])
+model.get_layer('Den78308').set_weights(w) 
+in0Ave37860 = tf.constant([[[[0.7801], [0.3623]], [[0.1917], [0.1497]]]])
+in1Ave37860 = tf.constant([[[[0.4259], [0.174]], [[0.892], [0.5861]]]])
+in0Loc42233 = tf.constant([[[0.2386, 0.6485], [0.5925, 0.5695]]])
+print (np.array2string(model.predict([in0Ave37860,in1Ave37860,in0Loc42233],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Den78308.png')
+
+LAve37860 = average_layer([[[[[0.7801], [0.3623]], [[0.1917], [0.1497]]]], [[[[0.4259], [0.174]], [[0.892], [0.5861]]]]], Ave37860), 
+LRes43239 = reshape_layer(Ave37860, [2, 2], Res43239), 
+LLoc42233 = locally_connected1D_layer([[[0.2386, 0.6485], [0.5925, 0.5695]]], 2,[[[0.5185, 0.2115], [0.6856, 0.2509], [0.2706, 0.7073], [0.8695, 0.3765]]],[[0, 0]], 1, Loc42233), 
+LZer2237 = zero_padding1D_layer(Loc42233, 1, 0, Zer2237), 
+LAdd84799 = add_layer([Res43239,Zer2237], Add84799), 
+LDen78308 = dense_layer(Add84799, [[0.4563, 0.7558, 0.9335], [0.2274, 0.7752, 0.4008]],[0.2296, 0.1784, 0.4498], Den78308), 
+exec_layers([LAve37860,LRes43239,LLoc42233,LZer2237,LAdd84799,LDen78308],["Ave37860","Res43239","Loc42233","Zer2237","Add84799","Den78308"],Den78308,"Den78308")
+
+Actual (Unparsed): [[[0.5657262, 0.8420173, 1.1201750], [1.3114747, 2.4544363, 2.5848658]]]
+
+Expected (Unparsed): [[[0.5657262099999999,0.8420172800000001,1.12017502],[1.311474705805,2.4544362580700003,2.584865772715]]]
+
+Actual:   [[[0.5658, 0.8421, 1.1202], [1.3115, 2.4545, 2.5849]]]
+
+Expected: [[[0.5658, 0.8421, 1.1202], [1.3115, 2.4545, 2.5849]]]

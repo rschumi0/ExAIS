@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul15778 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul15778 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con50496 = tf.keras.layers.Input(shape=([1, 2, 1, 3]))
+in0Min75855 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Min75855 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Mul15778 = keras.layers.Multiply(name = 'Mul15778', )([in0Mul15778,in1Mul15778])
+Res61686 = keras.layers.Reshape((1, 2, 1), name = 'Res61686', )(Mul15778)
+Res86846 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res86846', )(Res61686)
+Con50496 = keras.layers.Concatenate(axis=4, name = 'Con50496', )([Res86846,in0Con50496])
+Min75855 = keras.layers.Minimum(name = 'Min75855', )([in0Min75855,in1Min75855])
+Con57678 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con57678', )(Min75855)
+Zer12535 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (0, 0)), name = 'Zer12535', )(Con57678)
+Sub41006 = keras.layers.Subtract(name = 'Sub41006', )([Con50496,Zer12535])
+model = tf.keras.models.Model(inputs=[in0Mul15778,in1Mul15778,in0Con50496,in0Min75855,in1Min75855], outputs=Sub41006)
+w = model.get_layer('Con57678').get_weights() 
+w[0] = np.array([[[[[0.9821], [0.6789], [0.234], [0.1167]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con57678').set_weights(w) 
+in0Mul15778 = tf.constant([[[0.6991, 0.7355]]])
+in1Mul15778 = tf.constant([[[0.6569, 0.2516]]])
+in0Con50496 = tf.constant([[[[[0.62, 0.2854, 0.3654]], [[0.1391, 0.8008, 0.3558]]]]])
+in0Min75855 = tf.constant([[[[[0.2297]]]]])
+in1Min75855 = tf.constant([[[[[0.5173]]]]])
+print (np.array2string(model.predict([in0Mul15778,in1Mul15778,in0Con50496,in0Min75855,in1Min75855],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub41006.png')
+
+LMul15778 = multiply_layer([[[[0.6991, 0.7355]]], [[[0.6569, 0.2516]]]], Mul15778), 
+LRes61686 = reshape_layer(Mul15778, [1, 2, 1], Res61686), 
+LRes86846 = reshape_layer(Res61686, [1, 2, 1, 1], Res86846), 
+LCon50496 = concatenate_layer([Res86846,[[[[[0.62, 0.2854, 0.3654]], [[0.1391, 0.8008, 0.3558]]]]]], 4, Con50496), 
+LMin75855 = minimum_layer([[[[[[0.2297]]]]], [[[[[0.5173]]]]]], Min75855), 
+LCon57678 = conv3D_transpose_layer(Min75855, 1, 1, 1,[[[[[0.9821], [0.6789], [0.234], [0.1167]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con57678), 
+LZer12535 = zero_padding3D_layer(Con57678, 0, 0, 1, 0, 0, 0, Zer12535), 
+LSub41006 = subtract_layer(Con50496,Zer12535, Sub41006), 
+exec_layers([LMul15778,LRes61686,LRes86846,LCon50496,LMin75855,LCon57678,LZer12535,LSub41006],["Mul15778","Res61686","Res86846","Con50496","Min75855","Con57678","Zer12535","Sub41006"],Sub41006,"Sub41006")
+
+Actual (Unparsed): [[[[[0.4592388, 0.6200000, 0.2854000, 0.3654000]], [[-0.0405366, -0.0168433, 0.7470502, 0.3289940]]]]]
+
+Expected (Unparsed): [[[[[0.45923879000000006,0.62,0.2854,0.3654]],[[-0.040536569999999966,-0.01684332999999999,0.7470502,0.32899401]]]]]
+
+Actual:   [[[[[0.4593, 0.62, 0.2854, 0.3654]], [[-0.0405, -0.0168, 0.7471, 0.329]]]]]
+
+Expected: [[[[[0.4593, 0.62, 0.2854, 0.3654]], [[-0.0405, -0.0168, 0.7471, 0.329]]]]]

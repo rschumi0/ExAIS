@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub32678 = tf.keras.layers.Input(shape=([3]))
+in1Sub32678 = tf.keras.layers.Input(shape=([3]))
+
+Sub32678 = keras.layers.Subtract(name = 'Sub32678', )([in0Sub32678,in1Sub32678])
+Res80270 = keras.layers.Reshape((3, 1), name = 'Res80270', )(Sub32678)
+Res55946 = keras.layers.Reshape((3, 1, 1), name = 'Res55946', )(Res80270)
+Con25977 = keras.layers.Conv2D(2, (2, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con25977', )(Res55946)
+Res32745 = keras.layers.Reshape((2, 2), name = 'Res32745', )(Con25977)
+Max99771 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max99771', )(Res32745)
+Mas22281 = keras.layers.Masking(mask_value=1, name = 'Mas22281', )(Max99771)
+model = tf.keras.models.Model(inputs=[in0Sub32678,in1Sub32678], outputs=Mas22281)
+w = model.get_layer('Con25977').get_weights() 
+w[0] = np.array([[[[0.8794, 0.917]]], [[[0.6149, 0.0605]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con25977').set_weights(w) 
+in0Sub32678 = tf.constant([[0.4999, 0.7942, 0.2446]])
+in1Sub32678 = tf.constant([[0.5911, 0.5346, 0.3802]])
+print (np.array2string(model.predict([in0Sub32678,in1Sub32678],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas22281.png')
+
+LSub32678 = subtract_layer([[0.4999, 0.7942, 0.2446]], [[0.5911, 0.5346, 0.3802]], Sub32678), 
+LRes80270 = reshape_layer(Sub32678, [3, 1], Res80270), 
+LRes55946 = reshape_layer(Res80270, [3, 1, 1], Res55946), 
+LCon25977 = conv2D_layer(Res55946, 2, 1,[[[[0.8794, 0.917]]], [[[0.6149, 0.0605]]]],[0, 0], 1, 1, false, 1, 1, Con25977), 
+LRes32745 = reshape_layer(Con25977, [2, 2], Res32745), 
+LMax99771 = max_pool1D_layer(Res32745, 1, 1, true, Max99771), 
+LMas22281 = masking_layer(Max99771, 1, Mas22281), 
+exec_layers([LSub32678,LRes80270,LRes55946,LCon25977,LRes32745,LMax99771,LMas22281],["Sub32678","Res80270","Res55946","Con25977","Res32745","Max99771","Mas22281"],Mas22281,"Mas22281")
+
+Actual (Unparsed): [[[0.0794268, -0.0679246], [0.1449118, 0.2298494]]]
+
+Expected (Unparsed): [[[0.07942676000000008,-0.06792459999999995],[0.14491180000000004,0.22984940000000004]]]
+
+Actual:   [[[0.0795, -0.0679], [0.145, 0.2299]]]
+
+Expected: [[[0.0795, -0.0679], [0.145, 0.2299]]]

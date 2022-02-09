@@ -1,0 +1,35 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot80530 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot80530 = tf.keras.layers.Input(shape=([2, 3]))
+
+Dot80530 = keras.layers.Dot(axes=(1, 1), name = 'Dot80530', )([in0Dot80530,in1Dot80530])
+Res37168 = keras.layers.Reshape((3, 3, 1), name = 'Res37168', )(Dot80530)
+Up_83311 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_83311', )(Res37168)
+Res51278 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res51278', )(Up_83311)
+Cro11180 = keras.layers.Cropping3D(cropping=((0, 2), (0, 0), (0, 0)), name = 'Cro11180', )(Res51278)
+model = tf.keras.models.Model(inputs=[in0Dot80530,in1Dot80530], outputs=Cro11180)
+in0Dot80530 = tf.constant([[[0.9104, 0.5197, 0.4657], [0.2487, 0.4805, 0.8601]]])
+in1Dot80530 = tf.constant([[[0.948, 0.2476, 0.5183], [0.9731, 0.038, 0.7834]]])
+print (np.array2string(model.predict([in0Dot80530,in1Dot80530],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro11180.png')
+
+LDot80530 = dot_layer([[[0.9104, 0.5197, 0.4657], [0.2487, 0.4805, 0.8601]]], [[[0.948, 0.2476, 0.5183], [0.9731, 0.038, 0.7834]]], 1, 1, Dot80530), 
+LRes37168 = reshape_layer(Dot80530, [3, 3, 1], Res37168), 
+LUp_83311 = up_sampling2D_layer(Res37168, 1, 1, Up_83311), 
+LRes51278 = reshape_layer(Up_83311, [3, 3, 1, 1], Res51278), 
+LCro11180 = cropping3D_layer(Res51278, 0, 2, 0, 0, 0, 0, Cro11180), 
+exec_layers([LDot80530,LRes37168,LUp_83311,LRes51278,LCro11180],["Dot80530","Res37168","Up_83311","Res51278","Cro11180"],Cro11180,"Cro11180")
+
+Actual (Unparsed): [[[[[1.1050692]], [[0.2348656]], [[0.6666919]]]]]
+
+Expected (Unparsed): [[[[[1.10506917]],[[0.23486564]],[[0.6666919]]]]]
+
+Actual:   [[[[[1.1051]], [[0.2349]], [[0.6667]]]]]
+
+Expected: [[[[[1.1051]], [[0.2349]], [[0.6667]]]]]

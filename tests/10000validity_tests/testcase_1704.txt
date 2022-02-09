@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul42534 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Mul42534 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Add95809 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Add95809 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con91994 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Mul89005 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Mul89005 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Mul42534 = keras.layers.Multiply(name = 'Mul42534', )([in0Mul42534,in1Mul42534])
+Add95809 = keras.layers.Add(name = 'Add95809', )([in0Add95809,in1Add95809])
+Bat28146 = keras.layers.BatchNormalization(axis=1, epsilon=0.3539999386021281,  name = 'Bat28146', )(Add95809)
+Con91994 = keras.layers.Concatenate(axis=3, name = 'Con91994', )([Bat28146,in0Con91994])
+Ave91332 = keras.layers.Average(name = 'Ave91332', )([Mul42534,Con91994])
+Mul89005 = keras.layers.Multiply(name = 'Mul89005', )([in0Mul89005,in1Mul89005])
+Ave32318 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Ave32318', )(Mul89005)
+Sub21001 = keras.layers.Subtract(name = 'Sub21001', )([Ave91332,Ave32318])
+model = tf.keras.models.Model(inputs=[in0Mul42534,in1Mul42534,in0Add95809,in1Add95809,in0Con91994,in0Mul89005,in1Mul89005], outputs=Sub21001)
+w = model.get_layer('Bat28146').get_weights() 
+w[0] = np.array([0.5454, 0.3271])
+w[1] = np.array([0.7505, 0.722])
+w[2] = np.array([0.4311, 0.5998])
+w[3] = np.array([0.7983, 0.7973])
+model.get_layer('Bat28146').set_weights(w) 
+in0Mul42534 = tf.constant([[[[0.2249, 0.2118], [0.7927, 0.5342]], [[0.5807, 0.3372], [0.3991, 0.4048]]]])
+in1Mul42534 = tf.constant([[[[0.8576, 0.3226], [0.2749, 0.6922]], [[0.8529, 0.8547], [0.8045, 0.2176]]]])
+in0Add95809 = tf.constant([[[[0.1725], [0.8693]], [[0.2643], [0.1582]]]])
+in1Add95809 = tf.constant([[[[0.4355], [0.6006]], [[0.5268], [0.4097]]]])
+in0Con91994 = tf.constant([[[[0.2705], [0.3698]], [[0.3946], [0.4284]]]])
+in0Mul89005 = tf.constant([[[[0.6161, 0.1634], [0.052, 0.494]], [[0.5453, 0.0161], [0.6093, 0.1378]]]])
+in1Mul89005 = tf.constant([[[[0.9402, 0.5321], [0.6465, 0.2946]], [[0.1887, 0.5609], [0.7341, 0.2989]]]])
+print (np.array2string(model.predict([in0Mul42534,in1Mul42534,in0Add95809,in1Add95809,in0Con91994,in0Mul89005,in1Mul89005],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub21001.png')
+
+LMul42534 = multiply_layer([[[[[0.2249, 0.2118], [0.7927, 0.5342]], [[0.5807, 0.3372], [0.3991, 0.4048]]]], [[[[0.8576, 0.3226], [0.2749, 0.6922]], [[0.8529, 0.8547], [0.8045, 0.2176]]]]], Mul42534), 
+LAdd95809 = add_layer([[[[[0.1725], [0.8693]], [[0.2643], [0.1582]]]], [[[[0.4355], [0.6006]], [[0.5268], [0.4097]]]]], Add95809), 
+LBat28146 = batch_normalization_layer(Add95809, 1, 0.3539999386021281, [0.5454, 0.3271], [0.7505, 0.722], [0.4311, 0.5998], [0.7983, 0.7973], Bat28146), 
+LCon91994 = concatenate_layer([Bat28146,[[[[0.2705], [0.3698]], [[0.3946], [0.4284]]]]], 3, Con91994), 
+LAve91332 = average_layer([Mul42534,Con91994], Ave91332), 
+LMul89005 = multiply_layer([[[[[0.6161, 0.1634], [0.052, 0.494]], [[0.5453, 0.0161], [0.6093, 0.1378]]]], [[[[0.9402, 0.5321], [0.6465, 0.2946]], [[0.1887, 0.5609], [0.7341, 0.2989]]]]], Mul89005), 
+LAve32318 = average_pooling2D_layer(Mul89005, 1, 1, 1, 1, false, Ave32318), 
+LSub21001 = subtract_layer(Ave91332,Ave32318, Sub21001), 
+exec_layers([LMul42534,LAdd95809,LBat28146,LCon91994,LAve91332,LMul89005,LAve32318,LSub21001],["Mul42534","Add95809","Bat28146","Con91994","Ave91332","Mul89005","Ave32318","Sub21001"],Sub21001,"Sub21001")
+
+Actual (Unparsed): [[[[-0.0626304, 0.0824682], [0.7144855, 0.2242542]], [[0.5349003, 0.3323719], [0.0693885, 0.2170538]]]]
+
+Expected (Unparsed): [[[[-0.06263039662996295,0.08246820000000002],[0.7144855277235413,0.22425422000000003]],[[0.5349003144837433,0.33237193],[0.06938848633543437,0.21705382]]]]
+
+Actual:   [[[[-0.0626, 0.0825], [0.7145, 0.2243]], [[0.535, 0.3324], [0.0694, 0.2171]]]]
+
+Expected: [[[[-0.0626, 0.0825], [0.7145, 0.2243]], [[0.535, 0.3324], [0.0694, 0.2171]]]]

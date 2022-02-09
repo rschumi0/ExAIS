@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc95936 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Add40417 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Add40417 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Loc95936 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc95936', )(in0Loc95936)
+Res47782 = keras.layers.Reshape((1, 4), name = 'Res47782', )(Loc95936)
+Per40964 = keras.layers.Permute((1,2), name = 'Per40964',)(Res47782)
+Add40417 = keras.layers.Add(name = 'Add40417', )([in0Add40417,in1Add40417])
+Res13398 = keras.layers.Reshape((1, 1, 1), name = 'Res13398', )(Add40417)
+Con12578 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con12578', )(Res13398)
+Res86158 = keras.layers.Reshape((1, 2), name = 'Res86158', )(Con12578)
+Dot41619 = keras.layers.Dot(axes=(1, 1), name = 'Dot41619', )([Per40964,Res86158])
+Res30502 = keras.layers.Reshape((4, 2, 1), name = 'Res30502', )(Dot41619)
+Ave30879 = keras.layers.AveragePooling2D(pool_size=(3, 1), name = 'Ave30879', )(Res30502)
+model = tf.keras.models.Model(inputs=[in0Loc95936,in0Add40417,in1Add40417], outputs=Ave30879)
+w = model.get_layer('Loc95936').get_weights() 
+w[0] = np.array([[[0.3211, 0.5517], [0.5014, 0.4258], [0.9099, 0.8418], [0.8216, 0.7856]], [[0.9, 0.7278], [0.8885, 0.556], [0.6685, 0.7158], [0.0634, 0.2948]]])
+w[1] = np.array([[[0, 0], [0, 0]]])
+model.get_layer('Loc95936').set_weights(w) 
+w = model.get_layer('Con12578').get_weights() 
+w[0] = np.array([[[[0.2205, 0.1461]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con12578').set_weights(w) 
+in0Loc95936 = tf.constant([[[[0.4214, 0.4744], [0.5893, 0.3546]], [[0.0744, 0.9759], [0.1928, 0.1519]]]])
+in0Add40417 = tf.constant([[[[[0.6628]]]]])
+in1Add40417 = tf.constant([[[[[0.122]]]]])
+print (np.array2string(model.predict([in0Loc95936,in0Add40417,in1Add40417],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave30879.png')
+
+LLoc95936 = locally_connected2D_layer([[[[0.4214, 0.4744], [0.5893, 0.3546]], [[0.0744, 0.9759], [0.1928, 0.1519]]]], 2, 1,[[[0.3211, 0.5517], [0.5014, 0.4258], [0.9099, 0.8418], [0.8216, 0.7856]], [[0.9, 0.7278], [0.8885, 0.556], [0.6685, 0.7158], [0.0634, 0.2948]]],[[[0, 0], [0, 0]]], 1, 1, Loc95936), 
+LRes47782 = reshape_layer(Loc95936, [1, 4], Res47782), 
+LPer40964 = permute_layer(Res47782, 1,2, Per40964), 
+LAdd40417 = add_layer([[[[[[0.6628]]]]], [[[[[0.122]]]]]], Add40417), 
+LRes13398 = reshape_layer(Add40417, [1, 1, 1], Res13398), 
+LCon12578 = conv2D_layer(Res13398, 1, 1,[[[[0.2205, 0.1461]]]],[0, 0], 1, 1, true, 1, 1, Con12578), 
+LRes86158 = reshape_layer(Con12578, [1, 2], Res86158), 
+LDot41619 = dot_layer(Per40964,Res86158, 1, 1, Dot41619), 
+LRes30502 = reshape_layer(Dot41619, [4, 2, 1], Res30502), 
+LAve30879 = average_pooling2D_layer(Res30502, 3, 1, Ave30879), 
+exec_layers([LLoc95936,LRes47782,LPer40964,LAdd40417,LRes13398,LCon12578,LRes86158,LDot41619,LRes30502,LAve30879],["Loc95936","Res47782","Per40964","Add40417","Res13398","Con12578","Res86158","Dot41619","Res30502","Ave30879"],Ave30879,"Ave30879")
+
+Actual (Unparsed): [[[[0.2013363], [0.1334024]]]]
+
+Expected (Unparsed): [[[[0.20133627123657602],[0.1334024001254592]]]]
+
+Actual:   [[[[0.2014], [0.1335]]]]
+
+Expected: [[[[0.2014], [0.1335]]]]

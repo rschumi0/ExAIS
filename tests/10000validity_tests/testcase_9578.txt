@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo96660 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Glo96660 = keras.layers.GlobalAveragePooling3D(name = 'Glo96660', )(in0Glo96660)
+Res23671 = keras.layers.Reshape((1, 1), name = 'Res23671', )(Glo96660)
+Res37185 = keras.layers.Reshape((1, 1, 1), name = 'Res37185', )(Res23671)
+Con50824 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con50824', )(Res37185)
+Dep80575 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep80575', )(Con50824)
+model = tf.keras.models.Model(inputs=[in0Glo96660], outputs=Dep80575)
+w = model.get_layer('Con50824').get_weights() 
+w[0] = np.array([[[[0.3008], [0.6117]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con50824').set_weights(w) 
+w = model.get_layer('Dep80575').get_weights() 
+w[0] = np.array([[[[0.4124], [0.7808]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep80575').set_weights(w) 
+in0Glo96660 = tf.constant([[[[[1.7626]], [[1.6961]]]]])
+print (np.array2string(model.predict([in0Glo96660],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep80575.png')
+
+LGlo96660 = global_average_pooling3D_layer([[[[[1.7626]], [[1.6961]]]]], Glo96660), 
+LRes23671 = reshape_layer(Glo96660, [1, 1], Res23671), 
+LRes37185 = reshape_layer(Res23671, [1, 1, 1], Res37185), 
+LCon50824 = conv2D_transpose_layer(Res37185, 1, 1,[[[[0.3008], [0.6117]]]],[0, 0], 1, 1, false, Con50824), 
+LDep80575 = depthwise_conv2D_layer(Con50824, 1, 1,[[[[0.4124], [0.7808]]]],[0, 0], 1, 1, false, Dep80575), 
+exec_layers([LGlo96660,LRes23671,LRes37185,LCon50824,LDep80575],["Glo96660","Res23671","Res37185","Con50824","Dep80575"],Dep80575,"Dep80575")
+
+Actual (Unparsed): [[[[0.2145257, 0.8259641]]]]
+
+Expected (Unparsed): [[[[0.21452572915199997,0.825964122816]]]]
+
+Actual:   [[[[0.2146, 0.826]]]]
+
+Expected: [[[[0.2146, 0.826]]]]

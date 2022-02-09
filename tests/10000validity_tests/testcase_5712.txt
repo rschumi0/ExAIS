@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con64782 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo17211 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave16477 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave16477 = tf.keras.layers.Input(shape=([1, 1]))
+
+Con64782 = keras.layers.Conv1D(4, (2),strides=(1), padding='valid', dilation_rate=(1), name = 'Con64782', )(in0Con64782)
+Fla15351 = keras.layers.Flatten(name = 'Fla15351', )(Con64782)
+Res97157 = keras.layers.Reshape((4, 1), name = 'Res97157', )(Fla15351)
+PRe5887 = keras.layers.PReLU(name = 'PRe5887', )(Res97157)
+Glo17211 = keras.layers.GlobalAveragePooling1D(name = 'Glo17211', )(in0Glo17211)
+Res90585 = keras.layers.Reshape((2, 1), name = 'Res90585', )(Glo17211)
+Ave16477 = keras.layers.Average(name = 'Ave16477', )([in0Ave16477,in1Ave16477])
+Dot62754 = keras.layers.Dot(axes=(2, 2), name = 'Dot62754', )([Res90585,Ave16477])
+Zer44446 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer44446', )(Dot62754)
+Ave78584 = keras.layers.Average(name = 'Ave78584', )([PRe5887,Zer44446])
+model = tf.keras.models.Model(inputs=[in0Con64782,in0Glo17211,in0Ave16477,in1Ave16477], outputs=Ave78584)
+w = model.get_layer('Con64782').get_weights() 
+w[0] = np.array([[[0.6824, 0.2695, 0.8285, 0.3752], [0.3794, 0.7258, 0.7363, 0.9478]], [[0.2298, 0.278, 0.9832, 0.4315], [0.104, 0.9857, 0.0768, 0.2741]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con64782').set_weights(w) 
+w = model.get_layer('PRe5887').get_weights() 
+w[0] = np.array([[0.1487], [0.8947], [0.1056], [0.4137]])
+model.get_layer('PRe5887').set_weights(w) 
+in0Con64782 = tf.constant([[[0.8693, 0.6461], [0.2412, 0.8052]]])
+in0Glo17211 = tf.constant([[[1.6068, 1.2196]]])
+in0Ave16477 = tf.constant([[[0.4065]]])
+in1Ave16477 = tf.constant([[[0.3033]]])
+print (np.array2string(model.predict([in0Con64782,in0Glo17211,in0Ave16477,in1Ave16477],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave78584.png')
+
+LCon64782 = conv1D_layer([[[0.8693, 0.6461], [0.2412, 0.8052]]], 2,[[[0.6824, 0.2695, 0.8285, 0.3752], [0.3794, 0.7258, 0.7363, 0.9478]], [[0.2298, 0.278, 0.9832, 0.4315], [0.104, 0.9857, 0.0768, 0.2741]]],[0, 0, 0, 0], 1, false, 1, Con64782), 
+LFla15351 = flatten_layer(Con64782, Fla15351), 
+LRes97157 = reshape_layer(Fla15351, [4, 1], Res97157), 
+LPRe5887 = prelu_layer(Res97157, [[0.1487], [0.8947], [0.1056], [0.4137]], PRe5887), 
+LGlo17211 = global_average_pooling1D_layer([[[1.6068, 1.2196]]], Glo17211), 
+LRes90585 = reshape_layer(Glo17211, [2, 1], Res90585), 
+LAve16477 = average_layer([[[[0.4065]]], [[[0.3033]]]], Ave16477), 
+LDot62754 = dot_layer(Res90585,Ave16477, 2, 2, Dot62754), 
+LZer44446 = zero_padding1D_layer(Dot62754, 2, 0, Zer44446), 
+LAve78584 = average_layer([PRe5887,Zer44446], Ave78584), 
+exec_layers([LCon64782,LFla15351,LRes97157,LPRe5887,LGlo17211,LRes90585,LAve16477,LDot62754,LZer44446,LAve78584],["Con64782","Fla15351","Res97157","PRe5887","Glo17211","Res90585","Ave16477","Dot62754","Zer44446","Ave78584"],Ave78584,"Ave78584")
+
+Actual (Unparsed): [[[0.4887546], [0.7819775], [1.0325895], [0.8480770]]]
+
+Expected (Unparsed): [[[0.48875461],[0.7819774850000001],[1.0325894999999998],[0.84807705]]]
+
+Actual:   [[[0.4888], [0.782], [1.0326], [0.8481]]]
+
+Expected: [[[0.4888], [0.782], [1.0326], [0.8481]]]

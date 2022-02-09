@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot63023 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot63023 = tf.keras.layers.Input(shape=([3, 3]))
+in0GRU5101 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con74521 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sub56048 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub56048 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con10322 = tf.keras.layers.Input(shape=([3, 1]))
+
+Dot63023 = keras.layers.Dot(axes=(2, 2), name = 'Dot63023', )([in0Dot63023,in1Dot63023])
+GRU5101 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU5101', )(in0GRU5101)
+Res23897 = keras.layers.Reshape((3, 1), name = 'Res23897', )(GRU5101)
+Con74521 = keras.layers.Concatenate(axis=2, name = 'Con74521', )([Res23897,in0Con74521])
+Sub56048 = keras.layers.Subtract(name = 'Sub56048', )([in0Sub56048,in1Sub56048])
+Zer79515 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer79515', )(Sub56048)
+Mul12539 = keras.layers.Multiply(name = 'Mul12539', )([Con74521,Zer79515])
+Con10322 = keras.layers.Concatenate(axis=2, name = 'Con10322', )([Mul12539,in0Con10322])
+Min57397 = keras.layers.Minimum(name = 'Min57397', )([Dot63023,Con10322])
+model = tf.keras.models.Model(inputs=[in0Dot63023,in1Dot63023,in0GRU5101,in0Con74521,in0Sub56048,in1Sub56048,in0Con10322], outputs=Min57397)
+w = model.get_layer('GRU5101').get_weights() 
+w[0] = np.array([[3, 2, 10, 1, 9, 6, 9, 1, 9]])
+w[1] = np.array([[7, 1, 8, 9, 4, 1, 6, 3, 5], [9, 2, 3, 3, 8, 4, 3, 7, 6], [1, 9, 10, 2, 6, 8, 8, 6, 7]])
+w[2] = np.array([5, 8, 6, 4, 7, 8, 9, 7, 1])
+model.get_layer('GRU5101').set_weights(w) 
+in0Dot63023 = tf.constant([[[0.4007, 0.971, 0.4711], [0.4995, 0.8211, 0.1682], [0.0081, 0.5979, 0.6645]]])
+in1Dot63023 = tf.constant([[[0.568, 0.8011, 0.6868], [0.3776, 0.9847, 0.636], [0.4771, 0.7614, 0.3268]]])
+in0GRU5101 = tf.constant([[[10]]])
+in0Con74521 = tf.constant([[[0.6006], [0.3665], [0.9166]]])
+in0Sub56048 = tf.constant([[[0.1013, 0.7285], [0.2251, 0.4951]]])
+in1Sub56048 = tf.constant([[[0.416, 0.469], [0.2451, 0.1979]]])
+in0Con10322 = tf.constant([[[0.7652], [0.8843], [0.5981]]])
+print (np.array2string(model.predict([in0Dot63023,in1Dot63023,in0GRU5101,in0Con74521,in0Sub56048,in1Sub56048,in0Con10322],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min57397.png')
+
+LDot63023 = dot_layer([[[0.4007, 0.971, 0.4711], [0.4995, 0.8211, 0.1682], [0.0081, 0.5979, 0.6645]]], [[[0.568, 0.8011, 0.6868], [0.3776, 0.9847, 0.636], [0.4771, 0.7614, 0.3268]]], 2, 2, Dot63023), 
+LGRU5101 = gru_layer([[[10]]],[[3, 2, 10, 1, 9, 6, 9, 1, 9]],[[7, 1, 8, 9, 4, 1, 6, 3, 5], [9, 2, 3, 3, 8, 4, 3, 7, 6], [1, 9, 10, 2, 6, 8, 8, 6, 7]],[5, 8, 6, 4, 7, 8, 9, 7, 1], false, GRU5101), 
+LRes23897 = reshape_layer(GRU5101, [3, 1], Res23897), 
+LCon74521 = concatenate_layer([Res23897,[[[0.6006], [0.3665], [0.9166]]]], 2, Con74521), 
+LSub56048 = subtract_layer([[[0.1013, 0.7285], [0.2251, 0.4951]]], [[[0.416, 0.469], [0.2451, 0.1979]]], Sub56048), 
+LZer79515 = zero_padding1D_layer(Sub56048, 1, 0, Zer79515), 
+LMul12539 = multiply_layer([Con74521,Zer79515], Mul12539), 
+LCon10322 = concatenate_layer([Mul12539,[[[0.7652], [0.8843], [0.5981]]]], 2, Con10322), 
+LMin57397 = minimum_layer([Dot63023,Con10322], Min57397), 
+exec_layers([LDot63023,LGRU5101,LRes23897,LCon74521,LSub56048,LZer79515,LMul12539,LCon10322,LMin57397],["Dot63023","GRU5101","Res23897","Con74521","Sub56048","Zer79515","Mul12539","Con10322","Min57397"],Min57397,"Min57397")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.7652000], [-0.0000000, 0.0951067, 0.8843000], [-0.0000000, 0.2724135, 0.5981000]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.7652],[-2.1759833934709072e-13,0.09510675000000002,0.8843],[-0.0,0.27241352,0.5981]]]
+
+Actual:   [[[0, 0, 0.7652], [-0, 0.0952, 0.8843], [-0, 0.2725, 0.5981]]]
+
+Expected: [[[0, 0, 0.7652], [-0, 0.0952, 0.8843], [-0, 0.2725, 0.5981]]]

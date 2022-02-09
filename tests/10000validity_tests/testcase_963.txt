@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave82648 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave82648 = tf.keras.layers.Input(shape=([1, 2]))
+in0Loc20398 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Ave82648 = keras.layers.Average(name = 'Ave82648', )([in0Ave82648,in1Ave82648])
+Res19120 = keras.layers.Reshape((1, 2, 1), name = 'Res19120', )(Ave82648)
+Sep50650 = keras.layers.SeparableConv2D(2, (1, 2),strides=(1, 1), padding='valid', name = 'Sep50650', )(Res19120)
+Loc20398 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 9), name = 'Loc20398', )(in0Loc20398)
+Sub96107 = keras.layers.Subtract(name = 'Sub96107', )([Sep50650,Loc20398])
+model = tf.keras.models.Model(inputs=[in0Ave82648,in1Ave82648,in0Loc20398], outputs=Sub96107)
+w = model.get_layer('Sep50650').get_weights() 
+w[0] = np.array([[[[0.8116]], [[0.5498]]]])
+w[1] = np.array([[[[0.4244, 0.8011]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep50650').set_weights(w) 
+w = model.get_layer('Loc20398').get_weights() 
+w[0] = np.array([[[0.7338, 0.1445], [0.235, 0.7036]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc20398').set_weights(w) 
+in0Ave82648 = tf.constant([[[0.1301, 0.7068]]])
+in1Ave82648 = tf.constant([[[0.8416, 0.147]]])
+in0Loc20398 = tf.constant([[[[0.3794], [0.6086]], [[0.9235], [0.0879]]]])
+print (np.array2string(model.predict([in0Ave82648,in1Ave82648,in0Loc20398],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub96107.png')
+
+LAve82648 = average_layer([[[[0.1301, 0.7068]]], [[[0.8416, 0.147]]]], Ave82648), 
+LRes19120 = reshape_layer(Ave82648, [1, 2, 1], Res19120), 
+LSep50650 = separable_conv2D_layer(Res19120, 1, 2,[[[[[0.8116]], [[0.5498]]]],[[[[0.4244, 0.8011]]]]],[0, 0], 1, 1, false, Sep50650), 
+LLoc20398 = locally_connected2D_layer([[[[0.3794], [0.6086]], [[0.9235], [0.0879]]]], 2, 1,[[[0.7338, 0.1445], [0.235, 0.7036]]],[[[0, 0]]], 1, 9, Loc20398), 
+LSub96107 = subtract_layer(Sep50650,Loc20398, Sub96107), 
+exec_layers([LAve82648,LRes19120,LSep50650,LLoc20398,LSub96107],["Ave82648","Res19120","Sep50650","Loc20398","Sub96107"],Sub96107,"Sub96107")
+
+Actual (Unparsed): [[[[-0.2284678, -0.2006856]]]]
+
+Expected (Unparsed): [[[[-0.228467806288,-0.20068558797199998]]]]
+
+Actual:   [[[[-0.2284, -0.2006]]]]
+
+Expected: [[[[-0.2284, -0.2006]]]]

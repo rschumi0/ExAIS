@@ -1,0 +1,75 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add2003 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Add2003 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Ave99782 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Ave99782 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Ave97038 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con24174 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con93162 = tf.keras.layers.Input(shape=([2, 2]))
+
+Add2003 = keras.layers.Add(name = 'Add2003', )([in0Add2003,in1Add2003])
+Res6251 = keras.layers.Reshape((1, 2, 2), name = 'Res6251', )(Add2003)
+Res74085 = keras.layers.Reshape((1, 4), name = 'Res74085', )(Res6251)
+Zer17904 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer17904', )(Res74085)
+Ave99782 = keras.layers.Average(name = 'Ave99782', )([in0Ave99782,in1Ave99782])
+Res47852 = keras.layers.Reshape((2, 1, 2), name = 'Res47852', )(Ave99782)
+Res92387 = keras.layers.Reshape((2, 2), name = 'Res92387', )(Res47852)
+Ave97038 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave97038', )(in0Ave97038)
+Max54215 = keras.layers.MaxPool1D(pool_size=(1), strides=(6), padding='same', name = 'Max54215', )(Ave97038)
+Zer64958 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer64958', )(Max54215)
+Con24174 = keras.layers.Concatenate(axis=2, name = 'Con24174', )([Zer64958,in0Con24174])
+Sub18927 = keras.layers.Subtract(name = 'Sub18927', )([Res92387,Con24174])
+Sof68811 = keras.layers.Softmax(axis=1, name = 'Sof68811', )(Sub18927)
+Con93162 = keras.layers.Concatenate(axis=2, name = 'Con93162', )([Sof68811,in0Con93162])
+Ave95245 = keras.layers.Average(name = 'Ave95245', )([Zer17904,Con93162])
+LST15368 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST15368', )(Ave95245)
+model = tf.keras.models.Model(inputs=[in0Add2003,in1Add2003,in0Ave99782,in1Ave99782,in0Ave97038,in0Con24174,in0Con93162], outputs=LST15368)
+w = model.get_layer('LST15368').get_weights() 
+w[0] = np.array([[4, 1, 7, 5]])
+w[1] = np.array([[9, 4, 1, 6]])
+w[2] = np.array([1, 10, 9, 9])
+model.get_layer('LST15368').set_weights(w) 
+in0Add2003 = tf.constant([[[[[0.477], [0.3074]], [[0.7213], [0.6369]]]]])
+in1Add2003 = tf.constant([[[[[0.3001], [0.4982]], [[0.6579], [0.6435]]]]])
+in0Ave99782 = tf.constant([[[[[0.7658, 0.6101]]], [[[0.6498, 0.7624]]]]])
+in1Ave99782 = tf.constant([[[[[0.074, 0.1907]]], [[[0.1484, 0.3853]]]]])
+in0Ave97038 = tf.constant([[[1.3008]]])
+in0Con24174 = tf.constant([[[0.0502], [0.5921]]])
+in0Con93162 = tf.constant([[[0.0962, 0.0186], [0.785, 0.7014]]])
+print (np.array2string(model.predict([in0Add2003,in1Add2003,in0Ave99782,in1Ave99782,in0Ave97038,in0Con24174,in0Con93162],steps=1), separator=', '))
+
+
+LAdd2003 = add_layer([[[[[[0.477], [0.3074]], [[0.7213], [0.6369]]]]], [[[[[0.3001], [0.4982]], [[0.6579], [0.6435]]]]]], Add2003), 
+LRes6251 = reshape_layer(Add2003, [1, 2, 2], Res6251), 
+LRes74085 = reshape_layer(Res6251, [1, 4], Res74085), 
+LZer17904 = zero_padding1D_layer(Res74085, 1, 0, Zer17904), 
+LAve99782 = average_layer([[[[[[0.7658, 0.6101]]], [[[0.6498, 0.7624]]]]], [[[[[0.074, 0.1907]]], [[[0.1484, 0.3853]]]]]], Ave99782), 
+LRes47852 = reshape_layer(Ave99782, [2, 1, 2], Res47852), 
+LRes92387 = reshape_layer(Res47852, [2, 2], Res92387), 
+LAve97038 = average_pooling1D_layer([[[1.3008]]], 1, Ave97038), 
+LMax54215 = max_pool1D_layer(Ave97038, 1, 6, true, Max54215), 
+LZer64958 = zero_padding1D_layer(Max54215, 1, 0, Zer64958), 
+LCon24174 = concatenate_layer([Zer64958,[[[0.0502], [0.5921]]]], 2, Con24174), 
+LSub18927 = subtract_layer(Res92387,Con24174, Sub18927), 
+LSof68811 = softmax_layer(Sub18927, 1, Sof68811), 
+LCon93162 = concatenate_layer([Sof68811,[[[0.0962, 0.0186], [0.785, 0.7014]]]], 2, Con93162), 
+LAve95245 = average_layer([Zer17904,Con93162], Ave95245), 
+LLST15368 = lstm_layer(Ave95245,[[4, 1, 7, 5]],[[9, 4, 1, 6]],[1, 10, 9, 9], LST15368), 
+exec_layers([LAdd2003,LRes6251,LRes74085,LZer17904,LAve99782,LRes47852,LRes92387,LAve97038,LMax54215,LZer64958,LCon24174,LSub18927,LSof68811,LCon93162,LAve95245,LLST15368],["Add2003","Res6251","Res74085","Zer17904","Ave99782","Res47852","Res92387","Ave97038","Max54215","Zer64958","Con24174","Sub18927","Sof68811","Con93162","Ave95245","LST15368"],LST15368,"LST15368")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Layer weight shape (4, 4) not compatible with provided weight shape (1, 4)
+
+Expected (Unparsed): 
+LST15368: Argument Error, Input Shape [1,2,4]
+
+Actual:   
+
+Expected: 

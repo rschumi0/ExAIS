@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min77503 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min77503 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sim71163 = tf.keras.layers.Input(shape=([1, 3]))
+in0Con53138 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Ave46119 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Ave46119 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Min77503 = keras.layers.Minimum(name = 'Min77503', )([in0Min77503,in1Min77503])
+Res32860 = keras.layers.Reshape((2, 2, 1), name = 'Res32860', )(Min77503)
+Con36900 = keras.layers.Conv2DTranspose(2, (1, 2),strides=(1, 1), padding='same', name = 'Con36900', )(Res32860)
+Sim71163 = keras.layers.SimpleRNN(1,name = 'Sim71163', )(in0Sim71163)
+Res80816 = keras.layers.Reshape((1, 1), name = 'Res80816', )(Sim71163)
+Res14089 = keras.layers.Reshape((1, 1, 1), name = 'Res14089', )(Res80816)
+Zer71096 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer71096', )(Res14089)
+Con53138 = keras.layers.Concatenate(axis=3, name = 'Con53138', )([Zer71096,in0Con53138])
+Ave46119 = keras.layers.Average(name = 'Ave46119', )([in0Ave46119,in1Ave46119])
+Max55605 = keras.layers.Maximum(name = 'Max55605', )([Con53138,Ave46119])
+Zer93119 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer93119', )(Max55605)
+Min98973 = keras.layers.Minimum(name = 'Min98973', )([Con36900,Zer93119])
+model = tf.keras.models.Model(inputs=[in0Min77503,in1Min77503,in0Sim71163,in0Con53138,in0Ave46119,in1Ave46119], outputs=Min98973)
+w = model.get_layer('Con36900').get_weights() 
+w[0] = np.array([[[[0.655], [0.7868]], [[0.3496], [0.4895]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con36900').set_weights(w) 
+w = model.get_layer('Sim71163').get_weights() 
+w[0] = np.array([[2], [4], [8]])
+w[1] = np.array([[8]])
+w[2] = np.array([2])
+model.get_layer('Sim71163').set_weights(w) 
+in0Min77503 = tf.constant([[[0.3836, 0.6054], [0.8958, 0.1447]]])
+in1Min77503 = tf.constant([[[0.0102, 0.9537], [0.442, 0.0994]]])
+in0Sim71163 = tf.constant([[[3, 2, 1]]])
+in0Con53138 = tf.constant([[[[0.1889]], [[0.722]]]])
+in0Ave46119 = tf.constant([[[[0.6114, 0.7065]], [[0.2872, 0.1924]]]])
+in1Ave46119 = tf.constant([[[[0.4121, 0.1001]], [[0.8484, 0.5967]]]])
+print (np.array2string(model.predict([in0Min77503,in1Min77503,in0Sim71163,in0Con53138,in0Ave46119,in1Ave46119],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min98973.png')
+
+LMin77503 = minimum_layer([[[[0.3836, 0.6054], [0.8958, 0.1447]]], [[[0.0102, 0.9537], [0.442, 0.0994]]]], Min77503), 
+LRes32860 = reshape_layer(Min77503, [2, 2, 1], Res32860), 
+LCon36900 = conv2D_transpose_layer(Res32860, 1, 2,[[[[0.655], [0.7868]], [[0.3496], [0.4895]]]],[0, 0], 1, 1, true, Con36900), 
+LSim71163 = simple_rnn_layer([[[3, 2, 1]]],[[2], [4], [8]],[[8]],[2], Sim71163), 
+LRes80816 = reshape_layer(Sim71163, [1, 1], Res80816), 
+LRes14089 = reshape_layer(Res80816, [1, 1, 1], Res14089), 
+LZer71096 = zero_padding2D_layer(Res14089, 1, 0, 0, 0, Zer71096), 
+LCon53138 = concatenate_layer([Zer71096,[[[[0.1889]], [[0.722]]]]], 3, Con53138), 
+LAve46119 = average_layer([[[[[0.6114, 0.7065]], [[0.2872, 0.1924]]]], [[[[0.4121, 0.1001]], [[0.8484, 0.5967]]]]], Ave46119), 
+LMax55605 = maximum_layer([Con53138,Ave46119], Max55605), 
+LZer93119 = zero_padding2D_layer(Max55605, 0, 0, 1, 0, Zer93119), 
+LMin98973 = minimum_layer([Con36900,Zer93119], Min98973), 
+exec_layers([LMin77503,LRes32860,LCon36900,LSim71163,LRes80816,LRes14089,LZer71096,LCon53138,LAve46119,LMax55605,LZer93119,LMin98973],["Min77503","Res32860","Con36900","Sim71163","Res80816","Res14089","Zer71096","Con53138","Ave46119","Max55605","Zer93119","Min98973"],Min98973,"Min98973")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.4001029, 0.4033000]], [[0.0000000, 0.0000000], [0.2196302, 0.2945669]]]]
+
+Expected (Unparsed): [[[[0,0],[0.40010292000000003,0.4033]],[[0,0],[0.2196302,0.29456692]]]]
+
+Actual:   [[[[0, 0], [0.4002, 0.4033]], [[0, 0], [0.2197, 0.2946]]]]
+
+Expected: [[[[0, 0], [0.4002, 0.4033]], [[0, 0], [0.2197, 0.2946]]]]

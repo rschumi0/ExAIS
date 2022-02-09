@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul56035 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul56035 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Max67589 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max67589 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con50918 = tf.keras.layers.Input(shape=([4]))
+in0Con97837 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+
+Mul56035 = keras.layers.Multiply(name = 'Mul56035', )([in0Mul56035,in1Mul56035])
+Res50323 = keras.layers.Reshape((2, 2), name = 'Res50323', )(Mul56035)
+Max67589 = keras.layers.Maximum(name = 'Max67589', )([in0Max67589,in1Max67589])
+Ave96446 = keras.layers.Average(name = 'Ave96446', )([Res50323,Max67589])
+Fla87781 = keras.layers.Flatten(name = 'Fla87781', )(Ave96446)
+Con50918 = keras.layers.Concatenate(axis=1, name = 'Con50918', )([Fla87781,in0Con50918])
+Con97837 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con97837', )(in0Con97837)
+Res52115 = keras.layers.Reshape((1, 2, 4), name = 'Res52115', )(Con97837)
+Res51501 = keras.layers.Reshape((1, 8), name = 'Res51501', )(Res52115)
+Glo42786 = keras.layers.GlobalAveragePooling1D(name = 'Glo42786', )(Res51501)
+Mul26489 = keras.layers.Multiply(name = 'Mul26489', )([Con50918,Glo42786])
+Res52057 = keras.layers.Reshape((8, 1), name = 'Res52057', )(Mul26489)
+Glo8774 = keras.layers.GlobalMaxPool1D(name = 'Glo8774', )(Res52057)
+model = tf.keras.models.Model(inputs=[in0Mul56035,in1Mul56035,in0Max67589,in1Max67589,in0Con50918,in0Con97837], outputs=Glo8774)
+w = model.get_layer('Con97837').get_weights() 
+w[0] = np.array([[[[[0.5489, 0.1878], [0.4555, 0.2819]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con97837').set_weights(w) 
+in0Mul56035 = tf.constant([[[[0.0952, 0.9235]], [[0.1747, 0.0323]]]])
+in1Mul56035 = tf.constant([[[[0.1435, 0.4502]], [[0.6126, 0.2695]]]])
+in0Max67589 = tf.constant([[[0.401, 0.8114], [0.7469, 0.3688]]])
+in1Max67589 = tf.constant([[[0.8719, 0.836], [0.37, 0.416]]])
+in0Con50918 = tf.constant([[0.6896, 0.2498, 0.0783, 0.2274]])
+in0Con97837 = tf.constant([[[[[0.6746, 0.808], [0.1965, 0.4029]], [[0.3987, 0.865], [0.9882, 0.6283]]]]])
+print (np.array2string(model.predict([in0Mul56035,in1Mul56035,in0Max67589,in1Max67589,in0Con50918,in0Con97837],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo8774.png')
+
+LMul56035 = multiply_layer([[[[[0.0952, 0.9235]], [[0.1747, 0.0323]]]], [[[[0.1435, 0.4502]], [[0.6126, 0.2695]]]]], Mul56035), 
+LRes50323 = reshape_layer(Mul56035, [2, 2], Res50323), 
+LMax67589 = maximum_layer([[[[0.401, 0.8114], [0.7469, 0.3688]]], [[[0.8719, 0.836], [0.37, 0.416]]]], Max67589), 
+LAve96446 = average_layer([Res50323,Max67589], Ave96446), 
+LFla87781 = flatten_layer(Ave96446, Fla87781), 
+LCon50918 = concatenate_layer([Fla87781,[[0.6896, 0.2498, 0.0783, 0.2274]]], 1, Con50918), 
+LCon97837 = conv3D_transpose_layer([[[[[0.6746, 0.808], [0.1965, 0.4029]], [[0.3987, 0.865], [0.9882, 0.6283]]]]], 1, 1, 1,[[[[[0.5489, 0.1878], [0.4555, 0.2819]]]]],[0, 0], 1, 1, 1, true, Con97837), 
+LRes52115 = reshape_layer(Con97837, [1, 2, 4], Res52115), 
+LRes51501 = reshape_layer(Res52115, [1, 8], Res51501), 
+LGlo42786 = global_average_pooling1D_layer(Res51501, Glo42786), 
+LMul26489 = multiply_layer([Con50918,Glo42786], Mul26489), 
+LRes52057 = reshape_layer(Mul26489, [8, 1], Res52057), 
+LGlo8774 = global_max_pool1D_layer(Res52057, Glo8774), 
+exec_layers([LMul56035,LRes50323,LMax67589,LAve96446,LFla87781,LCon50918,LCon97837,LRes52115,LRes51501,LGlo42786,LMul26489,LRes52057,LGlo8774],["Mul56035","Res50323","Max67589","Ave96446","Fla87781","Con50918","Con97837","Res52115","Res51501","Glo42786","Mul26489","Res52057","Glo8774"],Glo8774,"Glo8774")
+
+Actual (Unparsed): [[0.3348805]]
+
+Expected (Unparsed): [[0.334880456081675]]
+
+Actual:   [[0.3349]]
+
+Expected: [[0.3349]]

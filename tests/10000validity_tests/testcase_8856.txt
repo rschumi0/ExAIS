@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo1470 = tf.keras.layers.Input(shape=([2, 2]))
+in0ELU10791 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Ave59010 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Ave59010 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Glo1470 = keras.layers.GlobalMaxPool1D(name = 'Glo1470', )(in0Glo1470)
+ELU10791 = keras.layers.ELU(alpha=7.074222642107358, name = 'ELU10791', input_shape=(2, 2, 2))(in0ELU10791)
+Res22910 = keras.layers.Reshape((2, 4), name = 'Res22910', )(ELU10791)
+Sim83839 = keras.layers.SimpleRNN(2,name = 'Sim83839', )(Res22910)
+Add99176 = keras.layers.Add(name = 'Add99176', )([Glo1470,Sim83839])
+Res84388 = keras.layers.Reshape((2, 1), name = 'Res84388', )(Add99176)
+Glo21129 = keras.layers.GlobalAveragePooling1D(name = 'Glo21129', )(Res84388)
+Ave59010 = keras.layers.Average(name = 'Ave59010', )([in0Ave59010,in1Ave59010])
+Glo75505 = keras.layers.GlobalMaxPool2D(name = 'Glo75505', )(Ave59010)
+Thr28027 = keras.layers.ThresholdedReLU(theta=7.976947826632669, name = 'Thr28027', )(Glo75505)
+Mul29993 = keras.layers.Multiply(name = 'Mul29993', )([Glo21129,Thr28027])
+model = tf.keras.models.Model(inputs=[in0Glo1470,in0ELU10791,in0Ave59010,in1Ave59010], outputs=Mul29993)
+w = model.get_layer('Sim83839').get_weights() 
+w[0] = np.array([[10, 7], [2, 1], [1, 5], [4, 1]])
+w[1] = np.array([[10, 1], [1, 4]])
+w[2] = np.array([7, 4])
+model.get_layer('Sim83839').set_weights(w) 
+in0Glo1470 = tf.constant([[[1.1391, 1.7154], [1.815, 1.4199]]])
+in0ELU10791 = tf.constant([[[[0.6431, 0.3062], [0.4881, 0.2358]], [[0.2243, 0.2981], [0.3767, 0.5083]]]])
+in0Ave59010 = tf.constant([[[[0.8204], [0.8912]]]])
+in1Ave59010 = tf.constant([[[[0.8323], [0.6447]]]])
+print (np.array2string(model.predict([in0Glo1470,in0ELU10791,in0Ave59010,in1Ave59010],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul29993.png')
+
+LGlo1470 = global_max_pool1D_layer([[[1.1391, 1.7154], [1.815, 1.4199]]], Glo1470), 
+LELU10791 = elu_layer([[[[0.6431, 0.3062], [0.4881, 0.2358]], [[0.2243, 0.2981], [0.3767, 0.5083]]]], 7.074222642107358, ELU10791), 
+LRes22910 = reshape_layer(ELU10791, [2, 4], Res22910), 
+LSim83839 = simple_rnn_layer(Res22910,[[10, 7], [2, 1], [1, 5], [4, 1]],[[10, 1], [1, 4]],[7, 4], Sim83839), 
+LAdd99176 = add_layer([Glo1470,Sim83839], Add99176), 
+LRes84388 = reshape_layer(Add99176, [2, 1], Res84388), 
+LGlo21129 = global_average_pooling1D_layer(Res84388, Glo21129), 
+LAve59010 = average_layer([[[[[0.8204], [0.8912]]]], [[[[0.8323], [0.6447]]]]], Ave59010), 
+LGlo75505 = global_max_pool2D_layer(Ave59010, Glo75505), 
+LThr28027 = thresholded_relu_layer(Glo75505, 7.976947826632669, Thr28027), 
+LMul29993 = multiply_layer([Glo21129,Thr28027], Mul29993), 
+exec_layers([LGlo1470,LELU10791,LRes22910,LSim83839,LAdd99176,LRes84388,LGlo21129,LAve59010,LGlo75505,LThr28027,LMul29993],["Glo1470","ELU10791","Res22910","Sim83839","Add99176","Res84388","Glo21129","Ave59010","Glo75505","Thr28027","Mul29993"],Mul29993,"Mul29993")
+
+Actual (Unparsed): [[0.0000000]]
+
+Expected (Unparsed): [[0.0]]
+
+Actual:   [[0]]
+
+Expected: [[0]]

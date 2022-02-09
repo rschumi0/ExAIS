@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo76102 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Mul28971 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul28971 = tf.keras.layers.Input(shape=([1, 1]))
+in0Per82414 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min72298 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Min72298 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Glo76102 = keras.layers.GlobalAveragePooling2D(name = 'Glo76102', )(in0Glo76102)
+Res18669 = keras.layers.Reshape((2, 1), name = 'Res18669', )(Glo76102)
+Mul28971 = keras.layers.Multiply(name = 'Mul28971', )([in0Mul28971,in1Mul28971])
+Zer81522 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer81522', )(Mul28971)
+Add19331 = keras.layers.Add(name = 'Add19331', )([Res18669,Zer81522])
+Per82414 = keras.layers.Permute((1,2), name = 'Per82414',)(in0Per82414)
+Res4815 = keras.layers.Reshape((2, 2, 1), name = 'Res4815', )(Per82414)
+Loc60337 = keras.layers.LocallyConnected2D(4, (2, 2),strides=(2, 2), name = 'Loc60337', )(Res4815)
+Res21516 = keras.layers.Reshape((1, 4), name = 'Res21516', )(Loc60337)
+Min72298 = keras.layers.Minimum(name = 'Min72298', )([in0Min72298,in1Min72298])
+Res29980 = keras.layers.Reshape((1, 4), name = 'Res29980', )(Min72298)
+Dot10880 = keras.layers.Dot(axes=(2, 2), name = 'Dot10880', )([Res21516,Res29980])
+Zer52158 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer52158', )(Dot10880)
+Ave44834 = keras.layers.Average(name = 'Ave44834', )([Add19331,Zer52158])
+model = tf.keras.models.Model(inputs=[in0Glo76102,in0Mul28971,in1Mul28971,in0Per82414,in0Min72298,in1Min72298], outputs=Ave44834)
+w = model.get_layer('Loc60337').get_weights() 
+w[0] = np.array([[[0.4804, 0.9942, 0.3036, 0.9699], [0.2578, 0.1678, 0.3082, 0.3892], [0.4428, 0.8548, 0.9082, 0.2145], [0.7566, 0.4976, 0.2519, 0.1971]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc60337').set_weights(w) 
+in0Glo76102 = tf.constant([[[[1.1745, 1.3132]], [[1.745, 1.5922]]]])
+in0Mul28971 = tf.constant([[[0.3509]]])
+in1Mul28971 = tf.constant([[[0.4887]]])
+in0Per82414 = tf.constant([[[1.7151, 1.379], [1.473, 1.7226]]])
+in0Min72298 = tf.constant([[[[[0.9238]], [[0.816]]], [[[0.4217]], [[0.824]]]]])
+in1Min72298 = tf.constant([[[[[0.5354]], [[0.6003]]], [[[0.7406]], [[0.9669]]]]])
+print (np.array2string(model.predict([in0Glo76102,in0Mul28971,in1Mul28971,in0Per82414,in0Min72298,in1Min72298],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave44834.png')
+
+LGlo76102 = global_average_pooling2D_layer([[[[1.1745, 1.3132]], [[1.745, 1.5922]]]], Glo76102), 
+LRes18669 = reshape_layer(Glo76102, [2, 1], Res18669), 
+LMul28971 = multiply_layer([[[[0.3509]]], [[[0.4887]]]], Mul28971), 
+LZer81522 = zero_padding1D_layer(Mul28971, 1, 0, Zer81522), 
+LAdd19331 = add_layer([Res18669,Zer81522], Add19331), 
+LPer82414 = permute_layer([[[1.7151, 1.379], [1.473, 1.7226]]], 1,2, Per82414), 
+LRes4815 = reshape_layer(Per82414, [2, 2, 1], Res4815), 
+LLoc60337 = locally_connected2D_layer(Res4815, 2, 2,[[[0.4804, 0.9942, 0.3036, 0.9699], [0.2578, 0.1678, 0.3082, 0.3892], [0.4428, 0.8548, 0.9082, 0.2145], [0.7566, 0.4976, 0.2519, 0.1971]]],[[[0, 0, 0, 0]]], 2, 2, Loc60337), 
+LRes21516 = reshape_layer(Loc60337, [1, 4], Res21516), 
+LMin72298 = minimum_layer([[[[[[0.9238]], [[0.816]]], [[[0.4217]], [[0.824]]]]], [[[[[0.5354]], [[0.6003]]], [[[0.7406]], [[0.9669]]]]]], Min72298), 
+LRes29980 = reshape_layer(Min72298, [1, 4], Res29980), 
+LDot10880 = dot_layer(Res21516,Res29980, 2, 2, Dot10880), 
+LZer52158 = zero_padding1D_layer(Dot10880, 1, 0, Zer52158), 
+LAve44834 = average_layer([Add19331,Zer52158], Ave44834), 
+exec_layers([LGlo76102,LRes18669,LMul28971,LZer81522,LAdd19331,LPer82414,LRes4815,LLoc60337,LRes21516,LMin72298,LRes29980,LDot10880,LZer52158,LAve44834],["Glo76102","Res18669","Mul28971","Zer81522","Add19331","Per82414","Res4815","Loc60337","Res21516","Min72298","Res29980","Dot10880","Zer52158","Ave44834"],Ave44834,"Ave44834")
+
+Actual (Unparsed): [[[0.7298750], [4.6172921]]]
+
+Expected (Unparsed): [[[0.729875],[4.617292053122]]]
+
+Actual:   [[[0.7299], [4.6173]]]
+
+Expected: [[[0.7299], [4.6173]]]

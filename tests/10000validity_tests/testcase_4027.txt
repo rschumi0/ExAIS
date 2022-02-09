@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max80823 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max80823 = tf.keras.layers.Input(shape=([1, 1]))
+in0Max51385 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Max51385 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Max80823 = keras.layers.Maximum(name = 'Max80823', )([in0Max80823,in1Max80823])
+Res68656 = keras.layers.Reshape((1, 1, 1), name = 'Res68656', )(Max80823)
+Con66360 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='same', name = 'Con66360', )(Res68656)
+Res78882 = keras.layers.Reshape((1, 1, 3, 1), name = 'Res78882', )(Con66360)
+Max51385 = keras.layers.Maximum(name = 'Max51385', )([in0Max51385,in1Max51385])
+Zer47540 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer47540', )(Max51385)
+Mul43164 = keras.layers.Multiply(name = 'Mul43164', )([Res78882,Zer47540])
+model = tf.keras.models.Model(inputs=[in0Max80823,in1Max80823,in0Max51385,in1Max51385], outputs=Mul43164)
+w = model.get_layer('Con66360').get_weights() 
+w[0] = np.array([[[[0.4234], [0.6815], [0.7351]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con66360').set_weights(w) 
+in0Max80823 = tf.constant([[[0.8964]]])
+in1Max80823 = tf.constant([[[0.1129]]])
+in0Max51385 = tf.constant([[[[[0.9466]]]]])
+in1Max51385 = tf.constant([[[[[0.3724]]]]])
+print (np.array2string(model.predict([in0Max80823,in1Max80823,in0Max51385,in1Max51385],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul43164.png')
+
+LMax80823 = maximum_layer([[[[0.8964]]], [[[0.1129]]]], Max80823), 
+LRes68656 = reshape_layer(Max80823, [1, 1, 1], Res68656), 
+LCon66360 = conv2D_transpose_layer(Res68656, 1, 1,[[[[0.4234], [0.6815], [0.7351]]]],[0, 0, 0], 1, 1, true, Con66360), 
+LRes78882 = reshape_layer(Con66360, [1, 1, 3, 1], Res78882), 
+LMax51385 = maximum_layer([[[[[[0.9466]]]]], [[[[[0.3724]]]]]], Max51385), 
+LZer47540 = zero_padding3D_layer(Max51385, 0, 0, 0, 0, 2, 0, Zer47540), 
+LMul43164 = multiply_layer([Res78882,Zer47540], Mul43164), 
+exec_layers([LMax80823,LRes68656,LCon66360,LRes78882,LMax51385,LZer47540,LMul43164],["Max80823","Res68656","Con66360","Res78882","Max51385","Zer47540","Mul43164"],Mul43164,"Mul43164")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.6237560]]]]]
+
+Expected (Unparsed): [[[[[0.0],[0.0],[0.623756049624]]]]]
+
+Actual:   [[[[[0], [0], [0.6238]]]]]
+
+Expected: [[[[[0], [0], [0.6238]]]]]

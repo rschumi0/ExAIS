@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep87423 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min49923 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min49923 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dep87423 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep87423', )(in0Dep87423)
+Res36293 = keras.layers.Reshape((1, 2), name = 'Res36293', )(Dep87423)
+Zer81833 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer81833', )(Res36293)
+Min49923 = keras.layers.Minimum(name = 'Min49923', )([in0Min49923,in1Min49923])
+Add63161 = keras.layers.Add(name = 'Add63161', )([Zer81833,Min49923])
+Res72380 = keras.layers.Reshape((2, 2, 1), name = 'Res72380', )(Add63161)
+PRe20133 = keras.layers.PReLU(name = 'PRe20133', )(Res72380)
+Res2160 = keras.layers.Reshape((2, 2), name = 'Res2160', )(PRe20133)
+Glo39263 = keras.layers.GlobalMaxPool1D(name = 'Glo39263', )(Res2160)
+model = tf.keras.models.Model(inputs=[in0Dep87423,in0Min49923,in1Min49923], outputs=Glo39263)
+w = model.get_layer('Dep87423').get_weights() 
+w[0] = np.array([[[[0.0226], [0.3828]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep87423').set_weights(w) 
+w = model.get_layer('PRe20133').get_weights() 
+w[0] = np.array([[[0.8693], [0.5155]], [[0.8739], [0.2834]]])
+model.get_layer('PRe20133').set_weights(w) 
+in0Dep87423 = tf.constant([[[[0.3839, 0.8524]]]])
+in0Min49923 = tf.constant([[[0.1103, 0.9782], [0.4269, 0.8105]]])
+in1Min49923 = tf.constant([[[0.4408, 0.2462], [0.952, 0.5661]]])
+print (np.array2string(model.predict([in0Dep87423,in0Min49923,in1Min49923],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo39263.png')
+
+LDep87423 = depthwise_conv2D_layer([[[[0.3839, 0.8524]]]], 1, 1,[[[[0.0226], [0.3828]]]],[0, 0], 1, 1, true, Dep87423), 
+LRes36293 = reshape_layer(Dep87423, [1, 2], Res36293), 
+LZer81833 = zero_padding1D_layer(Res36293, 1, 0, Zer81833), 
+LMin49923 = minimum_layer([[[[0.1103, 0.9782], [0.4269, 0.8105]]], [[[0.4408, 0.2462], [0.952, 0.5661]]]], Min49923), 
+LAdd63161 = add_layer([Zer81833,Min49923], Add63161), 
+LRes72380 = reshape_layer(Add63161, [2, 2, 1], Res72380), 
+LPRe20133 = prelu_layer(Res72380, [[[0.8693], [0.5155]], [[0.8739], [0.2834]]], PRe20133), 
+LRes2160 = reshape_layer(PRe20133, [2, 2], Res2160), 
+LGlo39263 = global_max_pool1D_layer(Res2160, Glo39263), 
+exec_layers([LDep87423,LRes36293,LZer81833,LMin49923,LAdd63161,LRes72380,LPRe20133,LRes2160,LGlo39263],["Dep87423","Res36293","Zer81833","Min49923","Add63161","Res72380","PRe20133","Res2160","Glo39263"],Glo39263,"Glo39263")
+
+Actual (Unparsed): [[0.4355761, 0.8923987]]
+
+Expected (Unparsed): [[0.43557614,0.8923987200000001]]
+
+Actual:   [[0.4356, 0.8924]]
+
+Expected: [[0.4356, 0.8924]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave32034 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Ave32034 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Dot46662 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot46662 = tf.keras.layers.Input(shape=([3, 2]))
+
+Ave32034 = keras.layers.Average(name = 'Ave32034', )([in0Ave32034,in1Ave32034])
+Res14608 = keras.layers.Reshape((2, 1, 2, 1), name = 'Res14608', )(Ave32034)
+Dot46662 = keras.layers.Dot(axes=(1, 1), name = 'Dot46662', )([in0Dot46662,in1Dot46662])
+Res35426 = keras.layers.Reshape((2, 2, 1), name = 'Res35426', )(Dot46662)
+Res13798 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res13798', )(Res35426)
+Cro9326 = keras.layers.Cropping3D(cropping=((1, 0), (0, 1), (0, 0)), name = 'Cro9326', )(Res13798)
+Zer25367 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer25367', )(Cro9326)
+Sub14287 = keras.layers.Subtract(name = 'Sub14287', )([Res14608,Zer25367])
+Den88318 = keras.layers.Dense(3,name = 'Den88318', )(Sub14287)
+Thr29426 = keras.layers.ThresholdedReLU(theta=0.933922568295981, name = 'Thr29426', )(Den88318)
+model = tf.keras.models.Model(inputs=[in0Ave32034,in1Ave32034,in0Dot46662,in1Dot46662], outputs=Thr29426)
+w = model.get_layer('Den88318').get_weights() 
+w[0] = np.array([[0.7578, 0.9402, 0.5456]])
+w[1] = np.array([0.6573, 0.5372, 0.5541])
+model.get_layer('Den88318').set_weights(w) 
+in0Ave32034 = tf.constant([[[[0.0517, 0.3426]], [[0.5262, 0.872]]]])
+in1Ave32034 = tf.constant([[[[0.0668, 0.4659]], [[0.7465, 0.5585]]]])
+in0Dot46662 = tf.constant([[[0.7024, 0.8204], [0.5649, 0.4652], [0.9063, 0.7269]]])
+in1Dot46662 = tf.constant([[[0.9544, 0.7911], [0.243, 0.6643], [0.212, 0.3341]]])
+print (np.array2string(model.predict([in0Ave32034,in1Ave32034,in0Dot46662,in1Dot46662],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Thr29426.png')
+
+LAve32034 = average_layer([[[[[0.0517, 0.3426]], [[0.5262, 0.872]]]], [[[[0.0668, 0.4659]], [[0.7465, 0.5585]]]]], Ave32034), 
+LRes14608 = reshape_layer(Ave32034, [2, 1, 2, 1], Res14608), 
+LDot46662 = dot_layer([[[0.7024, 0.8204], [0.5649, 0.4652], [0.9063, 0.7269]]], [[[0.9544, 0.7911], [0.243, 0.6643], [0.212, 0.3341]]], 1, 1, Dot46662), 
+LRes35426 = reshape_layer(Dot46662, [2, 2, 1], Res35426), 
+LRes13798 = reshape_layer(Res35426, [2, 2, 1, 1], Res13798), 
+LCro9326 = cropping3D_layer(Res13798, 1, 0, 0, 1, 0, 0, Cro9326), 
+LZer25367 = zero_padding3D_layer(Cro9326, 1, 0, 0, 0, 1, 0, Zer25367), 
+LSub14287 = subtract_layer(Res14608,Zer25367, Sub14287), 
+LDen88318 = dense_layer(Sub14287, [[0.7578, 0.9402, 0.5456]],[0.6573, 0.5372, 0.5541], Den88318), 
+LThr29426 = thresholded_relu_layer(Den88318, 0.933922568295981, Thr29426), 
+exec_layers([LAve32034,LRes14608,LDot46662,LRes35426,LRes13798,LCro9326,LZer25367,LSub14287,LDen88318,LThr29426],["Ave32034","Res14608","Dot46662","Res35426","Res13798","Cro9326","Zer25367","Sub14287","Den88318","Thr29426"],Thr29426,"Thr29426")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000, 0.0000000], [0.9636406, 0.0000000, 0.0000000]]], [[[1.1395260, 1.1354963, 0.0000000], [0.0000000, 0.0000000, 0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0,0,0],[0.96364065,0,0]]],[[[1.1395260299999999,1.13549627,0],[0,0,0]]]]]
+
+Actual:   [[[[[0, 0, 0], [0.9637, 0, 0]]], [[[1.1396, 1.1355, 0], [0, 0, 0]]]]]
+
+Expected: [[[[[0, 0, 0], [0.9637, 0, 0]]], [[[1.1396, 1.1355, 0], [0, 0, 0]]]]]

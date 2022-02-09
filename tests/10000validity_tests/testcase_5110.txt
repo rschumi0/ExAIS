@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep63070 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add81604 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Add81604 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con3746 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Sep63070 = keras.layers.SeparableConv1D(2, (1),strides=(2), padding='valid', name = 'Sep63070', )(in0Sep63070)
+Res41073 = keras.layers.Reshape((1, 2, 1), name = 'Res41073', )(Sep63070)
+Loc24958 = keras.layers.LocallyConnected2D(3, (1, 2),strides=(1, 1), name = 'Loc24958', )(Res41073)
+Zer60092 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer60092', )(Loc24958)
+Add81604 = keras.layers.Add(name = 'Add81604', )([in0Add81604,in1Add81604])
+ELU44684 = keras.layers.ELU(alpha=-6.873034992274192, name = 'ELU44684', )(Add81604)
+Con3746 = keras.layers.Concatenate(axis=3, name = 'Con3746', )([ELU44684,in0Con3746])
+Sub49096 = keras.layers.Subtract(name = 'Sub49096', )([Zer60092,Con3746])
+model = tf.keras.models.Model(inputs=[in0Sep63070,in0Add81604,in1Add81604,in0Con3746], outputs=Sub49096)
+w = model.get_layer('Sep63070').get_weights() 
+w[0] = np.array([[[0.7887], [0.7475]]])
+w[1] = np.array([[[0.828, 0.239], [0.1285, 0.5333]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep63070').set_weights(w) 
+w = model.get_layer('Loc24958').get_weights() 
+w[0] = np.array([[[0.3763, 0.7083, 0.8967], [0.6694, 0.8384, 0.8596]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc24958').set_weights(w) 
+in0Sep63070 = tf.constant([[[0.597, 0.0866], [0.0973, 0.1172]]])
+in0Add81604 = tf.constant([[[[0.0139, 0.6804], [0.6406, 0.2146]], [[0.7583, 0.1247], [0.1123, 0.2704]]]])
+in1Add81604 = tf.constant([[[[0.8702, 0.2494], [0.4027, 0.3387]], [[0.5962, 0.2432], [0.007, 0.9761]]]])
+in0Con3746 = tf.constant([[[[0.0386], [0.0607]], [[0.1537], [0.5588]]]])
+print (np.array2string(model.predict([in0Sep63070,in0Add81604,in1Add81604,in0Con3746],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub49096.png')
+
+LSep63070 = separable_conv1D_layer([[[0.597, 0.0866], [0.0973, 0.1172]]], 1,[[[[0.7887], [0.7475]]],[[[0.828, 0.239], [0.1285, 0.5333]]]],[0, 0], 2, false, Sep63070), 
+LRes41073 = reshape_layer(Sep63070, [1, 2, 1], Res41073), 
+LLoc24958 = locally_connected2D_layer(Res41073, 1, 2,[[[0.3763, 0.7083, 0.8967], [0.6694, 0.8384, 0.8596]]],[[[0, 0, 0]]], 1, 1, Loc24958), 
+LZer60092 = zero_padding2D_layer(Loc24958, 1, 0, 1, 0, Zer60092), 
+LAdd81604 = add_layer([[[[[0.0139, 0.6804], [0.6406, 0.2146]], [[0.7583, 0.1247], [0.1123, 0.2704]]]], [[[[0.8702, 0.2494], [0.4027, 0.3387]], [[0.5962, 0.2432], [0.007, 0.9761]]]]], Add81604), 
+LELU44684 = elu_layer(Add81604, -6.873034992274192, ELU44684), 
+LCon3746 = concatenate_layer([ELU44684,[[[[0.0386], [0.0607]], [[0.1537], [0.5588]]]]], 3, Con3746), 
+LSub49096 = subtract_layer(Zer60092,Con3746, Sub49096), 
+exec_layers([LSep63070,LRes41073,LLoc24958,LZer60092,LAdd81604,LELU44684,LCon3746,LSub49096],["Sep63070","Res41073","Loc24958","Zer60092","Add81604","ELU44684","Con3746","Sub49096"],Sub49096,"Sub49096")
+
+Actual (Unparsed): [[[[-0.8841000, -0.9298000, -0.0386000], [-1.0433000, -0.5533000, -0.0607000]], [[-1.3545000, -0.3679000, -0.1537000], [0.1289767, -0.8411732, -0.0753375]]]]
+
+Expected (Unparsed): [[[[-0.8841,-0.9298,-0.0386],[-1.0433,-0.5533,-0.0607]],[[-1.3544999999999998,-0.3679,-0.1537],[0.12897671510129494,-0.8411732292844549,-0.07533752488609502]]]]
+
+Actual:   [[[[-0.8841, -0.9298, -0.0386], [-1.0433, -0.5533, -0.0607]], [[-1.3545, -0.3679, -0.1537], [0.129, -0.8411, -0.0753]]]]
+
+Expected: [[[[-0.8841, -0.9298, -0.0386], [-1.0433, -0.5533, -0.0607]], [[-1.3544, -0.3679, -0.1537], [0.129, -0.8411, -0.0753]]]]

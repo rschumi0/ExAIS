@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max63849 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Max63849 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Add19520 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add19520 = tf.keras.layers.Input(shape=([1, 1]))
+
+Max63849 = keras.layers.Maximum(name = 'Max63849', )([in0Max63849,in1Max63849])
+Res54963 = keras.layers.Reshape((2, 1, 4), name = 'Res54963', )(Max63849)
+Res94350 = keras.layers.Reshape((2, 4), name = 'Res94350', )(Res54963)
+Sim10640 = keras.layers.SimpleRNN(2,name = 'Sim10640', )(Res94350)
+Res44354 = keras.layers.Reshape((2, 1), name = 'Res44354', )(Sim10640)
+Add19520 = keras.layers.Add(name = 'Add19520', )([in0Add19520,in1Add19520])
+Thr19891 = keras.layers.ThresholdedReLU(theta=1.5698748610130442, name = 'Thr19891', )(Add19520)
+Zer55613 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer55613', )(Thr19891)
+Mul64850 = keras.layers.Multiply(name = 'Mul64850', )([Res44354,Zer55613])
+Res20483 = keras.layers.Reshape((2, 1, 1), name = 'Res20483', )(Mul64850)
+Glo60104 = keras.layers.GlobalAveragePooling2D(name = 'Glo60104', )(Res20483)
+model = tf.keras.models.Model(inputs=[in0Max63849,in1Max63849,in0Add19520,in1Add19520], outputs=Glo60104)
+w = model.get_layer('Sim10640').get_weights() 
+w[0] = np.array([[4, 4], [7, 5], [10, 10], [5, 9]])
+w[1] = np.array([[1, 5], [9, 2]])
+w[2] = np.array([8, 1])
+model.get_layer('Sim10640').set_weights(w) 
+in0Max63849 = tf.constant([[[[[0.8906, 0.6176], [0.6892, 0.6152]]], [[[0.5237, 0.5097], [0.5586, 0.8822]]]]])
+in1Max63849 = tf.constant([[[[[0.7036, 0.1543], [0.9302, 0.9287]]], [[[0.5267, 0.4529], [0.7673, 0.8609]]]]])
+in0Add19520 = tf.constant([[[0.2916]]])
+in1Add19520 = tf.constant([[[0.9262]]])
+print (np.array2string(model.predict([in0Max63849,in1Max63849,in0Add19520,in1Add19520],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo60104.png')
+
+LMax63849 = maximum_layer([[[[[[0.8906, 0.6176], [0.6892, 0.6152]]], [[[0.5237, 0.5097], [0.5586, 0.8822]]]]], [[[[[0.7036, 0.1543], [0.9302, 0.9287]]], [[[0.5267, 0.4529], [0.7673, 0.8609]]]]]], Max63849), 
+LRes54963 = reshape_layer(Max63849, [2, 1, 4], Res54963), 
+LRes94350 = reshape_layer(Res54963, [2, 4], Res94350), 
+LSim10640 = simple_rnn_layer(Res94350,[[4, 4], [7, 5], [10, 10], [5, 9]],[[1, 5], [9, 2]],[8, 1], Sim10640), 
+LRes44354 = reshape_layer(Sim10640, [2, 1], Res44354), 
+LAdd19520 = add_layer([[[[0.2916]]], [[[0.9262]]]], Add19520), 
+LThr19891 = thresholded_relu_layer(Add19520, 1.5698748610130442, Thr19891), 
+LZer55613 = zero_padding1D_layer(Thr19891, 1, 0, Zer55613), 
+LMul64850 = multiply_layer([Res44354,Zer55613], Mul64850), 
+LRes20483 = reshape_layer(Mul64850, [2, 1, 1], Res20483), 
+LGlo60104 = global_average_pooling2D_layer(Res20483, Glo60104), 
+exec_layers([LMax63849,LRes54963,LRes94350,LSim10640,LRes44354,LAdd19520,LThr19891,LZer55613,LMul64850,LRes20483,LGlo60104],["Max63849","Res54963","Res94350","Sim10640","Res44354","Add19520","Thr19891","Zer55613","Mul64850","Res20483","Glo60104"],Glo60104,"Glo60104")
+
+Actual (Unparsed): [[0.0000000]]
+
+Expected (Unparsed): [[0.0]]
+
+Actual:   [[0]]
+
+Expected: [[0]]

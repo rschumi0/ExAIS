@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min33432 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min33432 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con87083 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Cro40963 = tf.keras.layers.Input(shape=([3, 3, 1, 3]))
+
+Min33432 = keras.layers.Minimum(name = 'Min33432', )([in0Min33432,in1Min33432])
+Bat58839 = keras.layers.BatchNormalization(axis=1, epsilon=0.45429336510668794,  name = 'Bat58839', )(Min33432)
+Res86237 = keras.layers.Reshape((2, 2, 1), name = 'Res86237', )(Bat58839)
+Res27722 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res27722', )(Res86237)
+Con87083 = keras.layers.Concatenate(axis=4, name = 'Con87083', )([Res27722,in0Con87083])
+Cro40963 = keras.layers.Cropping3D(cropping=((2, 0), (1, 1), (0, 0)), name = 'Cro40963', )(in0Cro40963)
+Zer49459 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer49459', )(Cro40963)
+Mul35944 = keras.layers.Multiply(name = 'Mul35944', )([Con87083,Zer49459])
+model = tf.keras.models.Model(inputs=[in0Min33432,in1Min33432,in0Con87083,in0Cro40963], outputs=Mul35944)
+w = model.get_layer('Bat58839').get_weights() 
+w[0] = np.array([0.9057, 0.2037])
+w[1] = np.array([0.4734, 0.694])
+w[2] = np.array([0.855, 0.4715])
+w[3] = np.array([0.3689, 0.8375])
+model.get_layer('Bat58839').set_weights(w) 
+in0Min33432 = tf.constant([[[0.5791, 0.046], [0.7794, 0.7077]]])
+in1Min33432 = tf.constant([[[0.4556, 0.1072], [0.9958, 0.6539]]])
+in0Con87083 = tf.constant([[[[[0.2672, 0.7965]], [[0.289, 0.3435]]], [[[0.0357, 0.689]], [[0.1312, 0.2367]]]]])
+in0Cro40963 = tf.constant([[[[[1.4204, 1.414, 1.1919]], [[1.3105, 1.6463, 1.4173]], [[1.8141, 1.5412, 1.8039]]], [[[1.6888, 1.0553, 1.8307]], [[1.3942, 1.1979, 1.6683]], [[1.8186, 1.7069, 1.1357]]], [[[1.8203, 1.8899, 1.1056]], [[1.4082, 1.4753, 1.4861]], [[1.8195, 1.98, 1.7201]]]]])
+print (np.array2string(model.predict([in0Min33432,in1Min33432,in0Con87083,in0Cro40963],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul35944.png')
+
+LMin33432 = minimum_layer([[[[0.5791, 0.046], [0.7794, 0.7077]]], [[[0.4556, 0.1072], [0.9958, 0.6539]]]], Min33432), 
+LBat58839 = batch_normalization_layer(Min33432, 1, 0.45429336510668794, [0.9057, 0.2037], [0.4734, 0.694], [0.855, 0.4715], [0.3689, 0.8375], Bat58839), 
+LRes86237 = reshape_layer(Bat58839, [2, 2, 1], Res86237), 
+LRes27722 = reshape_layer(Res86237, [2, 2, 1, 1], Res27722), 
+LCon87083 = concatenate_layer([Res27722,[[[[[0.2672, 0.7965]], [[0.289, 0.3435]]], [[[0.0357, 0.689]], [[0.1312, 0.2367]]]]]], 4, Con87083), 
+LCro40963 = cropping3D_layer([[[[[1.4204, 1.414, 1.1919]], [[1.3105, 1.6463, 1.4173]], [[1.8141, 1.5412, 1.8039]]], [[[1.6888, 1.0553, 1.8307]], [[1.3942, 1.1979, 1.6683]], [[1.8186, 1.7069, 1.1357]]], [[[1.8203, 1.8899, 1.1056]], [[1.4082, 1.4753, 1.4861]], [[1.8195, 1.98, 1.7201]]]]], 2, 0, 1, 1, 0, 0, Cro40963), 
+LZer49459 = zero_padding3D_layer(Cro40963, 1, 0, 1, 0, 0, 0, Zer49459), 
+LMul35944 = multiply_layer([Con87083,Zer49459], Mul35944), 
+exec_layers([LMin33432,LBat58839,LRes86237,LRes27722,LCon87083,LCro40963,LZer49459,LMul35944],["Min33432","Bat58839","Res86237","Res27722","Con87083","Cro40963","Zer49459","Mul35944"],Mul35944,"Mul35944")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000, 0.0000000]], [[-0.0000000, 0.0000000, 0.0000000]]], [[[0.0000000, 0.0000000, 0.0000000]], [[1.0233254, 0.1935594, 0.3517599]]]]]
+
+Expected (Unparsed): [[[[[0.0,0.0,0.0]],[[-0.0,0.0,0.0]]],[[[0.0,0.0,0.0]],[[1.0233253262577773,0.19355936,0.35175987]]]]]
+
+Actual:   [[[[[0, 0, 0]], [[-0, 0, 0]]], [[[0, 0, 0]], [[1.0234, 0.1936, 0.3518]]]]]
+
+Expected: [[[[[0, 0, 0]], [[-0, 0, 0]]], [[[0, 0, 0]], [[1.0234, 0.1936, 0.3518]]]]]

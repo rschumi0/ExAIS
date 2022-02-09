@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro62164 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con972 = tf.keras.layers.Input(shape=([2]))
+in0Min7268 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Min7268 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0PRe2154 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Max93118 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max93118 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Cro62164 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro62164', )(in0Cro62164)
+Fla44876 = keras.layers.Flatten(name = 'Fla44876', )(Cro62164)
+Con972 = keras.layers.Concatenate(axis=1, name = 'Con972', )([Fla44876,in0Con972])
+Min7268 = keras.layers.Minimum(name = 'Min7268', )([in0Min7268,in1Min7268])
+Zer74022 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer74022', )(Min7268)
+PRe2154 = keras.layers.PReLU(name = 'PRe2154', input_shape=(2, 2, 1))(in0PRe2154)
+Ave35011 = keras.layers.Average(name = 'Ave35011', )([Zer74022,PRe2154])
+Fla15562 = keras.layers.Flatten(name = 'Fla15562', )(Ave35011)
+Max82480 = keras.layers.Maximum(name = 'Max82480', )([Con972,Fla15562])
+Res3361 = keras.layers.Reshape((4, 1), name = 'Res3361', )(Max82480)
+Res62945 = keras.layers.Reshape((4, 1, 1), name = 'Res62945', )(Res3361)
+Max93118 = keras.layers.Maximum(name = 'Max93118', )([in0Max93118,in1Max93118])
+Zer86317 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer86317', )(Max93118)
+Add55902 = keras.layers.Add(name = 'Add55902', )([Res62945,Zer86317])
+model = tf.keras.models.Model(inputs=[in0Cro62164,in0Con972,in0Min7268,in1Min7268,in0PRe2154,in0Max93118,in1Max93118], outputs=Add55902)
+w = model.get_layer('PRe2154').get_weights() 
+w[0] = np.array([[[0.757], [0.3066]], [[0.5967], [0.3414]]])
+model.get_layer('PRe2154').set_weights(w) 
+in0Cro62164 = tf.constant([[[1.786, 1.9751], [1.2193, 1.6976]]])
+in0Con972 = tf.constant([[0.6558, 0.7473]])
+in0Min7268 = tf.constant([[[[0.0767]]]])
+in1Min7268 = tf.constant([[[[0.0485]]]])
+in0PRe2154 = tf.constant([[[[0.6039], [0.8097]], [[0.0257], [0.698]]]])
+in0Max93118 = tf.constant([[[[0.8724]], [[0.9292]]]])
+in1Max93118 = tf.constant([[[[0.9026]], [[0.9249]]]])
+print (np.array2string(model.predict([in0Cro62164,in0Con972,in0Min7268,in1Min7268,in0PRe2154,in0Max93118,in1Max93118],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add55902.png')
+
+LCro62164 = cropping1D_layer([[[1.786, 1.9751], [1.2193, 1.6976]]], 0, 1, Cro62164), 
+LFla44876 = flatten_layer(Cro62164, Fla44876), 
+LCon972 = concatenate_layer([Fla44876,[[0.6558, 0.7473]]], 1, Con972), 
+LMin7268 = minimum_layer([[[[[0.0767]]]], [[[[0.0485]]]]], Min7268), 
+LZer74022 = zero_padding2D_layer(Min7268, 1, 0, 1, 0, Zer74022), 
+LPRe2154 = prelu_layer([[[[0.6039], [0.8097]], [[0.0257], [0.698]]]], [[[0.757], [0.3066]], [[0.5967], [0.3414]]], PRe2154), 
+LAve35011 = average_layer([Zer74022,PRe2154], Ave35011), 
+LFla15562 = flatten_layer(Ave35011, Fla15562), 
+LMax82480 = maximum_layer([Con972,Fla15562], Max82480), 
+LRes3361 = reshape_layer(Max82480, [4, 1], Res3361), 
+LRes62945 = reshape_layer(Res3361, [4, 1, 1], Res62945), 
+LMax93118 = maximum_layer([[[[[0.8724]], [[0.9292]]]], [[[[0.9026]], [[0.9249]]]]], Max93118), 
+LZer86317 = zero_padding2D_layer(Max93118, 2, 0, 0, 0, Zer86317), 
+LAdd55902 = add_layer([Res62945,Zer86317], Add55902), 
+exec_layers([LCro62164,LFla44876,LCon972,LMin7268,LZer74022,LPRe2154,LAve35011,LFla15562,LMax82480,LRes3361,LRes62945,LMax93118,LZer86317,LAdd55902],["Cro62164","Fla44876","Con972","Min7268","Zer74022","PRe2154","Ave35011","Fla15562","Max82480","Res3361","Res62945","Max93118","Zer86317","Add55902"],Add55902,"Add55902")
+
+Actual (Unparsed): [[[[1.7860000]], [[1.9751000]], [[1.5584000]], [[1.6765000]]]]
+
+Expected (Unparsed): [[[[1.786]],[[1.9751]],[[1.5584]],[[1.6764999999999999]]]]
+
+Actual:   [[[[1.786]], [[1.9751]], [[1.5584]], [[1.6765]]]]
+
+Expected: [[[[1.786]], [[1.9751]], [[1.5584]], [[1.6765]]]]

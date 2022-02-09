@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave31841 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in1Ave31841 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Con20462 = tf.keras.layers.Input(shape=([2, 1]))
+in0Mul74028 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Mul74028 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Ave31841 = keras.layers.Average(name = 'Ave31841', )([in0Ave31841,in1Ave31841])
+Res86393 = keras.layers.Reshape((2, 2, 4), name = 'Res86393', )(Ave31841)
+Res48879 = keras.layers.Reshape((2, 8), name = 'Res48879', )(Res86393)
+GRU14078 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU14078', )(Res48879)
+Res4004 = keras.layers.Reshape((2, 1), name = 'Res4004', )(GRU14078)
+Con20462 = keras.layers.Concatenate(axis=2, name = 'Con20462', )([Res4004,in0Con20462])
+Mul74028 = keras.layers.Multiply(name = 'Mul74028', )([in0Mul74028,in1Mul74028])
+Res58965 = keras.layers.Reshape((1, 1), name = 'Res58965', )(Mul74028)
+Loc34576 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc34576', )(Res58965)
+Zer16224 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer16224', )(Loc34576)
+Sub86496 = keras.layers.Subtract(name = 'Sub86496', )([Con20462,Zer16224])
+model = tf.keras.models.Model(inputs=[in0Ave31841,in1Ave31841,in0Con20462,in0Mul74028,in1Mul74028], outputs=Sub86496)
+w = model.get_layer('GRU14078').get_weights() 
+w[0] = np.array([[9, 2, 4, 2, 3, 6], [5, 6, 10, 8, 4, 4], [10, 4, 4, 8, 2, 1], [5, 7, 2, 4, 3, 2], [1, 4, 4, 2, 5, 8], [8, 10, 6, 5, 2, 2], [2, 1, 1, 7, 5, 9], [5, 4, 1, 1, 7, 7]])
+w[1] = np.array([[3, 9, 2, 7, 4, 2], [5, 7, 1, 9, 3, 3]])
+w[2] = np.array([10, 4, 4, 3, 9, 5])
+model.get_layer('GRU14078').set_weights(w) 
+w = model.get_layer('Loc34576').get_weights() 
+w[0] = np.array([[[0.3215, 0.0212]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc34576').set_weights(w) 
+in0Ave31841 = tf.constant([[[[[0.3564, 0.3656], [0.5185, 0.1654]], [[0.4851, 0.1921], [0.3973, 0.2036]]], [[[0.6525, 0.5039], [0.3963, 0.5883]], [[0.6069, 0.1659], [0.8601, 0.1907]]]]])
+in1Ave31841 = tf.constant([[[[[0.5971, 0.4668], [0.0445, 0.0803]], [[0.5495, 0.5642], [0.5195, 0.4648]]], [[[0.9838, 0.2098], [0.9556, 0.6941]], [[0.7785, 0.2981], [0.8107, 0.6215]]]]])
+in0Con20462 = tf.constant([[[0.4592], [0.6817]]])
+in0Mul74028 = tf.constant([[[[0.5548]]]])
+in1Mul74028 = tf.constant([[[[0.6969]]]])
+print (np.array2string(model.predict([in0Ave31841,in1Ave31841,in0Con20462,in0Mul74028,in1Mul74028],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub86496.png')
+
+LAve31841 = average_layer([[[[[[0.3564, 0.3656], [0.5185, 0.1654]], [[0.4851, 0.1921], [0.3973, 0.2036]]], [[[0.6525, 0.5039], [0.3963, 0.5883]], [[0.6069, 0.1659], [0.8601, 0.1907]]]]], [[[[[0.5971, 0.4668], [0.0445, 0.0803]], [[0.5495, 0.5642], [0.5195, 0.4648]]], [[[0.9838, 0.2098], [0.9556, 0.6941]], [[0.7785, 0.2981], [0.8107, 0.6215]]]]]], Ave31841), 
+LRes86393 = reshape_layer(Ave31841, [2, 2, 4], Res86393), 
+LRes48879 = reshape_layer(Res86393, [2, 8], Res48879), 
+LGRU14078 = gru_layer(Res48879,[[9, 2, 4, 2, 3, 6], [5, 6, 10, 8, 4, 4], [10, 4, 4, 8, 2, 1], [5, 7, 2, 4, 3, 2], [1, 4, 4, 2, 5, 8], [8, 10, 6, 5, 2, 2], [2, 1, 1, 7, 5, 9], [5, 4, 1, 1, 7, 7]],[[3, 9, 2, 7, 4, 2], [5, 7, 1, 9, 3, 3]],[10, 4, 4, 3, 9, 5], false, GRU14078), 
+LRes4004 = reshape_layer(GRU14078, [2, 1], Res4004), 
+LCon20462 = concatenate_layer([Res4004,[[[0.4592], [0.6817]]]], 2, Con20462), 
+LMul74028 = multiply_layer([[[[[0.5548]]]], [[[[0.6969]]]]], Mul74028), 
+LRes58965 = reshape_layer(Mul74028, [1, 1], Res58965), 
+LLoc34576 = locally_connected1D_layer(Res58965, 1,[[[0.3215, 0.0212]]],[[0, 0]], 1, Loc34576), 
+LZer16224 = zero_padding1D_layer(Loc34576, 1, 0, Zer16224), 
+LSub86496 = subtract_layer(Con20462,Zer16224, Sub86496), 
+exec_layers([LAve31841,LRes86393,LRes48879,LGRU14078,LRes4004,LCon20462,LMul74028,LRes58965,LLoc34576,LZer16224,LSub86496],["Ave31841","Res86393","Res48879","GRU14078","Res4004","Con20462","Mul74028","Res58965","Loc34576","Zer16224","Sub86496"],Sub86496,"Sub86496")
+
+Actual (Unparsed): [[[0.0000000, 0.4592000], [-0.1243048, 0.6735032]]]
+
+Expected (Unparsed): [[[5.472955422192169e-12,0.4592],[-0.12430476029508088,0.6735032294559999]]]
+
+Actual:   [[[0, 0.4592], [-0.1243, 0.6736]]]
+
+Expected: [[[0, 0.4592], [-0.1243, 0.6736]]]

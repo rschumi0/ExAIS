@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub75402 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub75402 = tf.keras.layers.Input(shape=([2, 3]))
+in0Mas90521 = tf.keras.layers.Input(shape=([2, 3]))
+
+Sub75402 = keras.layers.Subtract(name = 'Sub75402', )([in0Sub75402,in1Sub75402])
+Res11199 = keras.layers.Reshape((2, 3, 1), name = 'Res11199', )(Sub75402)
+Mas90521 = keras.layers.Masking(mask_value=2, name = 'Mas90521', )(in0Mas90521)
+Res24689 = keras.layers.Reshape((2, 3, 1), name = 'Res24689', )(Mas90521)
+Dep17238 = keras.layers.DepthwiseConv2D((1, 2),strides=(2, 2), padding='valid', name = 'Dep17238', )(Res24689)
+Zer81961 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer81961', )(Dep17238)
+Add95560 = keras.layers.Add(name = 'Add95560', )([Res11199,Zer81961])
+model = tf.keras.models.Model(inputs=[in0Sub75402,in1Sub75402,in0Mas90521], outputs=Add95560)
+w = model.get_layer('Dep17238').get_weights() 
+w[0] = np.array([[[[0.3609]], [[0.6133]]]])
+w[1] = np.array([0])
+model.get_layer('Dep17238').set_weights(w) 
+in0Sub75402 = tf.constant([[[0.6559, 0.4586, 0.7907], [0.3996, 0.0181, 0.9852]]])
+in1Sub75402 = tf.constant([[[0.7703, 0.1353, 0.0553], [0.5405, 0.0692, 0.2609]]])
+in0Mas90521 = tf.constant([[[1.1743, 1.815, 1.2006], [1.6608, 1.0984, 1.2182]]])
+print (np.array2string(model.predict([in0Sub75402,in1Sub75402,in0Mas90521],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add95560.png')
+
+LSub75402 = subtract_layer([[[0.6559, 0.4586, 0.7907], [0.3996, 0.0181, 0.9852]]], [[[0.7703, 0.1353, 0.0553], [0.5405, 0.0692, 0.2609]]], Sub75402), 
+LRes11199 = reshape_layer(Sub75402, [2, 3, 1], Res11199), 
+LMas90521 = masking_layer([[[1.1743, 1.815, 1.2006], [1.6608, 1.0984, 1.2182]]], 2, Mas90521), 
+LRes24689 = reshape_layer(Mas90521, [2, 3, 1], Res24689), 
+LDep17238 = depthwise_conv2D_layer(Res24689, 1, 2,[[[[0.3609]], [[0.6133]]]],[0], 2, 2, false, Dep17238), 
+LZer81961 = zero_padding2D_layer(Dep17238, 1, 0, 2, 0, Zer81961), 
+LAdd95560 = add_layer([Res11199,Zer81961], Add95560), 
+exec_layers([LSub75402,LRes11199,LMas90521,LRes24689,LDep17238,LZer81961,LAdd95560],["Sub75402","Res11199","Mas90521","Res24689","Dep17238","Zer81961","Add95560"],Add95560,"Add95560")
+
+Actual (Unparsed): [[[[-0.1144000], [0.3233000], [0.7354000]], [[-0.1409000], [-0.0511000], [2.2612444]]]]
+
+Expected (Unparsed): [[[[-0.11439999999999995],[0.32330000000000003],[0.7353999999999999]],[[-0.14089999999999997],[-0.05109999999999999],[2.26124437]]]]
+
+Actual:   [[[[-0.1144], [0.3233], [0.7354]], [[-0.1409], [-0.0511], [2.2613]]]]
+
+Expected: [[[[-0.1143], [0.3234], [0.7354]], [[-0.1408], [-0.051], [2.2613]]]]

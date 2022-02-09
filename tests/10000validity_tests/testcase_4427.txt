@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU89909 = tf.keras.layers.Input(shape=([3, 1]))
+in0Mas21954 = tf.keras.layers.Input(shape=([4, 4]))
+in0Con41425 = tf.keras.layers.Input(shape=([5]))
+
+GRU89909 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU89909', )(in0GRU89909)
+Res25293 = keras.layers.Reshape((2, 1), name = 'Res25293', )(GRU89909)
+Con11127 = keras.layers.Conv1D(3, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con11127', )(Res25293)
+Fla405 = keras.layers.Flatten(name = 'Fla405', )(Con11127)
+Mas21954 = keras.layers.Masking(mask_value=1, name = 'Mas21954', )(in0Mas21954)
+LST41666 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST41666', )(Mas21954)
+Con41425 = keras.layers.Concatenate(axis=1, name = 'Con41425', )([LST41666,in0Con41425])
+Add71649 = keras.layers.Add(name = 'Add71649', )([Fla405,Con41425])
+model = tf.keras.models.Model(inputs=[in0GRU89909,in0Mas21954,in0Con41425], outputs=Add71649)
+w = model.get_layer('GRU89909').get_weights() 
+w[0] = np.array([[4, 10, 1, 6, 4, 9]])
+w[1] = np.array([[4, 4, 10, 10, 5, 4], [10, 10, 6, 2, 6, 2]])
+w[2] = np.array([[9, 10, 2, 8, 5, 5], [8, 3, 4, 4, 8, 2]])
+model.get_layer('GRU89909').set_weights(w) 
+w = model.get_layer('Con11127').get_weights() 
+w[0] = np.array([[[0.3225, 0.8433, 0.4996]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con11127').set_weights(w) 
+w = model.get_layer('LST41666').get_weights() 
+w[0] = np.array([[10, 8, 8, 8], [9, 9, 6, 3], [4, 7, 9, 5], [5, 3, 2, 5]])
+w[1] = np.array([[7, 4, 9, 10]])
+w[2] = np.array([10, 5, 7, 6])
+model.get_layer('LST41666').set_weights(w) 
+in0GRU89909 = tf.constant([[[7], [5], [7]]])
+in0Mas21954 = tf.constant([[[1.8074, 1.706, 1.1172, 1.0466], [1.0245, 1.96, 1.7808, 1.6297], [1.5018, 1.7319, 1.1284, 1.2683], [1.657, 1.6874, 1.9202, 1.7658]]])
+in0Con41425 = tf.constant([[0.5715, 0.4275, 0.8256, 0.4534, 0.4065]])
+print (np.array2string(model.predict([in0GRU89909,in0Mas21954,in0Con41425],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add71649.png')
+
+LGRU89909 = gru_layer([[[7], [5], [7]]],[[4, 10, 1, 6, 4, 9]],[[4, 4, 10, 10, 5, 4], [10, 10, 6, 2, 6, 2]],[[9, 10, 2, 8, 5, 5], [8, 3, 4, 4, 8, 2]], true, GRU89909), 
+LRes25293 = reshape_layer(GRU89909, [2, 1], Res25293), 
+LCon11127 = conv1D_layer(Res25293, 1,[[[0.3225, 0.8433, 0.4996]]],[0, 0, 0], 1, true, 1, Con11127), 
+LFla405 = flatten_layer(Con11127, Fla405), 
+LMas21954 = masking_layer([[[1.8074, 1.706, 1.1172, 1.0466], [1.0245, 1.96, 1.7808, 1.6297], [1.5018, 1.7319, 1.1284, 1.2683], [1.657, 1.6874, 1.9202, 1.7658]]], 1, Mas21954), 
+LLST41666 = lstm_layer(Mas21954,[[10, 8, 8, 8], [9, 9, 6, 3], [4, 7, 9, 5], [5, 3, 2, 5]],[[7, 4, 9, 10]],[10, 5, 7, 6], LST41666), 
+LCon41425 = concatenate_layer([LST41666,[[0.5715, 0.4275, 0.8256, 0.4534, 0.4065]]], 1, Con41425), 
+LAdd71649 = add_layer([Fla405,Con41425], Add71649), 
+exec_layers([LGRU89909,LRes25293,LCon11127,LFla405,LMas21954,LLST41666,LCon41425,LAdd71649],["GRU89909","Res25293","Con11127","Fla405","Mas21954","LST41666","Con41425","Add71649"],Add71649,"Add71649")
+
+Actual (Unparsed): [[0.9993293, 0.5715000, 0.4275000, 0.8256000, 0.4534000, 0.4065000]]
+
+Expected (Unparsed): [[0.999329299739067,0.5715,0.4275,0.8256,0.4534,0.4065]]
+
+Actual:   [[0.9994, 0.5715, 0.4275, 0.8256, 0.4534, 0.4065]]
+
+Expected: [[0.9994, 0.5715, 0.4275, 0.8256, 0.4534, 0.4065]]

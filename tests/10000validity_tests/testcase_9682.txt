@@ -1,0 +1,67 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot20169 = tf.keras.layers.Input(shape=([3]))
+in1Dot20169 = tf.keras.layers.Input(shape=([3]))
+in0Con47735 = tf.keras.layers.Input(shape=([1, 1, 1, 3]))
+in0Cro38479 = tf.keras.layers.Input(shape=([1, 3, 4, 2]))
+
+Dot20169 = keras.layers.Dot(axes=(1, 1), name = 'Dot20169', )([in0Dot20169,in1Dot20169])
+Res39843 = keras.layers.Reshape((1, 1), name = 'Res39843', )(Dot20169)
+Res66606 = keras.layers.Reshape((1, 1, 1), name = 'Res66606', )(Res39843)
+Res18717 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res18717', )(Res66606)
+Con47735 = keras.layers.Concatenate(axis=4, name = 'Con47735', )([Res18717,in0Con47735])
+Cro38479 = keras.layers.Cropping3D(cropping=((0, 0), (1, 1), (3, 0)), name = 'Cro38479', )(in0Cro38479)
+Bat44935 = keras.layers.BatchNormalization(axis=1, epsilon=0.16696010925380173,  name = 'Bat44935', )(Cro38479)
+Res67972 = keras.layers.Reshape((1, 1, 2), name = 'Res67972', )(Bat44935)
+Res80234 = keras.layers.Reshape((1, 2), name = 'Res80234', )(Res67972)
+Ave21551 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave21551', )(Res80234)
+Res48242 = keras.layers.Reshape((1, 2, 1), name = 'Res48242', )(Ave21551)
+Res38106 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res38106', )(Res48242)
+Con54789 = keras.layers.Conv3D(4, (1, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con54789', )(Res38106)
+Ave80439 = keras.layers.Average(name = 'Ave80439', )([Con47735,Con54789])
+model = tf.keras.models.Model(inputs=[in0Dot20169,in1Dot20169,in0Con47735,in0Cro38479], outputs=Ave80439)
+w = model.get_layer('Bat44935').get_weights() 
+w[0] = np.array([0.6153])
+w[1] = np.array([0.5063])
+w[2] = np.array([0.9856])
+w[3] = np.array([0.1567])
+model.get_layer('Bat44935').set_weights(w) 
+w = model.get_layer('Con54789').get_weights() 
+w[0] = np.array([[[[[0.5542, 0.2329, 0.9963, 0.7681]]], [[[0.9252, 0.829, 0.2455, 0.8985]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con54789').set_weights(w) 
+in0Dot20169 = tf.constant([[0.9132, 0.7969, 0.0788]])
+in1Dot20169 = tf.constant([[0.631, 0.7371, 0.2609]])
+in0Con47735 = tf.constant([[[[[0.0902, 0.7164, 0.3437]]]]])
+in0Cro38479 = tf.constant([[[[[1.7936, 1.7631], [1.2876, 1.6544], [1.0316, 1.6061], [1.7828, 1.3595]], [[1.4672, 1.4744], [1.9507, 1.73], [1.6546, 1.1097], [1.9764, 1.2168]], [[1.3085, 1.4694], [1.2465, 1.4179], [1.9364, 1.3262], [1.0132, 1.7065]]]]])
+print (np.array2string(model.predict([in0Dot20169,in1Dot20169,in0Con47735,in0Cro38479],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave80439.png')
+
+LDot20169 = dot_layer([[0.9132, 0.7969, 0.0788]], [[0.631, 0.7371, 0.2609]], 1, 1, Dot20169), 
+LRes39843 = reshape_layer(Dot20169, [1, 1], Res39843), 
+LRes66606 = reshape_layer(Res39843, [1, 1, 1], Res66606), 
+LRes18717 = reshape_layer(Res66606, [1, 1, 1, 1], Res18717), 
+LCon47735 = concatenate_layer([Res18717,[[[[[0.0902, 0.7164, 0.3437]]]]]], 4, Con47735), 
+LCro38479 = cropping3D_layer([[[[[1.7936, 1.7631], [1.2876, 1.6544], [1.0316, 1.6061], [1.7828, 1.3595]], [[1.4672, 1.4744], [1.9507, 1.73], [1.6546, 1.1097], [1.9764, 1.2168]], [[1.3085, 1.4694], [1.2465, 1.4179], [1.9364, 1.3262], [1.0132, 1.7065]]]]], 0, 0, 1, 1, 3, 0, Cro38479), 
+LBat44935 = batch_normalization_layer(Cro38479, 1, 0.16696010925380173, [0.6153], [0.5063], [0.9856], [0.1567], Bat44935), 
+LRes67972 = reshape_layer(Bat44935, [1, 1, 2], Res67972), 
+LRes80234 = reshape_layer(Res67972, [1, 2], Res80234), 
+LAve21551 = average_pooling1D_layer(Res80234, 1, 1, true, Ave21551), 
+LRes48242 = reshape_layer(Ave21551, [1, 2, 1], Res48242), 
+LRes38106 = reshape_layer(Res48242, [1, 2, 1, 1], Res38106), 
+LCon54789 = conv3D_layer(Res38106, 1, 2, 1,[[[[[0.5542, 0.2329, 0.9963, 0.7681]]], [[[0.9252, 0.829, 0.2455, 0.8985]]]]],[0, 0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con54789), 
+LAve80439 = average_layer([Con47735,Con54789], Ave80439), 
+exec_layers([LDot20169,LRes39843,LRes66606,LRes18717,LCon47735,LCro38479,LBat44935,LRes67972,LRes80234,LAve21551,LRes48242,LRes38106,LCon54789,LAve80439],["Dot20169","Res39843","Res66606","Res18717","Con47735","Cro38479","Bat44935","Res67972","Res80234","Ave21551","Res48242","Res38106","Con54789","Ave80439"],Ave80439,"Ave80439")
+
+Actual (Unparsed): [[[[[1.3792130, 0.5423530, 1.2370677, 1.1176294]]]]]
+
+Expected (Unparsed): [[[[[1.3792130385383263,0.5423530584663346,1.2370676967136565,1.1176294348068985]]]]]
+
+Actual:   [[[[[1.3793, 0.5424, 1.2371, 1.1177]]]]]
+
+Expected: [[[[[1.3793, 0.5424, 1.2371, 1.1177]]]]]

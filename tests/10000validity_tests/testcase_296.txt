@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot17480 = tf.keras.layers.Input(shape=([2]))
+in1Dot17480 = tf.keras.layers.Input(shape=([2]))
+in0Glo37363 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con31856 = tf.keras.layers.Input(shape=([5]))
+
+Dot17480 = keras.layers.Dot(axes=(1, 1), name = 'Dot17480', )([in0Dot17480,in1Dot17480])
+Res54277 = keras.layers.Reshape((1, 1), name = 'Res54277', )(Dot17480)
+Loc33233 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc33233', )(Res54277)
+Res22599 = keras.layers.Reshape((1, 3, 1), name = 'Res22599', )(Loc33233)
+Res35095 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res35095', )(Res22599)
+Up_17847 = keras.layers.UpSampling3D(size=(1, 1, 2), name = 'Up_17847', )(Res35095)
+Res90212 = keras.layers.Reshape((1, 3, 2), name = 'Res90212', )(Up_17847)
+Res70376 = keras.layers.Reshape((1, 6), name = 'Res70376', )(Res90212)
+Fla49478 = keras.layers.Flatten(name = 'Fla49478', )(Res70376)
+Glo37363 = keras.layers.GlobalAveragePooling1D(name = 'Glo37363', )(in0Glo37363)
+Con31856 = keras.layers.Concatenate(axis=1, name = 'Con31856', )([Glo37363,in0Con31856])
+Max74389 = keras.layers.Maximum(name = 'Max74389', )([Fla49478,Con31856])
+model = tf.keras.models.Model(inputs=[in0Dot17480,in1Dot17480,in0Glo37363,in0Con31856], outputs=Max74389)
+w = model.get_layer('Loc33233').get_weights() 
+w[0] = np.array([[[0.577, 0.8699, 0.0339]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc33233').set_weights(w) 
+in0Dot17480 = tf.constant([[0.9289, 0.6789]])
+in1Dot17480 = tf.constant([[0.3824, 0.4267]])
+in0Glo37363 = tf.constant([[[1.6725], [1.1539]]])
+in0Con31856 = tf.constant([[0.3661, 0.2875, 0.6531, 0.3545, 0.1794]])
+print (np.array2string(model.predict([in0Dot17480,in1Dot17480,in0Glo37363,in0Con31856],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max74389.png')
+
+LDot17480 = dot_layer([[0.9289, 0.6789]], [[0.3824, 0.4267]], 1, 1, Dot17480), 
+LRes54277 = reshape_layer(Dot17480, [1, 1], Res54277), 
+LLoc33233 = locally_connected1D_layer(Res54277, 1,[[[0.577, 0.8699, 0.0339]]],[[0, 0, 0]], 1, Loc33233), 
+LRes22599 = reshape_layer(Loc33233, [1, 3, 1], Res22599), 
+LRes35095 = reshape_layer(Res22599, [1, 3, 1, 1], Res35095), 
+LUp_17847 = up_sampling3D_layer(Res35095, 1, 1, 2, Up_17847), 
+LRes90212 = reshape_layer(Up_17847, [1, 3, 2], Res90212), 
+LRes70376 = reshape_layer(Res90212, [1, 6], Res70376), 
+LFla49478 = flatten_layer(Res70376, Fla49478), 
+LGlo37363 = global_average_pooling1D_layer([[[1.6725], [1.1539]]], Glo37363), 
+LCon31856 = concatenate_layer([Glo37363,[[0.3661, 0.2875, 0.6531, 0.3545, 0.1794]]], 1, Con31856), 
+LMax74389 = maximum_layer([Fla49478,Con31856], Max74389), 
+exec_layers([LDot17480,LRes54277,LLoc33233,LRes22599,LRes35095,LUp_17847,LRes90212,LRes70376,LFla49478,LGlo37363,LCon31856,LMax74389],["Dot17480","Res54277","Loc33233","Res22599","Res35095","Up_17847","Res90212","Res70376","Fla49478","Glo37363","Con31856","Max74389"],Max74389,"Max74389")
+
+Actual (Unparsed): [[1.4132000, 0.3721061, 0.5609968, 0.6531000, 0.3545000, 0.1794000]]
+
+Expected (Unparsed): [[1.4132,0.37210614023,0.5609967615010001,0.6531,0.3545,0.1794]]
+
+Actual:   [[1.4132, 0.3722, 0.561, 0.6531, 0.3545, 0.1794]]
+
+Expected: [[1.4132, 0.3722, 0.561, 0.6531, 0.3545, 0.1794]]

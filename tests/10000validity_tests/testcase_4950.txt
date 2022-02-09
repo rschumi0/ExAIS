@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con80367 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave95064 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min61996 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min61996 = tf.keras.layers.Input(shape=([1, 2]))
+
+Con80367 = keras.layers.Conv1D(2, (1),strides=(12), padding='valid', dilation_rate=(1), name = 'Con80367', )(in0Con80367)
+Ave47969 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave47969', )(Con80367)
+Sim15800 = keras.layers.SimpleRNN(2,name = 'Sim15800', )(Ave47969)
+Res73387 = keras.layers.Reshape((2, 1), name = 'Res73387', )(Sim15800)
+Ave95064 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave95064', )(in0Ave95064)
+Min61996 = keras.layers.Minimum(name = 'Min61996', )([in0Min61996,in1Min61996])
+Zer61515 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer61515', )(Min61996)
+Min88236 = keras.layers.Minimum(name = 'Min88236', )([Ave95064,Zer61515])
+Dot13910 = keras.layers.Dot(axes=(1, 1), name = 'Dot13910', )([Res73387,Min88236])
+model = tf.keras.models.Model(inputs=[in0Con80367,in0Ave95064,in0Min61996,in1Min61996], outputs=Dot13910)
+w = model.get_layer('Con80367').get_weights() 
+w[0] = np.array([[[0.449, 0.9563]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con80367').set_weights(w) 
+w = model.get_layer('Sim15800').get_weights() 
+w[0] = np.array([[10, 4], [9, 5]])
+w[1] = np.array([[4, 7], [5, 9]])
+w[2] = np.array([1, 7])
+model.get_layer('Sim15800').set_weights(w) 
+in0Con80367 = tf.constant([[[0.8789], [0.577]]])
+in0Ave95064 = tf.constant([[[1.0517, 1.5956], [1.2849, 1.1256]]])
+in0Min61996 = tf.constant([[[0.6603, 0.6799]]])
+in1Min61996 = tf.constant([[[0.7907, 0.7685]]])
+print (np.array2string(model.predict([in0Con80367,in0Ave95064,in0Min61996,in1Min61996],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot13910.png')
+
+LCon80367 = conv1D_layer([[[0.8789], [0.577]]], 1,[[[0.449, 0.9563]]],[0, 0], 12, false, 1, Con80367), 
+LAve47969 = average_pooling1D_layer(Con80367, 1, 1, true, Ave47969), 
+LSim15800 = simple_rnn_layer(Ave47969,[[10, 4], [9, 5]],[[4, 7], [5, 9]],[1, 7], Sim15800), 
+LRes73387 = reshape_layer(Sim15800, [2, 1], Res73387), 
+LAve95064 = average_pooling1D_layer([[[1.0517, 1.5956], [1.2849, 1.1256]]], 1, 1, true, Ave95064), 
+LMin61996 = minimum_layer([[[[0.6603, 0.6799]]], [[[0.7907, 0.7685]]]], Min61996), 
+LZer61515 = zero_padding1D_layer(Min61996, 1, 0, Zer61515), 
+LMin88236 = minimum_layer([Ave95064,Zer61515], Min88236), 
+LDot13910 = dot_layer(Res73387,Min88236, 1, 1, Dot13910), 
+exec_layers([LCon80367,LAve47969,LSim15800,LRes73387,LAve95064,LMin61996,LZer61515,LMin88236,LDot13910],["Con80367","Ave47969","Sim15800","Res73387","Ave95064","Min61996","Zer61515","Min88236","Dot13910"],Dot13910,"Dot13910")
+
+Actual (Unparsed): [[[0.6603000, 0.6799000]]]
+
+Expected (Unparsed): [[[0.660299999989544,0.6798999999892336]]]
+
+Actual:   [[[0.6603, 0.6799]]]
+
+Expected: [[[0.6603, 0.6799]]]

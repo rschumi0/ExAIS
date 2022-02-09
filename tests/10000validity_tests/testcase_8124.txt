@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave5551 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave5551 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con47616 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Min38526 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Min38526 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+
+Ave5551 = keras.layers.Average(name = 'Ave5551', )([in0Ave5551,in1Ave5551])
+Res35202 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res35202', )(Ave5551)
+Zer85284 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer85284', )(Res35202)
+Con47616 = keras.layers.Concatenate(axis=4, name = 'Con47616', )([Zer85284,in0Con47616])
+Min38526 = keras.layers.Minimum(name = 'Min38526', )([in0Min38526,in1Min38526])
+Ave4509 = keras.layers.Average(name = 'Ave4509', )([Con47616,Min38526])
+Con94535 = keras.layers.Conv3DTranspose(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con94535', )(Ave4509)
+model = tf.keras.models.Model(inputs=[in0Ave5551,in1Ave5551,in0Con47616,in0Min38526,in1Min38526], outputs=Con94535)
+w = model.get_layer('Con94535').get_weights() 
+w[0] = np.array([[[[[0.8991, 0.2702], [0.6113, 0.0046]]]], [[[[0.0964, 0.6699], [0.2561, 0.5801]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con94535').set_weights(w) 
+in0Ave5551 = tf.constant([[[[0.1083]]]])
+in1Ave5551 = tf.constant([[[[0.3868]]]])
+in0Con47616 = tf.constant([[[[[0.4367], [0.2103]]], [[[0.3833], [0.7272]]]]])
+in0Min38526 = tf.constant([[[[[0.5949, 0.828], [0.8083, 0.9256]]], [[[0.9355, 0.226], [0.4532, 0.5809]]]]])
+in1Min38526 = tf.constant([[[[[0.8772, 0.9587], [0.3878, 0.1961]]], [[[0.7348, 0.9762], [0.0695, 0.9789]]]]])
+print (np.array2string(model.predict([in0Ave5551,in1Ave5551,in0Con47616,in0Min38526,in1Min38526],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con94535.png')
+
+LAve5551 = average_layer([[[[[0.1083]]]], [[[[0.3868]]]]], Ave5551), 
+LRes35202 = reshape_layer(Ave5551, [1, 1, 1, 1], Res35202), 
+LZer85284 = zero_padding3D_layer(Res35202, 1, 0, 0, 0, 1, 0, Zer85284), 
+LCon47616 = concatenate_layer([Zer85284,[[[[[0.4367], [0.2103]]], [[[0.3833], [0.7272]]]]]], 4, Con47616), 
+LMin38526 = minimum_layer([[[[[[0.5949, 0.828], [0.8083, 0.9256]]], [[[0.9355, 0.226], [0.4532, 0.5809]]]]], [[[[[0.8772, 0.9587], [0.3878, 0.1961]]], [[[0.7348, 0.9762], [0.0695, 0.9789]]]]]], Min38526), 
+LAve4509 = average_layer([Con47616,Min38526], Ave4509), 
+LCon94535 = conv3D_transpose_layer(Ave4509, 2, 1, 1,[[[[[0.8991, 0.2702], [0.6113, 0.0046]]]], [[[[0.0964, 0.6699], [0.2561, 0.5801]]]]],[0, 0], 1, 1, 1, false, Con94535), 
+exec_layers([LAve5551,LRes35202,LZer85284,LCon47616,LMin38526,LAve4509,LCon94535],["Ave5551","Res35202","Zer85284","Con47616","Min38526","Ave4509","Con94535"],Con94535,"Con94535")
+
+Actual (Unparsed): [[[[[0.4382983, 0.1847400], [0.2292401, 0.1194658]]], [[[0.8649312, 0.6689962], [0.4740698, 0.2674491]]], [[[0.2395024, 0.2708186], [0.4534299, 0.4200127]]]]]
+
+Expected (Unparsed): [[[[[0.438298265,0.184739995],[0.22924013,0.11946578999999999]]],[[[0.864931215,0.6689961899999999],[0.4740697775,0.2674490725]]],[[[0.239502395,0.270818605],[0.4534299050000001,0.42001265749999994]]]]]
+
+Actual:   [[[[[0.4383, 0.1848], [0.2293, 0.1195]]], [[[0.865, 0.669], [0.4741, 0.2675]]], [[[0.2396, 0.2709], [0.4535, 0.4201]]]]]
+
+Expected: [[[[[0.4383, 0.1848], [0.2293, 0.1195]]], [[[0.865, 0.669], [0.4741, 0.2675]]], [[[0.2396, 0.2709], [0.4535, 0.4201]]]]]

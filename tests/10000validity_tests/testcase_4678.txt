@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo31021 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Ave42573 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Glo31021 = keras.layers.GlobalMaxPool3D(name = 'Glo31021', )(in0Glo31021)
+Res60240 = keras.layers.Reshape((2, 1), name = 'Res60240', )(Glo31021)
+Res72036 = keras.layers.Reshape((2, 1, 1), name = 'Res72036', )(Res60240)
+Ave42573 = keras.layers.AveragePooling2D(pool_size=(1, 2), name = 'Ave42573', )(in0Ave42573)
+Zer17853 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer17853', )(Ave42573)
+Mul27702 = keras.layers.Multiply(name = 'Mul27702', )([Res72036,Zer17853])
+Res63086 = keras.layers.Reshape((2, 1), name = 'Res63086', )(Mul27702)
+Up_80544 = keras.layers.UpSampling1D(size=(1), name = 'Up_80544', )(Res63086)
+Lea53462 = keras.layers.LeakyReLU(alpha=3.694989305833415, name = 'Lea53462', )(Up_80544)
+Bat85732 = keras.layers.BatchNormalization(axis=2, epsilon=0.29043934341553834,  name = 'Bat85732', )(Lea53462)
+model = tf.keras.models.Model(inputs=[in0Glo31021,in0Ave42573], outputs=Bat85732)
+w = model.get_layer('Bat85732').get_weights() 
+w[0] = np.array([0.8567])
+w[1] = np.array([0.1449])
+w[2] = np.array([0.6507])
+w[3] = np.array([0.8974])
+model.get_layer('Bat85732').set_weights(w) 
+in0Glo31021 = tf.constant([[[[[1.7013, 1.2004]]], [[[1.1398, 1.7667]]]]])
+in0Ave42573 = tf.constant([[[[1.9327], [1.9791]]]])
+print (np.array2string(model.predict([in0Glo31021,in0Ave42573],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat85732.png')
+
+LGlo31021 = global_max_pool3D_layer([[[[[1.7013, 1.2004]]], [[[1.1398, 1.7667]]]]], Glo31021), 
+LRes60240 = reshape_layer(Glo31021, [2, 1], Res60240), 
+LRes72036 = reshape_layer(Res60240, [2, 1, 1], Res72036), 
+LAve42573 = average_pooling2D_layer([[[[1.9327], [1.9791]]]], 1, 2, Ave42573), 
+LZer17853 = zero_padding2D_layer(Ave42573, 1, 0, 0, 0, Zer17853), 
+LMul27702 = multiply_layer([Res72036,Zer17853], Mul27702), 
+LRes63086 = reshape_layer(Mul27702, [2, 1], Res63086), 
+LUp_80544 = up_sampling1D_layer(Res63086, 1, Up_80544), 
+LLea53462 = leaky_relu_layer(Up_80544, 3.694989305833415, Lea53462), 
+LBat85732 = batch_normalization_layer(Lea53462, 2, 0.29043934341553834, [0.8567], [0.1449], [0.6507], [0.8974], Bat85732), 
+exec_layers([LGlo31021,LRes60240,LRes72036,LAve42573,LZer17853,LMul27702,LRes63086,LUp_80544,LLea53462,LBat85732],["Glo31021","Res60240","Res72036","Ave42573","Zer17853","Mul27702","Res63086","Up_80544","Lea53462","Bat85732"],Bat85732,"Bat85732")
+
+Actual (Unparsed): [[[-0.3665824], [2.3496028]]]
+
+Expected (Unparsed): [[[-0.36658243109865485],[2.349602714064888]]]
+
+Actual:   [[[-0.3665], [2.3497]]]
+
+Expected: [[[-0.3665], [2.3497]]]

@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub319 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in1Sub319 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Dep66861 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Sub319 = keras.layers.Subtract(name = 'Sub319', )([in0Sub319,in1Sub319])
+Res85436 = keras.layers.Reshape((2, 2, 3, 1), name = 'Res85436', )(Sub319)
+Cro23161 = keras.layers.Cropping3D(cropping=((1, 0), (0, 0), (2, 0)), name = 'Cro23161', )(Res85436)
+Glo69587 = keras.layers.GlobalMaxPool3D(name = 'Glo69587', )(Cro23161)
+Dep66861 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep66861', )(in0Dep66861)
+Res34091 = keras.layers.Reshape((2, 1), name = 'Res34091', )(Dep66861)
+Glo34042 = keras.layers.GlobalMaxPool1D(name = 'Glo34042', )(Res34091)
+Add61498 = keras.layers.Add(name = 'Add61498', )([Glo69587,Glo34042])
+ELU9034 = keras.layers.ELU(alpha=3.172228550397975, name = 'ELU9034', )(Add61498)
+model = tf.keras.models.Model(inputs=[in0Sub319,in1Sub319,in0Dep66861], outputs=ELU9034)
+w = model.get_layer('Dep66861').get_weights() 
+w[0] = np.array([[[[0.2351]]]])
+w[1] = np.array([0])
+model.get_layer('Dep66861').set_weights(w) 
+in0Sub319 = tf.constant([[[[0.9235, 0.8403, 0.741], [0.2721, 0.1229, 0.2438]], [[0.2303, 0.6877, 0.0988], [0.9806, 0.1172, 0.1516]]]])
+in1Sub319 = tf.constant([[[[0.3444, 0.4826, 0.4052], [0.3559, 0.014, 0.9514]], [[0.2898, 0.7453, 0.1278], [0.6022, 0.8757, 0.2863]]]])
+in0Dep66861 = tf.constant([[[[0.2612]], [[0.2298]]]])
+print (np.array2string(model.predict([in0Sub319,in1Sub319,in0Dep66861],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU9034.png')
+
+LSub319 = subtract_layer([[[[0.9235, 0.8403, 0.741], [0.2721, 0.1229, 0.2438]], [[0.2303, 0.6877, 0.0988], [0.9806, 0.1172, 0.1516]]]], [[[[0.3444, 0.4826, 0.4052], [0.3559, 0.014, 0.9514]], [[0.2898, 0.7453, 0.1278], [0.6022, 0.8757, 0.2863]]]], Sub319), 
+LRes85436 = reshape_layer(Sub319, [2, 2, 3, 1], Res85436), 
+LCro23161 = cropping3D_layer(Res85436, 1, 0, 0, 0, 2, 0, Cro23161), 
+LGlo69587 = global_max_pool3D_layer(Cro23161, Glo69587), 
+LDep66861 = depthwise_conv2D_layer([[[[0.2612]], [[0.2298]]]], 1, 1,[[[[0.2351]]]],[0], 1, 1, false, Dep66861), 
+LRes34091 = reshape_layer(Dep66861, [2, 1], Res34091), 
+LGlo34042 = global_max_pool1D_layer(Res34091, Glo34042), 
+LAdd61498 = add_layer([Glo69587,Glo34042], Add61498), 
+LELU9034 = elu_layer(Add61498, 3.172228550397975, ELU9034), 
+exec_layers([LSub319,LRes85436,LCro23161,LGlo69587,LDep66861,LRes34091,LGlo34042,LAdd61498,LELU9034],["Sub319","Res85436","Cro23161","Glo69587","Dep66861","Res34091","Glo34042","Add61498","ELU9034"],ELU9034,"ELU9034")
+
+Actual (Unparsed): [[0.0324081]]
+
+Expected (Unparsed): [[0.03240812]]
+
+Actual:   [[0.0325]]
+
+Expected: [[0.0325]]

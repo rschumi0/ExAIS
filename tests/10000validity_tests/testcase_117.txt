@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0PRe27550 = tf.keras.layers.Input(shape=([2, 2]))
+in0LST83340 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con74768 = tf.keras.layers.Input(shape=([2]))
+
+PRe27550 = keras.layers.PReLU(name = 'PRe27550', input_shape=(2, 2))(in0PRe27550)
+Fla6888 = keras.layers.Flatten(name = 'Fla6888', )(PRe27550)
+LST83340 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST83340', )(in0LST83340)
+Con74768 = keras.layers.Concatenate(axis=1, name = 'Con74768', )([LST83340,in0Con74768])
+Mul52009 = keras.layers.Multiply(name = 'Mul52009', )([Fla6888,Con74768])
+model = tf.keras.models.Model(inputs=[in0PRe27550,in0LST83340,in0Con74768], outputs=Mul52009)
+w = model.get_layer('PRe27550').get_weights() 
+w[0] = np.array([[0.1547, 0.9193], [0.6128, 0.5164]])
+model.get_layer('PRe27550').set_weights(w) 
+w = model.get_layer('LST83340').get_weights() 
+w[0] = np.array([[2, 5, 4, 4, 2, 2, 6, 2]])
+w[1] = np.array([[6, 6, 7, 2, 10, 5, 1, 10], [8, 1, 4, 3, 3, 5, 6, 9]])
+w[2] = np.array([4, 3, 3, 6, 6, 6, 3, 7])
+model.get_layer('LST83340').set_weights(w) 
+in0PRe27550 = tf.constant([[[0.4969, 0.9854], [0.1222, 0.2229]]])
+in0LST83340 = tf.constant([[[2]]])
+in0Con74768 = tf.constant([[0.6477, 0.9127]])
+print (np.array2string(model.predict([in0PRe27550,in0LST83340,in0Con74768],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul52009.png')
+
+LPRe27550 = prelu_layer([[[0.4969, 0.9854], [0.1222, 0.2229]]], [[0.1547, 0.9193], [0.6128, 0.5164]], PRe27550), 
+LFla6888 = flatten_layer(PRe27550, Fla6888), 
+LLST83340 = lstm_layer([[[2]]],[[2, 5, 4, 4, 2, 2, 6, 2]],[[6, 6, 7, 2, 10, 5, 1, 10], [8, 1, 4, 3, 3, 5, 6, 9]],[4, 3, 3, 6, 6, 6, 3, 7], LST83340), 
+LCon74768 = concatenate_layer([LST83340,[[0.6477, 0.9127]]], 1, Con74768), 
+LMul52009 = multiply_layer([Fla6888,Con74768], Mul52009), 
+exec_layers([LPRe27550,LFla6888,LLST83340,LCon74768,LMul52009],["PRe27550","Fla6888","LST83340","Con74768","Mul52009"],Mul52009,"Mul52009")
+
+Actual (Unparsed): [[0.3783660, 0.7504614, 0.0791489, 0.2034408]]
+
+Expected (Unparsed): [[0.3783660189894772,0.7504614101705375,0.07914894000000001,0.20344083]]
+
+Actual:   [[0.3784, 0.7505, 0.0792, 0.2035]]
+
+Expected: [[0.3784, 0.7505, 0.0792, 0.2035]]

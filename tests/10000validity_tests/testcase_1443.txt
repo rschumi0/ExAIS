@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min22763 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min22763 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con40606 = tf.keras.layers.Input(shape=([1, 1]))
+in0PRe22648 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Min22763 = keras.layers.Minimum(name = 'Min22763', )([in0Min22763,in1Min22763])
+LST1968 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST1968', )(Min22763)
+Res66108 = keras.layers.Reshape((1, 1), name = 'Res66108', )(LST1968)
+Con40606 = keras.layers.Concatenate(axis=2, name = 'Con40606', )([Res66108,in0Con40606])
+PRe22648 = keras.layers.PReLU(name = 'PRe22648', input_shape=(1, 1, 2, 1))(in0PRe22648)
+Res3296 = keras.layers.Reshape((1, 1, 2), name = 'Res3296', )(PRe22648)
+Sep59422 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep59422', )(Res3296)
+Res44263 = keras.layers.Reshape((1, 2), name = 'Res44263', )(Sep59422)
+Dot54581 = keras.layers.Dot(axes=(2, 2), name = 'Dot54581', )([Con40606,Res44263])
+model = tf.keras.models.Model(inputs=[in0Min22763,in1Min22763,in0Con40606,in0PRe22648], outputs=Dot54581)
+w = model.get_layer('LST1968').get_weights() 
+w[0] = np.array([[10, 10, 6, 7]])
+w[1] = np.array([[2, 2, 2, 2]])
+w[2] = np.array([3, 10, 4, 2])
+model.get_layer('LST1968').set_weights(w) 
+w = model.get_layer('PRe22648').get_weights() 
+w[0] = np.array([[[[0.0373], [0.0703]]]])
+model.get_layer('PRe22648').set_weights(w) 
+w = model.get_layer('Sep59422').get_weights() 
+w[0] = np.array([[[[0.0594], [0.4123]]]])
+w[1] = np.array([[[[0.7345, 0.8077], [0.3792, 0.1716]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep59422').set_weights(w) 
+in0Min22763 = tf.constant([[[0.7631]]])
+in1Min22763 = tf.constant([[[0.176]]])
+in0Con40606 = tf.constant([[[0.3802]]])
+in0PRe22648 = tf.constant([[[[[0.1067], [0.0819]]]]])
+print (np.array2string(model.predict([in0Min22763,in1Min22763,in0Con40606,in0PRe22648],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot54581.png')
+
+LMin22763 = minimum_layer([[[[0.7631]]], [[[0.176]]]], Min22763), 
+LLST1968 = lstm_layer(Min22763,[[10, 10, 6, 7]],[[2, 2, 2, 2]],[3, 10, 4, 2], LST1968), 
+LRes66108 = reshape_layer(LST1968, [1, 1], Res66108), 
+LCon40606 = concatenate_layer([Res66108,[[[0.3802]]]], 2, Con40606), 
+LPRe22648 = prelu_layer([[[[[0.1067], [0.0819]]]]], [[[[0.0373], [0.0703]]]], PRe22648), 
+LRes3296 = reshape_layer(PRe22648, [1, 1, 2], Res3296), 
+LSep59422 = separable_conv2D_layer(Res3296, 1, 1,[[[[[0.0594], [0.4123]]]],[[[[0.7345, 0.8077], [0.3792, 0.1716]]]]],[0, 0], 1, 1, true, Sep59422), 
+LRes44263 = reshape_layer(Sep59422, [1, 2], Res44263), 
+LDot54581 = dot_layer(Con40606,Res44263, 2, 2, Dot54581), 
+exec_layers([LMin22763,LLST1968,LRes66108,LCon40606,LPRe22648,LRes3296,LSep59422,LRes44263,LDot54581],["Min22763","LST1968","Res66108","Con40606","PRe22648","Res3296","Sep59422","Res44263","Dot54581"],Dot54581,"Dot54581")
+
+Actual (Unparsed): [[[0.0168808]]]
+
+Expected (Unparsed): [[[0.016880789165748297]]]
+
+Actual:   [[[0.0169]]]
+
+Expected: [[[0.0169]]]

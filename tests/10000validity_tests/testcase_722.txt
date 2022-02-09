@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat9182 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave21042 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave21042 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Bat9182 = keras.layers.BatchNormalization(axis=2, epsilon=0.5090343662800584,  name = 'Bat9182', )(in0Bat9182)
+Res65019 = keras.layers.Reshape((2, 1, 1), name = 'Res65019', )(Bat9182)
+Zer52535 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer52535', )(Res65019)
+Ave21042 = keras.layers.Average(name = 'Ave21042', )([in0Ave21042,in1Ave21042])
+Sub71914 = keras.layers.Subtract(name = 'Sub71914', )([Zer52535,Ave21042])
+Res53379 = keras.layers.Reshape((2, 2), name = 'Res53379', )(Sub71914)
+Up_95877 = keras.layers.UpSampling1D(size=(1), name = 'Up_95877', )(Res53379)
+Ave64413 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave64413', )(Up_95877)
+model = tf.keras.models.Model(inputs=[in0Bat9182,in0Ave21042,in1Ave21042], outputs=Ave64413)
+w = model.get_layer('Bat9182').get_weights() 
+w[0] = np.array([0.9121])
+w[1] = np.array([0.4437])
+w[2] = np.array([0.0825])
+w[3] = np.array([0.111])
+model.get_layer('Bat9182').set_weights(w) 
+in0Bat9182 = tf.constant([[[1.2081], [1.2327]]])
+in0Ave21042 = tf.constant([[[[0.1791], [0.7348]], [[0.9165], [0.8721]]]])
+in1Ave21042 = tf.constant([[[[0.1192], [0.7937]], [[0.0388], [0.2812]]]])
+print (np.array2string(model.predict([in0Bat9182,in0Ave21042,in1Ave21042],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave64413.png')
+
+LBat9182 = batch_normalization_layer([[[1.2081], [1.2327]]], 2, 0.5090343662800584, [0.9121], [0.4437], [0.0825], [0.111], Bat9182), 
+LRes65019 = reshape_layer(Bat9182, [2, 1, 1], Res65019), 
+LZer52535 = zero_padding2D_layer(Res65019, 0, 0, 1, 0, Zer52535), 
+LAve21042 = average_layer([[[[[0.1791], [0.7348]], [[0.9165], [0.8721]]]], [[[[0.1192], [0.7937]], [[0.0388], [0.2812]]]]], Ave21042), 
+LSub71914 = subtract_layer(Zer52535,Ave21042, Sub71914), 
+LRes53379 = reshape_layer(Sub71914, [2, 2], Res53379), 
+LUp_95877 = up_sampling1D_layer(Res53379, 1, Up_95877), 
+LAve64413 = average_pooling1D_layer(Up_95877, 1, Ave64413), 
+exec_layers([LBat9182,LRes65019,LZer52535,LAve21042,LSub71914,LRes53379,LUp_95877,LAve64413],["Bat9182","Res65019","Zer52535","Ave21042","Sub71914","Res53379","Up_95877","Ave64413"],Ave64413,"Ave64413")
+
+Actual (Unparsed): [[[-0.1491500, 0.9832730], [-0.4776500, 1.1993681]]]
+
+Expected (Unparsed): [[[-0.14915,0.9832730644407529],[-0.47765,1.1993681314141384]]]
+
+Actual:   [[[-0.1491, 0.9833], [-0.4776, 1.1994]]]
+
+Expected: [[[-0.1491, 0.9833], [-0.4776, 1.1994]]]

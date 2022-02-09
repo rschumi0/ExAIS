@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU3371 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con39030 = tf.keras.layers.Input(shape=([1, 2, 3]))
+in0Con58899 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+GRU3371 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU3371', )(in0GRU3371)
+Res11723 = keras.layers.Reshape((2, 1), name = 'Res11723', )(GRU3371)
+Cro9135 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro9135', )(Res11723)
+Res40486 = keras.layers.Reshape((1, 1, 1), name = 'Res40486', )(Cro9135)
+Dep13860 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep13860', )(Res40486)
+Zer18703 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer18703', )(Dep13860)
+Con39030 = keras.layers.Concatenate(axis=3, name = 'Con39030', )([Zer18703,in0Con39030])
+Con58899 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='same', name = 'Con58899', )(in0Con58899)
+Add8217 = keras.layers.Add(name = 'Add8217', )([Con39030,Con58899])
+Dep40005 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='valid', name = 'Dep40005', )(Add8217)
+model = tf.keras.models.Model(inputs=[in0GRU3371,in0Con39030,in0Con58899], outputs=Dep40005)
+w = model.get_layer('GRU3371').get_weights() 
+w[0] = np.array([[10, 10, 8, 6, 7, 4], [5, 2, 5, 4, 9, 4], [6, 9, 5, 8, 3, 4]])
+w[1] = np.array([[9, 6, 8, 4, 6, 7], [8, 2, 9, 4, 7, 8]])
+w[2] = np.array([4, 9, 4, 8, 10, 10])
+model.get_layer('GRU3371').set_weights(w) 
+w = model.get_layer('Dep13860').get_weights() 
+w[0] = np.array([[[[0.01]]]])
+w[1] = np.array([0])
+model.get_layer('Dep13860').set_weights(w) 
+w = model.get_layer('Con58899').get_weights() 
+w[0] = np.array([[[[0.4743], [0.6774], [0.6105], [0.0375]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con58899').set_weights(w) 
+w = model.get_layer('Dep40005').get_weights() 
+w[0] = np.array([[[[0.1636], [0.2402], [0.0807], [0.9884]], [[0.6794], [0.4822], [0.74], [0.0688]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Dep40005').set_weights(w) 
+in0GRU3371 = tf.constant([[[4, 10, 8], [7, 5, 10], [5, 6, 3]]])
+in0Con39030 = tf.constant([[[[0.8533, 0.4434, 0.2158], [0.0591, 0.5993, 0.4848]]]])
+in0Con58899 = tf.constant([[[[0.7148], [0.257]]]])
+print (np.array2string(model.predict([in0GRU3371,in0Con39030,in0Con58899],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep40005.png')
+
+LGRU3371 = gru_layer([[[4, 10, 8], [7, 5, 10], [5, 6, 3]]],[[10, 10, 8, 6, 7, 4], [5, 2, 5, 4, 9, 4], [6, 9, 5, 8, 3, 4]],[[9, 6, 8, 4, 6, 7], [8, 2, 9, 4, 7, 8]],[4, 9, 4, 8, 10, 10], false, GRU3371), 
+LRes11723 = reshape_layer(GRU3371, [2, 1], Res11723), 
+LCro9135 = cropping1D_layer(Res11723, 1, 0, Cro9135), 
+LRes40486 = reshape_layer(Cro9135, [1, 1, 1], Res40486), 
+LDep13860 = depthwise_conv2D_layer(Res40486, 1, 1,[[[[0.01]]]],[0], 1, 1, false, Dep13860), 
+LZer18703 = zero_padding2D_layer(Dep13860, 0, 0, 1, 0, Zer18703), 
+LCon39030 = concatenate_layer([Zer18703,[[[[0.8533, 0.4434, 0.2158], [0.0591, 0.5993, 0.4848]]]]], 3, Con39030), 
+LCon58899 = conv2D_transpose_layer([[[[0.7148], [0.257]]]], 1, 1,[[[[0.4743], [0.6774], [0.6105], [0.0375]]]],[0, 0, 0, 0], 1, 1, true, Con58899), 
+LAdd8217 = add_layer([Con39030,Con58899], Add8217), 
+LDep40005 = depthwise_conv2D_layer(Add8217, 1, 2,[[[[0.1636], [0.2402], [0.0807], [0.9884]], [[0.6794], [0.4822], [0.74], [0.0688]]]],[0, 0, 0, 0], 1, 1, false, Dep40005), 
+exec_layers([LGRU3371,LRes11723,LCro9135,LRes40486,LDep13860,LZer18703,LCon39030,LCon58899,LAdd8217,LDep40005],["GRU3371","Res11723","Cro9135","Res40486","Dep13860","Zer18703","Con39030","Con58899","Add8217","Dep40005"],Dep40005,"Dep40005")
+
+Actual (Unparsed): [[[[0.1382808, 0.4337139, 0.6305856, 0.2738081]]]]
+
+Expected (Unparsed): [[[[0.13828078004400002,0.433713911864,0.6305855717800001,0.27380808199999995]]]]
+
+Actual:   [[[[0.1383, 0.4338, 0.6306, 0.2739]]]]
+
+Expected: [[[[0.1383, 0.4338, 0.6306, 0.2739]]]]

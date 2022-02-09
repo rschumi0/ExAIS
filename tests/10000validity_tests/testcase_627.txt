@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep46570 = tf.keras.layers.Input(shape=([1, 1]))
+in0Ave34113 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave34113 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con50106 = tf.keras.layers.Input(shape=([3]))
+
+Sep46570 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='same', name = 'Sep46570', )(in0Sep46570)
+Fla84651 = keras.layers.Flatten(name = 'Fla84651', )(Sep46570)
+Ave34113 = keras.layers.Average(name = 'Ave34113', )([in0Ave34113,in1Ave34113])
+Res18733 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res18733', )(Ave34113)
+Up_51528 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_51528', )(Res18733)
+Res81077 = keras.layers.Reshape((2, 1, 2), name = 'Res81077', )(Up_51528)
+Res27418 = keras.layers.Reshape((2, 2), name = 'Res27418', )(Res81077)
+Cro36250 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro36250', )(Res27418)
+Res47656 = keras.layers.Reshape((2, 2, 1), name = 'Res47656', )(Cro36250)
+Glo89146 = keras.layers.GlobalMaxPool2D(name = 'Glo89146', )(Res47656)
+Con50106 = keras.layers.Concatenate(axis=1, name = 'Con50106', )([Glo89146,in0Con50106])
+Sub76828 = keras.layers.Subtract(name = 'Sub76828', )([Fla84651,Con50106])
+model = tf.keras.models.Model(inputs=[in0Sep46570,in0Ave34113,in1Ave34113,in0Con50106], outputs=Sub76828)
+w = model.get_layer('Sep46570').get_weights() 
+w[0] = np.array([[[0.5101]]])
+w[1] = np.array([[[0.2, 0.201, 0.6172, 0.327]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep46570').set_weights(w) 
+in0Sep46570 = tf.constant([[[0.2331]]])
+in0Ave34113 = tf.constant([[[[0.0633, 0.3766]]]])
+in1Ave34113 = tf.constant([[[[0.7143, 0.3726]]]])
+in0Con50106 = tf.constant([[0.5272, 0.0782, 0.1372]])
+print (np.array2string(model.predict([in0Sep46570,in0Ave34113,in1Ave34113,in0Con50106],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub76828.png')
+
+LSep46570 = separable_conv1D_layer([[[0.2331]]], 1,[[[[0.5101]]],[[[0.2, 0.201, 0.6172, 0.327]]]],[0, 0, 0, 0], 1, true, Sep46570), 
+LFla84651 = flatten_layer(Sep46570, Fla84651), 
+LAve34113 = average_layer([[[[[0.0633, 0.3766]]]], [[[[0.7143, 0.3726]]]]], Ave34113), 
+LRes18733 = reshape_layer(Ave34113, [1, 1, 2, 1], Res18733), 
+LUp_51528 = up_sampling3D_layer(Res18733, 2, 1, 1, Up_51528), 
+LRes81077 = reshape_layer(Up_51528, [2, 1, 2], Res81077), 
+LRes27418 = reshape_layer(Res81077, [2, 2], Res27418), 
+LCro36250 = cropping1D_layer(Res27418, 0, 0, Cro36250), 
+LRes47656 = reshape_layer(Cro36250, [2, 2, 1], Res47656), 
+LGlo89146 = global_max_pool2D_layer(Res47656, Glo89146), 
+LCon50106 = concatenate_layer([Glo89146,[[0.5272, 0.0782, 0.1372]]], 1, Con50106), 
+LSub76828 = subtract_layer(Fla84651,Con50106, Sub76828), 
+exec_layers([LSep46570,LFla84651,LAve34113,LRes18733,LUp_51528,LRes81077,LRes27418,LCro36250,LRes47656,LGlo89146,LCon50106,LSub76828],["Sep46570","Fla84651","Ave34113","Res18733","Up_51528","Res81077","Res27418","Cro36250","Res47656","Glo89146","Con50106","Sub76828"],Sub76828,"Sub76828")
+
+Actual (Unparsed): [[-0.3650191, -0.5033002, -0.0048123, -0.0983183]]
+
+Expected (Unparsed): [[-0.365019138,-0.50330023369,-0.0048122598680000045,-0.09831829062999999]]
+
+Actual:   [[-0.365, -0.5033, -0.0048, -0.0983]]
+
+Expected: [[-0.365, -0.5033, -0.0048, -0.0983]]

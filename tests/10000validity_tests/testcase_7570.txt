@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min31955 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min31955 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add60497 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add60497 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con21708 = tf.keras.layers.Input(shape=([4, 3]))
+in0Per67241 = tf.keras.layers.Input(shape=([4, 4]))
+
+Min31955 = keras.layers.Minimum(name = 'Min31955', )([in0Min31955,in1Min31955])
+Add60497 = keras.layers.Add(name = 'Add60497', )([in0Add60497,in1Add60497])
+Dot99136 = keras.layers.Dot(axes=(2, 1), name = 'Dot99136', )([Min31955,Add60497])
+Zer92308 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer92308', )(Dot99136)
+Con21708 = keras.layers.Concatenate(axis=2, name = 'Con21708', )([Zer92308,in0Con21708])
+Per67241 = keras.layers.Permute((2,1), name = 'Per67241',)(in0Per67241)
+Sub30922 = keras.layers.Subtract(name = 'Sub30922', )([Con21708,Per67241])
+Mas46803 = keras.layers.Masking(mask_value=1, name = 'Mas46803', )(Sub30922)
+model = tf.keras.models.Model(inputs=[in0Min31955,in1Min31955,in0Add60497,in1Add60497,in0Con21708,in0Per67241], outputs=Mas46803)
+in0Min31955 = tf.constant([[[0.8595, 0.01]]])
+in1Min31955 = tf.constant([[[0.0955, 0.2513]]])
+in0Add60497 = tf.constant([[[0.801], [0.3851]]])
+in1Add60497 = tf.constant([[[0.7621], [0.1221]]])
+in0Con21708 = tf.constant([[[0.1181, 0.1236, 0.3004], [0.3927, 0.6273, 0.394], [0.7639, 0.6696, 0.3676], [0.2871, 0.3464, 0.6088]]])
+in0Per67241 = tf.constant([[[1.684, 1.4381, 1.6186, 1.4786], [1.656, 1.5739, 1.6292, 1.7737], [1.4101, 1.887, 1.8847, 1.2049], [1.9286, 1.5432, 1.7452, 1.8299]]])
+print (np.array2string(model.predict([in0Min31955,in1Min31955,in0Add60497,in1Add60497,in0Con21708,in0Per67241],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas46803.png')
+
+LMin31955 = minimum_layer([[[[0.8595, 0.01]]], [[[0.0955, 0.2513]]]], Min31955), 
+LAdd60497 = add_layer([[[[0.801], [0.3851]]], [[[0.7621], [0.1221]]]], Add60497), 
+LDot99136 = dot_layer(Min31955,Add60497, 2, 1, Dot99136), 
+LZer92308 = zero_padding1D_layer(Dot99136, 3, 0, Zer92308), 
+LCon21708 = concatenate_layer([Zer92308,[[[0.1181, 0.1236, 0.3004], [0.3927, 0.6273, 0.394], [0.7639, 0.6696, 0.3676], [0.2871, 0.3464, 0.6088]]]], 2, Con21708), 
+LPer67241 = permute_layer([[[1.684, 1.4381, 1.6186, 1.4786], [1.656, 1.5739, 1.6292, 1.7737], [1.4101, 1.887, 1.8847, 1.2049], [1.9286, 1.5432, 1.7452, 1.8299]]], 2,1, Per67241), 
+LSub30922 = subtract_layer(Con21708,Per67241, Sub30922), 
+LMas46803 = masking_layer(Sub30922, 1, Mas46803), 
+exec_layers([LMin31955,LAdd60497,LDot99136,LZer92308,LCon21708,LPer67241,LSub30922,LMas46803],["Min31955","Add60497","Dot99136","Zer92308","Con21708","Per67241","Sub30922","Mas46803"],Mas46803,"Mas46803")
+
+Actual (Unparsed): [[[-1.6840000, -1.5379000, -1.2865000, -1.6282000], [-1.4381000, -1.1812000, -1.2596999, -1.1492000], [-1.6186000, -0.8653000, -1.2150999, -1.3776000], [-1.3242520, -1.4866000, -0.8585000, -1.2211000]]]
+
+Expected (Unparsed): [[[-1.684,-1.5378999999999998,-1.2865,-1.6282],[-1.4381,-1.1812,-1.2597,-1.1492],[-1.6186,-0.8653,-1.2151,-1.3776000000000002],[-1.3242519499999998,-1.4866000000000001,-0.8585,-1.2211]]]
+
+Actual:   [[[-1.684, -1.5379, -1.2865, -1.6282], [-1.4381, -1.1812, -1.2596, -1.1492], [-1.6186, -0.8653, -1.215, -1.3776], [-1.3242, -1.4866, -0.8585, -1.2211]]]
+
+Expected: [[[-1.684, -1.5378, -1.2865, -1.6282], [-1.4381, -1.1812, -1.2597, -1.1492], [-1.6186, -0.8653, -1.2151, -1.3776], [-1.3242, -1.4866, -0.8585, -1.2211]]]

@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim82056 = tf.keras.layers.Input(shape=([2, 3]))
+in0Max58768 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sim82056 = keras.layers.SimpleRNN(2,name = 'Sim82056', )(in0Sim82056)
+Res69348 = keras.layers.Reshape((2, 1), name = 'Res69348', )(Sim82056)
+Res7657 = keras.layers.Reshape((2, 1, 1), name = 'Res7657', )(Res69348)
+Max58768 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max58768', )(in0Max58768)
+Res13474 = keras.layers.Reshape((2, 1, 1), name = 'Res13474', )(Max58768)
+PRe25385 = keras.layers.PReLU(name = 'PRe25385', )(Res13474)
+Add53976 = keras.layers.Add(name = 'Add53976', )([Res7657,PRe25385])
+model = tf.keras.models.Model(inputs=[in0Sim82056,in0Max58768], outputs=Add53976)
+w = model.get_layer('Sim82056').get_weights() 
+w[0] = np.array([[6, 8], [3, 6], [2, 1]])
+w[1] = np.array([[9, 3], [4, 1]])
+w[2] = np.array([9, 6])
+model.get_layer('Sim82056').set_weights(w) 
+w = model.get_layer('PRe25385').get_weights() 
+w[0] = np.array([[[0.2469]], [[0.8875]]])
+model.get_layer('PRe25385').set_weights(w) 
+in0Sim82056 = tf.constant([[[9, 5, 5], [3, 9, 1]]])
+in0Max58768 = tf.constant([[[1.4216], [1.144]]])
+print (np.array2string(model.predict([in0Sim82056,in0Max58768],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add53976.png')
+
+LSim82056 = simple_rnn_layer([[[9, 5, 5], [3, 9, 1]]],[[6, 8], [3, 6], [2, 1]],[[9, 3], [4, 1]],[9, 6], Sim82056), 
+LRes69348 = reshape_layer(Sim82056, [2, 1], Res69348), 
+LRes7657 = reshape_layer(Res69348, [2, 1, 1], Res7657), 
+LMax58768 = max_pool1D_layer([[[1.4216], [1.144]]], 1, 1, false, Max58768), 
+LRes13474 = reshape_layer(Max58768, [2, 1, 1], Res13474), 
+LPRe25385 = prelu_layer(Res13474, [[[0.2469]], [[0.8875]]], PRe25385), 
+LAdd53976 = add_layer([Res7657,PRe25385], Add53976), 
+exec_layers([LSim82056,LRes69348,LRes7657,LMax58768,LRes13474,LPRe25385,LAdd53976],["Sim82056","Res69348","Res7657","Max58768","Res13474","PRe25385","Add53976"],Add53976,"Add53976")
+
+Actual (Unparsed): [[[[2.4216000]], [[2.1440001]]]]
+
+Expected (Unparsed): [[[[2.4215999999999998]],[[2.144]]]]
+
+Actual:   [[[[2.4216]], [[2.1441]]]]
+
+Expected: [[[[2.4216]], [[2.144]]]]

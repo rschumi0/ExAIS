@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub28725 = tf.keras.layers.Input(shape=([2]))
+in1Sub28725 = tf.keras.layers.Input(shape=([2]))
+in0Con46343 = tf.keras.layers.Input(shape=([2, 1]))
+in0Per86879 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max71090 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con99566 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sub28725 = keras.layers.Subtract(name = 'Sub28725', )([in0Sub28725,in1Sub28725])
+Res68027 = keras.layers.Reshape((2, 1), name = 'Res68027', )(Sub28725)
+Con46343 = keras.layers.Concatenate(axis=2, name = 'Con46343', )([Res68027,in0Con46343])
+Per86879 = keras.layers.Permute((2,1), name = 'Per86879',)(in0Per86879)
+Max71090 = keras.layers.MaxPool1D(pool_size=(1), strides=(10), padding='valid', name = 'Max71090', )(in0Max71090)
+Zer88189 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer88189', )(Max71090)
+Con99566 = keras.layers.Concatenate(axis=2, name = 'Con99566', )([Zer88189,in0Con99566])
+Sub65466 = keras.layers.Subtract(name = 'Sub65466', )([Per86879,Con99566])
+Min87931 = keras.layers.Minimum(name = 'Min87931', )([Con46343,Sub65466])
+model = tf.keras.models.Model(inputs=[in0Sub28725,in1Sub28725,in0Con46343,in0Per86879,in0Max71090,in0Con99566], outputs=Min87931)
+in0Sub28725 = tf.constant([[0.8398, 0.0202]])
+in1Sub28725 = tf.constant([[0.179, 0.9371]])
+in0Con46343 = tf.constant([[[0.8754], [0.8984]]])
+in0Per86879 = tf.constant([[[1.5814, 1.9656], [1.7067, 1.9447]]])
+in0Max71090 = tf.constant([[[1.2832]]])
+in0Con99566 = tf.constant([[[0.8404], [0.6836]]])
+print (np.array2string(model.predict([in0Sub28725,in1Sub28725,in0Con46343,in0Per86879,in0Max71090,in0Con99566],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min87931.png')
+
+LSub28725 = subtract_layer([[0.8398, 0.0202]], [[0.179, 0.9371]], Sub28725), 
+LRes68027 = reshape_layer(Sub28725, [2, 1], Res68027), 
+LCon46343 = concatenate_layer([Res68027,[[[0.8754], [0.8984]]]], 2, Con46343), 
+LPer86879 = permute_layer([[[1.5814, 1.9656], [1.7067, 1.9447]]], 2,1, Per86879), 
+LMax71090 = max_pool1D_layer([[[1.2832]]], 1, 10, false, Max71090), 
+LZer88189 = zero_padding1D_layer(Max71090, 1, 0, Zer88189), 
+LCon99566 = concatenate_layer([Zer88189,[[[0.8404], [0.6836]]]], 2, Con99566), 
+LSub65466 = subtract_layer(Per86879,Con99566, Sub65466), 
+LMin87931 = minimum_layer([Con46343,Sub65466], Min87931), 
+exec_layers([LSub28725,LRes68027,LCon46343,LPer86879,LMax71090,LZer88189,LCon99566,LSub65466,LMin87931],["Sub28725","Res68027","Con46343","Per86879","Max71090","Zer88189","Con99566","Sub65466","Min87931"],Min87931,"Min87931")
+
+Actual (Unparsed): [[[0.6608000, 0.8663000], [-0.9169000, 0.8984000]]]
+
+Expected (Unparsed): [[[0.6608,0.8663000000000001],[-0.9169,0.8984]]]
+
+Actual:   [[[0.6608, 0.8663], [-0.9169, 0.8984]]]
+
+Expected: [[[0.6608, 0.8664], [-0.9169, 0.8984]]]

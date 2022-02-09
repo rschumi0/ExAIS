@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo3757 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con99020 = tf.keras.layers.Input(shape=([1]))
+in0Dep72121 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Glo3757 = keras.layers.GlobalAveragePooling1D(name = 'Glo3757', )(in0Glo3757)
+Con99020 = keras.layers.Concatenate(axis=1, name = 'Con99020', )([Glo3757,in0Con99020])
+Dep72121 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='same', name = 'Dep72121', )(in0Dep72121)
+Res77701 = keras.layers.Reshape((1, 2), name = 'Res77701', )(Dep72121)
+Glo58731 = keras.layers.GlobalMaxPool1D(name = 'Glo58731', )(Res77701)
+Min23219 = keras.layers.Minimum(name = 'Min23219', )([Con99020,Glo58731])
+model = tf.keras.models.Model(inputs=[in0Glo3757,in0Con99020,in0Dep72121], outputs=Min23219)
+w = model.get_layer('Dep72121').get_weights() 
+w[0] = np.array([[[[0.886]], [[0.5665]]]])
+w[1] = np.array([0])
+model.get_layer('Dep72121').set_weights(w) 
+in0Glo3757 = tf.constant([[[1.7681]]])
+in0Con99020 = tf.constant([[0.4509]])
+in0Dep72121 = tf.constant([[[[0.4037], [0.8532]]]])
+print (np.array2string(model.predict([in0Glo3757,in0Con99020,in0Dep72121],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min23219.png')
+
+LGlo3757 = global_average_pooling1D_layer([[[1.7681]]], Glo3757), 
+LCon99020 = concatenate_layer([Glo3757,[[0.4509]]], 1, Con99020), 
+LDep72121 = depthwise_conv2D_layer([[[[0.4037], [0.8532]]]], 1, 2,[[[[0.886]], [[0.5665]]]],[0], 1, 1, true, Dep72121), 
+LRes77701 = reshape_layer(Dep72121, [1, 2], Res77701), 
+LGlo58731 = global_max_pool1D_layer(Res77701, Glo58731), 
+LMin23219 = minimum_layer([Con99020,Glo58731], Min23219), 
+exec_layers([LGlo3757,LCon99020,LDep72121,LRes77701,LGlo58731,LMin23219],["Glo3757","Con99020","Dep72121","Res77701","Glo58731","Min23219"],Min23219,"Min23219")
+
+Actual (Unparsed): [[0.8410160, 0.4509000]]
+
+Expected (Unparsed): [[0.841016,0.4509]]
+
+Actual:   [[0.8411, 0.4509]]
+
+Expected: [[0.8411, 0.4509]]

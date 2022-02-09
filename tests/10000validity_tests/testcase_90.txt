@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_20074 = tf.keras.layers.Input(shape=([3, 1, 4]))
+in0Add80580 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Add80580 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con39795 = tf.keras.layers.Input(shape=([3, 1, 2]))
+
+Up_20074 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_20074', )(in0Up_20074)
+Add80580 = keras.layers.Add(name = 'Add80580', )([in0Add80580,in1Add80580])
+Res50179 = keras.layers.Reshape((1, 2, 2), name = 'Res50179', )(Add80580)
+Loc87871 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 2), name = 'Loc87871', )(Res50179)
+Zer98168 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer98168', )(Loc87871)
+Con39795 = keras.layers.Concatenate(axis=3, name = 'Con39795', )([Zer98168,in0Con39795])
+Ave97481 = keras.layers.Average(name = 'Ave97481', )([Up_20074,Con39795])
+model = tf.keras.models.Model(inputs=[in0Up_20074,in0Add80580,in1Add80580,in0Con39795], outputs=Ave97481)
+w = model.get_layer('Loc87871').get_weights() 
+w[0] = np.array([[[0.0445, 0.7535], [0.5471, 0.6046], [0.312, 0.5077], [0.4538, 0.1133]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc87871').set_weights(w) 
+in0Up_20074 = tf.constant([[[[1.2858, 1.493, 1.2729, 1.4373]], [[1.0554, 1.3626, 1.5566, 1.1029]], [[1.5612, 1.7418, 1.9405, 1.4874]]]])
+in0Add80580 = tf.constant([[[[[0.2814, 0.73]], [[0.5281, 0.6266]]]]])
+in1Add80580 = tf.constant([[[[[0.1947, 0.6309]], [[0.2038, 0.2861]]]]])
+in0Con39795 = tf.constant([[[[0.4737, 0.8316]], [[0.4811, 0.9558]], [[0.8187, 0.3251]]]])
+print (np.array2string(model.predict([in0Up_20074,in0Add80580,in1Add80580,in0Con39795],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave97481.png')
+
+LUp_20074 = up_sampling2D_layer([[[[1.2858, 1.493, 1.2729, 1.4373]], [[1.0554, 1.3626, 1.5566, 1.1029]], [[1.5612, 1.7418, 1.9405, 1.4874]]]], 1, 1, Up_20074), 
+LAdd80580 = add_layer([[[[[[0.2814, 0.73]], [[0.5281, 0.6266]]]]], [[[[[0.1947, 0.6309]], [[0.2038, 0.2861]]]]]], Add80580), 
+LRes50179 = reshape_layer(Add80580, [1, 2, 2], Res50179), 
+LLoc87871 = locally_connected2D_layer(Res50179, 1, 2,[[[0.0445, 0.7535], [0.5471, 0.6046], [0.312, 0.5077], [0.4538, 0.1133]]],[[[0, 0]]], 1, 2, Loc87871), 
+LZer98168 = zero_padding2D_layer(Loc87871, 2, 0, 0, 0, Zer98168), 
+LCon39795 = concatenate_layer([Zer98168,[[[[0.4737, 0.8316]], [[0.4811, 0.9558]], [[0.8187, 0.3251]]]]], 3, Con39795), 
+LAve97481 = average_layer([Up_20074,Con39795], Ave97481), 
+exec_layers([LUp_20074,LAdd80580,LRes50179,LLoc87871,LZer98168,LCon39795,LAve97481],["Up_20074","Add80580","Res50179","Loc87871","Zer98168","Con39795","Ave97481"],Ave97481,"Ave97481")
+
+Actual (Unparsed): [[[[0.6429000, 0.7465000, 0.8733000, 1.1344500]], [[0.5277000, 0.6813000, 1.0188500, 1.0293500]], [[1.4847355, 1.6991680, 1.3796000, 0.9062500]]]]
+
+Expected (Unparsed): [[[[0.6429,0.7465,0.8733,1.13445]],[[0.5277,0.6813,1.01885,1.02935]],[[1.48473545,1.6991680150000001,1.3796,0.90625]]]]
+
+Actual:   [[[[0.6429, 0.7465, 0.8733, 1.1345]], [[0.5277, 0.6813, 1.0189, 1.0294]], [[1.4848, 1.6992, 1.3796, 0.9063]]]]
+
+Expected: [[[[0.6429, 0.7465, 0.8733, 1.1345]], [[0.5277, 0.6813, 1.0189, 1.0294]], [[1.4848, 1.6992, 1.3796, 0.9063]]]]

@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep77781 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con27296 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Sep77781 = keras.layers.SeparableConv2D(4, (1, 2),strides=(1, 1), padding='same', name = 'Sep77781', )(in0Sep77781)
+Con27296 = keras.layers.Conv2DTranspose(4, (2, 2),strides=(1, 1), padding='same', name = 'Con27296', )(in0Con27296)
+Dep31078 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep31078', )(Con27296)
+Zer2956 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer2956', )(Dep31078)
+Sub14962 = keras.layers.Subtract(name = 'Sub14962', )([Sep77781,Zer2956])
+model = tf.keras.models.Model(inputs=[in0Sep77781,in0Con27296], outputs=Sub14962)
+w = model.get_layer('Sep77781').get_weights() 
+w[0] = np.array([[[[0.6207], [0.8454]], [[0.1199], [0.659]]]])
+w[1] = np.array([[[[0.1045, 0.3625, 0.2142, 0.7059], [0.656, 0.2075, 0.5572, 0.9957]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep77781').set_weights(w) 
+w = model.get_layer('Con27296').get_weights() 
+w[0] = np.array([[[[0.7306], [0.8375], [0.0388], [0.4553]], [[0.4536], [0.2184], [0.167], [0.3907]]], [[[0.6307], [0.546], [0.4611], [0.7258]], [[0.2723], [0.3422], [0.359], [0.9768]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con27296').set_weights(w) 
+w = model.get_layer('Dep31078').get_weights() 
+w[0] = np.array([[[[0.0792], [0.7906], [0.1041], [0.9252]]], [[[0.5603], [0.4204], [0.0925], [0.2689]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Dep31078').set_weights(w) 
+in0Sep77781 = tf.constant([[[[0.6159, 0.7635], [0.8588, 0.8269]]]])
+in0Con27296 = tf.constant([[[[0.1759], [0.7561]], [[0.0854], [0.795]]]])
+print (np.array2string(model.predict([in0Sep77781,in0Con27296],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub14962.png')
+
+LSep77781 = separable_conv2D_layer([[[[0.6159, 0.7635], [0.8588, 0.8269]]]], 1, 2,[[[[[0.6207], [0.8454]], [[0.1199], [0.659]]]],[[[[0.1045, 0.3625, 0.2142, 0.7059], [0.656, 0.2075, 0.5572, 0.9957]]]]],[0, 0, 0, 0], 1, 1, true, Sep77781), 
+LCon27296 = conv2D_transpose_layer([[[[0.1759], [0.7561]], [[0.0854], [0.795]]]], 2, 2,[[[[0.7306], [0.8375], [0.0388], [0.4553]], [[0.4536], [0.2184], [0.167], [0.3907]]], [[[0.6307], [0.546], [0.4611], [0.7258]], [[0.2723], [0.3422], [0.359], [0.9768]]]],[0, 0, 0, 0], 1, 1, true, Con27296), 
+LDep31078 = depthwise_conv2D_layer(Con27296, 2, 1,[[[[0.0792], [0.7906], [0.1041], [0.9252]]], [[[0.5603], [0.4204], [0.0925], [0.2689]]]],[0, 0, 0, 0], 2, 2, false, Dep31078), 
+LZer2956 = zero_padding2D_layer(Dep31078, 0, 0, 1, 0, Zer2956), 
+LSub14962 = subtract_layer(Sep77781,Zer2956, Sub14962), 
+exec_layers([LSep77781,LCon27296,LDep31078,LZer2956,LSub14962],["Sep77781","Con27296","Dep31078","Zer2956","Sub14962"],Sub14962,"Sub14962")
+
+Actual (Unparsed): [[[[0.8316054, 0.4229124, 0.7672278, 1.5278158], [0.4069918, 0.1513763, 0.4951784, 0.9534581]]]]
+
+Expected (Unparsed): [[[[0.831605431625,0.422912403125,0.76722783935,1.527815827575],[0.406991779401,0.15137634114000004,0.49517836014700006,0.9534580827460002]]]]
+
+Actual:   [[[[0.8317, 0.423, 0.7673, 1.5279], [0.407, 0.1514, 0.4952, 0.9535]]]]
+
+Expected: [[[[0.8317, 0.423, 0.7673, 1.5279], [0.407, 0.1514, 0.4952, 0.9535]]]]

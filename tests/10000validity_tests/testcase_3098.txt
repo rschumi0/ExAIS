@@ -1,0 +1,73 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep2535 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Min23645 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min23645 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave20934 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave20934 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Sep2535 = keras.layers.SeparableConv2D(2, (1, 2),strides=(1, 1), padding='same', name = 'Sep2535', )(in0Sep2535)
+Mas65135 = keras.layers.Masking(mask_value=2, name = 'Mas65135', )(Sep2535)
+Res34191 = keras.layers.Reshape((1, 2, 2, 1), name = 'Res34191', )(Mas65135)
+Zer67705 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer67705', )(Res34191)
+Min23645 = keras.layers.Minimum(name = 'Min23645', )([in0Min23645,in1Min23645])
+Res51347 = keras.layers.Reshape((1, 4), name = 'Res51347', )(Min23645)
+LST68997 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST68997', )(Res51347)
+Res53016 = keras.layers.Reshape((2, 1), name = 'Res53016', )(LST68997)
+Res77075 = keras.layers.Reshape((2, 1, 1), name = 'Res77075', )(Res53016)
+Res7525 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res7525', )(Res77075)
+Zer34847 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer34847', )(Res7525)
+Ave20934 = keras.layers.Average(name = 'Ave20934', )([in0Ave20934,in1Ave20934])
+ReL24439 = keras.layers.ReLU(max_value=0.7026783507865506, negative_slope=6.042937323434899, threshold=0.19649248396814367, name = 'ReL24439', )(Ave20934)
+Mul91771 = keras.layers.Multiply(name = 'Mul91771', )([Zer34847,ReL24439])
+Zer61411 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer61411', )(Mul91771)
+Min18774 = keras.layers.Minimum(name = 'Min18774', )([Zer67705,Zer61411])
+model = tf.keras.models.Model(inputs=[in0Sep2535,in0Min23645,in1Min23645,in0Ave20934,in1Ave20934], outputs=Min18774)
+w = model.get_layer('Sep2535').get_weights() 
+w[0] = np.array([[[[0.0824]], [[0.3739]]]])
+w[1] = np.array([[[[0.5364, 0.6814]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep2535').set_weights(w) 
+w = model.get_layer('LST68997').get_weights() 
+w[0] = np.array([[8, 1, 3, 5, 4, 3, 7, 6], [10, 3, 2, 3, 9, 4, 5, 9], [8, 3, 9, 9, 5, 7, 5, 4], [9, 5, 4, 1, 7, 6, 8, 7]])
+w[1] = np.array([[8, 3, 3, 10, 4, 8, 8, 2], [8, 5, 8, 6, 7, 6, 5, 9]])
+w[2] = np.array([3, 5, 1, 6, 7, 6, 6, 6])
+model.get_layer('LST68997').set_weights(w) 
+in0Sep2535 = tf.constant([[[[0.2074], [0.2583]]]])
+in0Min23645 = tf.constant([[[[0.0764, 0.4493], [0.3349, 0.7263]]]])
+in1Min23645 = tf.constant([[[[0.396, 0.0679], [0.5918, 0.7383]]]])
+in0Ave20934 = tf.constant([[[[[0.709], [0.943]]], [[[0.017], [0.9352]]]]])
+in1Ave20934 = tf.constant([[[[[0.2796], [0.2842]]], [[[0.9915], [0.0832]]]]])
+print (np.array2string(model.predict([in0Sep2535,in0Min23645,in1Min23645,in0Ave20934,in1Ave20934],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min18774.png')
+
+LSep2535 = separable_conv2D_layer([[[[0.2074], [0.2583]]]], 1, 2,[[[[[0.0824]], [[0.3739]]]],[[[[0.5364, 0.6814]]]]],[0, 0], 1, 1, true, Sep2535), 
+LMas65135 = masking_layer(Sep2535, 2, Mas65135), 
+LRes34191 = reshape_layer(Mas65135, [1, 2, 2, 1], Res34191), 
+LZer67705 = zero_padding3D_layer(Res34191, 1, 0, 1, 0, 0, 0, Zer67705), 
+LMin23645 = minimum_layer([[[[[0.0764, 0.4493], [0.3349, 0.7263]]]], [[[[0.396, 0.0679], [0.5918, 0.7383]]]]], Min23645), 
+LRes51347 = reshape_layer(Min23645, [1, 4], Res51347), 
+LLST68997 = lstm_layer(Res51347,[[8, 1, 3, 5, 4, 3, 7, 6], [10, 3, 2, 3, 9, 4, 5, 9], [8, 3, 9, 9, 5, 7, 5, 4], [9, 5, 4, 1, 7, 6, 8, 7]],[[8, 3, 3, 10, 4, 8, 8, 2], [8, 5, 8, 6, 7, 6, 5, 9]],[3, 5, 1, 6, 7, 6, 6, 6], LST68997), 
+LRes53016 = reshape_layer(LST68997, [2, 1], Res53016), 
+LRes77075 = reshape_layer(Res53016, [2, 1, 1], Res77075), 
+LRes7525 = reshape_layer(Res77075, [2, 1, 1, 1], Res7525), 
+LZer34847 = zero_padding3D_layer(Res7525, 0, 0, 0, 0, 1, 0, Zer34847), 
+LAve20934 = average_layer([[[[[[0.709], [0.943]]], [[[0.017], [0.9352]]]]], [[[[[0.2796], [0.2842]]], [[[0.9915], [0.0832]]]]]], Ave20934), 
+LReL24439 = relu_layer(Ave20934, 0.7026783507865506, 6.042937323434899, 0.19649248396814367, ReL24439), 
+LMul91771 = multiply_layer([Zer34847,ReL24439], Mul91771), 
+LZer61411 = zero_padding3D_layer(Mul91771, 0, 0, 2, 0, 0, 0, Zer61411), 
+LMin18774 = minimum_layer([Zer67705,Zer61411], Min18774), 
+exec_layers([LSep2535,LMas65135,LRes34191,LZer67705,LMin23645,LRes51347,LLST68997,LRes53016,LRes77075,LRes7525,LZer34847,LAve20934,LReL24439,LMul91771,LZer61411,LMin18774],["Sep2535","Mas65135","Res34191","Zer67705","Min23645","Res51347","LST68997","Res53016","Res77075","Res7525","Zer34847","Ave20934","ReL24439","Mul91771","Zer61411","Min18774"],Min18774,"Min18774")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.0000000], [0.0145029]]]]]
+
+Expected (Unparsed): [[[[[0],[0]],[[0],[0]],[[0],[0]]],[[[0],[0]],[[0],[0]],[[0.0],[0.014502863088]]]]]
+
+Actual:   [[[[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0.0146]]]]]
+
+Expected: [[[[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0.0146]]]]]

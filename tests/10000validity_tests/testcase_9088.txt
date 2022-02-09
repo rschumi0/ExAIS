@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo70048 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con91521 = tf.keras.layers.Input(shape=([2, 3]))
+in0Mul12874 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul12874 = tf.keras.layers.Input(shape=([2, 1]))
+
+Glo70048 = keras.layers.GlobalAveragePooling3D(name = 'Glo70048', )(in0Glo70048)
+Res19239 = keras.layers.Reshape((2, 1), name = 'Res19239', )(Glo70048)
+Con91521 = keras.layers.Concatenate(axis=2, name = 'Con91521', )([Res19239,in0Con91521])
+Mul12874 = keras.layers.Multiply(name = 'Mul12874', )([in0Mul12874,in1Mul12874])
+Max23274 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max23274', )(Mul12874)
+Loc5847 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc5847', )(Max23274)
+Mul49218 = keras.layers.Multiply(name = 'Mul49218', )([Con91521,Loc5847])
+model = tf.keras.models.Model(inputs=[in0Glo70048,in0Con91521,in0Mul12874,in1Mul12874], outputs=Mul49218)
+w = model.get_layer('Loc5847').get_weights() 
+w[0] = np.array([[[0.6962, 0.7335, 0.115, 0.3325]], [[0.9698, 0.2775, 0.5217, 0.8874]]])
+w[1] = np.array([[0, 0, 0, 0], [0, 0, 0, 0]])
+model.get_layer('Loc5847').set_weights(w) 
+in0Glo70048 = tf.constant([[[[[1.6689, 1.5078]]]]])
+in0Con91521 = tf.constant([[[0.57, 0.9192, 0.4275], [0.0543, 0.3879, 0.0647]]])
+in0Mul12874 = tf.constant([[[0.1624], [0.7565]]])
+in1Mul12874 = tf.constant([[[0.5636], [0.0534]]])
+print (np.array2string(model.predict([in0Glo70048,in0Con91521,in0Mul12874,in1Mul12874],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul49218.png')
+
+LGlo70048 = global_average_pooling3D_layer([[[[[1.6689, 1.5078]]]]], Glo70048), 
+LRes19239 = reshape_layer(Glo70048, [2, 1], Res19239), 
+LCon91521 = concatenate_layer([Res19239,[[[0.57, 0.9192, 0.4275], [0.0543, 0.3879, 0.0647]]]], 2, Con91521), 
+LMul12874 = multiply_layer([[[[0.1624], [0.7565]]], [[[0.5636], [0.0534]]]], Mul12874), 
+LMax23274 = max_pool1D_layer(Mul12874, 1, Max23274), 
+LLoc5847 = locally_connected1D_layer(Max23274, 1,[[[0.6962, 0.7335, 0.115, 0.3325]], [[0.9698, 0.2775, 0.5217, 0.8874]]],[[0, 0, 0, 0], [0, 0, 0, 0]], 1, Loc5847), 
+LMul49218 = multiply_layer([Con91521,Loc5847], Mul49218), 
+exec_layers([LGlo70048,LRes19239,LCon91521,LMul12874,LMax23274,LLoc5847,LMul49218],["Glo70048","Res19239","Con91521","Mul12874","Max23274","Loc5847","Mul49218"],Mul49218,"Mul49218")
+
+Actual (Unparsed): [[[0.1063461, 0.0382677, 0.0096753, 0.0130102], [0.0590712, 0.0006087, 0.0081751, 0.0023194]]]
+
+Expected (Unparsed): [[[0.10634604494747521,0.038267666740799997,0.00967530947712,0.013010224122],[0.05907124280912399,0.0006087136020750001,0.008175057306453001,0.0023193906091379998]]]
+
+Actual:   [[[0.1064, 0.0383, 0.0097, 0.0131], [0.0591, 0.0007, 0.0082, 0.0024]]]
+
+Expected: [[[0.1064, 0.0383, 0.0097, 0.0131], [0.0591, 0.0007, 0.0082, 0.0024]]]

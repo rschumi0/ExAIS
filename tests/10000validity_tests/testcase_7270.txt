@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo84710 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con37871 = tf.keras.layers.Input(shape=([2, 1]))
+in0Min95670 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min95670 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo84710 = keras.layers.GlobalAveragePooling2D(name = 'Glo84710', )(in0Glo84710)
+Res90457 = keras.layers.Reshape((2, 1), name = 'Res90457', )(Glo84710)
+Con37871 = keras.layers.Concatenate(axis=2, name = 'Con37871', )([Res90457,in0Con37871])
+Min95670 = keras.layers.Minimum(name = 'Min95670', )([in0Min95670,in1Min95670])
+Dot91921 = keras.layers.Dot(axes=(2, 1), name = 'Dot91921', )([Con37871,Min95670])
+Res15475 = keras.layers.Reshape((2, 2, 1), name = 'Res15475', )(Dot91921)
+Con51488 = keras.layers.Conv2D(4, (1, 2),strides=(9, 1), padding='valid', dilation_rate=(1, 1), name = 'Con51488', )(Res15475)
+model = tf.keras.models.Model(inputs=[in0Glo84710,in0Con37871,in0Min95670,in1Min95670], outputs=Con51488)
+w = model.get_layer('Con51488').get_weights() 
+w[0] = np.array([[[[0.8785, 0.6198, 0.4116, 0.0154]], [[0.7012, 0.1019, 0.8028, 0.4883]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con51488').set_weights(w) 
+in0Glo84710 = tf.constant([[[[1.3666, 1.768], [1.4405, 1.2181]], [[1.0595, 1.0192], [1.2285, 1.2303]]]])
+in0Con37871 = tf.constant([[[0.146], [0.1785]]])
+in0Min95670 = tf.constant([[[0.0109, 0.3224], [0.243, 0.0354]]])
+in1Min95670 = tf.constant([[[0.7933, 0.551], [0.7127, 0.8141]]])
+print (np.array2string(model.predict([in0Glo84710,in0Con37871,in0Min95670,in1Min95670],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con51488.png')
+
+LGlo84710 = global_average_pooling2D_layer([[[[1.3666, 1.768], [1.4405, 1.2181]], [[1.0595, 1.0192], [1.2285, 1.2303]]]], Glo84710), 
+LRes90457 = reshape_layer(Glo84710, [2, 1], Res90457), 
+LCon37871 = concatenate_layer([Res90457,[[[0.146], [0.1785]]]], 2, Con37871), 
+LMin95670 = minimum_layer([[[[0.0109, 0.3224], [0.243, 0.0354]]], [[[0.7933, 0.551], [0.7127, 0.8141]]]], Min95670), 
+LDot91921 = dot_layer(Con37871,Min95670, 2, 1, Dot91921), 
+LRes15475 = reshape_layer(Dot91921, [2, 2, 1], Res15475), 
+LCon51488 = conv2D_layer(Res15475, 1, 2,[[[[0.8785, 0.6198, 0.4116, 0.0154]], [[0.7012, 0.1019, 0.8028, 0.4883]]]],[0, 0, 0, 0], 9, 1, false, 1, 1, Con51488), 
+exec_layers([LGlo84710,LRes90457,LCon37871,LMin95670,LDot91921,LRes15475,LCon51488],["Glo84710","Res90457","Con37871","Min95670","Dot91921","Res15475","Con51488"],Con51488,"Con51488")
+
+Actual (Unparsed): [[[[0.3349471, 0.0729681, 0.3541486, 0.2038117]]]]
+
+Expected (Unparsed): [[[[0.3349470687307501,0.0729680885945,0.35414856159900004,0.20381165558950007]]]]
+
+Actual:   [[[[0.335, 0.073, 0.3542, 0.2039]]]]
+
+Expected: [[[[0.335, 0.073, 0.3542, 0.2039]]]]

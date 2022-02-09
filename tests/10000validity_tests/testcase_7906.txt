@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max31016 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max31016 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con1375 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Glo14768 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Max31016 = keras.layers.Maximum(name = 'Max31016', )([in0Max31016,in1Max31016])
+Res72455 = keras.layers.Reshape((1, 1, 1), name = 'Res72455', )(Max31016)
+Zer59611 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer59611', )(Res72455)
+Con1375 = keras.layers.Concatenate(axis=3, name = 'Con1375', )([Zer59611,in0Con1375])
+Glo14768 = keras.layers.GlobalMaxPool2D(name = 'Glo14768', )(in0Glo14768)
+Res56706 = keras.layers.Reshape((2, 1), name = 'Res56706', )(Glo14768)
+Res6405 = keras.layers.Reshape((2, 1, 1), name = 'Res6405', )(Res56706)
+Sep91917 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='valid', name = 'Sep91917', )(Res6405)
+Add75717 = keras.layers.Add(name = 'Add75717', )([Con1375,Sep91917])
+ELU60568 = keras.layers.ELU(alpha=-1.7277617942422303, name = 'ELU60568', )(Add75717)
+model = tf.keras.models.Model(inputs=[in0Max31016,in1Max31016,in0Con1375,in0Glo14768], outputs=ELU60568)
+w = model.get_layer('Sep91917').get_weights() 
+w[0] = np.array([[[[0.3766]]]])
+w[1] = np.array([[[[0.0292, 0.5263]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep91917').set_weights(w) 
+in0Max31016 = tf.constant([[[0.248]]])
+in1Max31016 = tf.constant([[[0.082]]])
+in0Con1375 = tf.constant([[[[0.7607]], [[0.3961]]]])
+in0Glo14768 = tf.constant([[[[1.3136, 1.7492], [1.3432, 1.2175]]]])
+print (np.array2string(model.predict([in0Max31016,in1Max31016,in0Con1375,in0Glo14768],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU60568.png')
+
+LMax31016 = maximum_layer([[[[0.248]]], [[[0.082]]]], Max31016), 
+LRes72455 = reshape_layer(Max31016, [1, 1, 1], Res72455), 
+LZer59611 = zero_padding2D_layer(Res72455, 1, 0, 0, 0, Zer59611), 
+LCon1375 = concatenate_layer([Zer59611,[[[[0.7607]], [[0.3961]]]]], 3, Con1375), 
+LGlo14768 = global_max_pool2D_layer([[[[1.3136, 1.7492], [1.3432, 1.2175]]]], Glo14768), 
+LRes56706 = reshape_layer(Glo14768, [2, 1], Res56706), 
+LRes6405 = reshape_layer(Res56706, [2, 1, 1], Res6405), 
+LSep91917 = separable_conv2D_layer(Res6405, 1, 1,[[[[[0.3766]]]],[[[[0.0292, 0.5263]]]]],[0, 0], 1, 1, false, Sep91917), 
+LAdd75717 = add_layer([Con1375,Sep91917], Add75717), 
+LELU60568 = elu_layer(Add75717, -1.7277617942422303, ELU60568), 
+exec_layers([LMax31016,LRes72455,LZer59611,LCon1375,LGlo14768,LRes56706,LRes6405,LSep91917,LAdd75717,LELU60568],["Max31016","Res72455","Zer59611","Con1375","Glo14768","Res56706","Res6405","Sep91917","Add75717","ELU60568"],ELU60568,"ELU60568")
+
+Actual (Unparsed): [[[[0.0147708, 1.0269284]], [[0.2672355, 0.7427995]]]]
+
+Expected (Unparsed): [[[[0.014770794303999997,1.026928391856]],[[0.267235462624,0.7427994513360001]]]]
+
+Actual:   [[[[0.0148, 1.027]], [[0.2673, 0.7428]]]]
+
+Expected: [[[[0.0148, 1.027]], [[0.2673, 0.7428]]]]

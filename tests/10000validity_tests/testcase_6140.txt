@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Lay44801 = tf.keras.layers.Input(shape=([2, 3]))
+in0Add73526 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add73526 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con17447 = tf.keras.layers.Input(shape=([2, 5]))
+
+Lay44801 = keras.layers.LayerNormalization(axis=2, epsilon=1.1102469444581584, name = 'Lay44801', )(in0Lay44801)
+Res62295 = keras.layers.Reshape((2, 3, 1), name = 'Res62295', )(Lay44801)
+Res11758 = keras.layers.Reshape((2, 3, 1, 1), name = 'Res11758', )(Res62295)
+Con15266 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con15266', )(Res11758)
+Res61140 = keras.layers.Reshape((2, 3, 2), name = 'Res61140', )(Con15266)
+Res69959 = keras.layers.Reshape((2, 6), name = 'Res69959', )(Res61140)
+Add73526 = keras.layers.Add(name = 'Add73526', )([in0Add73526,in1Add73526])
+Ave51800 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave51800', )(Add73526)
+Zer57190 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer57190', )(Ave51800)
+Con17447 = keras.layers.Concatenate(axis=2, name = 'Con17447', )([Zer57190,in0Con17447])
+Add99505 = keras.layers.Add(name = 'Add99505', )([Res69959,Con17447])
+model = tf.keras.models.Model(inputs=[in0Lay44801,in0Add73526,in1Add73526,in0Con17447], outputs=Add99505)
+w = model.get_layer('Con15266').get_weights() 
+w[0] = np.array([[[[[0.9321], [0.7729]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con15266').set_weights(w) 
+in0Lay44801 = tf.constant([[[1.0561, 1.615, 1.897], [1.5889, 1.6563, 1.9777]]])
+in0Add73526 = tf.constant([[[0.5337]]])
+in1Add73526 = tf.constant([[[0.7537]]])
+in0Con17447 = tf.constant([[[0.1114, 0.5375, 0.3724, 0.0218, 0.0589], [0.3329, 0.5371, 0.6609, 0.2547, 0.6129]]])
+print (np.array2string(model.predict([in0Lay44801,in0Add73526,in1Add73526,in0Con17447],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add99505.png')
+
+LLay44801 = layer_normalization_layer([[[1.0561, 1.615, 1.897], [1.5889, 1.6563, 1.9777]]], 2, 1.1102469444581584, Lay44801), 
+LRes62295 = reshape_layer(Lay44801, [2, 3, 1], Res62295), 
+LRes11758 = reshape_layer(Res62295, [2, 3, 1, 1], Res11758), 
+LCon15266 = conv3D_transpose_layer(Res11758, 1, 1, 1,[[[[[0.9321], [0.7729]]]]],[0, 0], 1, 1, 1, true, Con15266), 
+LRes61140 = reshape_layer(Con15266, [2, 3, 2], Res61140), 
+LRes69959 = reshape_layer(Res61140, [2, 6], Res69959), 
+LAdd73526 = add_layer([[[[0.5337]]], [[[0.7537]]]], Add73526), 
+LAve51800 = average_pooling1D_layer(Add73526, 1, Ave51800), 
+LZer57190 = zero_padding1D_layer(Ave51800, 1, 0, Zer57190), 
+LCon17447 = concatenate_layer([Zer57190,[[[0.1114, 0.5375, 0.3724, 0.0218, 0.0589], [0.3329, 0.5371, 0.6609, 0.2547, 0.6129]]]], 2, Con17447), 
+LAdd99505 = add_layer([Res69959,Con17447], Add99505), 
+exec_layers([LLay44801,LRes62295,LRes11758,LCon15266,LRes61140,LRes69959,LAdd73526,LAve51800,LZer57190,LCon17447,LAdd99505],["Lay44801","Res62295","Res11758","Con15266","Res61140","Res69959","Add73526","Ave51800","Zer57190","Con17447","Add99505"],Add99505,"Add99505")
+
+Actual (Unparsed): [[[-0.3917767, -0.2134624, 0.6149990, 0.4366623, 0.3360778, 0.3195001], [1.1545903, 0.2227738, 0.4631551, 0.5995847, 0.4614546, 0.7843416]]]
+
+Expected (Unparsed): [[[-0.3917767601211903,-0.21346241593999354,0.6149989176150574,0.43666232531346194,0.3360778425061325,0.3195000906265313],[1.154590289966067,0.22277380658166857,0.4631550934927249,0.5995846709157033,0.46145461654120784,0.784341522502628]]]
+
+Actual:   [[[-0.3917, -0.2134, 0.615, 0.4367, 0.3361, 0.3196], [1.1546, 0.2228, 0.4632, 0.5996, 0.4615, 0.7844]]]
+
+Expected: [[[-0.3917, -0.2134, 0.615, 0.4367, 0.3361, 0.3196], [1.1546, 0.2228, 0.4632, 0.5996, 0.4615, 0.7844]]]

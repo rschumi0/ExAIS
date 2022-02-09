@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot15891 = tf.keras.layers.Input(shape=([3]))
+in1Dot15891 = tf.keras.layers.Input(shape=([3]))
+in0Con96480 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Cro99626 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot15891 = keras.layers.Dot(axes=(1, 1), name = 'Dot15891', )([in0Dot15891,in1Dot15891])
+Res75106 = keras.layers.Reshape((1, 1), name = 'Res75106', )(Dot15891)
+Res44964 = keras.layers.Reshape((1, 1, 1), name = 'Res44964', )(Res75106)
+Con96480 = keras.layers.Concatenate(axis=3, name = 'Con96480', )([Res44964,in0Con96480])
+Cro99626 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro99626', )(in0Cro99626)
+Res96875 = keras.layers.Reshape((1, 1, 1), name = 'Res96875', )(Cro99626)
+Con5024 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='valid', name = 'Con5024', )(Res96875)
+Sub20199 = keras.layers.Subtract(name = 'Sub20199', )([Con96480,Con5024])
+Res89283 = keras.layers.Reshape((1, 3), name = 'Res89283', )(Sub20199)
+Glo40136 = keras.layers.GlobalMaxPool1D(name = 'Glo40136', )(Res89283)
+ELU77961 = keras.layers.ELU(alpha=8.549429974364294, name = 'ELU77961', )(Glo40136)
+model = tf.keras.models.Model(inputs=[in0Dot15891,in1Dot15891,in0Con96480,in0Cro99626], outputs=ELU77961)
+w = model.get_layer('Con5024').get_weights() 
+w[0] = np.array([[[[0.6538], [0.0867], [0.2521]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con5024').set_weights(w) 
+in0Dot15891 = tf.constant([[0.442, 0.2882, 0.0478]])
+in1Dot15891 = tf.constant([[0.0672, 0.6493, 0.264]])
+in0Con96480 = tf.constant([[[[0.407, 0.9777]]]])
+in0Cro99626 = tf.constant([[[1.13]]])
+print (np.array2string(model.predict([in0Dot15891,in1Dot15891,in0Con96480,in0Cro99626],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU77961.png')
+
+LDot15891 = dot_layer([[0.442, 0.2882, 0.0478]], [[0.0672, 0.6493, 0.264]], 1, 1, Dot15891), 
+LRes75106 = reshape_layer(Dot15891, [1, 1], Res75106), 
+LRes44964 = reshape_layer(Res75106, [1, 1, 1], Res44964), 
+LCon96480 = concatenate_layer([Res44964,[[[[0.407, 0.9777]]]]], 3, Con96480), 
+LCro99626 = cropping1D_layer([[[1.13]]], 0, 0, Cro99626), 
+LRes96875 = reshape_layer(Cro99626, [1, 1, 1], Res96875), 
+LCon5024 = conv2D_transpose_layer(Res96875, 1, 1,[[[[0.6538], [0.0867], [0.2521]]]],[0, 0, 0], 1, 1, false, Con5024), 
+LSub20199 = subtract_layer(Con96480,Con5024, Sub20199), 
+LRes89283 = reshape_layer(Sub20199, [1, 3], Res89283), 
+LGlo40136 = global_max_pool1D_layer(Res89283, Glo40136), 
+LELU77961 = elu_layer(Glo40136, 8.549429974364294, ELU77961), 
+exec_layers([LDot15891,LRes75106,LRes44964,LCon96480,LCro99626,LRes96875,LCon5024,LSub20199,LRes89283,LGlo40136,LELU77961],["Dot15891","Res75106","Res44964","Con96480","Cro99626","Res96875","Con5024","Sub20199","Res89283","Glo40136","ELU77961"],ELU77961,"ELU77961")
+
+Actual (Unparsed): [[-3.4121669, 0.3090290, 0.6928270]]
+
+Expected (Unparsed): [[-3.412166852663834,0.309029,0.6928270000000001]]
+
+Actual:   [[-3.4121, 0.3091, 0.6929]]
+
+Expected: [[-3.4121, 0.3091, 0.6929]]

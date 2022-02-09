@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot96546 = tf.keras.layers.Input(shape=([2]))
+in1Dot96546 = tf.keras.layers.Input(shape=([2]))
+in0Mul49582 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Mul49582 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Dot96546 = keras.layers.Dot(axes=(1, 1), name = 'Dot96546', )([in0Dot96546,in1Dot96546])
+Res35268 = keras.layers.Reshape((1, 1), name = 'Res35268', )(Dot96546)
+Res77831 = keras.layers.Reshape((1, 1, 1), name = 'Res77831', )(Res35268)
+Res28003 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res28003', )(Res77831)
+Zer36012 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer36012', )(Res28003)
+Mul49582 = keras.layers.Multiply(name = 'Mul49582', )([in0Mul49582,in1Mul49582])
+Add85988 = keras.layers.Add(name = 'Add85988', )([Zer36012,Mul49582])
+Lea28539 = keras.layers.LeakyReLU(alpha=6.856862272697087, name = 'Lea28539', )(Add85988)
+model = tf.keras.models.Model(inputs=[in0Dot96546,in1Dot96546,in0Mul49582,in1Mul49582], outputs=Lea28539)
+in0Dot96546 = tf.constant([[0.7065, 0.0694]])
+in1Dot96546 = tf.constant([[0.8719, 0.5351]])
+in0Mul49582 = tf.constant([[[[[0.5601]], [[0.2998]]], [[[0.9614]], [[0.5512]]]]])
+in1Mul49582 = tf.constant([[[[[0.4378]], [[0.0607]]], [[[0.7484]], [[0.3237]]]]])
+print (np.array2string(model.predict([in0Dot96546,in1Dot96546,in0Mul49582,in1Mul49582],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lea28539.png')
+
+LDot96546 = dot_layer([[0.7065, 0.0694]], [[0.8719, 0.5351]], 1, 1, Dot96546), 
+LRes35268 = reshape_layer(Dot96546, [1, 1], Res35268), 
+LRes77831 = reshape_layer(Res35268, [1, 1, 1], Res77831), 
+LRes28003 = reshape_layer(Res77831, [1, 1, 1, 1], Res28003), 
+LZer36012 = zero_padding3D_layer(Res28003, 1, 0, 1, 0, 0, 0, Zer36012), 
+LMul49582 = multiply_layer([[[[[[0.5601]], [[0.2998]]], [[[0.9614]], [[0.5512]]]]], [[[[[0.4378]], [[0.0607]]], [[[0.7484]], [[0.3237]]]]]], Mul49582), 
+LAdd85988 = add_layer([Zer36012,Mul49582], Add85988), 
+LLea28539 = leaky_relu_layer(Add85988, 6.856862272697087, Lea28539), 
+exec_layers([LDot96546,LRes35268,LRes77831,LRes28003,LZer36012,LMul49582,LAdd85988,LLea28539],["Dot96546","Res35268","Res77831","Res28003","Zer36012","Mul49582","Add85988","Lea28539"],Lea28539,"Lea28539")
+
+Actual (Unparsed): [[[[[0.2452118]], [[0.0181979]]], [[[0.7195117]], [[0.8315567]]]]]
+
+Expected (Unparsed): [[[[[0.24521178000000002]],[[0.01819786]]],[[[0.71951176]],[[0.83155673]]]]]
+
+Actual:   [[[[[0.2453]], [[0.0182]]], [[[0.7196]], [[0.8316]]]]]
+
+Expected: [[[[[0.2453]], [[0.0182]]], [[[0.7196]], [[0.8316]]]]]

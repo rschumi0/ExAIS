@@ -1,0 +1,83 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot20982 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot20982 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con40151 = tf.keras.layers.Input(shape=([7, 4]))
+in0Up_73522 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con34849 = tf.keras.layers.Input(shape=([2, 6]))
+in0Cro94932 = tf.keras.layers.Input(shape=([4, 1, 2, 1]))
+in0Up_4615 = tf.keras.layers.Input(shape=([3, 4]))
+
+Dot20982 = keras.layers.Dot(axes=(2, 2), name = 'Dot20982', )([in0Dot20982,in1Dot20982])
+Zer8727 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer8727', )(Dot20982)
+Con40151 = keras.layers.Concatenate(axis=2, name = 'Con40151', )([Zer8727,in0Con40151])
+Up_73522 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_73522', )(in0Up_73522)
+Res77449 = keras.layers.Reshape((2, 1), name = 'Res77449', )(Up_73522)
+Con34849 = keras.layers.Concatenate(axis=2, name = 'Con34849', )([Res77449,in0Con34849])
+Cro94932 = keras.layers.Cropping3D(cropping=((3, 0), (0, 0), (0, 1)), name = 'Cro94932', )(in0Cro94932)
+Res19108 = keras.layers.Reshape((1, 1, 1), name = 'Res19108', )(Cro94932)
+Res53841 = keras.layers.Reshape((1, 1), name = 'Res53841', )(Res19108)
+Loc2968 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc2968', )(Res53841)
+Res56181 = keras.layers.Reshape((1, 4, 1), name = 'Res56181', )(Loc2968)
+Zer49049 = keras.layers.ZeroPadding2D(padding=((1, 0), (3, 0)), name = 'Zer49049', )(Res56181)
+Up_4615 = keras.layers.UpSampling1D(size=(2), name = 'Up_4615', )(in0Up_4615)
+Res7940 = keras.layers.Reshape((6, 4, 1), name = 'Res7940', )(Up_4615)
+Dep47746 = keras.layers.DepthwiseConv2D((5, 1),strides=(4, 4), padding='same', name = 'Dep47746', )(Res7940)
+Zer584 = keras.layers.ZeroPadding2D(padding=((0, 0), (6, 0)), name = 'Zer584', )(Dep47746)
+Sub20924 = keras.layers.Subtract(name = 'Sub20924', )([Zer49049,Zer584])
+Res81617 = keras.layers.Reshape((2, 7), name = 'Res81617', )(Sub20924)
+Dot8978 = keras.layers.Dot(axes=(1, 1), name = 'Dot8978', )([Con34849,Res81617])
+Mul96676 = keras.layers.Multiply(name = 'Mul96676', )([Con40151,Dot8978])
+model = tf.keras.models.Model(inputs=[in0Dot20982,in1Dot20982,in0Con40151,in0Up_73522,in0Con34849,in0Cro94932,in0Up_4615], outputs=Mul96676)
+w = model.get_layer('Loc2968').get_weights() 
+w[0] = np.array([[[0.9633, 0.5862, 0.7402, 0.0198]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc2968').set_weights(w) 
+w = model.get_layer('Dep47746').get_weights() 
+w[0] = np.array([[[[0.8894]]], [[[0.3565]]], [[[0.9504]]], [[[0.7798]]], [[[0.4103]]]])
+w[1] = np.array([0])
+model.get_layer('Dep47746').set_weights(w) 
+in0Dot20982 = tf.constant([[[0.7705, 0.6957], [0.9078, 0.9344], [0.7063, 0.5496]]])
+in1Dot20982 = tf.constant([[[0.1618, 0.3078], [0.311, 0.8367], [0.0607, 0.7918]]])
+in0Con40151 = tf.constant([[[0.3601, 0.7992, 0.9616, 0.9897], [0.1783, 0.5949, 0.5129, 0.5326], [0.3469, 0.2174, 0.4562, 0.3077], [0.881, 0.8595, 0.8946, 0.6167], [0.6528, 0.5316, 0.0867, 0.9109], [0.295, 0.492, 0.4227, 0.3258], [0.1239, 0.2691, 0.8135, 0.7668]]])
+in0Up_73522 = tf.constant([[[[1.9868]], [[1.958]]]])
+in0Con34849 = tf.constant([[[0.9974, 0.9385, 0.6963, 0.0174, 0.053, 0.1552], [0.3055, 0.0837, 0.494, 0.5114, 0.0856, 0.798]]])
+in0Cro94932 = tf.constant([[[[[1.8157], [1.8075]]], [[[1.6103], [1.0157]]], [[[1.5746], [1.2925]]], [[[1.5959], [1.3114]]]]])
+in0Up_4615 = tf.constant([[[1.4107, 1.3804, 1.6324, 1.0298], [1.8401, 1.782, 1.8044, 1.7898], [1.5224, 1.6975, 1.6407, 1.299]]])
+print (np.array2string(model.predict([in0Dot20982,in1Dot20982,in0Con40151,in0Up_73522,in0Con34849,in0Cro94932,in0Up_4615],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul96676.png')
+
+LDot20982 = dot_layer([[[0.7705, 0.6957], [0.9078, 0.9344], [0.7063, 0.5496]]], [[[0.1618, 0.3078], [0.311, 0.8367], [0.0607, 0.7918]]], 2, 2, Dot20982), 
+LZer8727 = zero_padding1D_layer(Dot20982, 4, 0, Zer8727), 
+LCon40151 = concatenate_layer([Zer8727,[[[0.3601, 0.7992, 0.9616, 0.9897], [0.1783, 0.5949, 0.5129, 0.5326], [0.3469, 0.2174, 0.4562, 0.3077], [0.881, 0.8595, 0.8946, 0.6167], [0.6528, 0.5316, 0.0867, 0.9109], [0.295, 0.492, 0.4227, 0.3258], [0.1239, 0.2691, 0.8135, 0.7668]]]], 2, Con40151), 
+LUp_73522 = up_sampling2D_layer([[[[1.9868]], [[1.958]]]], 1, 1, Up_73522), 
+LRes77449 = reshape_layer(Up_73522, [2, 1], Res77449), 
+LCon34849 = concatenate_layer([Res77449,[[[0.9974, 0.9385, 0.6963, 0.0174, 0.053, 0.1552], [0.3055, 0.0837, 0.494, 0.5114, 0.0856, 0.798]]]], 2, Con34849), 
+LCro94932 = cropping3D_layer([[[[[1.8157], [1.8075]]], [[[1.6103], [1.0157]]], [[[1.5746], [1.2925]]], [[[1.5959], [1.3114]]]]], 3, 0, 0, 0, 0, 1, Cro94932), 
+LRes19108 = reshape_layer(Cro94932, [1, 1, 1], Res19108), 
+LRes53841 = reshape_layer(Res19108, [1, 1], Res53841), 
+LLoc2968 = locally_connected1D_layer(Res53841, 1,[[[0.9633, 0.5862, 0.7402, 0.0198]]],[[0, 0, 0, 0]], 1, Loc2968), 
+LRes56181 = reshape_layer(Loc2968, [1, 4, 1], Res56181), 
+LZer49049 = zero_padding2D_layer(Res56181, 1, 0, 3, 0, Zer49049), 
+LUp_4615 = up_sampling1D_layer([[[1.4107, 1.3804, 1.6324, 1.0298], [1.8401, 1.782, 1.8044, 1.7898], [1.5224, 1.6975, 1.6407, 1.299]]], 2, Up_4615), 
+LRes7940 = reshape_layer(Up_4615, [6, 4, 1], Res7940), 
+LDep47746 = depthwise_conv2D_layer(Res7940, 5, 1,[[[[0.8894]]], [[[0.3565]]], [[[0.9504]]], [[[0.7798]]], [[[0.4103]]]],[0], 4, 4, true, Dep47746), 
+LZer584 = zero_padding2D_layer(Dep47746, 0, 0, 6, 0, Zer584), 
+LSub20924 = subtract_layer(Zer49049,Zer584, Sub20924), 
+LRes81617 = reshape_layer(Sub20924, [2, 7], Res81617), 
+LDot8978 = dot_layer(Con34849,Res81617, 1, 1, Dot8978), 
+LMul96676 = multiply_layer([Con40151,Dot8978], Mul96676), 
+exec_layers([LDot20982,LZer8727,LCon40151,LUp_73522,LRes77449,LCon34849,LCro94932,LRes19108,LRes53841,LLoc2968,LRes56181,LZer49049,LUp_4615,LRes7940,LDep47746,LZer584,LSub20924,LRes81617,LDot8978,LMul96676],["Dot20982","Zer8727","Con40151","Up_73522","Res77449","Con34849","Cro94932","Res19108","Res53841","Loc2968","Res56181","Zer49049","Up_4615","Res7940","Dep47746","Zer584","Sub20924","Res81617","Dot8978","Mul96676"],Mul96676,"Mul96676")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 1.0839345, 1.4639278, 2.2241389, -14.8970620], [0.0000000, 0.0000000, 0.0000000, 0.0837394, 0.1700226, 0.1850967, -2.7275581], [0.0000000, 0.0000000, 0.0000000, 0.0446372, 0.0170230, 0.0451061, -1.2573707], [0.0000000, 0.0000000, 0.0000000, 0.6690677, 0.3972138, 0.5220482, -2.8271356], [0.0000000, 0.0000000, 0.0000000, 0.5132254, 0.2543298, 0.0523763, -1.7384231], [0.0000000, 0.0000000, 0.0000000, 0.0388207, 0.0393995, 0.0427426, -0.1698971], [0.0000000, 0.0000000, 0.0000000, 0.1519992, 0.2008945, 0.7668584, -2.6795870]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,1.083934510999626,1.4639277777410882,2.224138857354304,-14.897061957848532],[0.0,0.0,0.0,0.0837393899657055,0.17002260750653103,0.185096697075121,-2.727558140177165],[0.0,0.0,0.0,0.0446372049815991,0.017023015185980404,0.04510612243600919,-1.2573707021758709],[0.0,0.0,0.0,0.66906774317058,0.39721379125194006,0.5220481946818318,-2.82713555325542],[0.0,0.0,0.0,0.5132253557793024,0.2543297619627792,0.052376271199208395,-1.738423152113971],[0.0,0.0,0.0,0.03882066902844,0.039399467870016004,0.0427425834221616,-0.16989709476198236],[0.0,0.0,0.0,0.15199924569593404,0.20089451431904404,0.76685844415614,-2.679587041465094]]]
+
+Actual:   [[[0, 0, 0, 1.084, 1.464, 2.2242, -14.897], [0, 0, 0, 0.0838, 0.1701, 0.1851, -2.7275], [0, 0, 0, 0.0447, 0.0171, 0.0452, -1.2573], [0, 0, 0, 0.6691, 0.3973, 0.5221, -2.8271], [0, 0, 0, 0.5133, 0.2544, 0.0524, -1.7384], [0, 0, 0, 0.0389, 0.0394, 0.0428, -0.1698], [0, 0, 0, 0.152, 0.2009, 0.7669, -2.6795]]]
+
+Expected: [[[0, 0, 0, 1.084, 1.464, 2.2242, -14.897], [0, 0, 0, 0.0838, 0.1701, 0.1851, -2.7275], [0, 0, 0, 0.0447, 0.0171, 0.0452, -1.2573], [0, 0, 0, 0.6691, 0.3973, 0.5221, -2.8271], [0, 0, 0, 0.5133, 0.2544, 0.0524, -1.7384], [0, 0, 0, 0.0389, 0.0394, 0.0428, -0.1698], [0, 0, 0, 0.152, 0.2009, 0.7669, -2.6795]]]

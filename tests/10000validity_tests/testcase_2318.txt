@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max75141 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Max75141 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Max21278 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Max21278 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con36169 = tf.keras.layers.Input(shape=([2, 1]))
+
+Max75141 = keras.layers.Maximum(name = 'Max75141', )([in0Max75141,in1Max75141])
+Res1464 = keras.layers.Reshape((2, 2, 2), name = 'Res1464', )(Max75141)
+Res34489 = keras.layers.Reshape((2, 4), name = 'Res34489', )(Res1464)
+Max21278 = keras.layers.Maximum(name = 'Max21278', )([in0Max21278,in1Max21278])
+Res30057 = keras.layers.Reshape((2, 2), name = 'Res30057', )(Max21278)
+Loc12318 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc12318', )(Res30057)
+Con36169 = keras.layers.Concatenate(axis=2, name = 'Con36169', )([Loc12318,in0Con36169])
+Sub43543 = keras.layers.Subtract(name = 'Sub43543', )([Res34489,Con36169])
+model = tf.keras.models.Model(inputs=[in0Max75141,in1Max75141,in0Max21278,in1Max21278,in0Con36169], outputs=Sub43543)
+w = model.get_layer('Loc12318').get_weights() 
+w[0] = np.array([[[0.4069, 0.9719, 0.684], [0.506, 0.1721, 0.6343]], [[0.0298, 0.6276, 0.8688], [0.4304, 0.3553, 0.937]]])
+w[1] = np.array([[0, 0, 0], [0, 0, 0]])
+model.get_layer('Loc12318').set_weights(w) 
+in0Max75141 = tf.constant([[[[[0.9523, 0.0287]], [[0.6423, 0.3252]]], [[[0.9893, 0.0916]], [[0.0795, 0.238]]]]])
+in1Max75141 = tf.constant([[[[[0.9648, 0.4885]], [[0.424, 0.1842]]], [[[0.7559, 0.5532]], [[0.0037, 0.2813]]]]])
+in0Max21278 = tf.constant([[[[0.1073, 0.0734]], [[0.0754, 0.6231]]]])
+in1Max21278 = tf.constant([[[[0.0475, 0.8605]], [[0.8813, 0.559]]]])
+in0Con36169 = tf.constant([[[0.2357], [0.5273]]])
+print (np.array2string(model.predict([in0Max75141,in1Max75141,in0Max21278,in1Max21278,in0Con36169],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub43543.png')
+
+LMax75141 = maximum_layer([[[[[[0.9523, 0.0287]], [[0.6423, 0.3252]]], [[[0.9893, 0.0916]], [[0.0795, 0.238]]]]], [[[[[0.9648, 0.4885]], [[0.424, 0.1842]]], [[[0.7559, 0.5532]], [[0.0037, 0.2813]]]]]], Max75141), 
+LRes1464 = reshape_layer(Max75141, [2, 2, 2], Res1464), 
+LRes34489 = reshape_layer(Res1464, [2, 4], Res34489), 
+LMax21278 = maximum_layer([[[[[0.1073, 0.0734]], [[0.0754, 0.6231]]]], [[[[0.0475, 0.8605]], [[0.8813, 0.559]]]]], Max21278), 
+LRes30057 = reshape_layer(Max21278, [2, 2], Res30057), 
+LLoc12318 = locally_connected1D_layer(Res30057, 1,[[[0.4069, 0.9719, 0.684], [0.506, 0.1721, 0.6343]], [[0.0298, 0.6276, 0.8688], [0.4304, 0.3553, 0.937]]],[[0, 0, 0], [0, 0, 0]], 1, Loc12318), 
+LCon36169 = concatenate_layer([Loc12318,[[[0.2357], [0.5273]]]], 2, Con36169), 
+LSub43543 = subtract_layer(Res34489,Con36169, Sub43543), 
+exec_layers([LMax75141,LRes1464,LRes34489,LMax21278,LRes30057,LLoc12318,LCon36169,LSub43543],["Max75141","Res1464","Res34489","Max21278","Res30057","Loc12318","Con36169","Sub43543"],Sub43543,"Sub43543")
+
+Actual (Unparsed): [[[0.4857266, 0.2361231, 0.0230917, 0.0895000], [0.6948550, -0.2212913, -1.2700181, -0.2460000]]]
+
+Expected (Unparsed): [[[0.48572662999999994,0.23612307999999999,0.023091649999999908,0.0895],[0.6948550199999999,-0.2212913099999999,-1.2700181400000001,-0.246]]]
+
+Actual:   [[[0.4858, 0.2362, 0.0231, 0.0895], [0.6949, -0.2212, -1.27, -0.246]]]
+
+Expected: [[[0.4858, 0.2362, 0.0231, 0.0895], [0.6949, -0.2212, -1.27, -0.246]]]

@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den24722 = tf.keras.layers.Input(shape=([2, 3]))
+in0Add60819 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Add60819 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Den24722 = keras.layers.Dense(4,name = 'Den24722', )(in0Den24722)
+Mas17480 = keras.layers.Masking(mask_value=2, name = 'Mas17480', )(Den24722)
+Lea86913 = keras.layers.LeakyReLU(alpha=8.279844368542895, name = 'Lea86913', )(Mas17480)
+Res77565 = keras.layers.Reshape((2, 4, 1), name = 'Res77565', )(Lea86913)
+Add60819 = keras.layers.Add(name = 'Add60819', )([in0Add60819,in1Add60819])
+Zer5492 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer5492', )(Add60819)
+Dep4133 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep4133', )(Zer5492)
+ELU93527 = keras.layers.ELU(alpha=-8.09737109757908, name = 'ELU93527', )(Dep4133)
+Zer12255 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer12255', )(ELU93527)
+Mul63866 = keras.layers.Multiply(name = 'Mul63866', )([Res77565,Zer12255])
+model = tf.keras.models.Model(inputs=[in0Den24722,in0Add60819,in1Add60819], outputs=Mul63866)
+w = model.get_layer('Den24722').get_weights() 
+w[0] = np.array([[0.9341, 0.8903, 0.6496, 0.2988], [0.8631, 0.0644, 0.1242, 0.1686], [0.3053, 0.2085, 0.9966, 0.3011]])
+w[1] = np.array([0.0551, 0.9257, 0.0589, 0.904])
+model.get_layer('Den24722').set_weights(w) 
+w = model.get_layer('Dep4133').get_weights() 
+w[0] = np.array([[[[0.9056]]], [[[0.315]]]])
+w[1] = np.array([0])
+model.get_layer('Dep4133').set_weights(w) 
+in0Den24722 = tf.constant([[[0.2852, 0.3894, 0.4454], [0.6896, 0.1249, 0.3897]]])
+in0Add60819 = tf.constant([[[[0.8699], [0.7765]]]])
+in1Add60819 = tf.constant([[[[0.967], [0.6901]]]])
+print (np.array2string(model.predict([in0Den24722,in0Add60819,in1Add60819],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul63866.png')
+
+LDen24722 = dense_layer([[[0.2852, 0.3894, 0.4454], [0.6896, 0.1249, 0.3897]]], [[0.9341, 0.8903, 0.6496, 0.2988], [0.8631, 0.0644, 0.1242, 0.1686], [0.3053, 0.2085, 0.9966, 0.3011]],[0.0551, 0.9257, 0.0589, 0.904], Den24722), 
+LMas17480 = masking_layer(Den24722, 2, Mas17480), 
+LLea86913 = leaky_relu_layer(Mas17480, 8.279844368542895, Lea86913), 
+LRes77565 = reshape_layer(Lea86913, [2, 4, 1], Res77565), 
+LAdd60819 = add_layer([[[[[0.8699], [0.7765]]]], [[[[0.967], [0.6901]]]]], Add60819), 
+LZer5492 = zero_padding2D_layer(Add60819, 1, 1, 1, 1, Zer5492), 
+LDep4133 = depthwise_conv2D_layer(Zer5492, 2, 1,[[[[0.9056]]], [[[0.315]]]],[0], 2, 2, false, Dep4133), 
+LELU93527 = elu_layer(Dep4133, -8.09737109757908, ELU93527), 
+LZer12255 = zero_padding2D_layer(ELU93527, 1, 0, 2, 0, Zer12255), 
+LMul63866 = multiply_layer([Res77565,Zer12255], Mul63866), 
+exec_layers([LDen24722,LMas17480,LLea86913,LRes77565,LAdd60819,LZer5492,LDep4133,LELU93527,LZer12255,LMul63866],["Den24722","Mas17480","Lea86913","Res77565","Add60819","Zer5492","Dep4133","ELU93527","Zer12255","Mul63866"],Mul63866,"Mul63866")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [-0.0000000], [0.5767574]]]]
+
+Expected (Unparsed): [[[[0.0],[0.0],[0.0],[0.0]],[[0.0],[0.0],[0.0],[0.5767573545449101]]]]
+
+Actual:   [[[[0], [0], [0], [0]], [[0], [0], [-0], [0.5768]]]]
+
+Expected: [[[[0], [0], [0], [0]], [[0], [0], [0], [0.5768]]]]

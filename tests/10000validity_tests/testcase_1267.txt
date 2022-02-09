@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU54219 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mas60048 = tf.keras.layers.Input(shape=([3, 1]))
+
+ELU54219 = keras.layers.ELU(alpha=7.4965570914606126, name = 'ELU54219', input_shape=(2, 2))(in0ELU54219)
+Res71364 = keras.layers.Reshape((2, 2, 1), name = 'Res71364', )(ELU54219)
+Res73506 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res73506', )(Res71364)
+Zer84517 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (2, 0)), name = 'Zer84517', )(Res73506)
+Mas60048 = keras.layers.Masking(mask_value=1, name = 'Mas60048', )(in0Mas60048)
+Res13370 = keras.layers.Reshape((3, 1, 1), name = 'Res13370', )(Mas60048)
+Ave42787 = keras.layers.AveragePooling2D(pool_size=(2, 1), strides=(1, 1), padding='valid', name = 'Ave42787', )(Res13370)
+Bat16509 = keras.layers.BatchNormalization(axis=2, epsilon=0.5119453637120697,  name = 'Bat16509', )(Ave42787)
+Res11914 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res11914', )(Bat16509)
+Zer64290 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer64290', )(Res11914)
+Max15815 = keras.layers.Maximum(name = 'Max15815', )([Zer84517,Zer64290])
+model = tf.keras.models.Model(inputs=[in0ELU54219,in0Mas60048], outputs=Max15815)
+w = model.get_layer('Bat16509').get_weights() 
+w[0] = np.array([0.3337])
+w[1] = np.array([0.0399])
+w[2] = np.array([0.3472])
+w[3] = np.array([0.5304])
+model.get_layer('Bat16509').set_weights(w) 
+in0ELU54219 = tf.constant([[[0.5325, 0.4309], [0.8648, 0.2912]]])
+in0Mas60048 = tf.constant([[[1.1602], [1.1287], [1.7307]]])
+print (np.array2string(model.predict([in0ELU54219,in0Mas60048],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max15815.png')
+
+LELU54219 = elu_layer([[[0.5325, 0.4309], [0.8648, 0.2912]]], 7.4965570914606126, ELU54219), 
+LRes71364 = reshape_layer(ELU54219, [2, 2, 1], Res71364), 
+LRes73506 = reshape_layer(Res71364, [2, 2, 1, 1], Res73506), 
+LZer84517 = zero_padding3D_layer(Res73506, 2, 0, 1, 0, 2, 0, Zer84517), 
+LMas60048 = masking_layer([[[1.1602], [1.1287], [1.7307]]], 1, Mas60048), 
+LRes13370 = reshape_layer(Mas60048, [3, 1, 1], Res13370), 
+LAve42787 = average_pooling2D_layer(Res13370, 2, 1, 1, 1, false, Ave42787), 
+LBat16509 = batch_normalization_layer(Ave42787, 2, 0.5119453637120697, [0.3337], [0.0399], [0.3472], [0.5304], Bat16509), 
+LRes11914 = reshape_layer(Bat16509, [2, 1, 1, 1], Res11914), 
+LZer64290 = zero_padding3D_layer(Res11914, 1, 1, 1, 1, 1, 1, Zer64290), 
+LMax15815 = maximum_layer([Zer84517,Zer64290], Max15815), 
+exec_layers([LELU54219,LRes71364,LRes73506,LZer84517,LMas60048,LRes13370,LAve42787,LBat16509,LRes11914,LZer64290,LMax15815],["ELU54219","Res71364","Res73506","Zer84517","Mas60048","Res13370","Ave42787","Bat16509","Res11914","Zer64290","Max15815"],Max15815,"Max15815")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.3004823], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.3937167], [0.5325000]], [[0.0000000], [0.0000000], [0.4309000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.8648000]], [[0.0000000], [0.0000000], [0.2912000]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.3004823012264475],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.39371667115412906],[0.5325]],[[0],[0],[0.4309]]],[[[0],[0],[0]],[[0],[0],[0.8648]],[[0],[0],[0.2912]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.3005], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.3938], [0.5325]], [[0], [0], [0.4309]]], [[[0], [0], [0]], [[0], [0], [0.8648]], [[0], [0], [0.2912]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.3005], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.3938], [0.5325]], [[0], [0], [0.4309]]], [[[0], [0], [0]], [[0], [0], [0.8648]], [[0], [0], [0.2912]]]]]

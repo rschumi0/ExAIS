@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min710 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Min710 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Glo73102 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con41552 = tf.keras.layers.Input(shape=([3]))
+
+Min710 = keras.layers.Minimum(name = 'Min710', )([in0Min710,in1Min710])
+Res81402 = keras.layers.Reshape((1, 2, 2), name = 'Res81402', )(Min710)
+Res2234 = keras.layers.Reshape((1, 4), name = 'Res2234', )(Res81402)
+Fla91741 = keras.layers.Flatten(name = 'Fla91741', )(Res2234)
+Glo73102 = keras.layers.GlobalAveragePooling3D(name = 'Glo73102', )(in0Glo73102)
+Con41552 = keras.layers.Concatenate(axis=1, name = 'Con41552', )([Glo73102,in0Con41552])
+Add32509 = keras.layers.Add(name = 'Add32509', )([Fla91741,Con41552])
+Res54702 = keras.layers.Reshape((4, 1), name = 'Res54702', )(Add32509)
+GRU82362 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU82362', )(Res54702)
+model = tf.keras.models.Model(inputs=[in0Min710,in1Min710,in0Glo73102,in0Con41552], outputs=GRU82362)
+w = model.get_layer('GRU82362').get_weights() 
+w[0] = np.array([[6, 10, 2, 1, 5, 5]])
+w[1] = np.array([[2, 9, 3, 1, 6, 10], [8, 6, 9, 4, 8, 10]])
+w[2] = np.array([[4, 2, 1, 5, 5, 1], [9, 9, 4, 8, 10, 3]])
+model.get_layer('GRU82362').set_weights(w) 
+in0Min710 = tf.constant([[[[[0.7036, 0.3065]], [[0.5706, 0.8558]]]]])
+in1Min710 = tf.constant([[[[[0.3265, 0.0657]], [[0.5834, 0.7748]]]]])
+in0Glo73102 = tf.constant([[[[[1.6464], [1.5786]], [[1.747], [1.8973]]]]])
+in0Con41552 = tf.constant([[0.0052, 0.6535, 0.1263]])
+print (np.array2string(model.predict([in0Min710,in1Min710,in0Glo73102,in0Con41552],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU82362.png')
+
+LMin710 = minimum_layer([[[[[[0.7036, 0.3065]], [[0.5706, 0.8558]]]]], [[[[[0.3265, 0.0657]], [[0.5834, 0.7748]]]]]], Min710), 
+LRes81402 = reshape_layer(Min710, [1, 2, 2], Res81402), 
+LRes2234 = reshape_layer(Res81402, [1, 4], Res2234), 
+LFla91741 = flatten_layer(Res2234, Fla91741), 
+LGlo73102 = global_average_pooling3D_layer([[[[[1.6464], [1.5786]], [[1.747], [1.8973]]]]], Glo73102), 
+LCon41552 = concatenate_layer([Glo73102,[[0.0052, 0.6535, 0.1263]]], 1, Con41552), 
+LAdd32509 = add_layer([Fla91741,Con41552], Add32509), 
+LRes54702 = reshape_layer(Add32509, [4, 1], Res54702), 
+LGRU82362 = gru_layer(Res54702,[[6, 10, 2, 1, 5, 5]],[[2, 9, 3, 1, 6, 10], [8, 6, 9, 4, 8, 10]],[[4, 2, 1, 5, 5, 1], [9, 9, 4, 8, 10, 3]], true, GRU82362), 
+exec_layers([LMin710,LRes81402,LRes2234,LFla91741,LGlo73102,LCon41552,LAdd32509,LRes54702,LGRU82362],["Min710","Res81402","Res2234","Fla91741","Glo73102","Con41552","Add32509","Res54702","GRU82362"],GRU82362,"GRU82362")
+
+Actual (Unparsed): [[0.0000015, 0.0000082]]
+
+Expected (Unparsed): [[1.4887539138549902e-6,8.218847740228378e-6]]
+
+Actual:   [[0, 0]]
+
+Expected: [[0, 0]]

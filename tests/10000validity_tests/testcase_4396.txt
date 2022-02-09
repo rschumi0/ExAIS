@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul76839 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Mul76839 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Mul76839 = keras.layers.Multiply(name = 'Mul76839', )([in0Mul76839,in1Mul76839])
+Res10562 = keras.layers.Reshape((1, 1, 2), name = 'Res10562', )(Mul76839)
+Loc19401 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc19401', )(Res10562)
+Res55680 = keras.layers.Reshape((1, 2), name = 'Res55680', )(Loc19401)
+Per82763 = keras.layers.Permute((2,1), name = 'Per82763',)(Res55680)
+model = tf.keras.models.Model(inputs=[in0Mul76839,in1Mul76839], outputs=Per82763)
+w = model.get_layer('Loc19401').get_weights() 
+w[0] = np.array([[[0.4727, 0.9225], [0.2223, 0.5415]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc19401').set_weights(w) 
+in0Mul76839 = tf.constant([[[[[0.9639], [0.5684]]]]])
+in1Mul76839 = tf.constant([[[[[0.4106], [0.0778]]]]])
+print (np.array2string(model.predict([in0Mul76839,in1Mul76839],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per82763.png')
+
+LMul76839 = multiply_layer([[[[[[0.9639], [0.5684]]]]], [[[[[0.4106], [0.0778]]]]]], Mul76839), 
+LRes10562 = reshape_layer(Mul76839, [1, 1, 2], Res10562), 
+LLoc19401 = locally_connected2D_layer(Res10562, 1, 1,[[[0.4727, 0.9225], [0.2223, 0.5415]]],[[[0, 0]]], 1, 1, Loc19401), 
+LRes55680 = reshape_layer(Loc19401, [1, 2], Res55680), 
+LPer82763 = permute_layer(Res55680, 2,1, Per82763), 
+exec_layers([LMul76839,LRes10562,LLoc19401,LRes55680,LPer82763],["Mul76839","Res10562","Loc19401","Res55680","Per82763"],Per82763,"Per82763")
+
+Actual (Unparsed): [[[0.1969144], [0.3890506]]]
+
+Expected (Unparsed): [[[0.196914392514],[0.38905054923000004]]]
+
+Actual:   [[[0.197], [0.3891]]]
+
+Expected: [[[0.197], [0.3891]]]

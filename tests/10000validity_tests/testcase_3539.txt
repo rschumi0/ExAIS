@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul91485 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Mul91485 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con32395 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Add62724 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Add62724 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Mul91485 = keras.layers.Multiply(name = 'Mul91485', )([in0Mul91485,in1Mul91485])
+Zer79064 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer79064', )(Mul91485)
+Con32395 = keras.layers.Concatenate(axis=3, name = 'Con32395', )([Zer79064,in0Con32395])
+Add62724 = keras.layers.Add(name = 'Add62724', )([in0Add62724,in1Add62724])
+Sof80397 = keras.layers.Softmax(axis=1, name = 'Sof80397', )(Add62724)
+Con52125 = keras.layers.Conv2D(4, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con52125', )(Sof80397)
+Min58600 = keras.layers.Minimum(name = 'Min58600', )([Con32395,Con52125])
+model = tf.keras.models.Model(inputs=[in0Mul91485,in1Mul91485,in0Con32395,in0Add62724,in1Add62724], outputs=Min58600)
+w = model.get_layer('Con52125').get_weights() 
+w[0] = np.array([[[[0.4874, 0.0752, 0.9858, 0.2], [0.1616, 0.8883, 0.9305, 0.803]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con52125').set_weights(w) 
+in0Mul91485 = tf.constant([[[[0.3313]]]])
+in1Mul91485 = tf.constant([[[[0.8448]]]])
+in0Con32395 = tf.constant([[[[0.0446, 0.6858, 0.1217], [0.6548, 0.38, 0.2929]], [[0.0682, 0.8549, 0.9589], [0.044, 0.76, 0.8403]]]])
+in0Add62724 = tf.constant([[[[0.6736, 0.3637], [0.7126, 0.1114]], [[0.3237, 0.9374], [0.1202, 0.9572]]]])
+in1Add62724 = tf.constant([[[[0.2142, 0.7849], [0.8545, 0.2986]], [[0.1422, 0.4814], [0.374, 0.4749]]]])
+print (np.array2string(model.predict([in0Mul91485,in1Mul91485,in0Con32395,in0Add62724,in1Add62724],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min58600.png')
+
+LMul91485 = multiply_layer([[[[[0.3313]]]], [[[[0.8448]]]]], Mul91485), 
+LZer79064 = zero_padding2D_layer(Mul91485, 1, 0, 1, 0, Zer79064), 
+LCon32395 = concatenate_layer([Zer79064,[[[[0.0446, 0.6858, 0.1217], [0.6548, 0.38, 0.2929]], [[0.0682, 0.8549, 0.9589], [0.044, 0.76, 0.8403]]]]], 3, Con32395), 
+LAdd62724 = add_layer([[[[[0.6736, 0.3637], [0.7126, 0.1114]], [[0.3237, 0.9374], [0.1202, 0.9572]]]], [[[[0.2142, 0.7849], [0.8545, 0.2986]], [[0.1422, 0.4814], [0.374, 0.4749]]]]], Add62724), 
+LSof80397 = softmax_layer(Add62724, 1, Sof80397), 
+LCon52125 = conv2D_layer(Sof80397, 1, 1,[[[[0.4874, 0.0752, 0.9858, 0.2], [0.1616, 0.8883, 0.9305, 0.803]]]],[0, 0, 0, 0], 1, 1, true, 1, 1, Con52125), 
+LMin58600 = minimum_layer([Con32395,Con52125], Min58600), 
+exec_layers([LMul91485,LZer79064,LCon32395,LAdd62724,LSof80397,LCon52125,LMin58600],["Mul91485","Zer79064","Con32395","Add62724","Sof80397","Con52125","Min58600"],Min58600,"Min58600")
+
+Actual (Unparsed): [[[[0.0000000, 0.0446000, 0.6858000, 0.1217000], [0.0000000, 0.2910958, 0.3800000, 0.2929000]], [[0.0000000, 0.0682000, 0.8549000, 0.5346275], [0.2430525, 0.0440000, 0.7600000, 0.6414817]]]]
+
+Expected (Unparsed): [[[[0,0.0446,0.6858,0.1217],[0,0.29109578751728554,0.38,0.2929]],[[0,0.0682,0.8549,0.5346274664909882],[0.24305249560105163,0.044,0.76,0.6414817011804915]]]]
+
+Actual:   [[[[0, 0.0446, 0.6858, 0.1217], [0, 0.2911, 0.38, 0.2929]], [[0, 0.0682, 0.8549, 0.5347], [0.2431, 0.044, 0.76, 0.6415]]]]
+
+Expected: [[[[0, 0.0446, 0.6858, 0.1217], [0, 0.2911, 0.38, 0.2929]], [[0, 0.0682, 0.8549, 0.5347], [0.2431, 0.044, 0.76, 0.6415]]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con97424 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0LST42875 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con32374 = tf.keras.layers.Input(shape=([3]))
+
+Con97424 = keras.layers.Conv3D(3, (1, 2, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con97424', )(in0Con97424)
+Res46574 = keras.layers.Reshape((1, 2, 3), name = 'Res46574', )(Con97424)
+Con73847 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='same', name = 'Con73847', )(Res46574)
+Res41777 = keras.layers.Reshape((1, 4), name = 'Res41777', )(Con73847)
+Fla14732 = keras.layers.Flatten(name = 'Fla14732', )(Res41777)
+LST42875 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST42875', )(in0LST42875)
+Con32374 = keras.layers.Concatenate(axis=1, name = 'Con32374', )([LST42875,in0Con32374])
+Mul41219 = keras.layers.Multiply(name = 'Mul41219', )([Fla14732,Con32374])
+model = tf.keras.models.Model(inputs=[in0Con97424,in0LST42875,in0Con32374], outputs=Mul41219)
+w = model.get_layer('Con97424').get_weights() 
+w[0] = np.array([[[[[0.3082, 0.7985, 0.2701]]], [[[0.5045, 0.6843, 0.0036]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con97424').set_weights(w) 
+w = model.get_layer('Con73847').get_weights() 
+w[0] = np.array([[[[0.9802, 0.75, 0.47], [0.9995, 0.3877, 0.6433]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con73847').set_weights(w) 
+w = model.get_layer('LST42875').get_weights() 
+w[0] = np.array([[10, 3, 4, 6]])
+w[1] = np.array([[3, 4, 1, 4]])
+w[2] = np.array([4, 6, 6, 3])
+model.get_layer('LST42875').set_weights(w) 
+in0Con97424 = tf.constant([[[[[0.1674]], [[0.1476]]]]])
+in0LST42875 = tf.constant([[[3]]])
+in0Con32374 = tf.constant([[0.723, 0.7621, 0.1358]])
+print (np.array2string(model.predict([in0Con97424,in0LST42875,in0Con32374],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul41219.png')
+
+LCon97424 = conv3D_layer([[[[[0.1674]], [[0.1476]]]]], 1, 2, 1,[[[[[0.3082, 0.7985, 0.2701]]], [[[0.5045, 0.6843, 0.0036]]]]],[0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con97424), 
+LRes46574 = reshape_layer(Con97424, [1, 2, 3], Res46574), 
+LCon73847 = conv2D_transpose_layer(Res46574, 1, 1,[[[[0.9802, 0.75, 0.47], [0.9995, 0.3877, 0.6433]]]],[0, 0], 1, 1, true, Con73847), 
+LRes41777 = reshape_layer(Con73847, [1, 4], Res41777), 
+LFla14732 = flatten_layer(Res41777, Fla14732), 
+LLST42875 = lstm_layer([[[3]]],[[10, 3, 4, 6]],[[3, 4, 1, 4]],[4, 6, 6, 3], LST42875), 
+LCon32374 = concatenate_layer([LST42875,[[0.723, 0.7621, 0.1358]]], 1, Con32374), 
+LMul41219 = multiply_layer([Fla14732,Con32374], Mul41219), 
+exec_layers([LCon97424,LRes46574,LCon73847,LRes41777,LFla14732,LLST42875,LCon32374,LMul41219],["Con97424","Res46574","Con73847","Res41777","Fla14732","LST42875","Con32374","Mul41219"],Mul41219,"Mul41219")
+
+Actual (Unparsed): [[0.2445215, 0.1781504, 0.1156265, 0.0158625]]
+
+Expected (Unparsed): [[0.24452146037374206,0.17815044573208796,0.11562652750825439,0.0158624776162944]]
+
+Actual:   [[0.2446, 0.1782, 0.1157, 0.0159]]
+
+Expected: [[0.2446, 0.1782, 0.1157, 0.0159]]

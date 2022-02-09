@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim98890 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sim98890 = keras.layers.SimpleRNN(2,name = 'Sim98890', )(in0Sim98890)
+Res16568 = keras.layers.Reshape((2, 1), name = 'Res16568', )(Sim98890)
+Res18152 = keras.layers.Reshape((2, 1, 1), name = 'Res18152', )(Res16568)
+Res59375 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res59375', )(Res18152)
+Con63194 = keras.layers.Conv3D(3, (2, 1, 1),strides=(1, 1, 7), padding='valid', dilation_rate=(1, 1, 1), name = 'Con63194', )(Res59375)
+Res53052 = keras.layers.Reshape((1, 1, 3), name = 'Res53052', )(Con63194)
+Res91494 = keras.layers.Reshape((1, 3), name = 'Res91494', )(Res53052)
+Up_74413 = keras.layers.UpSampling1D(size=(1), name = 'Up_74413', )(Res91494)
+Res40377 = keras.layers.Reshape((1, 3, 1), name = 'Res40377', )(Up_74413)
+Sep58682 = keras.layers.SeparableConv2D(4, (1, 2),strides=(1, 1), padding='valid', name = 'Sep58682', )(Res40377)
+Res56733 = keras.layers.Reshape((1, 2, 4, 1), name = 'Res56733', )(Sep58682)
+Con43671 = keras.layers.Conv3DTranspose(3, (1, 2, 1),strides=(1, 1, 1), padding='same', name = 'Con43671', )(Res56733)
+model = tf.keras.models.Model(inputs=[in0Sim98890], outputs=Con43671)
+w = model.get_layer('Sim98890').get_weights() 
+w[0] = np.array([[1, 8], [5, 8]])
+w[1] = np.array([[9, 7], [4, 10]])
+w[2] = np.array([9, 8])
+model.get_layer('Sim98890').set_weights(w) 
+w = model.get_layer('Con63194').get_weights() 
+w[0] = np.array([[[[[0.7031, 0.8979, 0.1853]]]], [[[[0.0025, 0.7084, 0.5804]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con63194').set_weights(w) 
+w = model.get_layer('Sep58682').get_weights() 
+w[0] = np.array([[[[0.3943]], [[0.4759]]]])
+w[1] = np.array([[[[0.9598, 0.2326, 0.6568, 0.8225]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep58682').set_weights(w) 
+w = model.get_layer('Con43671').get_weights() 
+w[0] = np.array([[[[[0.9549], [0.0503], [0.2091]]], [[[0.5327], [0.3897], [0.0325]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con43671').set_weights(w) 
+in0Sim98890 = tf.constant([[[7, 9], [5, 6]]])
+print (np.array2string(model.predict([in0Sim98890],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con43671.png')
+
+LSim98890 = simple_rnn_layer([[[7, 9], [5, 6]]],[[1, 8], [5, 8]],[[9, 7], [4, 10]],[9, 8], Sim98890), 
+LRes16568 = reshape_layer(Sim98890, [2, 1], Res16568), 
+LRes18152 = reshape_layer(Res16568, [2, 1, 1], Res18152), 
+LRes59375 = reshape_layer(Res18152, [2, 1, 1, 1], Res59375), 
+LCon63194 = conv3D_layer(Res59375, 2, 1, 1,[[[[[0.7031, 0.8979, 0.1853]]]], [[[[0.0025, 0.7084, 0.5804]]]]],[0, 0, 0], 1, 1, 7, false, 1, 1, 1, Con63194), 
+LRes53052 = reshape_layer(Con63194, [1, 1, 3], Res53052), 
+LRes91494 = reshape_layer(Res53052, [1, 3], Res91494), 
+LUp_74413 = up_sampling1D_layer(Res91494, 1, Up_74413), 
+LRes40377 = reshape_layer(Up_74413, [1, 3, 1], Res40377), 
+LSep58682 = separable_conv2D_layer(Res40377, 1, 2,[[[[[0.3943]], [[0.4759]]]],[[[[0.9598, 0.2326, 0.6568, 0.8225]]]]],[0, 0, 0, 0], 1, 1, false, Sep58682), 
+LRes56733 = reshape_layer(Sep58682, [1, 2, 4, 1], Res56733), 
+LCon43671 = conv3D_transpose_layer(Res56733, 1, 2, 1,[[[[[0.9549], [0.0503], [0.2091]]], [[[0.5327], [0.3897], [0.0325]]]]],[0, 0, 0], 1, 1, 1, true, Con43671), 
+exec_layers([LSim98890,LRes16568,LRes18152,LRes59375,LCon63194,LRes53052,LRes91494,LUp_74413,LRes40377,LSep58682,LRes56733,LCon43671],["Sim98890","Res16568","Res18152","Res59375","Con63194","Res53052","Res91494","Up_74413","Res40377","Sep58682","Res56733","Con43671"],Con43671,"Con43671")
+
+Actual (Unparsed): [[[[[0.9556080, 0.0503373, 0.2092550], [0.2315841, 0.0121988, 0.0507113], [0.6539314, 0.0344463, 0.1431952], [0.8189077, 0.0431365, 0.1793210]], [[1.4475557, 0.4381588, 0.2327689], [0.3508038, 0.1061843, 0.0564097], [0.9905757, 0.2998361, 0.1592859], [1.2404819, 0.3754799, 0.1994711]]]]]
+
+Expected (Unparsed): [[[[[0.9556080285093748,0.05033729587812499,0.20925504111562496],[0.23158410859687498,0.012198848740624999,0.050711317528125],[0.6539313952125001,0.034446276237500004,0.14319515628750001],[0.8189076926953125,0.0431365137109375,0.1793209744921875]],[[1.4475556711276993,0.43815878254639173,0.23276886727098461],[0.3508037602670378,0.1061843434260166,0.056409708821870214],[0.9905757082690905,0.2998360995795688,0.15928588458385362],[1.2404819123802175,0.37547989023172246,0.19947113287183252]]]]]
+
+Actual:   [[[[[0.9557, 0.0504, 0.2093], [0.2316, 0.0122, 0.0508], [0.654, 0.0345, 0.1432], [0.819, 0.0432, 0.1794]], [[1.4476, 0.4382, 0.2328], [0.3509, 0.1062, 0.0565], [0.9906, 0.2999, 0.1593], [1.2405, 0.3755, 0.1995]]]]]
+
+Expected: [[[[[0.9557, 0.0504, 0.2093], [0.2316, 0.0122, 0.0508], [0.654, 0.0345, 0.1432], [0.819, 0.0432, 0.1794]], [[1.4476, 0.4382, 0.2328], [0.3509, 0.1062, 0.0565], [0.9906, 0.2999, 0.1593], [1.2405, 0.3755, 0.1995]]]]]

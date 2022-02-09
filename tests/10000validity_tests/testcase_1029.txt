@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0LST17225 = tf.keras.layers.Input(shape=([2, 2]))
+in0Cro1576 = tf.keras.layers.Input(shape=([2, 4, 4]))
+in0Max52458 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Max52458 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+LST17225 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST17225', )(in0LST17225)
+Res5071 = keras.layers.Reshape((1, 1), name = 'Res5071', )(LST17225)
+Res68196 = keras.layers.Reshape((1, 1, 1), name = 'Res68196', )(Res5071)
+Res67664 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res67664', )(Res68196)
+Zer90484 = keras.layers.ZeroPadding3D(padding=((3, 0), (3, 0), (3, 0)), name = 'Zer90484', )(Res67664)
+Cro1576 = keras.layers.Cropping2D(cropping=((0, 0), (1, 1)), name = 'Cro1576', )(in0Cro1576)
+Up_85705 = keras.layers.UpSampling2D(size=(2, 2), name = 'Up_85705', )(Cro1576)
+Res83210 = keras.layers.Reshape((4, 4, 4, 1), name = 'Res83210', )(Up_85705)
+Max52458 = keras.layers.Maximum(name = 'Max52458', )([in0Max52458,in1Max52458])
+Bat49215 = keras.layers.BatchNormalization(axis=2, epsilon=0.11222278645466582,  name = 'Bat49215', )(Max52458)
+Zer55458 = keras.layers.ZeroPadding3D(padding=((2, 0), (3, 0), (2, 0)), name = 'Zer55458', )(Bat49215)
+Add30622 = keras.layers.Add(name = 'Add30622', )([Res83210,Zer55458])
+Ave44043 = keras.layers.Average(name = 'Ave44043', )([Zer90484,Add30622])
+Res89723 = keras.layers.Reshape((4, 4, 4), name = 'Res89723', )(Ave44043)
+Glo45934 = keras.layers.GlobalMaxPool2D(name = 'Glo45934', )(Res89723)
+model = tf.keras.models.Model(inputs=[in0LST17225,in0Cro1576,in0Max52458,in1Max52458], outputs=Glo45934)
+w = model.get_layer('LST17225').get_weights() 
+w[0] = np.array([[10, 4, 1, 6], [7, 9, 8, 7]])
+w[1] = np.array([[7, 10, 3, 9]])
+w[2] = np.array([7, 3, 10, 9])
+model.get_layer('LST17225').set_weights(w) 
+w = model.get_layer('Bat49215').get_weights() 
+w[0] = np.array([0.6002])
+w[1] = np.array([0.9182])
+w[2] = np.array([0.048])
+w[3] = np.array([0.2908])
+model.get_layer('Bat49215').set_weights(w) 
+in0LST17225 = tf.constant([[[3, 1], [8, 2]]])
+in0Cro1576 = tf.constant([[[[1.0695, 1.2872, 1.3934, 1.155], [1.2375, 1.3156, 1.9244, 1.8292], [1.3788, 1.5835, 1.3234, 1.8509], [1.2146, 1.3961, 1.3365, 1.8516]], [[1.4022, 1.9657, 1.7421, 1.8685], [1.0592, 1.0341, 1.669, 1.6189], [1.765, 1.1967, 1.2105, 1.0954], [1.5846, 1.973, 1.1333, 1.4876]]]])
+in0Max52458 = tf.constant([[[[[0.1109], [0.8485]]], [[[0.9488], [0.2586]]]]])
+in1Max52458 = tf.constant([[[[[0.2607], [0.2271]]], [[[0.8661], [0.0563]]]]])
+print (np.array2string(model.predict([in0LST17225,in0Cro1576,in0Max52458,in1Max52458],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo45934.png')
+
+LLST17225 = lstm_layer([[[3, 1], [8, 2]]],[[10, 4, 1, 6], [7, 9, 8, 7]],[[7, 10, 3, 9]],[7, 3, 10, 9], LST17225), 
+LRes5071 = reshape_layer(LST17225, [1, 1], Res5071), 
+LRes68196 = reshape_layer(Res5071, [1, 1, 1], Res68196), 
+LRes67664 = reshape_layer(Res68196, [1, 1, 1, 1], Res67664), 
+LZer90484 = zero_padding3D_layer(Res67664, 3, 0, 3, 0, 3, 0, Zer90484), 
+LCro1576 = cropping2D_layer([[[[1.0695, 1.2872, 1.3934, 1.155], [1.2375, 1.3156, 1.9244, 1.8292], [1.3788, 1.5835, 1.3234, 1.8509], [1.2146, 1.3961, 1.3365, 1.8516]], [[1.4022, 1.9657, 1.7421, 1.8685], [1.0592, 1.0341, 1.669, 1.6189], [1.765, 1.1967, 1.2105, 1.0954], [1.5846, 1.973, 1.1333, 1.4876]]]], 0, 0, 1, 1, Cro1576), 
+LUp_85705 = up_sampling2D_layer(Cro1576, 2, 2, Up_85705), 
+LRes83210 = reshape_layer(Up_85705, [4, 4, 4, 1], Res83210), 
+LMax52458 = maximum_layer([[[[[[0.1109], [0.8485]]], [[[0.9488], [0.2586]]]]], [[[[[0.2607], [0.2271]]], [[[0.8661], [0.0563]]]]]], Max52458), 
+LBat49215 = batch_normalization_layer(Max52458, 2, 0.11222278645466582, [0.6002], [0.9182], [0.048], [0.2908], Bat49215), 
+LZer55458 = zero_padding3D_layer(Bat49215, 2, 0, 3, 0, 2, 0, Zer55458), 
+LAdd30622 = add_layer([Res83210,Zer55458], Add30622), 
+LAve44043 = average_layer([Zer90484,Add30622], Ave44043), 
+LRes89723 = reshape_layer(Ave44043, [4, 4, 4], Res89723), 
+LGlo45934 = global_max_pool2D_layer(Res89723, Glo45934), 
+exec_layers([LLST17225,LRes5071,LRes68196,LRes67664,LZer90484,LCro1576,LUp_85705,LRes83210,LMax52458,LBat49215,LZer55458,LAdd30622,LAve44043,LRes89723,LGlo45934],["LST17225","Res5071","Res68196","Res67664","Zer90484","Cro1576","Up_85705","Res83210","Max52458","Bat49215","Zer55458","Add30622","Ave44043","Res89723","Glo45934"],Glo45934,"Glo45934")
+
+Actual (Unparsed): [[0.8825000, 0.7917500, 1.4901735, 1.5883680]]
+
+Expected (Unparsed): [[0.8825,0.79175,1.4901734480343698,1.588367984260864]]
+
+Actual:   [[0.8825, 0.7918, 1.4902, 1.5884]]
+
+Expected: [[0.8825, 0.7918, 1.4902, 1.5884]]

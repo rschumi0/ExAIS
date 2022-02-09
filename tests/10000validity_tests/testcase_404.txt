@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro53606 = tf.keras.layers.Input(shape=([4, 3]))
+in0Mul80742 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul80742 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave23178 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Ave23178 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con17289 = tf.keras.layers.Input(shape=([2, 1]))
+
+Cro53606 = keras.layers.Cropping1D(cropping=((2, 0)), name = 'Cro53606', )(in0Cro53606)
+Mul80742 = keras.layers.Multiply(name = 'Mul80742', )([in0Mul80742,in1Mul80742])
+Res12958 = keras.layers.Reshape((1, 2), name = 'Res12958', )(Mul80742)
+Ave23178 = keras.layers.Average(name = 'Ave23178', )([in0Ave23178,in1Ave23178])
+Res46598 = keras.layers.Reshape((1, 2), name = 'Res46598', )(Ave23178)
+Dot72490 = keras.layers.Dot(axes=(1, 1), name = 'Dot72490', )([Res12958,Res46598])
+Con17289 = keras.layers.Concatenate(axis=2, name = 'Con17289', )([Dot72490,in0Con17289])
+Min31608 = keras.layers.Minimum(name = 'Min31608', )([Cro53606,Con17289])
+model = tf.keras.models.Model(inputs=[in0Cro53606,in0Mul80742,in1Mul80742,in0Ave23178,in1Ave23178,in0Con17289], outputs=Min31608)
+in0Cro53606 = tf.constant([[[1.7822, 1.5284, 1.0383], [1.8864, 1.1982, 1.1846], [1.065, 1.7402, 1.3514], [1.8396, 1.7067, 1.5072]]])
+in0Mul80742 = tf.constant([[[[0.0685, 0.0586]]]])
+in1Mul80742 = tf.constant([[[[0.3456, 0.9511]]]])
+in0Ave23178 = tf.constant([[[[0.6378]], [[0.4295]]]])
+in1Ave23178 = tf.constant([[[[0.7816]], [[0.9849]]]])
+in0Con17289 = tf.constant([[[0.8243], [0.6366]]])
+print (np.array2string(model.predict([in0Cro53606,in0Mul80742,in1Mul80742,in0Ave23178,in1Ave23178,in0Con17289],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min31608.png')
+
+LCro53606 = cropping1D_layer([[[1.7822, 1.5284, 1.0383], [1.8864, 1.1982, 1.1846], [1.065, 1.7402, 1.3514], [1.8396, 1.7067, 1.5072]]], 2, 0, Cro53606), 
+LMul80742 = multiply_layer([[[[[0.0685, 0.0586]]]], [[[[0.3456, 0.9511]]]]], Mul80742), 
+LRes12958 = reshape_layer(Mul80742, [1, 2], Res12958), 
+LAve23178 = average_layer([[[[[0.6378]], [[0.4295]]]], [[[[0.7816]], [[0.9849]]]]], Ave23178), 
+LRes46598 = reshape_layer(Ave23178, [1, 2], Res46598), 
+LDot72490 = dot_layer(Res12958,Res46598, 1, 1, Dot72490), 
+LCon17289 = concatenate_layer([Dot72490,[[[0.8243], [0.6366]]]], 2, Con17289), 
+LMin31608 = minimum_layer([Cro53606,Con17289], Min31608), 
+exec_layers([LCro53606,LMul80742,LRes12958,LAve23178,LRes46598,LDot72490,LCon17289,LMin31608],["Cro53606","Mul80742","Res12958","Ave23178","Res46598","Dot72490","Con17289","Min31608"],Min31608,"Min31608")
+
+Actual (Unparsed): [[[0.0168012, 0.0167420, 0.8243000], [0.0395547, 0.0394154, 0.6366000]]]
+
+Expected (Unparsed): [[[0.016801153920000002,0.016741969920000002,0.8243],[0.039554746262,0.039415410112000004,0.6366]]]
+
+Actual:   [[[0.0169, 0.0168, 0.8243], [0.0396, 0.0395, 0.6366]]]
+
+Expected: [[[0.0169, 0.0168, 0.8243], [0.0396, 0.0395, 0.6366]]]

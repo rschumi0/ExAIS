@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot61728 = tf.keras.layers.Input(shape=([3]))
+in1Dot61728 = tf.keras.layers.Input(shape=([3]))
+in0Min43562 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min43562 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot61728 = keras.layers.Dot(axes=(1, 1), name = 'Dot61728', )([in0Dot61728,in1Dot61728])
+Res47600 = keras.layers.Reshape((1, 1), name = 'Res47600', )(Dot61728)
+Ave4218 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave4218', )(Res47600)
+Res72698 = keras.layers.Reshape((1, 1, 1), name = 'Res72698', )(Ave4218)
+Min43562 = keras.layers.Minimum(name = 'Min43562', )([in0Min43562,in1Min43562])
+Res24963 = keras.layers.Reshape((1, 1, 1), name = 'Res24963', )(Min43562)
+PRe86525 = keras.layers.PReLU(name = 'PRe86525', )(Res24963)
+Mul92308 = keras.layers.Multiply(name = 'Mul92308', )([Res72698,PRe86525])
+model = tf.keras.models.Model(inputs=[in0Dot61728,in1Dot61728,in0Min43562,in1Min43562], outputs=Mul92308)
+w = model.get_layer('PRe86525').get_weights() 
+w[0] = np.array([[[0.9147]]])
+model.get_layer('PRe86525').set_weights(w) 
+in0Dot61728 = tf.constant([[0.0082, 0.1733, 0.8039]])
+in1Dot61728 = tf.constant([[0.1692, 0.0852, 0.0213]])
+in0Min43562 = tf.constant([[[0.5542]]])
+in1Min43562 = tf.constant([[[0.3115]]])
+print (np.array2string(model.predict([in0Dot61728,in1Dot61728,in0Min43562,in1Min43562],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul92308.png')
+
+LDot61728 = dot_layer([[0.0082, 0.1733, 0.8039]], [[0.1692, 0.0852, 0.0213]], 1, 1, Dot61728), 
+LRes47600 = reshape_layer(Dot61728, [1, 1], Res47600), 
+LAve4218 = average_pooling1D_layer(Res47600, 1, Ave4218), 
+LRes72698 = reshape_layer(Ave4218, [1, 1, 1], Res72698), 
+LMin43562 = minimum_layer([[[[0.5542]]], [[[0.3115]]]], Min43562), 
+LRes24963 = reshape_layer(Min43562, [1, 1, 1], Res24963), 
+LPRe86525 = prelu_layer(Res24963, [[[0.9147]]], PRe86525), 
+LMul92308 = multiply_layer([Res72698,PRe86525], Mul92308), 
+exec_layers([LDot61728,LRes47600,LAve4218,LRes72698,LMin43562,LRes24963,LPRe86525,LMul92308],["Dot61728","Res47600","Ave4218","Res72698","Min43562","Res24963","PRe86525","Mul92308"],Mul92308,"Mul92308")
+
+Actual (Unparsed): [[[[0.0103654]]]]
+
+Expected (Unparsed): [[[[0.010365371204999998]]]]
+
+Actual:   [[[[0.0104]]]]
+
+Expected: [[[[0.0104]]]]

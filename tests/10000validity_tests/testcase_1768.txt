@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add75052 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add75052 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con31077 = tf.keras.layers.Input(shape=([2, 1, 3]))
+in0Dot7795 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot7795 = tf.keras.layers.Input(shape=([3, 2]))
+
+Add75052 = keras.layers.Add(name = 'Add75052', )([in0Add75052,in1Add75052])
+Res4602 = keras.layers.Reshape((1, 2, 1), name = 'Res4602', )(Add75052)
+Ave72521 = keras.layers.AveragePooling2D(pool_size=(1, 2), name = 'Ave72521', )(Res4602)
+Zer68057 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer68057', )(Ave72521)
+Con31077 = keras.layers.Concatenate(axis=3, name = 'Con31077', )([Zer68057,in0Con31077])
+Dot7795 = keras.layers.Dot(axes=(2, 2), name = 'Dot7795', )([in0Dot7795,in1Dot7795])
+Res76915 = keras.layers.Reshape((3, 3, 1), name = 'Res76915', )(Dot7795)
+Con69642 = keras.layers.Conv2D(4, (3, 1),strides=(2, 3), padding='same', dilation_rate=(1, 1), name = 'Con69642', )(Res76915)
+Mul2972 = keras.layers.Multiply(name = 'Mul2972', )([Con31077,Con69642])
+model = tf.keras.models.Model(inputs=[in0Add75052,in1Add75052,in0Con31077,in0Dot7795,in1Dot7795], outputs=Mul2972)
+w = model.get_layer('Con69642').get_weights() 
+w[0] = np.array([[[[0.7323, 0.0881, 0.5353, 0.265]]], [[[0.1946, 0.4971, 0.7016, 0.626]]], [[[0.6403, 0.1447, 0.5533, 0.1203]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con69642').set_weights(w) 
+in0Add75052 = tf.constant([[[0.1586, 0.0968]]])
+in1Add75052 = tf.constant([[[0.4286, 0.7564]]])
+in0Con31077 = tf.constant([[[[0.6333, 0.4138, 0.6219]], [[0.6987, 0.4553, 0.2411]]]])
+in0Dot7795 = tf.constant([[[0.7472, 0.1569], [0.9061, 0.4312], [0.6921, 0.1816]]])
+in1Dot7795 = tf.constant([[[0.4854, 0.7579], [0.3727, 0.1232], [0.1934, 0.2225]]])
+print (np.array2string(model.predict([in0Add75052,in1Add75052,in0Con31077,in0Dot7795,in1Dot7795],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul2972.png')
+
+LAdd75052 = add_layer([[[[0.1586, 0.0968]]], [[[0.4286, 0.7564]]]], Add75052), 
+LRes4602 = reshape_layer(Add75052, [1, 2, 1], Res4602), 
+LAve72521 = average_pooling2D_layer(Res4602, 1, 2, Ave72521), 
+LZer68057 = zero_padding2D_layer(Ave72521, 1, 0, 0, 0, Zer68057), 
+LCon31077 = concatenate_layer([Zer68057,[[[[0.6333, 0.4138, 0.6219]], [[0.6987, 0.4553, 0.2411]]]]], 3, Con31077), 
+LDot7795 = dot_layer([[[0.7472, 0.1569], [0.9061, 0.4312], [0.6921, 0.1816]]], [[[0.4854, 0.7579], [0.3727, 0.1232], [0.1934, 0.2225]]], 2, 2, Dot7795), 
+LRes76915 = reshape_layer(Dot7795, [3, 3, 1], Res76915), 
+LCon69642 = conv2D_layer(Res76915, 3, 1,[[[[0.7323, 0.0881, 0.5353, 0.265]]], [[[0.1946, 0.4971, 0.7016, 0.626]]], [[[0.6403, 0.1447, 0.5533, 0.1203]]]],[0, 0, 0, 0], 2, 3, true, 1, 1, Con69642), 
+LMul2972 = multiply_layer([Con31077,Con69642], Mul2972), 
+exec_layers([LAdd75052,LRes4602,LAve72521,LZer68057,LCon31077,LDot7795,LRes76915,LCon69642,LMul2972],["Add75052","Res4602","Ave72521","Zer68057","Con31077","Dot7795","Res76915","Con69642","Mul2972"],Mul2972,"Mul2972")
+
+Actual (Unparsed): [[[[0.0000000, 0.2218684, 0.3153443, 0.2448484]], [[0.4706938, 0.2116757, 0.3381237, 0.1204577]]]]
+
+Expected (Unparsed): [[[[0.0,0.2218684392263319,0.315344273488918,0.24484840619517542]],[[0.47069385710203476,0.211675695203112,0.33812370602333824,0.12045773917435802]]]]
+
+Actual:   [[[[0, 0.2219, 0.3154, 0.2449]], [[0.4707, 0.2117, 0.3382, 0.1205]]]]
+
+Expected: [[[[0, 0.2219, 0.3154, 0.2449]], [[0.4707, 0.2117, 0.3382, 0.1205]]]]

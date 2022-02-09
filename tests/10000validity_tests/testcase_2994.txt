@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU65240 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Max73510 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max73510 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con26830 = tf.keras.layers.Input(shape=([2, 3, 1]))
+in0Ave86623 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+ELU65240 = keras.layers.ELU(alpha=3.9877328222638972, name = 'ELU65240', input_shape=(1, 2, 1))(in0ELU65240)
+Lay91927 = keras.layers.LayerNormalization(axis=3, epsilon=2.0717537736210336, name = 'Lay91927', )(ELU65240)
+Res39233 = keras.layers.Reshape((1, 2), name = 'Res39233', )(Lay91927)
+Max73510 = keras.layers.Maximum(name = 'Max73510', )([in0Max73510,in1Max73510])
+Add98419 = keras.layers.Add(name = 'Add98419', )([Res39233,Max73510])
+Res18374 = keras.layers.Reshape((1, 2, 1), name = 'Res18374', )(Add98419)
+Zer74155 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer74155', )(Res18374)
+Con26830 = keras.layers.Concatenate(axis=3, name = 'Con26830', )([Zer74155,in0Con26830])
+Ave86623 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave86623', )(in0Ave86623)
+Zer36309 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer36309', )(Ave86623)
+Sub86393 = keras.layers.Subtract(name = 'Sub86393', )([Con26830,Zer36309])
+model = tf.keras.models.Model(inputs=[in0ELU65240,in0Max73510,in1Max73510,in0Con26830,in0Ave86623], outputs=Sub86393)
+in0ELU65240 = tf.constant([[[[0.0747], [0.097]]]])
+in0Max73510 = tf.constant([[[0.6421, 0.1362]]])
+in1Max73510 = tf.constant([[[0.2957, 0.3183]]])
+in0Con26830 = tf.constant([[[[0.7324], [0.1746], [0.0446]], [[0.7408], [0.996], [0.288]]]])
+in0Ave86623 = tf.constant([[[[1.5584, 1.017]], [[1.1695, 1.7778]]]])
+print (np.array2string(model.predict([in0ELU65240,in0Max73510,in1Max73510,in0Con26830,in0Ave86623],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub86393.png')
+
+LELU65240 = elu_layer([[[[0.0747], [0.097]]]], 3.9877328222638972, ELU65240), 
+LLay91927 = layer_normalization_layer(ELU65240, 3, 2.0717537736210336, Lay91927), 
+LRes39233 = reshape_layer(Lay91927, [1, 2], Res39233), 
+LMax73510 = maximum_layer([[[[0.6421, 0.1362]]], [[[0.2957, 0.3183]]]], Max73510), 
+LAdd98419 = add_layer([Res39233,Max73510], Add98419), 
+LRes18374 = reshape_layer(Add98419, [1, 2, 1], Res18374), 
+LZer74155 = zero_padding2D_layer(Res18374, 1, 0, 1, 0, Zer74155), 
+LCon26830 = concatenate_layer([Zer74155,[[[[0.7324], [0.1746], [0.0446]], [[0.7408], [0.996], [0.288]]]]], 3, Con26830), 
+LAve86623 = average_pooling2D_layer([[[[1.5584, 1.017]], [[1.1695, 1.7778]]]], 1, 1, Ave86623), 
+LZer36309 = zero_padding2D_layer(Ave86623, 0, 0, 2, 0, Zer36309), 
+LSub86393 = subtract_layer(Con26830,Zer36309, Sub86393), 
+exec_layers([LELU65240,LLay91927,LRes39233,LMax73510,LAdd98419,LRes18374,LZer74155,LCon26830,LAve86623,LZer36309,LSub86393],["ELU65240","Lay91927","Res39233","Max73510","Add98419","Res18374","Zer74155","Con26830","Ave86623","Zer36309","Sub86393"],Sub86393,"Sub86393")
+
+Actual (Unparsed): [[[[0.0000000, 0.7324000], [0.0000000, 0.1746000], [-1.5584000, -0.9724000]], [[0.0000000, 0.7408000], [0.6421000, 0.9960000], [-0.8512000, -1.4898000]]]]
+
+Expected (Unparsed): [[[[0,0.7324],[0,0.1746],[-1.5584,-0.9723999999999999]],[[0,0.7408],[0.6421,0.996],[-0.8512,-1.4898]]]]
+
+Actual:   [[[[0, 0.7324], [0, 0.1746], [-1.5584, -0.9724]], [[0, 0.7408], [0.6421, 0.996], [-0.8512, -1.4898]]]]
+
+Expected: [[[[0, 0.7324], [0, 0.1746], [-1.5584, -0.9723]], [[0, 0.7408], [0.6421, 0.996], [-0.8512, -1.4898]]]]

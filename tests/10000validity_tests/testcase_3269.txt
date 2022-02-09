@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo32889 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Glo32889 = keras.layers.GlobalAveragePooling2D(name = 'Glo32889', )(in0Glo32889)
+Res20172 = keras.layers.Reshape((1, 1), name = 'Res20172', )(Glo32889)
+Res54470 = keras.layers.Reshape((1, 1, 1), name = 'Res54470', )(Res20172)
+Loc41856 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc41856', )(Res54470)
+Res26328 = keras.layers.Reshape((1, 2), name = 'Res26328', )(Loc41856)
+Zer61711 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer61711', )(Res26328)
+model = tf.keras.models.Model(inputs=[in0Glo32889], outputs=Zer61711)
+w = model.get_layer('Loc41856').get_weights() 
+w[0] = np.array([[[0.2835, 0.1908]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc41856').set_weights(w) 
+in0Glo32889 = tf.constant([[[[1.3788]]]])
+print (np.array2string(model.predict([in0Glo32889],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer61711.png')
+
+LGlo32889 = global_average_pooling2D_layer([[[[1.3788]]]], Glo32889), 
+LRes20172 = reshape_layer(Glo32889, [1, 1], Res20172), 
+LRes54470 = reshape_layer(Res20172, [1, 1, 1], Res54470), 
+LLoc41856 = locally_connected2D_layer(Res54470, 1, 1,[[[0.2835, 0.1908]]],[[[0, 0]]], 1, 1, Loc41856), 
+LRes26328 = reshape_layer(Loc41856, [1, 2], Res26328), 
+LZer61711 = zero_padding1D_layer(Res26328, 1, 1, Zer61711), 
+exec_layers([LGlo32889,LRes20172,LRes54470,LLoc41856,LRes26328,LZer61711],["Glo32889","Res20172","Res54470","Loc41856","Res26328","Zer61711"],Zer61711,"Zer61711")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.3908898, 0.2630750], [0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0],[0.39088979999999995,0.26307504],[0,0]]]
+
+Actual:   [[[0, 0], [0.3909, 0.2631], [0, 0]]]
+
+Expected: [[[0, 0], [0.3909, 0.2631], [0, 0]]]

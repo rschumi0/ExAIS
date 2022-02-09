@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo23433 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con29073 = tf.keras.layers.Input(shape=([1, 3]))
+in0Mul51382 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul51382 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con14069 = tf.keras.layers.Input(shape=([1, 3]))
+in0Con24645 = tf.keras.layers.Input(shape=([1, 2]))
+
+Glo23433 = keras.layers.GlobalAveragePooling2D(name = 'Glo23433', )(in0Glo23433)
+Res2614 = keras.layers.Reshape((1, 1), name = 'Res2614', )(Glo23433)
+Up_94346 = keras.layers.UpSampling1D(size=(1), name = 'Up_94346', )(Res2614)
+Con29073 = keras.layers.Concatenate(axis=2, name = 'Con29073', )([Up_94346,in0Con29073])
+Mul51382 = keras.layers.Multiply(name = 'Mul51382', )([in0Mul51382,in1Mul51382])
+Con14069 = keras.layers.Concatenate(axis=2, name = 'Con14069', )([Mul51382,in0Con14069])
+Con24645 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con24645', )(in0Con24645)
+Max53031 = keras.layers.Maximum(name = 'Max53031', )([Con14069,Con24645])
+Min13840 = keras.layers.Minimum(name = 'Min13840', )([Con29073,Max53031])
+model = tf.keras.models.Model(inputs=[in0Glo23433,in0Con29073,in0Mul51382,in1Mul51382,in0Con14069,in0Con24645], outputs=Min13840)
+w = model.get_layer('Con24645').get_weights() 
+w[0] = np.array([[[0.9088, 0.999, 0.0127, 0.5385], [0.618, 0.7492, 0.669, 0.4606]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con24645').set_weights(w) 
+in0Glo23433 = tf.constant([[[[1.4971]]]])
+in0Con29073 = tf.constant([[[0.2184, 0.4651, 0.0593]]])
+in0Mul51382 = tf.constant([[[0.5625]]])
+in1Mul51382 = tf.constant([[[0.3336]]])
+in0Con14069 = tf.constant([[[0.8534, 0.8781, 0.9279]]])
+in0Con24645 = tf.constant([[[0.8095, 0.8442]]])
+print (np.array2string(model.predict([in0Glo23433,in0Con29073,in0Mul51382,in1Mul51382,in0Con14069,in0Con24645],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min13840.png')
+
+LGlo23433 = global_average_pooling2D_layer([[[[1.4971]]]], Glo23433), 
+LRes2614 = reshape_layer(Glo23433, [1, 1], Res2614), 
+LUp_94346 = up_sampling1D_layer(Res2614, 1, Up_94346), 
+LCon29073 = concatenate_layer([Up_94346,[[[0.2184, 0.4651, 0.0593]]]], 2, Con29073), 
+LMul51382 = multiply_layer([[[[0.5625]]], [[[0.3336]]]], Mul51382), 
+LCon14069 = concatenate_layer([Mul51382,[[[0.8534, 0.8781, 0.9279]]]], 2, Con14069), 
+LCon24645 = conv1D_layer([[[0.8095, 0.8442]]], 1,[[[0.9088, 0.999, 0.0127, 0.5385], [0.618, 0.7492, 0.669, 0.4606]]],[0, 0, 0, 0], 1, false, 1, Con24645), 
+LMax53031 = maximum_layer([Con14069,Con24645], Max53031), 
+LMin13840 = minimum_layer([Con29073,Max53031], Min13840), 
+exec_layers([LGlo23433,LRes2614,LUp_94346,LCon29073,LMul51382,LCon14069,LCon24645,LMax53031,LMin13840],["Glo23433","Res2614","Up_94346","Con29073","Mul51382","Con14069","Con24645","Max53031","Min13840"],Min13840,"Min13840")
+
+Actual (Unparsed): [[[1.2573892, 0.2184000, 0.4651000, 0.0593000]]]
+
+Expected (Unparsed): [[[1.2573892,0.2184,0.4651,0.0593]]]
+
+Actual:   [[[1.2574, 0.2184, 0.4651, 0.0593]]]
+
+Expected: [[[1.2574, 0.2184, 0.4651, 0.0593]]]

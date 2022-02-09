@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep76966 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con34310 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con62150 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Sep76966 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep76966', )(in0Sep76966)
+Res48669 = keras.layers.Reshape((1, 2, 1), name = 'Res48669', )(Sep76966)
+Zer42841 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer42841', )(Res48669)
+Con34310 = keras.layers.Concatenate(axis=3, name = 'Con34310', )([Zer42841,in0Con34310])
+Con62150 = keras.layers.Conv2D(2, (2, 2),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con62150', )(in0Con62150)
+Max85403 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Max85403', )(Con62150)
+Mul84195 = keras.layers.Multiply(name = 'Mul84195', )([Con34310,Max85403])
+Bat45350 = keras.layers.BatchNormalization(axis=2, epsilon=0.623422818552291,  name = 'Bat45350', )(Mul84195)
+model = tf.keras.models.Model(inputs=[in0Sep76966,in0Con34310,in0Con62150], outputs=Bat45350)
+w = model.get_layer('Sep76966').get_weights() 
+w[0] = np.array([[[0.6094], [0.9788]]])
+w[1] = np.array([[[0.41, 0.5749], [0.521, 0.9662]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep76966').set_weights(w) 
+w = model.get_layer('Con62150').get_weights() 
+w[0] = np.array([[[[0.3629, 0.0941]], [[0.4732, 0.5521]]], [[[0.7815, 0.3027]], [[0.9911, 0.6793]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con62150').set_weights(w) 
+w = model.get_layer('Bat45350').get_weights() 
+w[0] = np.array([0.2106, 0.2971])
+w[1] = np.array([0.5055, 0.0785])
+w[2] = np.array([0.4021, 0.5355])
+w[3] = np.array([0.0344, 0.4359])
+model.get_layer('Bat45350').set_weights(w) 
+in0Sep76966 = tf.constant([[[0.6519, 0.0481]]])
+in0Con34310 = tf.constant([[[[0.1224], [0.132]], [[0.8076], [0.2477]]]])
+in0Con62150 = tf.constant([[[[0.0034], [0.0141]], [[0.8462], [0.6963]]]])
+print (np.array2string(model.predict([in0Sep76966,in0Con34310,in0Con62150],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat45350.png')
+
+LSep76966 = separable_conv1D_layer([[[0.6519, 0.0481]]], 1,[[[[0.6094], [0.9788]]],[[[0.41, 0.5749], [0.521, 0.9662]]]],[0, 0], 1, true, Sep76966), 
+LRes48669 = reshape_layer(Sep76966, [1, 2, 1], Res48669), 
+LZer42841 = zero_padding2D_layer(Res48669, 1, 0, 0, 0, Zer42841), 
+LCon34310 = concatenate_layer([Zer42841,[[[[0.1224], [0.132]], [[0.8076], [0.2477]]]]], 3, Con34310), 
+LCon62150 = conv2D_layer([[[[0.0034], [0.0141]], [[0.8462], [0.6963]]]], 2, 2,[[[[0.3629, 0.0941]], [[0.4732, 0.5521]]], [[[0.7815, 0.3027]], [[0.9911, 0.6793]]]],[0, 0], 1, 1, true, 1, 1, Con62150), 
+LMax85403 = max_pool2D_layer(Con62150, 1, 1, 1, 1, false, Max85403), 
+LMul84195 = multiply_layer([Con34310,Max85403], Mul84195), 
+LBat45350 = batch_normalization_layer(Mul84195, 2, 0.623422818552291, [0.2106, 0.2971], [0.5055, 0.0785], [0.4021, 0.5355], [0.0344, 0.4359], Bat45350), 
+exec_layers([LSep76966,LRes48669,LZer42841,LCon34310,LCon62150,LMax85403,LMul84195,LBat45350],["Sep76966","Res48669","Zer42841","Con34310","Con62150","Max85403","Mul84195","Bat45350"],Bat45350,"Bat45350")
+
+Actual (Unparsed): [[[[0.4010910, 0.4245224], [-0.0760781, -0.0679965]], [[0.4320683, 0.4984037], [-0.0561011, -0.0713932]]]]
+
+Expected (Unparsed): [[[[0.40109099119742997,0.42452236064962695],[-0.07607809943831649,-0.06799651385495252]],[[0.4320682655891015,0.4984036500466166],[-0.05610113896346923,-0.07139319740958085]]]]
+
+Actual:   [[[[0.4011, 0.4246], [-0.076, -0.0679]], [[0.4321, 0.4985], [-0.0561, -0.0713]]]]
+
+Expected: [[[[0.4011, 0.4246], [-0.076, -0.0679]], [[0.4321, 0.4985], [-0.0561, -0.0713]]]]

@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con96902 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Ave529 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave529 = tf.keras.layers.Input(shape=([1, 2]))
+
+Con96902 = keras.layers.Conv3D(2, (1, 1, 1),strides=(10, 12, 8), padding='valid', dilation_rate=(1, 1, 1), name = 'Con96902', )(in0Con96902)
+Res43258 = keras.layers.Reshape((1, 1, 2), name = 'Res43258', )(Con96902)
+Ave529 = keras.layers.Average(name = 'Ave529', )([in0Ave529,in1Ave529])
+Res4352 = keras.layers.Reshape((1, 1, 2), name = 'Res4352', )(Ave529)
+Add43120 = keras.layers.Add(name = 'Add43120', )([Res43258,Res4352])
+Res83319 = keras.layers.Reshape((1, 2), name = 'Res83319', )(Add43120)
+LST75141 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST75141', )(Res83319)
+model = tf.keras.models.Model(inputs=[in0Con96902,in0Ave529,in1Ave529], outputs=LST75141)
+w = model.get_layer('Con96902').get_weights() 
+w[0] = np.array([[[[[0.5902, 0.3338], [0.3601, 0.6088]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con96902').set_weights(w) 
+w = model.get_layer('LST75141').get_weights() 
+w[0] = np.array([[4, 4, 6, 9], [8, 4, 8, 3]])
+w[1] = np.array([[10, 1, 4, 3]])
+w[2] = np.array([9, 3, 2, 5])
+model.get_layer('LST75141').set_weights(w) 
+in0Con96902 = tf.constant([[[[[0.9333, 0.8799]], [[0.9282, 0.4323]]]]])
+in0Ave529 = tf.constant([[[0.9099, 0.0959]]])
+in1Ave529 = tf.constant([[[0.747, 0.2633]]])
+print (np.array2string(model.predict([in0Con96902,in0Ave529,in1Ave529],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='LST75141.png')
+
+LCon96902 = conv3D_layer([[[[[0.9333, 0.8799]], [[0.9282, 0.4323]]]]], 1, 1, 1,[[[[[0.5902, 0.3338], [0.3601, 0.6088]]]]],[0, 0], 10, 12, 8, false, 1, 1, 1, Con96902), 
+LRes43258 = reshape_layer(Con96902, [1, 1, 2], Res43258), 
+LAve529 = average_layer([[[[0.9099, 0.0959]]], [[[0.747, 0.2633]]]], Ave529), 
+LRes4352 = reshape_layer(Ave529, [1, 1, 2], Res4352), 
+LAdd43120 = add_layer([Res43258,Res4352], Add43120), 
+LRes83319 = reshape_layer(Add43120, [1, 2], Res83319), 
+LLST75141 = lstm_layer(Res83319,[[4, 4, 6, 9], [8, 4, 8, 3]],[[10, 1, 4, 3]],[9, 3, 2, 5], LST75141), 
+exec_layers([LCon96902,LRes43258,LAve529,LRes4352,LAdd43120,LRes83319,LLST75141],["Con96902","Res43258","Ave529","Res4352","Add43120","Res83319","LST75141"],LST75141,"LST75141")
+
+Actual (Unparsed): [[0.7615942]]
+
+Expected (Unparsed): [[0.7615941558845832]]
+
+Actual:   [[0.7616]]
+
+Expected: [[0.7616]]

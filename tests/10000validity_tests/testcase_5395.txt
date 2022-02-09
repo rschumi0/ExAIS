@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc40303 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Glo59163 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con7295 = tf.keras.layers.Input(shape=([3]))
+
+Loc40303 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc40303', )(in0Loc40303)
+Res53165 = keras.layers.Reshape((1, 4), name = 'Res53165', )(Loc40303)
+Fla1876 = keras.layers.Flatten(name = 'Fla1876', )(Res53165)
+Glo59163 = keras.layers.GlobalMaxPool2D(name = 'Glo59163', )(in0Glo59163)
+Con7295 = keras.layers.Concatenate(axis=1, name = 'Con7295', )([Glo59163,in0Con7295])
+Max53344 = keras.layers.Maximum(name = 'Max53344', )([Fla1876,Con7295])
+model = tf.keras.models.Model(inputs=[in0Loc40303,in0Glo59163,in0Con7295], outputs=Max53344)
+w = model.get_layer('Loc40303').get_weights() 
+w[0] = np.array([[[0.6251, 0.3304], [0.1192, 0.3185]], [[0.0638, 0.3978], [0.9046, 0.9469]]])
+w[1] = np.array([[[0, 0], [0, 0]]])
+model.get_layer('Loc40303').set_weights(w) 
+in0Loc40303 = tf.constant([[[[0.2411], [0.5312]], [[0.4597], [0.828]]]])
+in0Glo59163 = tf.constant([[[[1.6267]], [[1.4274]]]])
+in0Con7295 = tf.constant([[0.5176, 0.8199, 0.327]])
+print (np.array2string(model.predict([in0Loc40303,in0Glo59163,in0Con7295],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max53344.png')
+
+LLoc40303 = locally_connected2D_layer([[[[0.2411], [0.5312]], [[0.4597], [0.828]]]], 2, 1,[[[0.6251, 0.3304], [0.1192, 0.3185]], [[0.0638, 0.3978], [0.9046, 0.9469]]],[[[0, 0], [0, 0]]], 1, 1, Loc40303), 
+LRes53165 = reshape_layer(Loc40303, [1, 4], Res53165), 
+LFla1876 = flatten_layer(Res53165, Fla1876), 
+LGlo59163 = global_max_pool2D_layer([[[[1.6267]], [[1.4274]]]], Glo59163), 
+LCon7295 = concatenate_layer([Glo59163,[[0.5176, 0.8199, 0.327]]], 1, Con7295), 
+LMax53344 = maximum_layer([Fla1876,Con7295], Max53344), 
+exec_layers([LLoc40303,LRes53165,LFla1876,LGlo59163,LCon7295,LMax53344],["Loc40303","Res53165","Fla1876","Glo59163","Con7295","Max53344"],Max53344,"Max53344")
+
+Actual (Unparsed): [[1.6267000, 0.5176000, 0.8199000, 0.9953446]]
+
+Expected (Unparsed): [[1.6267,0.5176,0.8199,0.9953445599999999]]
+
+Actual:   [[1.6267, 0.5176, 0.8199, 0.9954]]
+
+Expected: [[1.6267, 0.5176, 0.8199, 0.9954]]

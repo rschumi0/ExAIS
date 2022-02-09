@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con21370 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Ave89665 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con64565 = tf.keras.layers.Input(shape=([15]))
+
+Con21370 = keras.layers.Conv2DTranspose(4, (1, 2),strides=(1, 1), padding='same', name = 'Con21370', )(in0Con21370)
+Res70393 = keras.layers.Reshape((2, 8), name = 'Res70393', )(Con21370)
+Fla79295 = keras.layers.Flatten(name = 'Fla79295', )(Res70393)
+Ave89665 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='valid', name = 'Ave89665', )(in0Ave89665)
+LST89289 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST89289', )(Ave89665)
+Res23699 = keras.layers.Reshape((2, 1), name = 'Res23699', )(LST89289)
+GRU62651 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU62651', )(Res23699)
+Con64565 = keras.layers.Concatenate(axis=1, name = 'Con64565', )([GRU62651,in0Con64565])
+Ave65007 = keras.layers.Average(name = 'Ave65007', )([Fla79295,Con64565])
+Res89032 = keras.layers.Reshape((16, 1), name = 'Res89032', )(Ave65007)
+Res68490 = keras.layers.Reshape((16, 1, 1), name = 'Res68490', )(Res89032)
+Ave75914 = keras.layers.AveragePooling2D(pool_size=(7, 1), strides=(12, 1), padding='valid', name = 'Ave75914', )(Res68490)
+model = tf.keras.models.Model(inputs=[in0Con21370,in0Ave89665,in0Con64565], outputs=Ave75914)
+w = model.get_layer('Con21370').get_weights() 
+w[0] = np.array([[[[0.4988, 0.3763], [0.6402, 0.7244], [0.0874, 0.7391], [0.1741, 0.1954]], [[0.665, 0.0267], [0.9618, 0.6671], [0.9819, 0.1781], [0.317, 0.7913]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con21370').set_weights(w) 
+w = model.get_layer('LST89289').get_weights() 
+w[0] = np.array([[3, 7, 7, 8, 4, 7, 2, 8]])
+w[1] = np.array([[7, 6, 2, 8, 8, 7, 7, 9], [6, 5, 6, 6, 5, 2, 2, 2]])
+w[2] = np.array([2, 9, 10, 5, 1, 7, 9, 9])
+model.get_layer('LST89289').set_weights(w) 
+w = model.get_layer('GRU62651').get_weights() 
+w[0] = np.array([[7, 10, 10]])
+w[1] = np.array([[9, 8, 8]])
+w[2] = np.array([[1, 5, 1], [1, 10, 10]])
+model.get_layer('GRU62651').set_weights(w) 
+in0Con21370 = tf.constant([[[[0.1772, 0.6612], [0.1424, 0.4614]], [[0.8627, 0.5759], [0.4102, 0.3691]]]])
+in0Ave89665 = tf.constant([[[1.7922]]])
+in0Con64565 = tf.constant([[0.4226, 0.1907, 0.9071, 0.4003, 0.8584, 0.5629, 0.9583, 0.436, 0.9706, 0.5764, 0.2949, 0.5308, 0.9834, 0.2016, 0.5409]])
+print (np.array2string(model.predict([in0Con21370,in0Ave89665,in0Con64565],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave75914.png')
+
+LCon21370 = conv2D_transpose_layer([[[[0.1772, 0.6612], [0.1424, 0.4614]], [[0.8627, 0.5759], [0.4102, 0.3691]]]], 1, 2,[[[[0.4988, 0.3763], [0.6402, 0.7244], [0.0874, 0.7391], [0.1741, 0.1954]], [[0.665, 0.0267], [0.9618, 0.6671], [0.9819, 0.1781], [0.317, 0.7913]]]],[0, 0, 0, 0], 1, 1, true, Con21370), 
+LRes70393 = reshape_layer(Con21370, [2, 8], Res70393), 
+LFla79295 = flatten_layer(Res70393, Fla79295), 
+LAve89665 = average_pooling1D_layer([[[1.7922]]], 1, 1, false, Ave89665), 
+LLST89289 = lstm_layer(Ave89665,[[3, 7, 7, 8, 4, 7, 2, 8]],[[7, 6, 2, 8, 8, 7, 7, 9], [6, 5, 6, 6, 5, 2, 2, 2]],[2, 9, 10, 5, 1, 7, 9, 9], LST89289), 
+LRes23699 = reshape_layer(LST89289, [2, 1], Res23699), 
+LGRU62651 = gru_layer(Res23699,[[7, 10, 10]],[[9, 8, 8]],[[1, 5, 1], [1, 10, 10]], true, GRU62651), 
+LCon64565 = concatenate_layer([GRU62651,[[0.4226, 0.1907, 0.9071, 0.4003, 0.8584, 0.5629, 0.9583, 0.436, 0.9706, 0.5764, 0.2949, 0.5308, 0.9834, 0.2016, 0.5409]]], 1, Con64565), 
+LAve65007 = average_layer([Fla79295,Con64565], Ave65007), 
+LRes89032 = reshape_layer(Ave65007, [16, 1], Res89032), 
+LRes68490 = reshape_layer(Res89032, [16, 1, 1], Res68490), 
+LAve75914 = average_pooling2D_layer(Res68490, 7, 1, 12, 1, false, Ave75914), 
+exec_layers([LCon21370,LRes70393,LFla79295,LAve89665,LLST89289,LRes23699,LGRU62651,LCon64565,LAve65007,LRes89032,LRes68490,LAve75914],["Con21370","Res70393","Fla79295","Ave89665","LST89289","Res23699","GRU62651","Con64565","Ave65007","Res89032","Res68490","Ave75914"],Ave75914,"Ave75914")
+
+Actual (Unparsed): [[[[0.4999595]]]]
+
+Expected (Unparsed): [[[[0.4999595395504187]]]]
+
+Actual:   [[[[0.5]]]]
+
+Expected: [[[[0.5]]]]

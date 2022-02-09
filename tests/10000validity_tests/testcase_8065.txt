@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo64399 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave39441 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Ave39441 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Glo64399 = keras.layers.GlobalAveragePooling2D(name = 'Glo64399', )(in0Glo64399)
+Res51472 = keras.layers.Reshape((2, 1), name = 'Res51472', )(Glo64399)
+Res31061 = keras.layers.Reshape((2, 1, 1), name = 'Res31061', )(Res51472)
+Loc50707 = keras.layers.LocallyConnected2D(4, (2, 1),strides=(1, 1), name = 'Loc50707', )(Res31061)
+Res17414 = keras.layers.Reshape((1, 4), name = 'Res17414', )(Loc50707)
+Per78460 = keras.layers.Permute((2,1), name = 'Per78460',)(Res17414)
+Ave39441 = keras.layers.Average(name = 'Ave39441', )([in0Ave39441,in1Ave39441])
+Thr36967 = keras.layers.ThresholdedReLU(theta=6.617251025678811, name = 'Thr36967', )(Ave39441)
+Res89195 = keras.layers.Reshape((2, 2, 1), name = 'Res89195', )(Thr36967)
+Res91002 = keras.layers.Reshape((2, 2), name = 'Res91002', )(Res89195)
+Per72364 = keras.layers.Permute((2,1), name = 'Per72364',)(Res91002)
+Zer21281 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer21281', )(Per72364)
+Dot17023 = keras.layers.Dot(axes=(1, 1), name = 'Dot17023', )([Per78460,Zer21281])
+model = tf.keras.models.Model(inputs=[in0Glo64399,in0Ave39441,in1Ave39441], outputs=Dot17023)
+w = model.get_layer('Loc50707').get_weights() 
+w[0] = np.array([[[0.4051, 0.8796, 0.2519, 0.0684], [0.2918, 0.4329, 0.0704, 0.7405]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc50707').set_weights(w) 
+in0Glo64399 = tf.constant([[[[1.6142, 1.3382], [1.9116, 1.9686]]]])
+in0Ave39441 = tf.constant([[[[[0.5225]], [[0.297]]], [[[0.13]], [[0.8453]]]]])
+in1Ave39441 = tf.constant([[[[[0.8638]], [[0.8756]]], [[[0.4568]], [[0.007]]]]])
+print (np.array2string(model.predict([in0Glo64399,in0Ave39441,in1Ave39441],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot17023.png')
+
+LGlo64399 = global_average_pooling2D_layer([[[[1.6142, 1.3382], [1.9116, 1.9686]]]], Glo64399), 
+LRes51472 = reshape_layer(Glo64399, [2, 1], Res51472), 
+LRes31061 = reshape_layer(Res51472, [2, 1, 1], Res31061), 
+LLoc50707 = locally_connected2D_layer(Res31061, 2, 1,[[[0.4051, 0.8796, 0.2519, 0.0684], [0.2918, 0.4329, 0.0704, 0.7405]]],[[[0, 0, 0, 0]]], 1, 1, Loc50707), 
+LRes17414 = reshape_layer(Loc50707, [1, 4], Res17414), 
+LPer78460 = permute_layer(Res17414, 2,1, Per78460), 
+LAve39441 = average_layer([[[[[[0.5225]], [[0.297]]], [[[0.13]], [[0.8453]]]]], [[[[[0.8638]], [[0.8756]]], [[[0.4568]], [[0.007]]]]]], Ave39441), 
+LThr36967 = thresholded_relu_layer(Ave39441, 6.617251025678811, Thr36967), 
+LRes89195 = reshape_layer(Thr36967, [2, 2, 1], Res89195), 
+LRes91002 = reshape_layer(Res89195, [2, 2], Res91002), 
+LPer72364 = permute_layer(Res91002, 2,1, Per72364), 
+LZer21281 = zero_padding1D_layer(Per72364, 2, 0, Zer21281), 
+LDot17023 = dot_layer(Per78460,Zer21281, 1, 1, Dot17023), 
+exec_layers([LGlo64399,LRes51472,LRes31061,LLoc50707,LRes17414,LPer78460,LAve39441,LThr36967,LRes89195,LRes91002,LPer72364,LZer21281,LDot17023],["Glo64399","Res51472","Res31061","Loc50707","Res17414","Per78460","Ave39441","Thr36967","Res89195","Res91002","Per72364","Zer21281","Dot17023"],Dot17023,"Dot17023")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0]]]
+
+Actual:   [[[0, 0]]]
+
+Expected: [[[0, 0]]]

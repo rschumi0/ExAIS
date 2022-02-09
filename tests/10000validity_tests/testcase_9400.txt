@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc73899 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave9469 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Ave9469 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Loc73899 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc73899', )(in0Loc73899)
+Res34804 = keras.layers.Reshape((1, 2, 1), name = 'Res34804', )(Loc73899)
+Ave9469 = keras.layers.Average(name = 'Ave9469', )([in0Ave9469,in1Ave9469])
+Max21953 = keras.layers.Maximum(name = 'Max21953', )([Res34804,Ave9469])
+Res83283 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res83283', )(Max21953)
+Up_32445 = keras.layers.UpSampling3D(size=(2, 2, 1), name = 'Up_32445', )(Res83283)
+model = tf.keras.models.Model(inputs=[in0Loc73899,in0Ave9469,in1Ave9469], outputs=Up_32445)
+w = model.get_layer('Loc73899').get_weights() 
+w[0] = np.array([[[0.833, 0.2824], [0.4704, 0.8756]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc73899').set_weights(w) 
+in0Loc73899 = tf.constant([[[0.1121, 0.3055]]])
+in0Ave9469 = tf.constant([[[[0.5615], [0.2436]]]])
+in1Ave9469 = tf.constant([[[[0.4561], [0.2434]]]])
+print (np.array2string(model.predict([in0Loc73899,in0Ave9469,in1Ave9469],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_32445.png')
+
+LLoc73899 = locally_connected1D_layer([[[0.1121, 0.3055]]], 1,[[[0.833, 0.2824], [0.4704, 0.8756]]],[[0, 0]], 1, Loc73899), 
+LRes34804 = reshape_layer(Loc73899, [1, 2, 1], Res34804), 
+LAve9469 = average_layer([[[[[0.5615], [0.2436]]]], [[[[0.4561], [0.2434]]]]], Ave9469), 
+LMax21953 = maximum_layer([Res34804,Ave9469], Max21953), 
+LRes83283 = reshape_layer(Max21953, [1, 2, 1, 1], Res83283), 
+LUp_32445 = up_sampling3D_layer(Res83283, 2, 2, 1, Up_32445), 
+exec_layers([LLoc73899,LRes34804,LAve9469,LMax21953,LRes83283,LUp_32445],["Loc73899","Res34804","Ave9469","Max21953","Res83283","Up_32445"],Up_32445,"Up_32445")
+
+Actual (Unparsed): [[[[[0.5088000]], [[0.5088000]], [[0.2991528]], [[0.2991528]]], [[[0.5088000]], [[0.5088000]], [[0.2991528]], [[0.2991528]]]]]
+
+Expected (Unparsed): [[[[[0.5088]],[[0.5088]],[[0.29915284]],[[0.29915284]]],[[[0.5088]],[[0.5088]],[[0.29915284]],[[0.29915284]]]]]
+
+Actual:   [[[[[0.5088]], [[0.5088]], [[0.2992]], [[0.2992]]], [[[0.5088]], [[0.5088]], [[0.2992]], [[0.2992]]]]]
+
+Expected: [[[[[0.5088]], [[0.5088]], [[0.2992]], [[0.2992]]], [[[0.5088]], [[0.5088]], [[0.2992]], [[0.2992]]]]]

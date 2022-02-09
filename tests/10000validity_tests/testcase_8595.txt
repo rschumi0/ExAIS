@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con77135 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Max72023 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max72023 = tf.keras.layers.Input(shape=([1, 2]))
+
+Con77135 = keras.layers.Conv2D(2, (1, 2),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con77135', )(in0Con77135)
+Res22623 = keras.layers.Reshape((1, 2), name = 'Res22623', )(Con77135)
+Max72023 = keras.layers.Maximum(name = 'Max72023', )([in0Max72023,in1Max72023])
+Res71407 = keras.layers.Reshape((1, 2, 1), name = 'Res71407', )(Max72023)
+Loc47539 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 1), name = 'Loc47539', )(Res71407)
+Res24689 = keras.layers.Reshape((1, 2), name = 'Res24689', )(Loc47539)
+Dot38909 = keras.layers.Dot(axes=(2, 2), name = 'Dot38909', )([Res22623,Res24689])
+model = tf.keras.models.Model(inputs=[in0Con77135,in0Max72023,in1Max72023], outputs=Dot38909)
+w = model.get_layer('Con77135').get_weights() 
+w[0] = np.array([[[[0.3389, 0.0061], [0.6138, 0.4933]], [[0.4182, 0.9811], [0.5324, 0.3814]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con77135').set_weights(w) 
+w = model.get_layer('Loc47539').get_weights() 
+w[0] = np.array([[[0.5433, 0.3166], [0.4865, 0.8691]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc47539').set_weights(w) 
+in0Con77135 = tf.constant([[[[0.2443, 0.7261], [0.1177, 0.8113]]]])
+in0Max72023 = tf.constant([[[0.1057, 0.935]]])
+in1Max72023 = tf.constant([[[0.4891, 0.896]]])
+print (np.array2string(model.predict([in0Con77135,in0Max72023,in1Max72023],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot38909.png')
+
+LCon77135 = conv2D_layer([[[[0.2443, 0.7261], [0.1177, 0.8113]]]], 1, 2,[[[[0.3389, 0.0061], [0.6138, 0.4933]], [[0.4182, 0.9811], [0.5324, 0.3814]]]],[0, 0], 1, 1, false, 1, 1, Con77135), 
+LRes22623 = reshape_layer(Con77135, [1, 2], Res22623), 
+LMax72023 = maximum_layer([[[[0.1057, 0.935]]], [[[0.4891, 0.896]]]], Max72023), 
+LRes71407 = reshape_layer(Max72023, [1, 2, 1], Res71407), 
+LLoc47539 = locally_connected2D_layer(Res71407, 1, 2,[[[0.5433, 0.3166], [0.4865, 0.8691]]],[[[0, 0]]], 1, 1, Loc47539), 
+LRes24689 = reshape_layer(Loc47539, [1, 2], Res24689), 
+LDot38909 = dot_layer(Res22623,Res24689, 2, 2, Dot38909), 
+exec_layers([LCon77135,LRes22623,LMax72023,LRes71407,LLoc47539,LRes24689,LDot38909],["Con77135","Res22623","Max72023","Res71407","Loc47539","Res24689","Dot38909"],Dot38909,"Dot38909")
+
+Actual (Unparsed): [[[1.4865947]]]
+
+Expected (Unparsed): [[[1.4865946747615706]]]
+
+Actual:   [[[1.4866]]]
+
+Expected: [[[1.4866]]]

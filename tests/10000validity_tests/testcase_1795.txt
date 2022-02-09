@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add74273 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add74273 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con86247 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave72884 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave72884 = tf.keras.layers.Input(shape=([2, 1]))
+
+Add74273 = keras.layers.Add(name = 'Add74273', )([in0Add74273,in1Add74273])
+Con64516 = keras.layers.Conv1D(2, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con64516', )(Add74273)
+Zer90702 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer90702', )(Con64516)
+Con86247 = keras.layers.Concatenate(axis=2, name = 'Con86247', )([Zer90702,in0Con86247])
+Ave72884 = keras.layers.Average(name = 'Ave72884', )([in0Ave72884,in1Ave72884])
+Den864 = keras.layers.Dense(3,name = 'Den864', )(Ave72884)
+Dot58651 = keras.layers.Dot(axes=(1, 1), name = 'Dot58651', )([Con86247,Den864])
+model = tf.keras.models.Model(inputs=[in0Add74273,in1Add74273,in0Con86247,in0Ave72884,in1Ave72884], outputs=Dot58651)
+w = model.get_layer('Con64516').get_weights() 
+w[0] = np.array([[[0.6582, 0.9888], [0.0442, 0.703]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con64516').set_weights(w) 
+w = model.get_layer('Den864').get_weights() 
+w[0] = np.array([[0.2621, 0.7111, 0.9643]])
+w[1] = np.array([0.8612, 0.0959, 0.0256])
+model.get_layer('Den864').set_weights(w) 
+in0Add74273 = tf.constant([[[0.3942, 0.3606]]])
+in1Add74273 = tf.constant([[[0.5991, 0.574]]])
+in0Con86247 = tf.constant([[[0.944], [0.4798]]])
+in0Ave72884 = tf.constant([[[0.9905], [0.0682]]])
+in1Ave72884 = tf.constant([[[0.7251], [0.4005]]])
+print (np.array2string(model.predict([in0Add74273,in1Add74273,in0Con86247,in0Ave72884,in1Ave72884],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot58651.png')
+
+LAdd74273 = add_layer([[[[0.3942, 0.3606]]], [[[0.5991, 0.574]]]], Add74273), 
+LCon64516 = conv1D_layer(Add74273, 1,[[[0.6582, 0.9888], [0.0442, 0.703]]],[0, 0], 1, true, 1, Con64516), 
+LZer90702 = zero_padding1D_layer(Con64516, 1, 0, Zer90702), 
+LCon86247 = concatenate_layer([Zer90702,[[[0.944], [0.4798]]]], 2, Con86247), 
+LAve72884 = average_layer([[[[0.9905], [0.0682]]], [[[0.7251], [0.4005]]]], Ave72884), 
+LDen864 = dense_layer(Ave72884, [[0.2621, 0.7111, 0.9643]],[0.8612, 0.0959, 0.0256], Den864), 
+LDot58651 = dot_layer(Con86247,Den864, 1, 1, Dot58651), 
+exec_layers([LAdd74273,LCon64516,LZer90702,LCon86247,LAve72884,LDen864,LDot58651],["Add74273","Con64516","Zer90702","Con86247","Ave72884","Den864","Dot58651"],Dot58651,"Dot58651")
+
+Actual (Unparsed): [[[0.6413148, 0.1824958, 0.1748757], [1.5123628, 0.4303656, 0.4123957], [1.4678863, 0.7923219, 0.9257309]]]
+
+Expected (Unparsed): [[[0.6413147691121562,0.18249575992480327,0.17487567736360288],[1.512362772649163,0.4303655658183093,0.41239571739890213],[1.4678863148930001,0.7923219190629999,0.925730915419]]]
+
+Actual:   [[[0.6414, 0.1825, 0.1749], [1.5124, 0.4304, 0.4124], [1.4679, 0.7924, 0.9258]]]
+
+Expected: [[[0.6414, 0.1825, 0.1749], [1.5124, 0.4304, 0.4124], [1.4679, 0.7924, 0.9258]]]

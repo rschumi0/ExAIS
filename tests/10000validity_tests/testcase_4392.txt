@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_40109 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max32718 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Up_40109 = keras.layers.UpSampling1D(size=(2), name = 'Up_40109', )(in0Up_40109)
+Loc20213 = keras.layers.LocallyConnected1D(4, (4),strides=(1), name = 'Loc20213', )(Up_40109)
+Res26875 = keras.layers.Reshape((1, 4, 1), name = 'Res26875', )(Loc20213)
+Max32718 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max32718', )(in0Max32718)
+Zer33246 = keras.layers.ZeroPadding2D(padding=((0, 0), (3, 0)), name = 'Zer33246', )(Max32718)
+Mul62113 = keras.layers.Multiply(name = 'Mul62113', )([Res26875,Zer33246])
+model = tf.keras.models.Model(inputs=[in0Up_40109,in0Max32718], outputs=Mul62113)
+w = model.get_layer('Loc20213').get_weights() 
+w[0] = np.array([[[0.0385, 0.1721, 0.3431, 0.6472], [0.2266, 0.2505, 0.7517, 0.5609], [0.4265, 0.1434, 0.9033, 0.8373], [0.7699, 0.9146, 0.9595, 0.4977], [0.6572, 0.8518, 0.8553, 0.4089], [0.1529, 0.2672, 0.8187, 0.7658], [0.1887, 0.8311, 0.8758, 0.6221], [0.0733, 0.4886, 0.0815, 0.0462]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc20213').set_weights(w) 
+in0Up_40109 = tf.constant([[[1.6148, 1.0041], [1.4567, 1.1681]]])
+in0Max32718 = tf.constant([[[[1.6932]]]])
+print (np.array2string(model.predict([in0Up_40109,in0Max32718],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul62113.png')
+
+LUp_40109 = up_sampling1D_layer([[[1.6148, 1.0041], [1.4567, 1.1681]]], 2, Up_40109), 
+LLoc20213 = locally_connected1D_layer(Up_40109, 4,[[[0.0385, 0.1721, 0.3431, 0.6472], [0.2266, 0.2505, 0.7517, 0.5609], [0.4265, 0.1434, 0.9033, 0.8373], [0.7699, 0.9146, 0.9595, 0.4977], [0.6572, 0.8518, 0.8553, 0.4089], [0.1529, 0.2672, 0.8187, 0.7658], [0.1887, 0.8311, 0.8758, 0.6221], [0.0733, 0.4886, 0.0815, 0.0462]]],[[0, 0, 0, 0]], 1, Loc20213), 
+LRes26875 = reshape_layer(Loc20213, [1, 4, 1], Res26875), 
+LMax32718 = max_pool2D_layer([[[[1.6932]]]], 1, 1, Max32718), 
+LZer33246 = zero_padding2D_layer(Max32718, 0, 0, 3, 0, Zer33246), 
+LMul62113 = multiply_layer([Res26875,Zer33246], Mul62113), 
+exec_layers([LUp_40109,LLoc20213,LRes26875,LMax32718,LZer33246,LMul62113],["Up_40109","Loc20213","Res26875","Max32718","Zer33246","Mul62113"],Mul62113,"Mul62113")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [10.0076004]]]]
+
+Expected (Unparsed): [[[[0.0],[0.0],[0.0],[10.007600624832001]]]]
+
+Actual:   [[[[0], [0], [0], [10.0077]]]]
+
+Expected: [[[[0], [0], [0], [10.0077]]]]

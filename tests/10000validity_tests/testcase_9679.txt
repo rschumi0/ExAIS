@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat90804 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con15231 = tf.keras.layers.Input(shape=([3, 2, 1]))
+in0Min47260 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min47260 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Bat90804 = keras.layers.BatchNormalization(axis=2, epsilon=0.8035380022541655,  name = 'Bat90804', )(in0Bat90804)
+Res64859 = keras.layers.Reshape((3, 2, 1), name = 'Res64859', )(Bat90804)
+Con15231 = keras.layers.Concatenate(axis=3, name = 'Con15231', )([Res64859,in0Con15231])
+Min47260 = keras.layers.Minimum(name = 'Min47260', )([in0Min47260,in1Min47260])
+Zer72790 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer72790', )(Min47260)
+Ave13166 = keras.layers.Average(name = 'Ave13166', )([Con15231,Zer72790])
+model = tf.keras.models.Model(inputs=[in0Bat90804,in0Con15231,in0Min47260,in1Min47260], outputs=Ave13166)
+w = model.get_layer('Bat90804').get_weights() 
+w[0] = np.array([0.9255, 0.0406])
+w[1] = np.array([0.8322, 0.3376])
+w[2] = np.array([0.7689, 0.1532])
+w[3] = np.array([0.8177, 0.6052])
+model.get_layer('Bat90804').set_weights(w) 
+in0Bat90804 = tf.constant([[[1.0773, 1.3912], [1.0995, 1.8095], [1.8796, 1.2535]]])
+in0Con15231 = tf.constant([[[[0.4697], [0.7197]], [[0.7821], [0.4418]], [[0.2321], [0.6036]]]])
+in0Min47260 = tf.constant([[[[0.5678, 0.7004], [0.0411, 0.4884]]]])
+in1Min47260 = tf.constant([[[[0.3299, 0.7844], [0.2194, 0.4832]]]])
+print (np.array2string(model.predict([in0Bat90804,in0Con15231,in0Min47260,in1Min47260],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave13166.png')
+
+LBat90804 = batch_normalization_layer([[[1.0773, 1.3912], [1.0995, 1.8095], [1.8796, 1.2535]]], 2, 0.8035380022541655, [0.9255, 0.0406], [0.8322, 0.3376], [0.7689, 0.1532], [0.8177, 0.6052], Bat90804), 
+LRes64859 = reshape_layer(Bat90804, [3, 2, 1], Res64859), 
+LCon15231 = concatenate_layer([Res64859,[[[[0.4697], [0.7197]], [[0.7821], [0.4418]], [[0.2321], [0.6036]]]]], 3, Con15231), 
+LMin47260 = minimum_layer([[[[[0.5678, 0.7004], [0.0411, 0.4884]]]], [[[[0.3299, 0.7844], [0.2194, 0.4832]]]]], Min47260), 
+LZer72790 = zero_padding2D_layer(Min47260, 2, 0, 0, 0, Zer72790), 
+LAve13166 = average_layer([Con15231,Zer72790], Ave13166), 
+exec_layers([LBat90804,LRes64859,LCon15231,LMin47260,LZer72790,LAve13166],["Bat90804","Res64859","Con15231","Min47260","Zer72790","Ave13166"],Ave13166,"Ave13166")
+
+Actual (Unparsed): [[[[0.5281824, 0.2348500], [0.1899739, 0.3598500]], [[0.5362506, 0.3910500], [0.1971283, 0.2209000]], [[0.9847138, 0.4662500], [0.2081688, 0.5434000]]]]
+
+Expected (Unparsed): [[[[0.528182396741459,0.23485],[0.18997393460454184,0.35985]],[[0.536250584833743,0.39105],[0.19712826161995367,0.2209]],[[0.9847138069414348,0.46625],[0.20816880472162957,0.5434]]]]
+
+Actual:   [[[[0.5282, 0.2349], [0.19, 0.3599]], [[0.5363, 0.3911], [0.1972, 0.2209]], [[0.9848, 0.4663], [0.2082, 0.5434]]]]
+
+Expected: [[[[0.5282, 0.2349], [0.19, 0.3599]], [[0.5363, 0.3911], [0.1972, 0.2209]], [[0.9848, 0.4663], [0.2082, 0.5434]]]]

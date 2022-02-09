@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep73695 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Add48043 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add48043 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con29088 = tf.keras.layers.Input(shape=([1, 1]))
+
+Sep73695 = keras.layers.SeparableConv2D(2, (1, 1),strides=(2, 2), padding='same', name = 'Sep73695', )(in0Sep73695)
+Res58549 = keras.layers.Reshape((1, 2), name = 'Res58549', )(Sep73695)
+Add48043 = keras.layers.Add(name = 'Add48043', )([in0Add48043,in1Add48043])
+Con29088 = keras.layers.Concatenate(axis=2, name = 'Con29088', )([Add48043,in0Con29088])
+Min61689 = keras.layers.Minimum(name = 'Min61689', )([Res58549,Con29088])
+Res35191 = keras.layers.Reshape((1, 2, 1), name = 'Res35191', )(Min61689)
+Res66823 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res66823', )(Res35191)
+Con4671 = keras.layers.Conv3D(3, (1, 1, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con4671', )(Res66823)
+Lay41580 = keras.layers.LayerNormalization(axis=1, epsilon=2.4522505916147095, name = 'Lay41580', )(Con4671)
+model = tf.keras.models.Model(inputs=[in0Sep73695,in0Add48043,in1Add48043,in0Con29088], outputs=Lay41580)
+w = model.get_layer('Sep73695').get_weights() 
+w[0] = np.array([[[[0.805]]]])
+w[1] = np.array([[[[0.8764, 0.3107]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep73695').set_weights(w) 
+w = model.get_layer('Con4671').get_weights() 
+w[0] = np.array([[[[[0.226, 0.0413, 0.7753]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con4671').set_weights(w) 
+in0Sep73695 = tf.constant([[[[0.0862]], [[0.3648]]]])
+in0Add48043 = tf.constant([[[0.9726]]])
+in1Add48043 = tf.constant([[[0.863]]])
+in0Con29088 = tf.constant([[[0.1125]]])
+print (np.array2string(model.predict([in0Sep73695,in0Add48043,in1Add48043,in0Con29088],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay41580.png')
+
+LSep73695 = separable_conv2D_layer([[[[0.0862]], [[0.3648]]]], 1, 1,[[[[[0.805]]]],[[[[0.8764, 0.3107]]]]],[0, 0], 2, 2, true, Sep73695), 
+LRes58549 = reshape_layer(Sep73695, [1, 2], Res58549), 
+LAdd48043 = add_layer([[[[0.9726]]], [[[0.863]]]], Add48043), 
+LCon29088 = concatenate_layer([Add48043,[[[0.1125]]]], 2, Con29088), 
+LMin61689 = minimum_layer([Res58549,Con29088], Min61689), 
+LRes35191 = reshape_layer(Min61689, [1, 2, 1], Res35191), 
+LRes66823 = reshape_layer(Res35191, [1, 2, 1, 1], Res66823), 
+LCon4671 = conv3D_layer(Res66823, 1, 1, 1,[[[[[0.226, 0.0413, 0.7753]]]]],[0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con4671), 
+LLay41580 = layer_normalization_layer(Con4671, 1, 2.4522505916147095, Lay41580), 
+exec_layers([LSep73695,LRes58549,LAdd48043,LCon29088,LMin61689,LRes35191,LRes66823,LCon4671,LLay41580],["Sep73695","Res58549","Add48043","Con29088","Min61689","Res35191","Res66823","Con4671","Lay41580"],Lay41580,"Lay41580")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0.0,0.0,0.0]],[[0.0,0.0,0.0]]]]]
+
+Actual:   [[[[[0, 0, 0]], [[0, 0, 0]]]]]
+
+Expected: [[[[[0, 0, 0]], [[0, 0, 0]]]]]

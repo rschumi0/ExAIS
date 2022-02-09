@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot13115 = tf.keras.layers.Input(shape=([2]))
+in1Dot13115 = tf.keras.layers.Input(shape=([2]))
+in0Min6600 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min6600 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Dot13115 = keras.layers.Dot(axes=(1, 1), name = 'Dot13115', )([in0Dot13115,in1Dot13115])
+Res45957 = keras.layers.Reshape((1, 1), name = 'Res45957', )(Dot13115)
+Res25308 = keras.layers.Reshape((1, 1, 1), name = 'Res25308', )(Res45957)
+Res23613 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res23613', )(Res25308)
+Zer82527 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer82527', )(Res23613)
+Min6600 = keras.layers.Minimum(name = 'Min6600', )([in0Min6600,in1Min6600])
+Res23935 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res23935', )(Min6600)
+Up_96562 = keras.layers.UpSampling3D(size=(2, 1, 2), name = 'Up_96562', )(Res23935)
+Min62545 = keras.layers.Minimum(name = 'Min62545', )([Zer82527,Up_96562])
+model = tf.keras.models.Model(inputs=[in0Dot13115,in1Dot13115,in0Min6600,in1Min6600], outputs=Min62545)
+in0Dot13115 = tf.constant([[0.9295, 0.9881]])
+in1Dot13115 = tf.constant([[0.6805, 0.7689]])
+in0Min6600 = tf.constant([[[[0.9256], [0.0077]]]])
+in1Min6600 = tf.constant([[[[0.4076], [0.9912]]]])
+print (np.array2string(model.predict([in0Dot13115,in1Dot13115,in0Min6600,in1Min6600],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min62545.png')
+
+LDot13115 = dot_layer([[0.9295, 0.9881]], [[0.6805, 0.7689]], 1, 1, Dot13115), 
+LRes45957 = reshape_layer(Dot13115, [1, 1], Res45957), 
+LRes25308 = reshape_layer(Res45957, [1, 1, 1], Res25308), 
+LRes23613 = reshape_layer(Res25308, [1, 1, 1, 1], Res23613), 
+LZer82527 = zero_padding3D_layer(Res23613, 1, 0, 1, 0, 1, 0, Zer82527), 
+LMin6600 = minimum_layer([[[[[0.9256], [0.0077]]]], [[[[0.4076], [0.9912]]]]], Min6600), 
+LRes23935 = reshape_layer(Min6600, [1, 2, 1, 1], Res23935), 
+LUp_96562 = up_sampling3D_layer(Res23935, 2, 1, 2, Up_96562), 
+LMin62545 = minimum_layer([Zer82527,Up_96562], Min62545), 
+exec_layers([LDot13115,LRes45957,LRes25308,LRes23613,LZer82527,LMin6600,LRes23935,LUp_96562,LMin62545],["Dot13115","Res45957","Res25308","Res23613","Zer82527","Min6600","Res23935","Up_96562","Min62545"],Min62545,"Min62545")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000]], [[0.0000000], [0.0077000]]]]]
+
+Expected (Unparsed): [[[[[0],[0]],[[0],[0]]],[[[0],[0]],[[0],[0.0077]]]]]
+
+Actual:   [[[[[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0.0077]]]]]
+
+Expected: [[[[[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0.0077]]]]]

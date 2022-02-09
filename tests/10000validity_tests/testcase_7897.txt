@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc66575 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min39591 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Min39591 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con61667 = tf.keras.layers.Input(shape=([1, 3, 1, 2]))
+
+Loc66575 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc66575', )(in0Loc66575)
+Res23278 = keras.layers.Reshape((1, 4, 1), name = 'Res23278', )(Loc66575)
+Res60378 = keras.layers.Reshape((1, 4, 1, 1), name = 'Res60378', )(Res23278)
+Con79902 = keras.layers.Conv3D(3, (1, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con79902', )(Res60378)
+Min39591 = keras.layers.Minimum(name = 'Min39591', )([in0Min39591,in1Min39591])
+ELU42576 = keras.layers.ELU(alpha=3.605331590085868, name = 'ELU42576', )(Min39591)
+Zer97569 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer97569', )(ELU42576)
+Con61667 = keras.layers.Concatenate(axis=4, name = 'Con61667', )([Zer97569,in0Con61667])
+Min89504 = keras.layers.Minimum(name = 'Min89504', )([Con79902,Con61667])
+model = tf.keras.models.Model(inputs=[in0Loc66575,in0Min39591,in1Min39591,in0Con61667], outputs=Min89504)
+w = model.get_layer('Loc66575').get_weights() 
+w[0] = np.array([[[0.9894, 0.9676, 0.6165, 0.7], [0.5019, 0.6544, 0.238, 0.4255]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc66575').set_weights(w) 
+w = model.get_layer('Con79902').get_weights() 
+w[0] = np.array([[[[[0.601, 0.1524, 0.1732]]], [[[0.8317, 0.92, 0.761]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con79902').set_weights(w) 
+in0Loc66575 = tf.constant([[[0.7749, 0.482]]])
+in0Min39591 = tf.constant([[[[[0.5275]]]]])
+in1Min39591 = tf.constant([[[[[0.5428]]]]])
+in0Con61667 = tf.constant([[[[[0.5571, 0.4369]], [[0.4325, 0.8788]], [[0.745, 0.796]]]]])
+print (np.array2string(model.predict([in0Loc66575,in0Min39591,in1Min39591,in0Con61667],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min89504.png')
+
+LLoc66575 = locally_connected1D_layer([[[0.7749, 0.482]]], 1,[[[0.9894, 0.9676, 0.6165, 0.7], [0.5019, 0.6544, 0.238, 0.4255]]],[[0, 0, 0, 0]], 1, Loc66575), 
+LRes23278 = reshape_layer(Loc66575, [1, 4, 1], Res23278), 
+LRes60378 = reshape_layer(Res23278, [1, 4, 1, 1], Res60378), 
+LCon79902 = conv3D_layer(Res60378, 1, 2, 1,[[[[[0.601, 0.1524, 0.1732]]], [[[0.8317, 0.92, 0.761]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con79902), 
+LMin39591 = minimum_layer([[[[[[0.5275]]]]], [[[[[0.5428]]]]]], Min39591), 
+LELU42576 = elu_layer(Min39591, 3.605331590085868, ELU42576), 
+LZer97569 = zero_padding3D_layer(ELU42576, 0, 0, 2, 0, 0, 0, Zer97569), 
+LCon61667 = concatenate_layer([Zer97569,[[[[[0.5571, 0.4369]], [[0.4325, 0.8788]], [[0.745, 0.796]]]]]], 4, Con61667), 
+LMin89504 = minimum_layer([Con79902,Con61667], Min89504), 
+exec_layers([LLoc66575,LRes23278,LRes60378,LCon79902,LMin39591,LELU42576,LZer97569,LCon61667,LMin89504],["Loc66575","Res23278","Res60378","Con79902","Min39591","ELU42576","Zer97569","Con61667","Min89504"],Min89504,"Min89504")
+
+Actual (Unparsed): [[[[[0.0000000, 0.5571000, 0.4369000]], [[0.0000000, 0.4325000, 0.6353433]], [[0.5275000, 0.7450000, 0.6714744]]]]]
+
+Expected (Unparsed): [[[[[0,0.5571,0.4369]],[[0,0.4325,0.635343319578]],[[0.5275,0.745,0.6714744094199999]]]]]
+
+Actual:   [[[[[0, 0.5571, 0.4369]], [[0, 0.4325, 0.6354]], [[0.5275, 0.745, 0.6715]]]]]
+
+Expected: [[[[[0, 0.5571, 0.4369]], [[0, 0.4325, 0.6354]], [[0.5275, 0.745, 0.6715]]]]]

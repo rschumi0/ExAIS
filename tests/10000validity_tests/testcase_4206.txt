@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat1365 = tf.keras.layers.Input(shape=([3, 1, 2]))
+in0Mul8445 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Mul8445 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Bat1365 = keras.layers.BatchNormalization(axis=1, epsilon=0.9929607725269594,  name = 'Bat1365', )(in0Bat1365)
+Bat20228 = keras.layers.BatchNormalization(axis=2, epsilon=0.7113925655141524,  name = 'Bat20228', )(Bat1365)
+Res40517 = keras.layers.Reshape((3, 1, 2, 1), name = 'Res40517', )(Bat20228)
+Zer18280 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer18280', )(Res40517)
+Mul8445 = keras.layers.Multiply(name = 'Mul8445', )([in0Mul8445,in1Mul8445])
+Zer36886 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (1, 0)), name = 'Zer36886', )(Mul8445)
+Mul12074 = keras.layers.Multiply(name = 'Mul12074', )([Zer18280,Zer36886])
+model = tf.keras.models.Model(inputs=[in0Bat1365,in0Mul8445,in1Mul8445], outputs=Mul12074)
+w = model.get_layer('Bat1365').get_weights() 
+w[0] = np.array([0.4687, 0.1871, 0.8141])
+w[1] = np.array([0.1271, 0.9812, 0.362])
+w[2] = np.array([0.5405, 0.7821, 0.4955])
+w[3] = np.array([0.5769, 0.1315, 0.3458])
+model.get_layer('Bat1365').set_weights(w) 
+w = model.get_layer('Bat20228').get_weights() 
+w[0] = np.array([0.2216])
+w[1] = np.array([0.4134])
+w[2] = np.array([0.5857])
+w[3] = np.array([0.1693])
+model.get_layer('Bat20228').set_weights(w) 
+in0Bat1365 = tf.constant([[[[1.3965, 1.4633]], [[1.359, 1.2397]], [[1.7549, 1.9816]]]])
+in0Mul8445 = tf.constant([[[[[0.4642]], [[0.3329]]]]])
+in1Mul8445 = tf.constant([[[[[0.4135]], [[0.2826]]]]])
+print (np.array2string(model.predict([in0Bat1365,in0Mul8445,in1Mul8445],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul12074.png')
+
+LBat1365 = batch_normalization_layer([[[[1.3965, 1.4633]], [[1.359, 1.2397]], [[1.7549, 1.9816]]]], 1, 0.9929607725269594, [0.4687, 0.1871, 0.8141], [0.1271, 0.9812, 0.362], [0.5405, 0.7821, 0.4955], [0.5769, 0.1315, 0.3458], Bat1365), 
+LBat20228 = batch_normalization_layer(Bat1365, 2, 0.7113925655141524, [0.2216], [0.4134], [0.5857], [0.1693], Bat20228), 
+LRes40517 = reshape_layer(Bat20228, [3, 1, 2, 1], Res40517), 
+LZer18280 = zero_padding3D_layer(Res40517, 0, 0, 2, 0, 0, 0, Zer18280), 
+LMul8445 = multiply_layer([[[[[[0.4642]], [[0.3329]]]]], [[[[[0.4135]], [[0.2826]]]]]], Mul8445), 
+LZer36886 = zero_padding3D_layer(Mul8445, 2, 0, 1, 0, 1, 0, Zer36886), 
+LMul12074 = multiply_layer([Zer18280,Zer36886], Mul12074), 
+exec_layers([LBat1365,LBat20228,LRes40517,LZer18280,LMul8445,LZer36886,LMul12074],["Bat1365","Bat20228","Res40517","Zer18280","Mul8445","Zer36886","Mul12074"],Mul12074,"Mul12074")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]], [[0.0000000], [0.0571505]]]]]
+
+Expected (Unparsed): [[[[[0],[0]],[[0],[0]],[[0.0],[0.0]]],[[[0],[0]],[[0],[0]],[[0.0],[0.0]]],[[[0],[0]],[[0],[0.0]],[[0.0],[0.05715051357436755]]]]]
+
+Actual:   [[[[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0.0572]]]]]
+
+Expected: [[[[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0]]], [[[0], [0]], [[0], [0]], [[0], [0.0572]]]]]

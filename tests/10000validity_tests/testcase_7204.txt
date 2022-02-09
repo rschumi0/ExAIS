@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep45640 = tf.keras.layers.Input(shape=([1, 1]))
+in0Thr91464 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con8067 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sep45640 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep45640', )(in0Sep45640)
+Zer75904 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer75904', )(Sep45640)
+Thr91464 = keras.layers.ThresholdedReLU(theta=1.1163025435677132, name = 'Thr91464', input_shape=(2, 1))(in0Thr91464)
+Con8067 = keras.layers.Concatenate(axis=2, name = 'Con8067', )([Thr91464,in0Con8067])
+Add47162 = keras.layers.Add(name = 'Add47162', )([Zer75904,Con8067])
+Res44152 = keras.layers.Reshape((2, 3, 1), name = 'Res44152', )(Add47162)
+Max29262 = keras.layers.MaxPool2D(pool_size=(2, 1), strides=(1, 1), padding='same', name = 'Max29262', )(Res44152)
+model = tf.keras.models.Model(inputs=[in0Sep45640,in0Thr91464,in0Con8067], outputs=Max29262)
+w = model.get_layer('Sep45640').get_weights() 
+w[0] = np.array([[[0.6128]]])
+w[1] = np.array([[[0.5504, 0.8752, 0.0886]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep45640').set_weights(w) 
+in0Sep45640 = tf.constant([[[0.0309]]])
+in0Thr91464 = tf.constant([[[0.1068], [0.5692]]])
+in0Con8067 = tf.constant([[[0.9782, 0.491], [0.4177, 0.1508]]])
+print (np.array2string(model.predict([in0Sep45640,in0Thr91464,in0Con8067],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max29262.png')
+
+LSep45640 = separable_conv1D_layer([[[0.0309]]], 1,[[[[0.6128]]],[[[0.5504, 0.8752, 0.0886]]]],[0, 0, 0], 1, false, Sep45640), 
+LZer75904 = zero_padding1D_layer(Sep45640, 1, 0, Zer75904), 
+LThr91464 = thresholded_relu_layer([[[0.1068], [0.5692]]], 1.1163025435677132, Thr91464), 
+LCon8067 = concatenate_layer([Thr91464,[[[0.9782, 0.491], [0.4177, 0.1508]]]], 2, Con8067), 
+LAdd47162 = add_layer([Zer75904,Con8067], Add47162), 
+LRes44152 = reshape_layer(Add47162, [2, 3, 1], Res44152), 
+LMax29262 = max_pool2D_layer(Res44152, 2, 1, 1, 1, true, Max29262), 
+exec_layers([LSep45640,LZer75904,LThr91464,LCon8067,LAdd47162,LRes44152,LMax29262],["Sep45640","Zer75904","Thr91464","Con8067","Add47162","Res44152","Max29262"],Max29262,"Max29262")
+
+Actual (Unparsed): [[[[0.0104221], [0.9782000], [0.4910000]], [[0.0104221], [0.4342724], [0.1524777]]]]
+
+Expected (Unparsed): [[[[0.010422110208000001],[0.9782],[0.491]],[[0.010422110208000001],[0.434272367104],[0.152477687072]]]]
+
+Actual:   [[[[0.0105], [0.9782], [0.491]], [[0.0105], [0.4343], [0.1525]]]]
+
+Expected: [[[[0.0105], [0.9782], [0.491]], [[0.0105], [0.4343], [0.1525]]]]

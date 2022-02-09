@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min94762 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Min94762 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con33462 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in0Con92037 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Min94762 = keras.layers.Minimum(name = 'Min94762', )([in0Min94762,in1Min94762])
+Res85161 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res85161', )(Min94762)
+Zer30756 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer30756', )(Res85161)
+Con33462 = keras.layers.Concatenate(axis=4, name = 'Con33462', )([Zer30756,in0Con33462])
+Con92037 = keras.layers.Conv3DTranspose(3, (1, 1, 2),strides=(1, 1, 1), padding='same', name = 'Con92037', )(in0Con92037)
+Mas4860 = keras.layers.Masking(mask_value=2, name = 'Mas4860', )(Con92037)
+Sub76161 = keras.layers.Subtract(name = 'Sub76161', )([Con33462,Mas4860])
+Con79511 = keras.layers.Conv3D(2, (1, 1, 2),strides=(9, 1, 10), padding='same', dilation_rate=(1, 1, 1), name = 'Con79511', )(Sub76161)
+model = tf.keras.models.Model(inputs=[in0Min94762,in1Min94762,in0Con33462,in0Con92037], outputs=Con79511)
+w = model.get_layer('Con92037').get_weights() 
+w[0] = np.array([[[[[0.872, 0.5448], [0.6863, 0.7691], [0.8252, 0.3003]], [[0.5568, 0.0644], [0.1423, 0.4769], [0.3648, 0.1854]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con92037').set_weights(w) 
+w = model.get_layer('Con79511').get_weights() 
+w[0] = np.array([[[[[0.5013, 0.6249], [0.522, 0.0302], [0.9421, 0.1181]], [[0.5603, 0.5941], [0.7512, 0.2312], [0.3516, 0.4904]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con79511').set_weights(w) 
+in0Min94762 = tf.constant([[[[0.8393]]]])
+in1Min94762 = tf.constant([[[[0.9562]]]])
+in0Con33462 = tf.constant([[[[[0.332, 0.4082], [0.3852, 0.7109]]]]])
+in0Con92037 = tf.constant([[[[[0.8205, 0.6091], [0.2317, 0.9341]]]]])
+print (np.array2string(model.predict([in0Min94762,in1Min94762,in0Con33462,in0Con92037],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con79511.png')
+
+LMin94762 = minimum_layer([[[[[0.8393]]]], [[[[0.9562]]]]], Min94762), 
+LRes85161 = reshape_layer(Min94762, [1, 1, 1, 1], Res85161), 
+LZer30756 = zero_padding3D_layer(Res85161, 0, 0, 0, 0, 1, 0, Zer30756), 
+LCon33462 = concatenate_layer([Zer30756,[[[[[0.332, 0.4082], [0.3852, 0.7109]]]]]], 4, Con33462), 
+LCon92037 = conv3D_transpose_layer([[[[[0.8205, 0.6091], [0.2317, 0.9341]]]]], 1, 1, 2,[[[[[0.872, 0.5448], [0.6863, 0.7691], [0.8252, 0.3003]], [[0.5568, 0.0644], [0.1423, 0.4769], [0.3648, 0.1854]]]]],[0, 0, 0], 1, 1, 1, true, Con92037), 
+LMas4860 = masking_layer(Con92037, 2, Mas4860), 
+LSub76161 = subtract_layer(Con33462,Mas4860, Sub76161), 
+LCon79511 = conv3D_layer(Sub76161, 1, 1, 2,[[[[[0.5013, 0.6249], [0.522, 0.0302], [0.9421, 0.1181]], [[0.5603, 0.5941], [0.7512, 0.2312], [0.3516, 0.4904]]]]],[0, 0], 9, 1, 10, true, 1, 1, 1, Con79511), 
+exec_layers([LMin94762,LRes85161,LZer30756,LCon33462,LCon92037,LMas4860,LSub76161,LCon79511],["Min94762","Res85161","Zer30756","Con33462","Con92037","Mas4860","Sub76161","Con79511"],Con79511,"Con79511")
+
+Actual (Unparsed): [[[[[-2.2583845, -1.2402356]]]]]
+
+Expected (Unparsed): [[[[[-2.2583844416809997,-1.240235556125]]]]]
+
+Actual:   [[[[[-2.2583, -1.2402]]]]]
+
+Expected: [[[[[-2.2583, -1.2402]]]]]

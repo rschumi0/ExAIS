@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min99415 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min99415 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con55780 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Dep67897 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Min99415 = keras.layers.Minimum(name = 'Min99415', )([in0Min99415,in1Min99415])
+Fla32395 = keras.layers.Flatten(name = 'Fla32395', )(Min99415)
+Res53401 = keras.layers.Reshape((4, 1), name = 'Res53401', )(Fla32395)
+Loc12024 = keras.layers.LocallyConnected1D(2, (4),strides=(1), name = 'Loc12024', )(Res53401)
+Res99387 = keras.layers.Reshape((1, 2, 1), name = 'Res99387', )(Loc12024)
+Con55780 = keras.layers.Concatenate(axis=3, name = 'Con55780', )([Res99387,in0Con55780])
+Dep67897 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='valid', name = 'Dep67897', )(in0Dep67897)
+Zer13632 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer13632', )(Dep67897)
+Mul37573 = keras.layers.Multiply(name = 'Mul37573', )([Con55780,Zer13632])
+PRe99363 = keras.layers.PReLU(name = 'PRe99363', )(Mul37573)
+model = tf.keras.models.Model(inputs=[in0Min99415,in1Min99415,in0Con55780,in0Dep67897], outputs=PRe99363)
+w = model.get_layer('Loc12024').get_weights() 
+w[0] = np.array([[[0.5482, 0.1826], [0.1572, 0.3716], [0.5908, 0.3365], [0.1687, 0.0688]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc12024').set_weights(w) 
+w = model.get_layer('Dep67897').get_weights() 
+w[0] = np.array([[[[0.7281], [0.4989]], [[0.3369], [0.9044]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep67897').set_weights(w) 
+w = model.get_layer('PRe99363').get_weights() 
+w[0] = np.array([[[0.0387, 0.5952], [0.976, 0.7286]]])
+model.get_layer('PRe99363').set_weights(w) 
+in0Min99415 = tf.constant([[[0.1353, 0.2508], [0.2836, 0.2951]]])
+in1Min99415 = tf.constant([[[0.9663, 0.3979], [0.4524, 0.4101]]])
+in0Con55780 = tf.constant([[[[0.0332], [0.8291]]]])
+in0Dep67897 = tf.constant([[[[0.1635, 0.5719], [0.9645, 0.2931]]]])
+print (np.array2string(model.predict([in0Min99415,in1Min99415,in0Con55780,in0Dep67897],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe99363.png')
+
+LMin99415 = minimum_layer([[[[0.1353, 0.2508], [0.2836, 0.2951]]], [[[0.9663, 0.3979], [0.4524, 0.4101]]]], Min99415), 
+LFla32395 = flatten_layer(Min99415, Fla32395), 
+LRes53401 = reshape_layer(Fla32395, [4, 1], Res53401), 
+LLoc12024 = locally_connected1D_layer(Res53401, 4,[[[0.5482, 0.1826], [0.1572, 0.3716], [0.5908, 0.3365], [0.1687, 0.0688]]],[[0, 0]], 1, Loc12024), 
+LRes99387 = reshape_layer(Loc12024, [1, 2, 1], Res99387), 
+LCon55780 = concatenate_layer([Res99387,[[[[0.0332], [0.8291]]]]], 3, Con55780), 
+LDep67897 = depthwise_conv2D_layer([[[[0.1635, 0.5719], [0.9645, 0.2931]]]], 1, 2,[[[[0.7281], [0.4989]], [[0.3369], [0.9044]]]],[0, 0], 1, 1, false, Dep67897), 
+LZer13632 = zero_padding2D_layer(Dep67897, 0, 0, 1, 0, Zer13632), 
+LMul37573 = multiply_layer([Con55780,Zer13632], Mul37573), 
+LPRe99363 = prelu_layer(Mul37573, [[[0.0387, 0.5952], [0.976, 0.7286]]], PRe99363), 
+exec_layers([LMin99415,LFla32395,LRes53401,LLoc12024,LRes99387,LCon55780,LDep67897,LZer13632,LMul37573,LPRe99363],["Min99415","Fla32395","Res53401","Loc12024","Res99387","Con55780","Dep67897","Zer13632","Mul37573","PRe99363"],PRe99363,"PRe99363")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.1037313, 0.4563371]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[0.10373133421749599,0.45633709600499994]]]]
+
+Actual:   [[[[0, 0], [0.1038, 0.4564]]]]
+
+Expected: [[[[0, 0], [0.1038, 0.4564]]]]

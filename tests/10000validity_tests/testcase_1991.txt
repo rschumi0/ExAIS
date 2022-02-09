@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro14392 = tf.keras.layers.Input(shape=([3, 1, 2, 1]))
+in0Ave53821 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave53821 = tf.keras.layers.Input(shape=([2, 1]))
+
+Cro14392 = keras.layers.Cropping3D(cropping=((2, 0), (0, 0), (1, 0)), name = 'Cro14392', )(in0Cro14392)
+Res38001 = keras.layers.Reshape((1, 1, 1), name = 'Res38001', )(Cro14392)
+Res58006 = keras.layers.Reshape((1, 1), name = 'Res58006', )(Res38001)
+Zer13465 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer13465', )(Res58006)
+Ave53821 = keras.layers.Average(name = 'Ave53821', )([in0Ave53821,in1Ave53821])
+Ave83057 = keras.layers.Average(name = 'Ave83057', )([Zer13465,Ave53821])
+Res94976 = keras.layers.Reshape((2, 1, 1), name = 'Res94976', )(Ave83057)
+Dep31080 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='valid', name = 'Dep31080', )(Res94976)
+Res36918 = keras.layers.Reshape((1, 1), name = 'Res36918', )(Dep31080)
+Sim38881 = keras.layers.SimpleRNN(1,name = 'Sim38881', )(Res36918)
+model = tf.keras.models.Model(inputs=[in0Cro14392,in0Ave53821,in1Ave53821], outputs=Sim38881)
+w = model.get_layer('Dep31080').get_weights() 
+w[0] = np.array([[[[0.0825]]], [[[0.5236]]]])
+w[1] = np.array([0])
+model.get_layer('Dep31080').set_weights(w) 
+w = model.get_layer('Sim38881').get_weights() 
+w[0] = np.array([[10]])
+w[1] = np.array([[7]])
+w[2] = np.array([10])
+model.get_layer('Sim38881').set_weights(w) 
+in0Cro14392 = tf.constant([[[[[1.8779], [1.0694]]], [[[1.879], [1.3197]]], [[[1.5204], [1.9671]]]]])
+in0Ave53821 = tf.constant([[[0.8488], [0.6285]]])
+in1Ave53821 = tf.constant([[[0.1097], [0.1073]]])
+print (np.array2string(model.predict([in0Cro14392,in0Ave53821,in1Ave53821],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim38881.png')
+
+LCro14392 = cropping3D_layer([[[[[1.8779], [1.0694]]], [[[1.879], [1.3197]]], [[[1.5204], [1.9671]]]]], 2, 0, 0, 0, 1, 0, Cro14392), 
+LRes38001 = reshape_layer(Cro14392, [1, 1, 1], Res38001), 
+LRes58006 = reshape_layer(Res38001, [1, 1], Res58006), 
+LZer13465 = zero_padding1D_layer(Res58006, 1, 0, Zer13465), 
+LAve53821 = average_layer([[[[0.8488], [0.6285]]], [[[0.1097], [0.1073]]]], Ave53821), 
+LAve83057 = average_layer([Zer13465,Ave53821], Ave83057), 
+LRes94976 = reshape_layer(Ave83057, [2, 1, 1], Res94976), 
+LDep31080 = depthwise_conv2D_layer(Res94976, 2, 1,[[[[0.0825]]], [[[0.5236]]]],[0], 1, 1, false, Dep31080), 
+LRes36918 = reshape_layer(Dep31080, [1, 1], Res36918), 
+LSim38881 = simple_rnn_layer(Res36918,[[10]],[[7]],[10], Sim38881), 
+exec_layers([LCro14392,LRes38001,LRes58006,LZer13465,LAve53821,LAve83057,LRes94976,LDep31080,LRes36918,LSim38881],["Cro14392","Res38001","Res58006","Zer13465","Ave53821","Ave83057","Res94976","Dep31080","Res36918","Sim38881"],Sim38881,"Sim38881")
+
+Actual (Unparsed): [[1.0000000]]
+
+Expected (Unparsed): [[0.9999999999999863]]
+
+Actual:   [[1]]
+
+Expected: [[1]]

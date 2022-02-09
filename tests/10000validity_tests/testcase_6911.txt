@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo9528 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con62871 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con77795 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo9528 = keras.layers.GlobalMaxPool2D(name = 'Glo9528', )(in0Glo9528)
+Res18689 = keras.layers.Reshape((2, 1), name = 'Res18689', )(Glo9528)
+Con62871 = keras.layers.Concatenate(axis=2, name = 'Con62871', )([Res18689,in0Con62871])
+Con77795 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con77795', )(in0Con77795)
+Mul58921 = keras.layers.Multiply(name = 'Mul58921', )([Con62871,Con77795])
+model = tf.keras.models.Model(inputs=[in0Glo9528,in0Con62871,in0Con77795], outputs=Mul58921)
+w = model.get_layer('Con77795').get_weights() 
+w[0] = np.array([[[0.002, 0.6913], [0.5387, 0.6917]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con77795').set_weights(w) 
+in0Glo9528 = tf.constant([[[[1.8718, 1.6251], [1.6618, 1.4181]]]])
+in0Con62871 = tf.constant([[[0.5906], [0.9321]]])
+in0Con77795 = tf.constant([[[0.3752, 0.064], [0.6324, 0.9954]]])
+print (np.array2string(model.predict([in0Glo9528,in0Con62871,in0Con77795],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul58921.png')
+
+LGlo9528 = global_max_pool2D_layer([[[[1.8718, 1.6251], [1.6618, 1.4181]]]], Glo9528), 
+LRes18689 = reshape_layer(Glo9528, [2, 1], Res18689), 
+LCon62871 = concatenate_layer([Res18689,[[[0.5906], [0.9321]]]], 2, Con62871), 
+LCon77795 = conv1D_layer([[[0.3752, 0.064], [0.6324, 0.9954]]], 1,[[[0.002, 0.6913], [0.5387, 0.6917]]],[0, 0], 1, false, 1, Con77795), 
+LMul58921 = multiply_layer([Con62871,Con77795], Mul58921), 
+exec_layers([LGlo9528,LRes18689,LCon62871,LCon77795,LMul58921],["Glo9528","Res18689","Con62871","Con77795","Mul58921"],Mul58921,"Mul58921")
+
+Actual (Unparsed): [[[0.0659383, 0.1793325], [0.8734698, 1.0492615]]]
+
+Expected (Unparsed): [[[0.06593827295999999,0.179332477136],[0.8734697661779998,1.04926152123]]]
+
+Actual:   [[[0.066, 0.1794], [0.8735, 1.0493]]]
+
+Expected: [[[0.066, 0.1794], [0.8735, 1.0493]]]

@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max32812 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max32812 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sub81064 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub81064 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max32812 = keras.layers.Maximum(name = 'Max32812', )([in0Max32812,in1Max32812])
+Res56473 = keras.layers.Reshape((1, 2, 1), name = 'Res56473', )(Max32812)
+Zer70432 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer70432', )(Res56473)
+Sub81064 = keras.layers.Subtract(name = 'Sub81064', )([in0Sub81064,in1Sub81064])
+Res70759 = keras.layers.Reshape((2, 2, 1), name = 'Res70759', )(Sub81064)
+Up_49605 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_49605', )(Res70759)
+Mul94800 = keras.layers.Multiply(name = 'Mul94800', )([Zer70432,Up_49605])
+model = tf.keras.models.Model(inputs=[in0Max32812,in1Max32812,in0Sub81064,in1Sub81064], outputs=Mul94800)
+in0Max32812 = tf.constant([[[0.4953, 0.1922]]])
+in1Max32812 = tf.constant([[[0.7788, 0.0714]]])
+in0Sub81064 = tf.constant([[[0.3244, 0.1747], [0.0644, 0.0944]]])
+in1Sub81064 = tf.constant([[[0.4141, 0.5499], [0.6199, 0.7902]]])
+print (np.array2string(model.predict([in0Max32812,in1Max32812,in0Sub81064,in1Sub81064],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul94800.png')
+
+LMax32812 = maximum_layer([[[[0.4953, 0.1922]]], [[[0.7788, 0.0714]]]], Max32812), 
+LRes56473 = reshape_layer(Max32812, [1, 2, 1], Res56473), 
+LZer70432 = zero_padding2D_layer(Res56473, 1, 0, 2, 0, Zer70432), 
+LSub81064 = subtract_layer([[[0.3244, 0.1747], [0.0644, 0.0944]]], [[[0.4141, 0.5499], [0.6199, 0.7902]]], Sub81064), 
+LRes70759 = reshape_layer(Sub81064, [2, 2, 1], Res70759), 
+LUp_49605 = up_sampling2D_layer(Res70759, 1, 2, Up_49605), 
+LMul94800 = multiply_layer([Zer70432,Up_49605], Mul94800), 
+exec_layers([LMax32812,LRes56473,LZer70432,LSub81064,LRes70759,LUp_49605,LMul94800],["Max32812","Res56473","Zer70432","Sub81064","Res70759","Up_49605","Mul94800"],Mul94800,"Mul94800")
+
+Actual (Unparsed): [[[[-0.0000000], [-0.0000000], [-0.0000000], [-0.0000000]], [[-0.0000000], [-0.0000000], [-0.5418890], [-0.1337328]]]]
+
+Expected (Unparsed): [[[[-0.0],[-0.0],[-0.0],[-0.0]],[[-0.0],[-0.0],[-0.54188904],[-0.13373276]]]]
+
+Actual:   [[[[-0], [-0], [-0], [-0]], [[-0], [-0], [-0.5418], [-0.1337]]]]
+
+Expected: [[[[-0], [-0], [-0], [-0]], [[-0], [-0], [-0.5418], [-0.1337]]]]

@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max67172 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min2842 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min2842 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Max67172 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max67172', )(in0Max67172)
+Zer55799 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer55799', )(Max67172)
+Min2842 = keras.layers.Minimum(name = 'Min2842', )([in0Min2842,in1Min2842])
+Res22654 = keras.layers.Reshape((2, 2), name = 'Res22654', )(Min2842)
+PRe88969 = keras.layers.PReLU(name = 'PRe88969', )(Res22654)
+Up_53768 = keras.layers.UpSampling1D(size=(1), name = 'Up_53768', )(PRe88969)
+Max87015 = keras.layers.Maximum(name = 'Max87015', )([Zer55799,Up_53768])
+model = tf.keras.models.Model(inputs=[in0Max67172,in0Min2842,in1Min2842], outputs=Max87015)
+w = model.get_layer('PRe88969').get_weights() 
+w[0] = np.array([[0.6498, 0.8386], [0.2168, 0.1677]])
+model.get_layer('PRe88969').set_weights(w) 
+in0Max67172 = tf.constant([[[1.7942, 1.7102]]])
+in0Min2842 = tf.constant([[[[0.2141], [0.6009]], [[0.5354], [0.4388]]]])
+in1Min2842 = tf.constant([[[[0.4921], [0.0106]], [[0.9725], [0.923]]]])
+print (np.array2string(model.predict([in0Max67172,in0Min2842,in1Min2842],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max87015.png')
+
+LMax67172 = max_pool1D_layer([[[1.7942, 1.7102]]], 1, Max67172), 
+LZer55799 = zero_padding1D_layer(Max67172, 1, 0, Zer55799), 
+LMin2842 = minimum_layer([[[[[0.2141], [0.6009]], [[0.5354], [0.4388]]]], [[[[0.4921], [0.0106]], [[0.9725], [0.923]]]]], Min2842), 
+LRes22654 = reshape_layer(Min2842, [2, 2], Res22654), 
+LPRe88969 = prelu_layer(Res22654, [[0.6498, 0.8386], [0.2168, 0.1677]], PRe88969), 
+LUp_53768 = up_sampling1D_layer(PRe88969, 1, Up_53768), 
+LMax87015 = maximum_layer([Zer55799,Up_53768], Max87015), 
+exec_layers([LMax67172,LZer55799,LMin2842,LRes22654,LPRe88969,LUp_53768,LMax87015],["Max67172","Zer55799","Min2842","Res22654","PRe88969","Up_53768","Max87015"],Max87015,"Max87015")
+
+Actual (Unparsed): [[[0.2141000, 0.0106000], [1.7941999, 1.7102000]]]
+
+Expected (Unparsed): [[[0.2141,0.0106],[1.7942,1.7102]]]
+
+Actual:   [[[0.2141, 0.0106], [1.7942, 1.7102]]]
+
+Expected: [[[0.2141, 0.0106], [1.7942, 1.7102]]]

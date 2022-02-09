@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave59470 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con95841 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Loc52952 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Ave59470 = keras.layers.AveragePooling2D(pool_size=(2, 2), strides=(1, 1), padding='same', name = 'Ave59470', )(in0Ave59470)
+Con95841 = keras.layers.Concatenate(axis=3, name = 'Con95841', )([Ave59470,in0Con95841])
+Loc52952 = keras.layers.LocallyConnected2D(4, (1, 2),strides=(2, 1), name = 'Loc52952', )(in0Loc52952)
+Zer95386 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer95386', )(Loc52952)
+Max60677 = keras.layers.Maximum(name = 'Max60677', )([Con95841,Zer95386])
+Res25146 = keras.layers.Reshape((2, 8), name = 'Res25146', )(Max60677)
+Sim2818 = keras.layers.SimpleRNN(2,name = 'Sim2818', )(Res25146)
+model = tf.keras.models.Model(inputs=[in0Ave59470,in0Con95841,in0Loc52952], outputs=Sim2818)
+w = model.get_layer('Loc52952').get_weights() 
+w[0] = np.array([[[0.3365, 0.06, 0.179, 0.943], [0.5409, 0.6687, 0.2909, 0.4258], [0.8541, 0.0863, 0.638, 0.0717], [0.0633, 0.0844, 0.6998, 0.0933]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc52952').set_weights(w) 
+w = model.get_layer('Sim2818').get_weights() 
+w[0] = np.array([[2, 10], [7, 6], [1, 5], [5, 3], [3, 7], [3, 10], [10, 6], [4, 4]])
+w[1] = np.array([[2, 1], [2, 5]])
+w[2] = np.array([10, 5])
+model.get_layer('Sim2818').set_weights(w) 
+in0Ave59470 = tf.constant([[[[1.8027], [1.238]], [[1.2777], [1.5728]]]])
+in0Con95841 = tf.constant([[[[0.8179, 0.831, 0.4918], [0.2266, 0.1868, 0.7429]], [[0.5358, 0.7643, 0.2576], [0.7781, 0.1296, 0.9619]]]])
+in0Loc52952 = tf.constant([[[[0.1351, 0.7003], [0.3301, 0.4525]], [[0.7959, 0.251], [0.1558, 0.426]]]])
+print (np.array2string(model.predict([in0Ave59470,in0Con95841,in0Loc52952],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim2818.png')
+
+LAve59470 = average_pooling2D_layer([[[[1.8027], [1.238]], [[1.2777], [1.5728]]]], 2, 2, 1, 1, true, Ave59470), 
+LCon95841 = concatenate_layer([Ave59470,[[[[0.8179, 0.831, 0.4918], [0.2266, 0.1868, 0.7429]], [[0.5358, 0.7643, 0.2576], [0.7781, 0.1296, 0.9619]]]]], 3, Con95841), 
+LLoc52952 = locally_connected2D_layer([[[[0.1351, 0.7003], [0.3301, 0.4525]], [[0.7959, 0.251], [0.1558, 0.426]]]], 1, 2,[[[0.3365, 0.06, 0.179, 0.943], [0.5409, 0.6687, 0.2909, 0.4258], [0.8541, 0.0863, 0.638, 0.0717], [0.0633, 0.0844, 0.6998, 0.0933]]],[[[0, 0, 0, 0]]], 2, 1, Loc52952), 
+LZer95386 = zero_padding2D_layer(Loc52952, 1, 0, 1, 0, Zer95386), 
+LMax60677 = maximum_layer([Con95841,Zer95386], Max60677), 
+LRes25146 = reshape_layer(Max60677, [2, 8], Res25146), 
+LSim2818 = simple_rnn_layer(Res25146,[[2, 10], [7, 6], [1, 5], [5, 3], [3, 7], [3, 10], [10, 6], [4, 4]],[[2, 1], [2, 5]],[10, 5], Sim2818), 
+exec_layers([LAve59470,LCon95841,LLoc52952,LZer95386,LMax60677,LRes25146,LSim2818],["Ave59470","Con95841","Loc52952","Zer95386","Max60677","Res25146","Sim2818"],Sim2818,"Sim2818")
+
+Actual (Unparsed): [[1.0000000, 1.0000000]]
+
+Expected (Unparsed): [[1.0,1.0]]
+
+Actual:   [[1, 1]]
+
+Expected: [[1, 1]]

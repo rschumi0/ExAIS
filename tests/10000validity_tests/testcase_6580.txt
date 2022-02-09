@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo79796 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0ELU76014 = tf.keras.layers.Input(shape=([1, 1]))
+in0ELU71815 = tf.keras.layers.Input(shape=([1, 1]))
+
+Glo79796 = keras.layers.GlobalAveragePooling3D(name = 'Glo79796', )(in0Glo79796)
+Res82575 = keras.layers.Reshape((1, 1), name = 'Res82575', )(Glo79796)
+Sep92028 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep92028', )(Res82575)
+Fla17611 = keras.layers.Flatten(name = 'Fla17611', )(Sep92028)
+ELU76014 = keras.layers.ELU(alpha=-1.8940533248103009, name = 'ELU76014', input_shape=(1, 1))(in0ELU76014)
+Glo55779 = keras.layers.GlobalMaxPool1D(name = 'Glo55779', )(ELU76014)
+Res12529 = keras.layers.Reshape((1, 1), name = 'Res12529', )(Glo55779)
+ELU71815 = keras.layers.ELU(alpha=-2.9605236320753336, name = 'ELU71815', input_shape=(1, 1))(in0ELU71815)
+Mul20559 = keras.layers.Multiply(name = 'Mul20559', )([Res12529,ELU71815])
+LST77320 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST77320', )(Mul20559)
+Sub8397 = keras.layers.Subtract(name = 'Sub8397', )([Fla17611,LST77320])
+model = tf.keras.models.Model(inputs=[in0Glo79796,in0ELU76014,in0ELU71815], outputs=Sub8397)
+w = model.get_layer('Sep92028').get_weights() 
+w[0] = np.array([[[0.3724]]])
+w[1] = np.array([[[0.7639, 0.8087, 0.9757]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep92028').set_weights(w) 
+w = model.get_layer('LST77320').get_weights() 
+w[0] = np.array([[4, 5, 1, 8, 10, 4, 7, 7, 6, 6, 5, 4]])
+w[1] = np.array([[8, 8, 8, 4, 2, 2, 5, 9, 10, 4, 7, 7], [3, 10, 8, 3, 1, 8, 8, 2, 3, 10, 10, 10], [8, 2, 4, 9, 5, 10, 6, 2, 7, 9, 8, 6]])
+w[2] = np.array([5, 4, 2, 3, 5, 7, 6, 3, 9, 8, 6, 6])
+model.get_layer('LST77320').set_weights(w) 
+in0Glo79796 = tf.constant([[[[[1.8131]]]]])
+in0ELU76014 = tf.constant([[[0.868]]])
+in0ELU71815 = tf.constant([[[0.4264]]])
+print (np.array2string(model.predict([in0Glo79796,in0ELU76014,in0ELU71815],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub8397.png')
+
+LGlo79796 = global_average_pooling3D_layer([[[[[1.8131]]]]], Glo79796), 
+LRes82575 = reshape_layer(Glo79796, [1, 1], Res82575), 
+LSep92028 = separable_conv1D_layer(Res82575, 1,[[[[0.3724]]],[[[0.7639, 0.8087, 0.9757]]]],[0, 0, 0], 1, false, Sep92028), 
+LFla17611 = flatten_layer(Sep92028, Fla17611), 
+LELU76014 = elu_layer([[[0.868]]], -1.8940533248103009, ELU76014), 
+LGlo55779 = global_max_pool1D_layer(ELU76014, Glo55779), 
+LRes12529 = reshape_layer(Glo55779, [1, 1], Res12529), 
+LELU71815 = elu_layer([[[0.4264]]], -2.9605236320753336, ELU71815), 
+LMul20559 = multiply_layer([Res12529,ELU71815], Mul20559), 
+LLST77320 = lstm_layer(Mul20559,[[4, 5, 1, 8, 10, 4, 7, 7, 6, 6, 5, 4]],[[8, 8, 8, 4, 2, 2, 5, 9, 10, 4, 7, 7], [3, 10, 8, 3, 1, 8, 8, 2, 3, 10, 10, 10], [8, 2, 4, 9, 5, 10, 6, 2, 7, 9, 8, 6]],[5, 4, 2, 3, 5, 7, 6, 3, 9, 8, 6, 6], LST77320), 
+LSub8397 = subtract_layer(Fla17611,LST77320, Sub8397), 
+exec_layers([LGlo79796,LRes82575,LSep92028,LFla17611,LELU76014,LGlo55779,LRes12529,LELU71815,LMul20559,LLST77320,LSub8397],["Glo79796","Res82575","Sep92028","Fla17611","ELU76014","Glo55779","Res12529","ELU71815","Mul20559","LST77320","Sub8397"],Sub8397,"Sub8397")
+
+Actual (Unparsed): [[-0.2451387, -0.2140454, -0.0640958]]
+
+Expected (Unparsed): [[-0.24513870546837158,-0.21404543463819692,-0.06409575951762414]]
+
+Actual:   [[-0.2451, -0.214, -0.064]]
+
+Expected: [[-0.2451, -0.214, -0.064]]

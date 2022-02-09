@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot37316 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot37316 = tf.keras.layers.Input(shape=([3, 3]))
+in0Max57507 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Dot37316 = keras.layers.Dot(axes=(1, 2), name = 'Dot37316', )([in0Dot37316,in1Dot37316])
+Con87532 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con87532', )(Dot37316)
+Max57507 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max57507', )(in0Max57507)
+Res56038 = keras.layers.Reshape((1, 2), name = 'Res56038', )(Max57507)
+PRe4032 = keras.layers.PReLU(name = 'PRe4032', )(Res56038)
+Zer97636 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer97636', )(PRe4032)
+Sub4272 = keras.layers.Subtract(name = 'Sub4272', )([Con87532,Zer97636])
+Glo67261 = keras.layers.GlobalMaxPool1D(name = 'Glo67261', )(Sub4272)
+model = tf.keras.models.Model(inputs=[in0Dot37316,in1Dot37316,in0Max57507], outputs=Glo67261)
+w = model.get_layer('Con87532').get_weights() 
+w[0] = np.array([[[0.6657, 0.9552], [0.1669, 0.1507], [0.7461, 0.1356]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con87532').set_weights(w) 
+w = model.get_layer('PRe4032').get_weights() 
+w[0] = np.array([[0.9803, 0.241]])
+model.get_layer('PRe4032').set_weights(w) 
+in0Dot37316 = tf.constant([[[0.4841, 0.0309, 0.2233], [0.5146, 0.3691, 0.9084], [0.2178, 0.8532, 0.0535]]])
+in1Dot37316 = tf.constant([[[0.1866, 0.0569, 0.3937], [0.8038, 0.673, 0.4339], [0.1542, 0.6712, 0.709]]])
+in0Max57507 = tf.constant([[[[1.6424, 1.0294]]]])
+print (np.array2string(model.predict([in0Dot37316,in1Dot37316,in0Max57507],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo67261.png')
+
+LDot37316 = dot_layer([[[0.4841, 0.0309, 0.2233], [0.5146, 0.3691, 0.9084], [0.2178, 0.8532, 0.0535]]], [[[0.1866, 0.0569, 0.3937], [0.8038, 0.673, 0.4339], [0.1542, 0.6712, 0.709]]], 1, 2, Dot37316), 
+LCon87532 = conv1D_layer(Dot37316, 1,[[[0.6657, 0.9552], [0.1669, 0.1507], [0.7461, 0.1356]]],[0, 0], 1, false, 1, Con87532), 
+LMax57507 = max_pool2D_layer([[[[1.6424, 1.0294]]]], 1, 1, Max57507), 
+LRes56038 = reshape_layer(Max57507, [1, 2], Res56038), 
+LPRe4032 = prelu_layer(Res56038, [[0.9803, 0.241]], PRe4032), 
+LZer97636 = zero_padding1D_layer(PRe4032, 2, 0, Zer97636), 
+LSub4272 = subtract_layer(Con87532,Zer97636, Sub4272), 
+LGlo67261 = global_max_pool1D_layer(Sub4272, Glo67261), 
+exec_layers([LDot37316,LCon87532,LMax57507,LRes56038,LPRe4032,LZer97636,LSub4272,LGlo67261],["Dot37316","Con87532","Max57507","Res56038","PRe4032","Zer97636","Sub4272","Glo67261"],Glo67261,"Glo67261")
+
+Actual (Unparsed): [[0.9885458, 0.5596587]]
+
+Expected (Unparsed): [[0.988545807079,0.559658657104]]
+
+Actual:   [[0.9886, 0.5597]]
+
+Expected: [[0.9886, 0.5597]]

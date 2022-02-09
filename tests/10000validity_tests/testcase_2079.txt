@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr69182 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con40482 = tf.keras.layers.Input(shape=([4, 3, 1]))
+in0Sep52265 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Thr69182 = keras.layers.ThresholdedReLU(theta=6.473146250819278, name = 'Thr69182', input_shape=(1, 2, 2))(in0Thr69182)
+Res32891 = keras.layers.Reshape((1, 4), name = 'Res32891', )(Thr69182)
+Glo68722 = keras.layers.GlobalMaxPool1D(name = 'Glo68722', )(Res32891)
+Res64832 = keras.layers.Reshape((4, 1), name = 'Res64832', )(Glo68722)
+Res49886 = keras.layers.Reshape((4, 1, 1), name = 'Res49886', )(Res64832)
+Zer64970 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer64970', )(Res49886)
+Con40482 = keras.layers.Concatenate(axis=3, name = 'Con40482', )([Zer64970,in0Con40482])
+Sep52265 = keras.layers.SeparableConv2D(2, (1, 2),strides=(1, 1), padding='same', name = 'Sep52265', )(in0Sep52265)
+Zer80580 = keras.layers.ZeroPadding2D(padding=((3, 0), (1, 0)), name = 'Zer80580', )(Sep52265)
+Sub27779 = keras.layers.Subtract(name = 'Sub27779', )([Con40482,Zer80580])
+Res11957 = keras.layers.Reshape((4, 6), name = 'Res11957', )(Sub27779)
+Per34302 = keras.layers.Permute((1,2), name = 'Per34302',)(Res11957)
+model = tf.keras.models.Model(inputs=[in0Thr69182,in0Con40482,in0Sep52265], outputs=Per34302)
+w = model.get_layer('Sep52265').get_weights() 
+w[0] = np.array([[[[0.5923]], [[0.5205]]]])
+w[1] = np.array([[[[0.5214, 0.666]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep52265').set_weights(w) 
+in0Thr69182 = tf.constant([[[[0.0316, 0.6462], [0.0106, 0.1861]]]])
+in0Con40482 = tf.constant([[[[0.1721], [0.7158], [0.6985]], [[0.4433], [0.3181], [0.626]], [[0.6567], [0.1902], [0.9305]], [[0.4123], [0.8747], [0.7977]]]])
+in0Sep52265 = tf.constant([[[[0.8433], [0.72]]]])
+print (np.array2string(model.predict([in0Thr69182,in0Con40482,in0Sep52265],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per34302.png')
+
+LThr69182 = thresholded_relu_layer([[[[0.0316, 0.6462], [0.0106, 0.1861]]]], 6.473146250819278, Thr69182), 
+LRes32891 = reshape_layer(Thr69182, [1, 4], Res32891), 
+LGlo68722 = global_max_pool1D_layer(Res32891, Glo68722), 
+LRes64832 = reshape_layer(Glo68722, [4, 1], Res64832), 
+LRes49886 = reshape_layer(Res64832, [4, 1, 1], Res49886), 
+LZer64970 = zero_padding2D_layer(Res49886, 0, 0, 2, 0, Zer64970), 
+LCon40482 = concatenate_layer([Zer64970,[[[[0.1721], [0.7158], [0.6985]], [[0.4433], [0.3181], [0.626]], [[0.6567], [0.1902], [0.9305]], [[0.4123], [0.8747], [0.7977]]]]], 3, Con40482), 
+LSep52265 = separable_conv2D_layer([[[[0.8433], [0.72]]]], 1, 2,[[[[[0.5923]], [[0.5205]]]],[[[[0.5214, 0.666]]]]],[0, 0], 1, 1, true, Sep52265), 
+LZer80580 = zero_padding2D_layer(Sep52265, 3, 0, 1, 0, Zer80580), 
+LSub27779 = subtract_layer(Con40482,Zer80580, Sub27779), 
+LRes11957 = reshape_layer(Sub27779, [4, 6], Res11957), 
+LPer34302 = permute_layer(Res11957, 1,2, Per34302), 
+exec_layers([LThr69182,LRes32891,LGlo68722,LRes64832,LRes49886,LZer64970,LCon40482,LSep52265,LZer80580,LSub27779,LRes11957,LPer34302],["Thr69182","Res32891","Glo68722","Res64832","Res49886","Zer64970","Con40482","Sep52265","Zer80580","Sub27779","Res11957","Per34302"],Per34302,"Per34302")
+
+Actual (Unparsed): [[[0.0000000, 0.1721000, 0.0000000, 0.7158000, 0.0000000, 0.6985000], [0.0000000, 0.4433000, 0.0000000, 0.3181000, 0.0000000, 0.6260000], [0.0000000, 0.6567000, 0.0000000, 0.1902000, 0.0000000, 0.9305000], [0.0000000, 0.4123000, -0.4558322, 0.2924518, -0.2223542, 0.5136803]]]
+
+Expected (Unparsed): [[[0,0.1721,0,0.7158,0,0.6985],[0,0.4433,0,0.3181,0,0.626],[0,0.6567,0,0.1902,0,0.9305],[0,0.4123,-0.455832172026,0.29245177106,-0.2223541584,0.513680304]]]
+
+Actual:   [[[0, 0.1721, 0, 0.7158, 0, 0.6985], [0, 0.4433, 0, 0.3181, 0, 0.626], [0, 0.6567, 0, 0.1902, 0, 0.9305], [0, 0.4123, -0.4558, 0.2925, -0.2223, 0.5137]]]
+
+Expected: [[[0, 0.1721, 0, 0.7158, 0, 0.6985], [0, 0.4433, 0, 0.3181, 0, 0.626], [0, 0.6567, 0, 0.1902, 0, 0.9305], [0, 0.4123, -0.4558, 0.2925, -0.2223, 0.5137]]]

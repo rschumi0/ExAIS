@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo80894 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con50216 = tf.keras.layers.Input(shape=([1, 3]))
+in0Con9069 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+Glo80894 = keras.layers.GlobalAveragePooling2D(name = 'Glo80894', )(in0Glo80894)
+Res76967 = keras.layers.Reshape((1, 1), name = 'Res76967', )(Glo80894)
+Sim7687 = keras.layers.SimpleRNN(1,name = 'Sim7687', )(Res76967)
+Res38150 = keras.layers.Reshape((1, 1), name = 'Res38150', )(Sim7687)
+Con50216 = keras.layers.Concatenate(axis=2, name = 'Con50216', )([Res38150,in0Con50216])
+Con9069 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con9069', )(in0Con9069)
+Res49271 = keras.layers.Reshape((1, 2, 2), name = 'Res49271', )(Con9069)
+Res37984 = keras.layers.Reshape((1, 4), name = 'Res37984', )(Res49271)
+Cro77339 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro77339', )(Res37984)
+Up_72921 = keras.layers.UpSampling1D(size=(1), name = 'Up_72921', )(Cro77339)
+Sub56943 = keras.layers.Subtract(name = 'Sub56943', )([Con50216,Up_72921])
+model = tf.keras.models.Model(inputs=[in0Glo80894,in0Con50216,in0Con9069], outputs=Sub56943)
+w = model.get_layer('Sim7687').get_weights() 
+w[0] = np.array([[7]])
+w[1] = np.array([[4]])
+w[2] = np.array([5])
+model.get_layer('Sim7687').set_weights(w) 
+w = model.get_layer('Con9069').get_weights() 
+w[0] = np.array([[[[[0.997, 0.1708], [0.9162, 0.3616]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con9069').set_weights(w) 
+in0Glo80894 = tf.constant([[[[1.3982], [1.5134]], [[1.2965], [1.5168]]]])
+in0Con50216 = tf.constant([[[0.3439, 0.9238, 0.3128]]])
+in0Con9069 = tf.constant([[[[[0.7784, 0.2264]], [[0.7833, 0.6055]]]]])
+print (np.array2string(model.predict([in0Glo80894,in0Con50216,in0Con9069],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub56943.png')
+
+LGlo80894 = global_average_pooling2D_layer([[[[1.3982], [1.5134]], [[1.2965], [1.5168]]]], Glo80894), 
+LRes76967 = reshape_layer(Glo80894, [1, 1], Res76967), 
+LSim7687 = simple_rnn_layer(Res76967,[[7]],[[4]],[5], Sim7687), 
+LRes38150 = reshape_layer(Sim7687, [1, 1], Res38150), 
+LCon50216 = concatenate_layer([Res38150,[[[0.3439, 0.9238, 0.3128]]]], 2, Con50216), 
+LCon9069 = conv3D_transpose_layer([[[[[0.7784, 0.2264]], [[0.7833, 0.6055]]]]], 1, 1, 1,[[[[[0.997, 0.1708], [0.9162, 0.3616]]]]],[0, 0], 1, 1, 1, true, Con9069), 
+LRes49271 = reshape_layer(Con9069, [1, 2, 2], Res49271), 
+LRes37984 = reshape_layer(Res49271, [1, 4], Res37984), 
+LCro77339 = cropping1D_layer(Res37984, 0, 0, Cro77339), 
+LUp_72921 = up_sampling1D_layer(Cro77339, 1, Up_72921), 
+LSub56943 = subtract_layer(Con50216,Up_72921, Sub56943), 
+exec_layers([LGlo80894,LRes76967,LSim7687,LRes38150,LCon50216,LCon9069,LRes49271,LRes37984,LCro77339,LUp_72921,LSub56943],["Glo80894","Res76967","Sim7687","Res38150","Con50216","Con9069","Res49271","Res37984","Cro77339","Up_72921","Sub56943"],Sub56943,"Sub56943")
+
+Actual (Unparsed): [[[0.1852661, -0.4511363, 0.0394305, -0.6238082]]]
+
+Expected (Unparsed): [[[0.1852660799998197,-0.45113632000000004,0.039430499999999924,-0.6238082600000001]]]
+
+Actual:   [[[0.1853, -0.4511, 0.0395, -0.6238]]]
+
+Expected: [[[0.1853, -0.4511, 0.0395, -0.6238]]]

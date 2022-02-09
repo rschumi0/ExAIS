@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot8511 = tf.keras.layers.Input(shape=([3]))
+in1Dot8511 = tf.keras.layers.Input(shape=([3]))
+in0Dot18599 = tf.keras.layers.Input(shape=([2]))
+in1Dot18599 = tf.keras.layers.Input(shape=([2]))
+in0Max28338 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Dot8511 = keras.layers.Dot(axes=(1, 1), name = 'Dot8511', )([in0Dot8511,in1Dot8511])
+Dot18599 = keras.layers.Dot(axes=(1, 1), name = 'Dot18599', )([in0Dot18599,in1Dot18599])
+Max28338 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max28338', )(in0Max28338)
+Res18908 = keras.layers.Reshape((2, 2), name = 'Res18908', )(Max28338)
+LST99689 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST99689', )(Res18908)
+Max95312 = keras.layers.Maximum(name = 'Max95312', )([Dot18599,LST99689])
+Mul22351 = keras.layers.Multiply(name = 'Mul22351', )([Dot8511,Max95312])
+model = tf.keras.models.Model(inputs=[in0Dot8511,in1Dot8511,in0Dot18599,in1Dot18599,in0Max28338], outputs=Mul22351)
+w = model.get_layer('LST99689').get_weights() 
+w[0] = np.array([[8, 10, 2, 4], [2, 1, 3, 3]])
+w[1] = np.array([[3, 5, 4, 10]])
+w[2] = np.array([3, 3, 8, 3])
+model.get_layer('LST99689').set_weights(w) 
+in0Dot8511 = tf.constant([[0.5228, 0.5959, 0.6274]])
+in1Dot8511 = tf.constant([[0.6415, 0.014, 0.2364]])
+in0Dot18599 = tf.constant([[0.377, 0.5662]])
+in1Dot18599 = tf.constant([[0.6401, 0.674]])
+in0Max28338 = tf.constant([[[[1.8313, 1.7027]], [[1.1387, 1.2024]]]])
+print (np.array2string(model.predict([in0Dot8511,in1Dot8511,in0Dot18599,in1Dot18599,in0Max28338],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul22351.png')
+
+LDot8511 = dot_layer([[0.5228, 0.5959, 0.6274]], [[0.6415, 0.014, 0.2364]], 1, 1, Dot8511), 
+LDot18599 = dot_layer([[0.377, 0.5662]], [[0.6401, 0.674]], 1, 1, Dot18599), 
+LMax28338 = max_pool2D_layer([[[[1.8313, 1.7027]], [[1.1387, 1.2024]]]], 1, 1, Max28338), 
+LRes18908 = reshape_layer(Max28338, [2, 2], Res18908), 
+LLST99689 = lstm_layer(Res18908,[[8, 10, 2, 4], [2, 1, 3, 3]],[[3, 5, 4, 10]],[3, 3, 8, 3], LST99689), 
+LMax95312 = maximum_layer([Dot18599,LST99689], Max95312), 
+LMul22351 = multiply_layer([Dot8511,Max95312], Mul22351), 
+exec_layers([LDot8511,LDot18599,LMax28338,LRes18908,LLST99689,LMax95312,LMul22351],["Dot8511","Dot18599","Max28338","Res18908","LST99689","Max95312","Mul22351"],Mul22351,"Mul22351")
+
+Actual (Unparsed): [[0.4743364]]
+
+Expected (Unparsed): [[0.47433642340112375]]
+
+Actual:   [[0.4744]]
+
+Expected: [[0.4744]]

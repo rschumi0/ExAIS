@@ -1,0 +1,34 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot3588 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot3588 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot3588 = keras.layers.Dot(axes=(2, 2), name = 'Dot3588', )([in0Dot3588,in1Dot3588])
+Sep61216 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep61216', )(Dot3588)
+model = tf.keras.models.Model(inputs=[in0Dot3588,in1Dot3588], outputs=Sep61216)
+w = model.get_layer('Sep61216').get_weights() 
+w[0] = np.array([[[0.8377], [0.5515]]])
+w[1] = np.array([[[0.9235, 0.8739, 0.1595], [0.1985, 0.9105, 0.3328]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep61216').set_weights(w) 
+in0Dot3588 = tf.constant([[[0.8584, 0.0815], [0.7265, 0.4188]]])
+in1Dot3588 = tf.constant([[[0.7995, 0.6478], [0.7569, 0.8568]]])
+print (np.array2string(model.predict([in0Dot3588,in1Dot3588],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep61216.png')
+
+LDot3588 = dot_layer([[[0.8584, 0.0815], [0.7265, 0.4188]]], [[[0.7995, 0.6478], [0.7569, 0.8568]]], 2, 2, Dot3588), 
+LSep61216 = separable_conv1D_layer(Dot3588, 1,[[[[0.8377], [0.5515]]],[[[0.9235, 0.8739, 0.1595], [0.1985, 0.9105, 0.3328]]]],[0, 0, 0], 1, true, Sep61216), 
+exec_layers([LDot3588,LSep61216],["Dot3588","Sep61216"],Sep61216,"Sep61216")
+
+Actual (Unparsed): [[[0.6505404, 0.9023766, 0.2308177], [0.7587051, 1.0801225, 0.2806414]]]
+
+Expected (Unparsed): [[[0.650540458553315,0.9023765811681151,0.23081770319214703],[0.7587051348159181,1.0801225500931693,0.2806414444544265]]]
+
+Actual:   [[[0.6506, 0.9024, 0.2309], [0.7588, 1.0802, 0.2807]]]
+
+Expected: [[[0.6506, 0.9024, 0.2309], [0.7588, 1.0802, 0.2807]]]

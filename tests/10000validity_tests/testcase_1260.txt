@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add49955 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add49955 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Mul147 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Mul147 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Add49955 = keras.layers.Add(name = 'Add49955', )([in0Add49955,in1Add49955])
+Sep9267 = keras.layers.SeparableConv2D(3, (1, 2),strides=(1, 1), padding='same', name = 'Sep9267', )(Add49955)
+Res35861 = keras.layers.Reshape((2, 1, 3, 1), name = 'Res35861', )(Sep9267)
+Zer10487 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer10487', )(Res35861)
+Mul147 = keras.layers.Multiply(name = 'Mul147', )([in0Mul147,in1Mul147])
+Zer10469 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer10469', )(Mul147)
+Sub79556 = keras.layers.Subtract(name = 'Sub79556', )([Zer10487,Zer10469])
+Thr7130 = keras.layers.ThresholdedReLU(theta=4.11981595955294, name = 'Thr7130', )(Sub79556)
+model = tf.keras.models.Model(inputs=[in0Add49955,in1Add49955,in0Mul147,in1Mul147], outputs=Thr7130)
+w = model.get_layer('Sep9267').get_weights() 
+w[0] = np.array([[[[0.7564], [0.1472]], [[0.0701], [0.8031]]]])
+w[1] = np.array([[[[0.7413, 0.3993, 0.848], [0.6806, 0.514, 0.5275]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep9267').set_weights(w) 
+in0Add49955 = tf.constant([[[[0.3681, 0.4955]], [[0.0678, 0.1939]]]])
+in1Add49955 = tf.constant([[[[0.5329, 0.9595]], [[0.7897, 0.8268]]]])
+in0Mul147 = tf.constant([[[[[0.6435], [0.822]], [[0.9497], [0.5624]]], [[[0.0706], [0.6421]], [[0.0894], [0.843]]]]])
+in1Mul147 = tf.constant([[[[[0.5298], [0.2137]], [[0.7166], [0.3273]]], [[[0.2015], [0.9405]], [[0.2433], [0.0371]]]]])
+print (np.array2string(model.predict([in0Add49955,in1Add49955,in0Mul147,in1Mul147],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Thr7130.png')
+
+LAdd49955 = add_layer([[[[[0.3681, 0.4955]], [[0.0678, 0.1939]]]], [[[[0.5329, 0.9595]], [[0.7897, 0.8268]]]]], Add49955), 
+LSep9267 = separable_conv2D_layer(Add49955, 1, 2,[[[[[0.7564], [0.1472]], [[0.0701], [0.8031]]]],[[[[0.7413, 0.3993, 0.848], [0.6806, 0.514, 0.5275]]]]],[0, 0, 0], 1, 1, true, Sep9267), 
+LRes35861 = reshape_layer(Sep9267, [2, 1, 3, 1], Res35861), 
+LZer10487 = zero_padding3D_layer(Res35861, 0, 0, 1, 0, 1, 0, Zer10487), 
+LMul147 = multiply_layer([[[[[[0.6435], [0.822]], [[0.9497], [0.5624]]], [[[0.0706], [0.6421]], [[0.0894], [0.843]]]]], [[[[[0.5298], [0.2137]], [[0.7166], [0.3273]]], [[[0.2015], [0.9405]], [[0.2433], [0.0371]]]]]], Mul147), 
+LZer10469 = zero_padding3D_layer(Mul147, 0, 0, 0, 0, 2, 0, Zer10469), 
+LSub79556 = subtract_layer(Zer10487,Zer10469, Sub79556), 
+LThr7130 = thresholded_relu_layer(Sub79556, 4.11981595955294, Thr7130), 
+exec_layers([LAdd49955,LSep9267,LRes35861,LZer10487,LMul147,LZer10469,LSub79556,LThr7130],["Add49955","Sep9267","Res35861","Zer10487","Mul147","Zer10469","Sub79556","Thr7130"],Thr7130,"Thr7130")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [-0.0000000], [-0.0000000]], [[0.0000000], [0.0000000], [-0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [-0.0000000], [-0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0],[0]],[[0],[0],[0],[0]]],[[[0],[0],[0],[0]],[[0],[0],[0],[0]]]]]
+
+Actual:   [[[[[0], [0], [-0], [-0]], [[0], [0], [-0], [0]]], [[[0], [0], [-0], [-0]], [[0], [0], [0], [0]]]]]
+
+Expected: [[[[[0], [0], [0], [0]], [[0], [0], [0], [0]]], [[[0], [0], [0], [0]], [[0], [0], [0], [0]]]]]

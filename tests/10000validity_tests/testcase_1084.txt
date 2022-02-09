@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con99105 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max390 = tf.keras.layers.Input(shape=([1, 1]))
+
+Con99105 = keras.layers.Conv1D(4, (1),strides=(10), padding='valid', dilation_rate=(1), name = 'Con99105', )(in0Con99105)
+Max390 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max390', )(in0Max390)
+Res12840 = keras.layers.Reshape((1, 1, 1), name = 'Res12840', )(Max390)
+Dep88658 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep88658', )(Res12840)
+Res82859 = keras.layers.Reshape((1, 1), name = 'Res82859', )(Dep88658)
+Dot62042 = keras.layers.Dot(axes=(1, 1), name = 'Dot62042', )([Con99105,Res82859])
+model = tf.keras.models.Model(inputs=[in0Con99105,in0Max390], outputs=Dot62042)
+w = model.get_layer('Con99105').get_weights() 
+w[0] = np.array([[[0.816, 0.742, 0.9351, 0.1658]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con99105').set_weights(w) 
+w = model.get_layer('Dep88658').get_weights() 
+w[0] = np.array([[[[0.9444]]]])
+w[1] = np.array([0])
+model.get_layer('Dep88658').set_weights(w) 
+in0Con99105 = tf.constant([[[0.3358], [0.1488]]])
+in0Max390 = tf.constant([[[1.0066]]])
+print (np.array2string(model.predict([in0Con99105,in0Max390],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot62042.png')
+
+LCon99105 = conv1D_layer([[[0.3358], [0.1488]]], 1,[[[0.816, 0.742, 0.9351, 0.1658]]],[0, 0, 0, 0], 10, false, 1, Con99105), 
+LMax390 = max_pool1D_layer([[[1.0066]]], 1, Max390), 
+LRes12840 = reshape_layer(Max390, [1, 1, 1], Res12840), 
+LDep88658 = depthwise_conv2D_layer(Res12840, 1, 1,[[[[0.9444]]]],[0], 1, 1, false, Dep88658), 
+LRes82859 = reshape_layer(Dep88658, [1, 1], Res82859), 
+LDot62042 = dot_layer(Con99105,Res82859, 1, 1, Dot62042), 
+exec_layers([LCon99105,LMax390,LRes12840,LDep88658,LRes82859,LDot62042],["Con99105","Max390","Res12840","Dep88658","Res82859","Dot62042"],Dot62042,"Dot62042")
+
+Actual (Unparsed): [[[0.2604856], [0.2368632], [0.2985050], [0.0529271]]]
+
+Expected (Unparsed): [[[0.26048562106291195],[0.23686315052534396],[0.29850502972540316],[0.05292710290714559]]]
+
+Actual:   [[[0.2605], [0.2369], [0.2986], [0.053]]]
+
+Expected: [[[0.2605], [0.2369], [0.2986], [0.053]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max81858 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max81858 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con17801 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Add39967 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Add39967 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Max81858 = keras.layers.Maximum(name = 'Max81858', )([in0Max81858,in1Max81858])
+Res58181 = keras.layers.Reshape((2, 2, 1), name = 'Res58181', )(Max81858)
+Res31228 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res31228', )(Res58181)
+Con17801 = keras.layers.Concatenate(axis=4, name = 'Con17801', )([Res31228,in0Con17801])
+Add39967 = keras.layers.Add(name = 'Add39967', )([in0Add39967,in1Add39967])
+Zer8442 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer8442', )(Add39967)
+Sub19801 = keras.layers.Subtract(name = 'Sub19801', )([Con17801,Zer8442])
+Mas96485 = keras.layers.Masking(mask_value=2, name = 'Mas96485', )(Sub19801)
+Res93769 = keras.layers.Reshape((2, 2, 2), name = 'Res93769', )(Mas96485)
+Sep70234 = keras.layers.SeparableConv2D(3, (1, 2),strides=(1, 1), padding='same', name = 'Sep70234', )(Res93769)
+model = tf.keras.models.Model(inputs=[in0Max81858,in1Max81858,in0Con17801,in0Add39967,in1Add39967], outputs=Sep70234)
+w = model.get_layer('Sep70234').get_weights() 
+w[0] = np.array([[[[0.1338], [0.5265]], [[0.3241], [0.3463]]]])
+w[1] = np.array([[[[0.4691, 0.2813, 0.776], [0.7982, 0.8833, 0.5803]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep70234').set_weights(w) 
+in0Max81858 = tf.constant([[[0.7472, 0.7849], [0.4051, 0.1777]]])
+in1Max81858 = tf.constant([[[0.7095, 0.2666], [0.1972, 0.3608]]])
+in0Con17801 = tf.constant([[[[[0.4924]], [[0.2537]]], [[[0.0893]], [[0.8775]]]]])
+in0Add39967 = tf.constant([[[[[0.8744, 0.0504]]]]])
+in1Add39967 = tf.constant([[[[[0.9259, 0.6862]]]]])
+print (np.array2string(model.predict([in0Max81858,in1Max81858,in0Con17801,in0Add39967,in1Add39967],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep70234.png')
+
+LMax81858 = maximum_layer([[[[0.7472, 0.7849], [0.4051, 0.1777]]], [[[0.7095, 0.2666], [0.1972, 0.3608]]]], Max81858), 
+LRes58181 = reshape_layer(Max81858, [2, 2, 1], Res58181), 
+LRes31228 = reshape_layer(Res58181, [2, 2, 1, 1], Res31228), 
+LCon17801 = concatenate_layer([Res31228,[[[[[0.4924]], [[0.2537]]], [[[0.0893]], [[0.8775]]]]]], 4, Con17801), 
+LAdd39967 = add_layer([[[[[[0.8744, 0.0504]]]]], [[[[[0.9259, 0.6862]]]]]], Add39967), 
+LZer8442 = zero_padding3D_layer(Add39967, 1, 0, 1, 0, 0, 0, Zer8442), 
+LSub19801 = subtract_layer(Con17801,Zer8442, Sub19801), 
+LMas96485 = masking_layer(Sub19801, 2, Mas96485), 
+LRes93769 = reshape_layer(Mas96485, [2, 2, 2], Res93769), 
+LSep70234 = separable_conv2D_layer(Res93769, 1, 2,[[[[[0.1338], [0.5265]], [[0.3241], [0.3463]]]],[[[[0.4691, 0.2813, 0.776], [0.7982, 0.8833, 0.5803]]]]],[0, 0, 0], 1, 1, true, Sep70234), 
+exec_layers([LMax81858,LRes58181,LRes31228,LCon17801,LAdd39967,LZer8442,LSub19801,LMas96485,LRes93769,LSep70234],["Max81858","Res58181","Res31228","Con17801","Add39967","Zer8442","Sub19801","Mas96485","Res93769","Sep70234"],Sep70234,"Sep70234")
+
+Actual (Unparsed): [[[[0.4432901, 0.4062796, 0.4764095], [0.1558827, 0.1475271, 0.1590077]], [[-0.1169529, -0.0313621, -0.2643769], [-0.0311375, 0.0113468, -0.1064127]]]]
+
+Expected (Unparsed): [[[[0.443290095357,0.406279642888,0.47640946447300003],[0.15588271225199998,0.14752709417099996,0.159007666035]],[[-0.11695285450300003,-0.031362042045,-0.264376893684],[-0.031137503340000046,0.011346780074999958,-0.10641266944500004]]]]
+
+Actual:   [[[[0.4433, 0.4063, 0.4765], [0.1559, 0.1476, 0.1591]], [[-0.1169, -0.0313, -0.2643], [-0.0311, 0.0114, -0.1064]]]]
+
+Expected: [[[[0.4433, 0.4063, 0.4765], [0.1559, 0.1476, 0.1591]], [[-0.1169, -0.0313, -0.2643], [-0.0311, 0.0114, -0.1064]]]]

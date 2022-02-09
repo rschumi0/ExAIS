@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul95712 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul95712 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con51304 = tf.keras.layers.Input(shape=([1, 2, 3, 1]))
+in0Mul78909 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in1Mul78909 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+
+Mul95712 = keras.layers.Multiply(name = 'Mul95712', )([in0Mul95712,in1Mul95712])
+Loc58690 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc58690', )(Mul95712)
+Sof31976 = keras.layers.Softmax(axis=1, name = 'Sof31976', )(Loc58690)
+Res45544 = keras.layers.Reshape((1, 2, 3, 1), name = 'Res45544', )(Sof31976)
+Con51304 = keras.layers.Concatenate(axis=4, name = 'Con51304', )([Res45544,in0Con51304])
+Mul78909 = keras.layers.Multiply(name = 'Mul78909', )([in0Mul78909,in1Mul78909])
+Zer10173 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer10173', )(Mul78909)
+Max10979 = keras.layers.Maximum(name = 'Max10979', )([Con51304,Zer10173])
+model = tf.keras.models.Model(inputs=[in0Mul95712,in1Mul95712,in0Con51304,in0Mul78909,in1Mul78909], outputs=Max10979)
+w = model.get_layer('Loc58690').get_weights() 
+w[0] = np.array([[[0.7694, 0.0634, 0.4014]], [[0.7778, 0.8992, 0.0161]]])
+w[1] = np.array([[[0, 0, 0], [0, 0, 0]]])
+model.get_layer('Loc58690').set_weights(w) 
+in0Mul95712 = tf.constant([[[[0.9161], [0.8147]]]])
+in1Mul95712 = tf.constant([[[[0.1132], [0.5177]]]])
+in0Con51304 = tf.constant([[[[[0.7782], [0.5248], [0.9269]], [[0.7507], [0.5508], [0.4477]]]]])
+in0Mul78909 = tf.constant([[[[[0.8132, 0.574], [0.3461, 0.0662]], [[0.1179, 0.2894], [0.9995, 0.4459]]]]])
+in1Mul78909 = tf.constant([[[[[0.953, 0.9556], [0.3403, 0.9344]], [[0.1925, 0.1768], [0.0236, 0.5373]]]]])
+print (np.array2string(model.predict([in0Mul95712,in1Mul95712,in0Con51304,in0Mul78909,in1Mul78909],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max10979.png')
+
+LMul95712 = multiply_layer([[[[[0.9161], [0.8147]]]], [[[[0.1132], [0.5177]]]]], Mul95712), 
+LLoc58690 = locally_connected2D_layer(Mul95712, 1, 1,[[[0.7694, 0.0634, 0.4014]], [[0.7778, 0.8992, 0.0161]]],[[[0, 0, 0], [0, 0, 0]]], 1, 1, Loc58690), 
+LSof31976 = softmax_layer(Loc58690, 1, Sof31976), 
+LRes45544 = reshape_layer(Sof31976, [1, 2, 3, 1], Res45544), 
+LCon51304 = concatenate_layer([Res45544,[[[[[0.7782], [0.5248], [0.9269]], [[0.7507], [0.5508], [0.4477]]]]]], 4, Con51304), 
+LMul78909 = multiply_layer([[[[[[0.8132, 0.574], [0.3461, 0.0662]], [[0.1179, 0.2894], [0.9995, 0.4459]]]]], [[[[[0.953, 0.9556], [0.3403, 0.9344]], [[0.1925, 0.1768], [0.0236, 0.5373]]]]]], Mul78909), 
+LZer10173 = zero_padding3D_layer(Mul78909, 0, 0, 0, 0, 1, 0, Zer10173), 
+LMax10979 = maximum_layer([Con51304,Zer10173], Max10979), 
+exec_layers([LMul95712,LLoc58690,LSof31976,LRes45544,LCon51304,LMul78909,LZer10173,LMax10979],["Mul95712","Loc58690","Sof31976","Res45544","Con51304","Mul78909","Zer10173","Max10979"],Max10979,"Max10979")
+
+Actual (Unparsed): [[[[[1.0000000, 0.7782000], [1.0000000, 0.5485144], [1.0000000, 0.9269000]], [[1.0000000, 0.7507000], [1.0000000, 0.5508000], [1.0000000, 0.4477000]]]]]
+
+Expected (Unparsed): [[[[[1.0,0.7782],[1.0,0.5485144],[1.0,0.9269]],[[1.0,0.7507],[1.0,0.5508],[1.0,0.4477]]]]]
+
+Actual:   [[[[[1, 0.7782], [1, 0.5486], [1, 0.9269]], [[1, 0.7507], [1, 0.5508], [1, 0.4477]]]]]
+
+Expected: [[[[[1, 0.7782], [1, 0.5486], [1, 0.9269]], [[1, 0.7507], [1, 0.5508], [1, 0.4477]]]]]

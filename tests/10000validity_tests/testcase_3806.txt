@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot3611 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot3611 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con85411 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Add84071 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Add84071 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Dot3611 = keras.layers.Dot(axes=(2, 1), name = 'Dot3611', )([in0Dot3611,in1Dot3611])
+Res88156 = keras.layers.Reshape((2, 2, 1), name = 'Res88156', )(Dot3611)
+Res72454 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res72454', )(Res88156)
+Con85411 = keras.layers.Concatenate(axis=4, name = 'Con85411', )([Res72454,in0Con85411])
+Add84071 = keras.layers.Add(name = 'Add84071', )([in0Add84071,in1Add84071])
+Zer56507 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer56507', )(Add84071)
+Max60966 = keras.layers.Maximum(name = 'Max60966', )([Con85411,Zer56507])
+Res20661 = keras.layers.Reshape((2, 2, 2), name = 'Res20661', )(Max60966)
+Res45594 = keras.layers.Reshape((2, 4), name = 'Res45594', )(Res20661)
+Cro79601 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro79601', )(Res45594)
+model = tf.keras.models.Model(inputs=[in0Dot3611,in1Dot3611,in0Con85411,in0Add84071,in1Add84071], outputs=Cro79601)
+in0Dot3611 = tf.constant([[[0.5743, 0.8835], [0.8293, 0.1243]]])
+in1Dot3611 = tf.constant([[[0.1479, 0.9361], [0.0893, 0.3313]]])
+in0Con85411 = tf.constant([[[[[0.5752]], [[0.5019]]], [[[0.7423]], [[0.8688]]]]])
+in0Add84071 = tf.constant([[[[[0.654, 0.9153]]]]])
+in1Add84071 = tf.constant([[[[[0.1553, 0.1768]]]]])
+print (np.array2string(model.predict([in0Dot3611,in1Dot3611,in0Con85411,in0Add84071,in1Add84071],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro79601.png')
+
+LDot3611 = dot_layer([[[0.5743, 0.8835], [0.8293, 0.1243]]], [[[0.1479, 0.9361], [0.0893, 0.3313]]], 2, 1, Dot3611), 
+LRes88156 = reshape_layer(Dot3611, [2, 2, 1], Res88156), 
+LRes72454 = reshape_layer(Res88156, [2, 2, 1, 1], Res72454), 
+LCon85411 = concatenate_layer([Res72454,[[[[[0.5752]], [[0.5019]]], [[[0.7423]], [[0.8688]]]]]], 4, Con85411), 
+LAdd84071 = add_layer([[[[[[0.654, 0.9153]]]]], [[[[[0.1553, 0.1768]]]]]], Add84071), 
+LZer56507 = zero_padding3D_layer(Add84071, 1, 0, 1, 0, 0, 0, Zer56507), 
+LMax60966 = maximum_layer([Con85411,Zer56507], Max60966), 
+LRes20661 = reshape_layer(Max60966, [2, 2, 2], Res20661), 
+LRes45594 = reshape_layer(Res20661, [2, 4], Res45594), 
+LCro79601 = cropping1D_layer(Res45594, 1, 0, Cro79601), 
+exec_layers([LDot3611,LRes88156,LRes72454,LCon85411,LAdd84071,LZer56507,LMax60966,LRes20661,LRes45594,LCro79601],["Dot3611","Res88156","Res72454","Con85411","Add84071","Zer56507","Max60966","Res20661","Res45594","Cro79601"],Cro79601,"Cro79601")
+
+Actual (Unparsed): [[[0.1337535, 0.7423000, 0.8174883, 1.0921000]]]
+
+Expected (Unparsed): [[[0.13375346000000002,0.7423,0.81748832,1.0921]]]
+
+Actual:   [[[0.1338, 0.7423, 0.8175, 1.0921]]]
+
+Expected: [[[0.1338, 0.7423, 0.8175, 1.0921]]]

@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat11666 = tf.keras.layers.Input(shape=([2, 4]))
+in0Con98282 = tf.keras.layers.Input(shape=([2, 4, 1]))
+in0Dep14891 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Bat11666 = keras.layers.BatchNormalization(axis=2, epsilon=0.25522119019966233,  name = 'Bat11666', )(in0Bat11666)
+Res15020 = keras.layers.Reshape((2, 4, 1), name = 'Res15020', )(Bat11666)
+Con98282 = keras.layers.Concatenate(axis=3, name = 'Con98282', )([Res15020,in0Con98282])
+Dep14891 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep14891', )(in0Dep14891)
+Zer97788 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer97788', )(Dep14891)
+Add85666 = keras.layers.Add(name = 'Add85666', )([Con98282,Zer97788])
+model = tf.keras.models.Model(inputs=[in0Bat11666,in0Con98282,in0Dep14891], outputs=Add85666)
+w = model.get_layer('Bat11666').get_weights() 
+w[0] = np.array([0.4076, 0.4283, 0.5942, 0.2778])
+w[1] = np.array([0.129, 0.6748, 0.9996, 0.36])
+w[2] = np.array([0.7761, 0.32, 0.3875, 0.018])
+w[3] = np.array([0.1646, 0.9726, 0.7902, 0.9729])
+model.get_layer('Bat11666').set_weights(w) 
+w = model.get_layer('Dep14891').get_weights() 
+w[0] = np.array([[[[0.6112], [0.0856]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep14891').set_weights(w) 
+in0Bat11666 = tf.constant([[[1.0078, 1.9874, 1.8177, 1.3382], [1.1156, 1.5863, 1.9547, 1.0801]]])
+in0Con98282 = tf.constant([[[[0.5578], [0.8341], [0.6841], [0.2375]], [[0.2456], [0.3388], [0.9219], [0.7724]]]])
+in0Dep14891 = tf.constant([[[[0.6227, 0.5692], [0.1661, 0.6766]], [[0.4674, 0.9219], [0.4547, 0.5132]]]])
+print (np.array2string(model.predict([in0Bat11666,in0Con98282,in0Dep14891],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add85666.png')
+
+LBat11666 = batch_normalization_layer([[[1.0078, 1.9874, 1.8177, 1.3382], [1.1156, 1.5863, 1.9547, 1.0801]]], 2, 0.25522119019966233, [0.4076, 0.4283, 0.5942, 0.2778], [0.129, 0.6748, 0.9996, 0.36], [0.7761, 0.32, 0.3875, 0.018], [0.1646, 0.9726, 0.7902, 0.9729], Bat11666), 
+LRes15020 = reshape_layer(Bat11666, [2, 4, 1], Res15020), 
+LCon98282 = concatenate_layer([Res15020,[[[[0.5578], [0.8341], [0.6841], [0.2375]], [[0.2456], [0.3388], [0.9219], [0.7724]]]]], 3, Con98282), 
+LDep14891 = depthwise_conv2D_layer([[[[0.6227, 0.5692], [0.1661, 0.6766]], [[0.4674, 0.9219], [0.4547, 0.5132]]]], 1, 1,[[[[0.6112], [0.0856]]]],[0, 0], 1, 1, true, Dep14891), 
+LZer97788 = zero_padding2D_layer(Dep14891, 0, 0, 2, 0, Zer97788), 
+LAdd85666 = add_layer([Con98282,Zer97788], Add85666), 
+exec_layers([LBat11666,LRes15020,LCon98282,LDep14891,LZer97788,LAdd85666],["Bat11666","Res15020","Con98282","Dep14891","Zer97788","Add85666"],Add85666,"Add85666")
+
+Actual (Unparsed): [[[[0.2747565, 0.5578000], [1.3192961, 0.8341000], [2.2113526, 0.7328235], [0.7924619, 0.2954170]], [[0.3425707, 0.2456000], [1.1642599, 0.3388000], [2.1960506, 1.0008146], [0.9041549, 0.8163299]]]]
+
+Expected (Unparsed): [[[[0.27475653361791497,0.5578],[1.319296123323797,0.8341],[2.211352589077893,0.7328235200000001],[0.7924619163119658,0.29541696]],[[0.3425707516757968,0.2456],[1.1642599022219768,0.3388],[2.196050551007463,1.00081464],[0.904154928625162,0.8163299199999999]]]]
+
+Actual:   [[[[0.2748, 0.5578], [1.3193, 0.8341], [2.2114, 0.7329], [0.7925, 0.2955]], [[0.3426, 0.2456], [1.1643, 0.3388], [2.1961, 1.0009], [0.9042, 0.8164]]]]
+
+Expected: [[[[0.2748, 0.5578], [1.3193, 0.8341], [2.2114, 0.7329], [0.7925, 0.2955]], [[0.3426, 0.2456], [1.1643, 0.3388], [2.1961, 1.0009], [0.9042, 0.8164]]]]

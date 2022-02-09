@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave17574 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Ave17574 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con86791 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min38135 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min38135 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave17574 = keras.layers.Average(name = 'Ave17574', )([in0Ave17574,in1Ave17574])
+Res42142 = keras.layers.Reshape((1, 1, 1), name = 'Res42142', )(Ave17574)
+Res36401 = keras.layers.Reshape((1, 1), name = 'Res36401', )(Res42142)
+LST80149 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST80149', )(Res36401)
+Res89622 = keras.layers.Reshape((2, 1), name = 'Res89622', )(LST80149)
+Con86791 = keras.layers.Concatenate(axis=2, name = 'Con86791', )([Res89622,in0Con86791])
+Min38135 = keras.layers.Minimum(name = 'Min38135', )([in0Min38135,in1Min38135])
+Loc80752 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc80752', )(Min38135)
+Ave45963 = keras.layers.Average(name = 'Ave45963', )([Con86791,Loc80752])
+model = tf.keras.models.Model(inputs=[in0Ave17574,in1Ave17574,in0Con86791,in0Min38135,in1Min38135], outputs=Ave45963)
+w = model.get_layer('LST80149').get_weights() 
+w[0] = np.array([[8, 4, 2, 10, 10, 1, 5, 6]])
+w[1] = np.array([[9, 9, 2, 8, 7, 7, 6, 7], [2, 4, 2, 2, 5, 3, 4, 3]])
+w[2] = np.array([5, 1, 1, 1, 6, 8, 5, 6])
+model.get_layer('LST80149').set_weights(w) 
+w = model.get_layer('Loc80752').get_weights() 
+w[0] = np.array([[[0.9068, 0.9978, 0.8443], [0.1113, 0.4368, 0.3573]], [[0.4751, 0.524, 0.4117], [0.7478, 0.98, 0.3766]]])
+w[1] = np.array([[0, 0, 0], [0, 0, 0]])
+model.get_layer('Loc80752').set_weights(w) 
+in0Ave17574 = tf.constant([[[[[0.1136]]]]])
+in1Ave17574 = tf.constant([[[[[0.5516]]]]])
+in0Con86791 = tf.constant([[[0.0606, 0.1827], [0.253, 0.2747]]])
+in0Min38135 = tf.constant([[[0.935, 0.367], [0.4093, 0.8853]]])
+in1Min38135 = tf.constant([[[0.6964, 0.0867], [0.7901, 0.2587]]])
+print (np.array2string(model.predict([in0Ave17574,in1Ave17574,in0Con86791,in0Min38135,in1Min38135],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave45963.png')
+
+LAve17574 = average_layer([[[[[[0.1136]]]]], [[[[[0.5516]]]]]], Ave17574), 
+LRes42142 = reshape_layer(Ave17574, [1, 1, 1], Res42142), 
+LRes36401 = reshape_layer(Res42142, [1, 1], Res36401), 
+LLST80149 = lstm_layer(Res36401,[[8, 4, 2, 10, 10, 1, 5, 6]],[[9, 9, 2, 8, 7, 7, 6, 7], [2, 4, 2, 2, 5, 3, 4, 3]],[5, 1, 1, 1, 6, 8, 5, 6], LST80149), 
+LRes89622 = reshape_layer(LST80149, [2, 1], Res89622), 
+LCon86791 = concatenate_layer([Res89622,[[[0.0606, 0.1827], [0.253, 0.2747]]]], 2, Con86791), 
+LMin38135 = minimum_layer([[[[0.935, 0.367], [0.4093, 0.8853]]], [[[0.6964, 0.0867], [0.7901, 0.2587]]]], Min38135), 
+LLoc80752 = locally_connected1D_layer(Min38135, 1,[[[0.9068, 0.9978, 0.8443], [0.1113, 0.4368, 0.3573]], [[0.4751, 0.524, 0.4117], [0.7478, 0.98, 0.3766]]],[[0, 0, 0], [0, 0, 0]], 1, Loc80752), 
+LAve45963 = average_layer([Con86791,Loc80752], Ave45963), 
+exec_layers([LAve17574,LRes42142,LRes36401,LLST80149,LRes89622,LCon86791,LMin38135,LLoc80752,LAve45963],["Ave17574","Res42142","Res36401","LST80149","Res89622","Con86791","Min38135","Loc80752","Ave45963"],Ave45963,"Ave45963")
+
+Actual (Unparsed): [[[0.7007852, 0.3966692, 0.4008242], [0.5547286, 0.3604996, 0.2703176]]]
+
+Expected (Unparsed): [[[0.7007851625952757,0.39666924000000003,0.40082421500000004],[0.5547286213810733,0.3604996,0.27031761499999996]]]
+
+Actual:   [[[0.7008, 0.3967, 0.4009], [0.5548, 0.3605, 0.2704]]]
+
+Expected: [[[0.7008, 0.3967, 0.4009], [0.5548, 0.3605, 0.2704]]]

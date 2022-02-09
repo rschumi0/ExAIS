@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul98940 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul98940 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max21182 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max21182 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add25827 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add25827 = tf.keras.layers.Input(shape=([1, 1]))
+
+Mul98940 = keras.layers.Multiply(name = 'Mul98940', )([in0Mul98940,in1Mul98940])
+GRU66109 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU66109', )(Mul98940)
+Res97747 = keras.layers.Reshape((3, 1), name = 'Res97747', )(GRU66109)
+Max21182 = keras.layers.Maximum(name = 'Max21182', )([in0Max21182,in1Max21182])
+Zer29353 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer29353', )(Max21182)
+Max52170 = keras.layers.Maximum(name = 'Max52170', )([Res97747,Zer29353])
+Add25827 = keras.layers.Add(name = 'Add25827', )([in0Add25827,in1Add25827])
+Res55368 = keras.layers.Reshape((1, 1, 1), name = 'Res55368', )(Add25827)
+Up_90436 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_90436', )(Res55368)
+Res29578 = keras.layers.Reshape((2, 1), name = 'Res29578', )(Up_90436)
+Dot10113 = keras.layers.Dot(axes=(2, 2), name = 'Dot10113', )([Max52170,Res29578])
+model = tf.keras.models.Model(inputs=[in0Mul98940,in1Mul98940,in0Max21182,in1Max21182,in0Add25827,in1Add25827], outputs=Dot10113)
+w = model.get_layer('GRU66109').get_weights() 
+w[0] = np.array([[7, 3, 10, 8, 6, 7, 5, 8, 10], [2, 5, 7, 6, 4, 5, 3, 6, 7]])
+w[1] = np.array([[3, 9, 8, 5, 9, 6, 8, 9, 6], [8, 3, 8, 2, 9, 9, 2, 6, 10], [4, 5, 7, 9, 4, 1, 2, 9, 8]])
+w[2] = np.array([4, 5, 8, 9, 10, 2, 4, 10, 4])
+model.get_layer('GRU66109').set_weights(w) 
+in0Mul98940 = tf.constant([[[0.0859, 0.9059]]])
+in1Mul98940 = tf.constant([[[0.2154, 0.9255]]])
+in0Max21182 = tf.constant([[[0.6889]]])
+in1Max21182 = tf.constant([[[0.6299]]])
+in0Add25827 = tf.constant([[[0.557]]])
+in1Add25827 = tf.constant([[[0.9758]]])
+print (np.array2string(model.predict([in0Mul98940,in1Mul98940,in0Max21182,in1Max21182,in0Add25827,in1Add25827],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot10113.png')
+
+LMul98940 = multiply_layer([[[[0.0859, 0.9059]]], [[[0.2154, 0.9255]]]], Mul98940), 
+LGRU66109 = gru_layer(Mul98940,[[7, 3, 10, 8, 6, 7, 5, 8, 10], [2, 5, 7, 6, 4, 5, 3, 6, 7]],[[3, 9, 8, 5, 9, 6, 8, 9, 6], [8, 3, 8, 2, 9, 9, 2, 6, 10], [4, 5, 7, 9, 4, 1, 2, 9, 8]],[4, 5, 8, 9, 10, 2, 4, 10, 4], false, GRU66109), 
+LRes97747 = reshape_layer(GRU66109, [3, 1], Res97747), 
+LMax21182 = maximum_layer([[[[0.6889]]], [[[0.6299]]]], Max21182), 
+LZer29353 = zero_padding1D_layer(Max21182, 2, 0, Zer29353), 
+LMax52170 = maximum_layer([Res97747,Zer29353], Max52170), 
+LAdd25827 = add_layer([[[[0.557]]], [[[0.9758]]]], Add25827), 
+LRes55368 = reshape_layer(Add25827, [1, 1, 1], Res55368), 
+LUp_90436 = up_sampling2D_layer(Res55368, 2, 1, Up_90436), 
+LRes29578 = reshape_layer(Up_90436, [2, 1], Res29578), 
+LDot10113 = dot_layer(Max52170,Res29578, 2, 2, Dot10113), 
+exec_layers([LMul98940,LGRU66109,LRes97747,LMax21182,LZer29353,LMax52170,LAdd25827,LRes55368,LUp_90436,LRes29578,LDot10113],["Mul98940","GRU66109","Res97747","Max21182","Zer29353","Max52170","Add25827","Res55368","Up_90436","Res29578","Dot10113"],Dot10113,"Dot10113")
+
+Actual (Unparsed): [[[0.0045975, 0.0045975], [0.0001477, 0.0001477], [1.0559459, 1.0559459]]]
+
+Expected (Unparsed): [[[0.004597455237335031,0.004597455237335031],[0.0001476654902246301,0.0001476654902246301],[1.0559459199999999,1.0559459199999999]]]
+
+Actual:   [[[0.0046, 0.0046], [0.0002, 0.0002], [1.056, 1.056]]]
+
+Expected: [[[0.0046, 0.0046], [0.0002, 0.0002], [1.056, 1.056]]]

@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub26048 = tf.keras.layers.Input(shape=([3]))
+in1Sub26048 = tf.keras.layers.Input(shape=([3]))
+in0Max13139 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max13139 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sub26048 = keras.layers.Subtract(name = 'Sub26048', )([in0Sub26048,in1Sub26048])
+Res71105 = keras.layers.Reshape((3, 1), name = 'Res71105', )(Sub26048)
+Max13139 = keras.layers.Maximum(name = 'Max13139', )([in0Max13139,in1Max13139])
+Zer41100 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer41100', )(Max13139)
+Add11146 = keras.layers.Add(name = 'Add11146', )([Res71105,Zer41100])
+Con80704 = keras.layers.Conv1D(2, (2),strides=(1), padding='same', dilation_rate=(1), name = 'Con80704', )(Add11146)
+model = tf.keras.models.Model(inputs=[in0Sub26048,in1Sub26048,in0Max13139,in1Max13139], outputs=Con80704)
+w = model.get_layer('Con80704').get_weights() 
+w[0] = np.array([[[0.1117, 0.5368]], [[0.0556, 0.3302]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con80704').set_weights(w) 
+in0Sub26048 = tf.constant([[0.8327, 0.7921, 0.8553]])
+in1Sub26048 = tf.constant([[0.9781, 0.9525, 0.7643]])
+in0Max13139 = tf.constant([[[0.3782], [0.5703]]])
+in1Max13139 = tf.constant([[[0.9967], [0.749]]])
+print (np.array2string(model.predict([in0Sub26048,in1Sub26048,in0Max13139,in1Max13139],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con80704.png')
+
+LSub26048 = subtract_layer([[0.8327, 0.7921, 0.8553]], [[0.9781, 0.9525, 0.7643]], Sub26048), 
+LRes71105 = reshape_layer(Sub26048, [3, 1], Res71105), 
+LMax13139 = maximum_layer([[[[0.3782], [0.5703]]], [[[0.9967], [0.749]]]], Max13139), 
+LZer41100 = zero_padding1D_layer(Max13139, 1, 0, Zer41100), 
+LAdd11146 = add_layer([Res71105,Zer41100], Add11146), 
+LCon80704 = conv1D_layer(Add11146, 2,[[[0.1117, 0.5368]], [[0.0556, 0.3302]]],[0, 0], 1, true, 1, Con80704), 
+exec_layers([LSub26048,LRes71105,LMax13139,LZer41100,LAdd11146,LCon80704],["Sub26048","Res71105","Max13139","Zer41100","Add11146","Con80704"],Con80704,"Con80704")
+
+Actual (Unparsed): [[[0.0302571, 0.1980956], [0.1401187, 0.7262939], [0.0938280, 0.4509120]]]
+
+Expected (Unparsed): [[[0.030257100000000006,0.19809554000000004],[0.14011870999999998,0.7262938400000001],[0.093828,0.45091200000000004]]]
+
+Actual:   [[[0.0303, 0.1981], [0.1402, 0.7263], [0.0939, 0.451]]]
+
+Expected: [[[0.0303, 0.1981], [0.1402, 0.7263], [0.0939, 0.451]]]

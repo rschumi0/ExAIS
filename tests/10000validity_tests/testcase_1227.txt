@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave19204 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave19204 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con7426 = tf.keras.layers.Input(shape=([1, 2, 3]))
+in0Mul9531 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul9531 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Ave19204 = keras.layers.Average(name = 'Ave19204', )([in0Ave19204,in1Ave19204])
+Res11977 = keras.layers.Reshape((1, 2, 1), name = 'Res11977', )(Ave19204)
+Con7426 = keras.layers.Concatenate(axis=3, name = 'Con7426', )([Res11977,in0Con7426])
+Mul9531 = keras.layers.Multiply(name = 'Mul9531', )([in0Mul9531,in1Mul9531])
+Res10947 = keras.layers.Reshape((1, 2, 2, 1), name = 'Res10947', )(Mul9531)
+Cro19405 = keras.layers.Cropping3D(cropping=((0, 0), (0, 0), (0, 0)), name = 'Cro19405', )(Res10947)
+Res28319 = keras.layers.Reshape((1, 2, 2), name = 'Res28319', )(Cro19405)
+Con36860 = keras.layers.Conv2D(4, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con36860', )(Res28319)
+Mul37053 = keras.layers.Multiply(name = 'Mul37053', )([Con7426,Con36860])
+model = tf.keras.models.Model(inputs=[in0Ave19204,in1Ave19204,in0Con7426,in0Mul9531,in1Mul9531], outputs=Mul37053)
+w = model.get_layer('Con36860').get_weights() 
+w[0] = np.array([[[[0.1125, 0.362, 0.1187, 0.8586], [0.4867, 0.0286, 0.8956, 0.3759]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con36860').set_weights(w) 
+in0Ave19204 = tf.constant([[[0.951, 0.2208]]])
+in1Ave19204 = tf.constant([[[0.7129, 0.7518]]])
+in0Con7426 = tf.constant([[[[0.9756, 0.4768, 0.2322], [0.6257, 0.6197, 0.4679]]]])
+in0Mul9531 = tf.constant([[[[0.0395, 0.8568], [0.8646, 0.6753]]]])
+in1Mul9531 = tf.constant([[[[0.2067, 0.3463], [0.1065, 0.0695]]]])
+print (np.array2string(model.predict([in0Ave19204,in1Ave19204,in0Con7426,in0Mul9531,in1Mul9531],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul37053.png')
+
+LAve19204 = average_layer([[[[0.951, 0.2208]]], [[[0.7129, 0.7518]]]], Ave19204), 
+LRes11977 = reshape_layer(Ave19204, [1, 2, 1], Res11977), 
+LCon7426 = concatenate_layer([Res11977,[[[[0.9756, 0.4768, 0.2322], [0.6257, 0.6197, 0.4679]]]]], 3, Con7426), 
+LMul9531 = multiply_layer([[[[[0.0395, 0.8568], [0.8646, 0.6753]]]], [[[[0.2067, 0.3463], [0.1065, 0.0695]]]]], Mul9531), 
+LRes10947 = reshape_layer(Mul9531, [1, 2, 2, 1], Res10947), 
+LCro19405 = cropping3D_layer(Res10947, 0, 0, 0, 0, 0, 0, Cro19405), 
+LRes28319 = reshape_layer(Cro19405, [1, 2, 2], Res28319), 
+LCon36860 = conv2D_layer(Res28319, 1, 1,[[[[0.1125, 0.362, 0.1187, 0.8586], [0.4867, 0.0286, 0.8956, 0.3759]]]],[0, 0, 0, 0], 1, 1, false, 1, 1, Con36860), 
+LMul37053 = multiply_layer([Con7426,Con36860], Mul37053), 
+exec_layers([LAve19204,LRes11977,LCon7426,LMul9531,LRes10947,LCro19405,LRes28319,LCon36860,LMul37053],["Ave19204","Res11977","Con7426","Mul9531","Res10947","Cro19405","Res28319","Con36860","Mul37053"],Mul37053,"Mul37053")
+
+Actual (Unparsed): [[[[0.1209050, 0.0111623, 0.1271637, 0.0275258], [0.0161459, 0.0216963, 0.0328214, 0.0452469]]]]
+
+Expected (Unparsed): [[[[0.12090496591438335,0.0111623320087344,0.1271637408710112,0.0275257768637412],[0.016145865229828502,0.021696283658577002,0.032821414264083006,0.04524688844869951]]]]
+
+Actual:   [[[[0.121, 0.0112, 0.1272, 0.0276], [0.0162, 0.0217, 0.0329, 0.0453]]]]
+
+Expected: [[[[0.121, 0.0112, 0.1272, 0.0276], [0.0162, 0.0217, 0.0329, 0.0453]]]]

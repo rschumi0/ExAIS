@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot65980 = tf.keras.layers.Input(shape=([2]))
+in1Dot65980 = tf.keras.layers.Input(shape=([2]))
+in0Dot47009 = tf.keras.layers.Input(shape=([2]))
+in1Dot47009 = tf.keras.layers.Input(shape=([2]))
+
+Dot65980 = keras.layers.Dot(axes=(1, 1), name = 'Dot65980', )([in0Dot65980,in1Dot65980])
+Res79195 = keras.layers.Reshape((1, 1), name = 'Res79195', )(Dot65980)
+Sim25088 = keras.layers.SimpleRNN(2,name = 'Sim25088', )(Res79195)
+Res23095 = keras.layers.Reshape((2, 1), name = 'Res23095', )(Sim25088)
+Glo37317 = keras.layers.GlobalMaxPool1D(name = 'Glo37317', )(Res23095)
+Dot47009 = keras.layers.Dot(axes=(1, 1), name = 'Dot47009', )([in0Dot47009,in1Dot47009])
+Mul35464 = keras.layers.Multiply(name = 'Mul35464', )([Glo37317,Dot47009])
+model = tf.keras.models.Model(inputs=[in0Dot65980,in1Dot65980,in0Dot47009,in1Dot47009], outputs=Mul35464)
+w = model.get_layer('Sim25088').get_weights() 
+w[0] = np.array([[9, 4]])
+w[1] = np.array([[9, 8], [10, 10]])
+w[2] = np.array([8, 8])
+model.get_layer('Sim25088').set_weights(w) 
+in0Dot65980 = tf.constant([[0.2443, 0.1253]])
+in1Dot65980 = tf.constant([[0.2162, 0.388]])
+in0Dot47009 = tf.constant([[0.2982, 0.9871]])
+in1Dot47009 = tf.constant([[0.2803, 0.8071]])
+print (np.array2string(model.predict([in0Dot65980,in1Dot65980,in0Dot47009,in1Dot47009],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul35464.png')
+
+LDot65980 = dot_layer([[0.2443, 0.1253]], [[0.2162, 0.388]], 1, 1, Dot65980), 
+LRes79195 = reshape_layer(Dot65980, [1, 1], Res79195), 
+LSim25088 = simple_rnn_layer(Res79195,[[9, 4]],[[9, 8], [10, 10]],[8, 8], Sim25088), 
+LRes23095 = reshape_layer(Sim25088, [2, 1], Res23095), 
+LGlo37317 = global_max_pool1D_layer(Res23095, Glo37317), 
+LDot47009 = dot_layer([[0.2982, 0.9871]], [[0.2803, 0.8071]], 1, 1, Dot47009), 
+LMul35464 = multiply_layer([Glo37317,Dot47009], Mul35464), 
+exec_layers([LDot65980,LRes79195,LSim25088,LRes23095,LGlo37317,LDot47009,LMul35464],["Dot65980","Res79195","Sim25088","Res23095","Glo37317","Dot47009","Mul35464"],Mul35464,"Mul35464")
+
+Actual (Unparsed): [[0.8802738]]
+
+Expected (Unparsed): [[0.880273838084949]]
+
+Actual:   [[0.8803]]
+
+Expected: [[0.8803]]

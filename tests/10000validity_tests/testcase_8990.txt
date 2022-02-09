@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_27049 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con92421 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Max34845 = tf.keras.layers.Input(shape=([2, 1]))
+
+Up_27049 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_27049', )(in0Up_27049)
+Con92421 = keras.layers.Concatenate(axis=3, name = 'Con92421', )([Up_27049,in0Con92421])
+Max34845 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max34845', )(in0Max34845)
+Res28678 = keras.layers.Reshape((2, 1, 1), name = 'Res28678', )(Max34845)
+Loc67802 = keras.layers.LocallyConnected2D(4, (2, 1),strides=(1, 1), name = 'Loc67802', )(Res28678)
+Zer8413 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer8413', )(Loc67802)
+Ave16878 = keras.layers.Average(name = 'Ave16878', )([Con92421,Zer8413])
+model = tf.keras.models.Model(inputs=[in0Up_27049,in0Con92421,in0Max34845], outputs=Ave16878)
+w = model.get_layer('Loc67802').get_weights() 
+w[0] = np.array([[[0.381, 0.4112, 0.3854, 0.525], [0.5828, 0.9519, 0.6804, 0.329]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc67802').set_weights(w) 
+in0Up_27049 = tf.constant([[[[1.0143, 1.1719]]]])
+in0Con92421 = tf.constant([[[[0.9897, 0.0969], [0.4543, 0.8624]]]])
+in0Max34845 = tf.constant([[[1.3797], [1.543]]])
+print (np.array2string(model.predict([in0Up_27049,in0Con92421,in0Max34845],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave16878.png')
+
+LUp_27049 = up_sampling2D_layer([[[[1.0143, 1.1719]]]], 1, 2, Up_27049), 
+LCon92421 = concatenate_layer([Up_27049,[[[[0.9897, 0.0969], [0.4543, 0.8624]]]]], 3, Con92421), 
+LMax34845 = max_pool1D_layer([[[1.3797], [1.543]]], 1, Max34845), 
+LRes28678 = reshape_layer(Max34845, [2, 1, 1], Res28678), 
+LLoc67802 = locally_connected2D_layer(Res28678, 2, 1,[[[0.381, 0.4112, 0.3854, 0.525], [0.5828, 0.9519, 0.6804, 0.329]]],[[[0, 0, 0, 0]]], 1, 1, Loc67802), 
+LZer8413 = zero_padding2D_layer(Loc67802, 0, 0, 1, 0, Zer8413), 
+LAve16878 = average_layer([Con92421,Zer8413], Ave16878), 
+exec_layers([LUp_27049,LCon92421,LMax34845,LRes28678,LLoc67802,LZer8413,LAve16878],["Up_27049","Con92421","Max34845","Res28678","Loc67802","Zer8413","Ave16878"],Ave16878,"Ave16878")
+
+Actual (Unparsed): [[[[0.5071500, 0.5859500, 0.4948500, 0.0484500], [1.2196130, 1.6040072, 1.0179468, 1.0471947]]]]
+
+Expected (Unparsed): [[[[0.50715,0.58595,0.49485,0.04845],[1.21961305,1.6040071699999998,1.0179467899999999,1.04719475]]]]
+
+Actual:   [[[[0.5072, 0.586, 0.4949, 0.0485], [1.2197, 1.6041, 1.018, 1.0472]]]]
+
+Expected: [[[[0.5072, 0.586, 0.4949, 0.0485], [1.2197, 1.6041, 1.018, 1.0472]]]]

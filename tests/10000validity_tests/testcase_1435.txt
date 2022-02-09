@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot48452 = tf.keras.layers.Input(shape=([3]))
+in1Dot48452 = tf.keras.layers.Input(shape=([3]))
+in0Con13365 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con99375 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dot48452 = keras.layers.Dot(axes=(1, 1), name = 'Dot48452', )([in0Dot48452,in1Dot48452])
+Res33441 = keras.layers.Reshape((1, 1), name = 'Res33441', )(Dot48452)
+Zer73269 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer73269', )(Res33441)
+Con13365 = keras.layers.Concatenate(axis=2, name = 'Con13365', )([Zer73269,in0Con13365])
+Con99375 = keras.layers.Conv1D(2, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con99375', )(in0Con99375)
+Min40958 = keras.layers.Minimum(name = 'Min40958', )([Con13365,Con99375])
+model = tf.keras.models.Model(inputs=[in0Dot48452,in1Dot48452,in0Con13365,in0Con99375], outputs=Min40958)
+w = model.get_layer('Con99375').get_weights() 
+w[0] = np.array([[[0.2048, 0.7849]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con99375').set_weights(w) 
+in0Dot48452 = tf.constant([[0.1864, 0.298, 0.4695]])
+in1Dot48452 = tf.constant([[0.8229, 0.8014, 0.0407]])
+in0Con13365 = tf.constant([[[0.9077], [0.2152]]])
+in0Con99375 = tf.constant([[[0.8888], [0.4678]]])
+print (np.array2string(model.predict([in0Dot48452,in1Dot48452,in0Con13365,in0Con99375],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min40958.png')
+
+LDot48452 = dot_layer([[0.1864, 0.298, 0.4695]], [[0.8229, 0.8014, 0.0407]], 1, 1, Dot48452), 
+LRes33441 = reshape_layer(Dot48452, [1, 1], Res33441), 
+LZer73269 = zero_padding1D_layer(Res33441, 1, 0, Zer73269), 
+LCon13365 = concatenate_layer([Zer73269,[[[0.9077], [0.2152]]]], 2, Con13365), 
+LCon99375 = conv1D_layer([[[0.8888], [0.4678]]], 1,[[[0.2048, 0.7849]]],[0, 0], 1, true, 1, Con99375), 
+LMin40958 = minimum_layer([Con13365,Con99375], Min40958), 
+exec_layers([LDot48452,LRes33441,LZer73269,LCon13365,LCon99375,LMin40958],["Dot48452","Res33441","Zer73269","Con13365","Con99375","Min40958"],Min40958,"Min40958")
+
+Actual (Unparsed): [[[0.0000000, 0.6976191], [0.0958054, 0.2152000]]]
+
+Expected (Unparsed): [[[0,0.69761912],[0.09580544,0.2152]]]
+
+Actual:   [[[0, 0.6977], [0.0959, 0.2152]]]
+
+Expected: [[[0, 0.6977], [0.0959, 0.2152]]]

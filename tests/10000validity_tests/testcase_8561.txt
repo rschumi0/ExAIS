@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer91585 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con55859 = tf.keras.layers.Input(shape=([2]))
+in0Con68228 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Zer91585 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer91585', )(in0Zer91585)
+Res2225 = keras.layers.Reshape((4, 3, 1, 1), name = 'Res2225', )(Zer91585)
+Glo58483 = keras.layers.GlobalMaxPool3D(name = 'Glo58483', )(Res2225)
+Res3192 = keras.layers.Reshape((1, 1), name = 'Res3192', )(Glo58483)
+Sim74624 = keras.layers.SimpleRNN(1,name = 'Sim74624', )(Res3192)
+Res68456 = keras.layers.Reshape((1, 1), name = 'Res68456', )(Sim74624)
+Max78336 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max78336', )(Res68456)
+Fla3098 = keras.layers.Flatten(name = 'Fla3098', )(Max78336)
+Con55859 = keras.layers.Concatenate(axis=1, name = 'Con55859', )([Fla3098,in0Con55859])
+Con68228 = keras.layers.Conv3D(3, (1, 1, 2),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con68228', )(in0Con68228)
+Res48477 = keras.layers.Reshape((2, 1, 3), name = 'Res48477', )(Con68228)
+Glo74054 = keras.layers.GlobalAveragePooling2D(name = 'Glo74054', )(Res48477)
+Add86949 = keras.layers.Add(name = 'Add86949', )([Con55859,Glo74054])
+model = tf.keras.models.Model(inputs=[in0Zer91585,in0Con55859,in0Con68228], outputs=Add86949)
+w = model.get_layer('Sim74624').get_weights() 
+w[0] = np.array([[4]])
+w[1] = np.array([[2]])
+w[2] = np.array([5])
+model.get_layer('Sim74624').set_weights(w) 
+w = model.get_layer('Con68228').get_weights() 
+w[0] = np.array([[[[[0.2532, 0.688, 0.0338]], [[0.1424, 0.6061, 0.3616]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con68228').set_weights(w) 
+in0Zer91585 = tf.constant([[[[1.9989]], [[1.6552]]]])
+in0Con55859 = tf.constant([[0.0286, 0.6886]])
+in0Con68228 = tf.constant([[[[[0.9265], [0.3137]]], [[[0.5462], [0.8913]]]]])
+print (np.array2string(model.predict([in0Zer91585,in0Con55859,in0Con68228],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add86949.png')
+
+LZer91585 = zero_padding2D_layer([[[[1.9989]], [[1.6552]]]], 1, 1, 1, 1, Zer91585), 
+LRes2225 = reshape_layer(Zer91585, [4, 3, 1, 1], Res2225), 
+LGlo58483 = global_max_pool3D_layer(Res2225, Glo58483), 
+LRes3192 = reshape_layer(Glo58483, [1, 1], Res3192), 
+LSim74624 = simple_rnn_layer(Res3192,[[4]],[[2]],[5], Sim74624), 
+LRes68456 = reshape_layer(Sim74624, [1, 1], Res68456), 
+LMax78336 = max_pool1D_layer(Res68456, 1, Max78336), 
+LFla3098 = flatten_layer(Max78336, Fla3098), 
+LCon55859 = concatenate_layer([Fla3098,[[0.0286, 0.6886]]], 1, Con55859), 
+LCon68228 = conv3D_layer([[[[[0.9265], [0.3137]]], [[[0.5462], [0.8913]]]]], 1, 1, 2,[[[[[0.2532, 0.688, 0.0338]], [[0.1424, 0.6061, 0.3616]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con68228), 
+LRes48477 = reshape_layer(Con68228, [2, 1, 3], Res48477), 
+LGlo74054 = global_average_pooling2D_layer(Res48477, Glo74054), 
+LAdd86949 = add_layer([Con55859,Glo74054], Add86949), 
+exec_layers([LZer91585,LRes2225,LGlo58483,LRes3192,LSim74624,LRes68456,LMax78336,LFla3098,LCon55859,LCon68228,LRes48477,LGlo74054,LAdd86949],["Zer91585","Res2225","Glo58483","Res3192","Sim74624","Res68456","Max78336","Fla3098","Con55859","Con68228","Res48477","Glo74054","Add86949"],Add86949,"Add86949")
+
+Actual (Unparsed): [[1.2722398, 0.9003841, 0.9313526]]
+
+Expected (Unparsed): [[1.2722398199896916,0.9003840499999998,0.9313526299999999]]
+
+Actual:   [[1.2723, 0.9004, 0.9314]]
+
+Expected: [[1.2723, 0.9004, 0.9314]]

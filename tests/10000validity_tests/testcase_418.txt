@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con89487 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Con21187 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Ave1066 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Ave1066 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Con89487 = keras.layers.Conv3DTranspose(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con89487', )(in0Con89487)
+Res48247 = keras.layers.Reshape((3, 2, 2), name = 'Res48247', )(Con89487)
+Cro34436 = keras.layers.Cropping2D(cropping=((1, 0), (0, 1)), name = 'Cro34436', )(Res48247)
+Con21187 = keras.layers.Concatenate(axis=3, name = 'Con21187', )([Cro34436,in0Con21187])
+Ave1066 = keras.layers.Average(name = 'Ave1066', )([in0Ave1066,in1Ave1066])
+Res95717 = keras.layers.Reshape((1, 1, 4), name = 'Res95717', )(Ave1066)
+Cro99598 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro99598', )(Res95717)
+Zer92900 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer92900', )(Cro99598)
+Ave14760 = keras.layers.Average(name = 'Ave14760', )([Con21187,Zer92900])
+model = tf.keras.models.Model(inputs=[in0Con89487,in0Con21187,in0Ave1066,in1Ave1066], outputs=Ave14760)
+w = model.get_layer('Con89487').get_weights() 
+w[0] = np.array([[[[[0.7783], [0.4867]]]], [[[[0.3224], [0.0256]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con89487').set_weights(w) 
+in0Con89487 = tf.constant([[[[[0.4024]], [[0.5404]]], [[[0.3451]], [[0.3749]]]]])
+in0Con21187 = tf.constant([[[[0.9568, 0.8401]], [[0.0926, 0.6601]]]])
+in0Ave1066 = tf.constant([[[[[0.5932, 0.9481], [0.8372, 0.1192]]]]])
+in1Ave1066 = tf.constant([[[[[0.4504, 0.6294], [0.1691, 0.0868]]]]])
+print (np.array2string(model.predict([in0Con89487,in0Con21187,in0Ave1066,in1Ave1066],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave14760.png')
+
+LCon89487 = conv3D_transpose_layer([[[[[0.4024]], [[0.5404]]], [[[0.3451]], [[0.3749]]]]], 2, 1, 1,[[[[[0.7783], [0.4867]]]], [[[[0.3224], [0.0256]]]]],[0, 0], 1, 1, 1, false, Con89487), 
+LRes48247 = reshape_layer(Con89487, [3, 2, 2], Res48247), 
+LCro34436 = cropping2D_layer(Res48247, 1, 0, 0, 1, Cro34436), 
+LCon21187 = concatenate_layer([Cro34436,[[[[0.9568, 0.8401]], [[0.0926, 0.6601]]]]], 3, Con21187), 
+LAve1066 = average_layer([[[[[[0.5932, 0.9481], [0.8372, 0.1192]]]]], [[[[[0.4504, 0.6294], [0.1691, 0.0868]]]]]], Ave1066), 
+LRes95717 = reshape_layer(Ave1066, [1, 1, 4], Res95717), 
+LCro99598 = cropping2D_layer(Res95717, 0, 0, 0, 0, Cro99598), 
+LZer92900 = zero_padding2D_layer(Cro99598, 1, 0, 0, 0, Zer92900), 
+LAve14760 = average_layer([Con21187,Zer92900], Ave14760), 
+exec_layers([LCon89487,LRes48247,LCro34436,LCon21187,LAve1066,LRes95717,LCro99598,LZer92900,LAve14760],["Con89487","Res48247","Cro34436","Con21187","Ave1066","Res95717","Cro99598","Zer92900","Ave14760"],Ave14760,"Ave14760")
+
+Actual (Unparsed): [[[[0.1991625, 0.0891308, 0.4784000, 0.4200500]], [[0.3165301, 0.3987923, 0.2978750, 0.3815500]]]]
+
+Expected (Unparsed): [[[[0.19916254500000002,0.08913080500000001,0.4784,0.42005]],[[0.31653012,0.39879228000000005,0.297875,0.38155]]]]
+
+Actual:   [[[[0.1992, 0.0892, 0.4784, 0.4201]], [[0.3166, 0.3988, 0.2979, 0.3816]]]]
+
+Expected: [[[[0.1992, 0.0892, 0.4784, 0.4201]], [[0.3166, 0.3988, 0.2979, 0.3816]]]]

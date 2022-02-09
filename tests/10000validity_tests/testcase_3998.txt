@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr95152 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave46955 = tf.keras.layers.Input(shape=([1, 2]))
+
+Thr95152 = keras.layers.ThresholdedReLU(theta=2.062620817084971, name = 'Thr95152', input_shape=(1, 2, 2))(in0Thr95152)
+Res99081 = keras.layers.Reshape((1, 4), name = 'Res99081', )(Thr95152)
+Glo80444 = keras.layers.GlobalMaxPool1D(name = 'Glo80444', )(Res99081)
+Lay12564 = keras.layers.LayerNormalization(axis=1, epsilon=2.008848969122935, name = 'Lay12564', )(Glo80444)
+Den29094 = keras.layers.Dense(1,name = 'Den29094', )(Lay12564)
+Ave46955 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave46955', )(in0Ave46955)
+Res990 = keras.layers.Reshape((1, 2, 1), name = 'Res990', )(Ave46955)
+Res56914 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res56914', )(Res990)
+Glo60471 = keras.layers.GlobalMaxPool3D(name = 'Glo60471', )(Res56914)
+Mul8200 = keras.layers.Multiply(name = 'Mul8200', )([Den29094,Glo60471])
+model = tf.keras.models.Model(inputs=[in0Thr95152,in0Ave46955], outputs=Mul8200)
+w = model.get_layer('Den29094').get_weights() 
+w[0] = np.array([[0.6795], [0.4295], [0.4006], [0.7205]])
+w[1] = np.array([0.9853])
+model.get_layer('Den29094').set_weights(w) 
+in0Thr95152 = tf.constant([[[[0.2849, 0.6794], [0.5271, 0.5602]]]])
+in0Ave46955 = tf.constant([[[1.8679, 1.3477]]])
+print (np.array2string(model.predict([in0Thr95152,in0Ave46955],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul8200.png')
+
+LThr95152 = thresholded_relu_layer([[[[0.2849, 0.6794], [0.5271, 0.5602]]]], 2.062620817084971, Thr95152), 
+LRes99081 = reshape_layer(Thr95152, [1, 4], Res99081), 
+LGlo80444 = global_max_pool1D_layer(Res99081, Glo80444), 
+LLay12564 = layer_normalization_layer(Glo80444, 1, 2.008848969122935, Lay12564), 
+LDen29094 = dense_layer(Lay12564, [[0.6795], [0.4295], [0.4006], [0.7205]],[0.9853], Den29094), 
+LAve46955 = average_pooling1D_layer([[[1.8679, 1.3477]]], 1, 1, true, Ave46955), 
+LRes990 = reshape_layer(Ave46955, [1, 2, 1], Res990), 
+LRes56914 = reshape_layer(Res990, [1, 2, 1, 1], Res56914), 
+LGlo60471 = global_max_pool3D_layer(Res56914, Glo60471), 
+LMul8200 = multiply_layer([Den29094,Glo60471], Mul8200), 
+exec_layers([LThr95152,LRes99081,LGlo80444,LLay12564,LDen29094,LAve46955,LRes990,LRes56914,LGlo60471,LMul8200],["Thr95152","Res99081","Glo80444","Lay12564","Den29094","Ave46955","Res990","Res56914","Glo60471","Mul8200"],Mul8200,"Mul8200")
+
+Actual (Unparsed): [[1.8404419]]
+
+Expected (Unparsed): [[1.8404418699999998]]
+
+Actual:   [[1.8405]]
+
+Expected: [[1.8405]]

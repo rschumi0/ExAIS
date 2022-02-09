@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max52107 = tf.keras.layers.Input(shape=([2, 1]))
+in0Mul9829 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul9829 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Ave74048 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Ave74048 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0ReL75499 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Max52107 = keras.layers.MaxPool1D(pool_size=(2), name = 'Max52107', )(in0Max52107)
+Res61731 = keras.layers.Reshape((1, 1, 1), name = 'Res61731', )(Max52107)
+Zer65087 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer65087', )(Res61731)
+Mul9829 = keras.layers.Multiply(name = 'Mul9829', )([in0Mul9829,in1Mul9829])
+Mul30730 = keras.layers.Multiply(name = 'Mul30730', )([Zer65087,Mul9829])
+Dep16486 = keras.layers.DepthwiseConv2D((1, 1),strides=(2, 2), padding='valid', name = 'Dep16486', )(Mul30730)
+Res25185 = keras.layers.Reshape((1, 1), name = 'Res25185', )(Dep16486)
+Per60963 = keras.layers.Permute((2,1), name = 'Per60963',)(Res25185)
+Res33362 = keras.layers.Reshape((1, 1, 1), name = 'Res33362', )(Per60963)
+Zer905 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer905', )(Res33362)
+Ave74048 = keras.layers.Average(name = 'Ave74048', )([in0Ave74048,in1Ave74048])
+Res7517 = keras.layers.Reshape((1, 2, 1), name = 'Res7517', )(Ave74048)
+Zer67172 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer67172', )(Res7517)
+ReL75499 = keras.layers.ReLU(max_value=7.313918911604983, negative_slope=1.396697702811515, threshold=4.292425734825591, name = 'ReL75499', input_shape=(2, 2, 1))(in0ReL75499)
+Mul7330 = keras.layers.Multiply(name = 'Mul7330', )([Zer67172,ReL75499])
+Ave89609 = keras.layers.Average(name = 'Ave89609', )([Zer905,Mul7330])
+model = tf.keras.models.Model(inputs=[in0Max52107,in0Mul9829,in1Mul9829,in0Ave74048,in1Ave74048,in0ReL75499], outputs=Ave89609)
+w = model.get_layer('Dep16486').get_weights() 
+w[0] = np.array([[[[0.5571]]]])
+w[1] = np.array([0])
+model.get_layer('Dep16486').set_weights(w) 
+in0Max52107 = tf.constant([[[1.2134], [1.2905]]])
+in0Mul9829 = tf.constant([[[[0.325], [0.5189]]]])
+in1Mul9829 = tf.constant([[[[0.0525], [0.9266]]]])
+in0Ave74048 = tf.constant([[[[[0.8774]], [[0.9882]]]]])
+in1Ave74048 = tf.constant([[[[[0.4071]], [[0.2003]]]]])
+in0ReL75499 = tf.constant([[[[0.6374], [0.8437]], [[0.5943], [0.0051]]]])
+print (np.array2string(model.predict([in0Max52107,in0Mul9829,in1Mul9829,in0Ave74048,in1Ave74048,in0ReL75499],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave89609.png')
+
+LMax52107 = max_pool1D_layer([[[1.2134], [1.2905]]], 2, Max52107), 
+LRes61731 = reshape_layer(Max52107, [1, 1, 1], Res61731), 
+LZer65087 = zero_padding2D_layer(Res61731, 0, 0, 1, 0, Zer65087), 
+LMul9829 = multiply_layer([[[[[0.325], [0.5189]]]], [[[[0.0525], [0.9266]]]]], Mul9829), 
+LMul30730 = multiply_layer([Zer65087,Mul9829], Mul30730), 
+LDep16486 = depthwise_conv2D_layer(Mul30730, 1, 1,[[[[0.5571]]]],[0], 2, 2, false, Dep16486), 
+LRes25185 = reshape_layer(Dep16486, [1, 1], Res25185), 
+LPer60963 = permute_layer(Res25185, 2,1, Per60963), 
+LRes33362 = reshape_layer(Per60963, [1, 1, 1], Res33362), 
+LZer905 = zero_padding2D_layer(Res33362, 1, 0, 1, 0, Zer905), 
+LAve74048 = average_layer([[[[[[0.8774]], [[0.9882]]]]], [[[[[0.4071]], [[0.2003]]]]]], Ave74048), 
+LRes7517 = reshape_layer(Ave74048, [1, 2, 1], Res7517), 
+LZer67172 = zero_padding2D_layer(Res7517, 1, 0, 0, 0, Zer67172), 
+LReL75499 = relu_layer([[[[0.6374], [0.8437]], [[0.5943], [0.0051]]]], 7.313918911604983, 1.396697702811515, 4.292425734825591, ReL75499), 
+LMul7330 = multiply_layer([Zer67172,ReL75499], Mul7330), 
+LAve89609 = average_layer([Zer905,Mul7330], Ave89609), 
+exec_layers([LMax52107,LRes61731,LZer65087,LMul9829,LMul30730,LDep16486,LRes25185,LPer60963,LRes33362,LZer905,LAve74048,LRes7517,LZer67172,LReL75499,LMul7330,LAve89609],["Max52107","Res61731","Zer65087","Mul9829","Mul30730","Dep16486","Res25185","Per60963","Res33362","Zer905","Ave74048","Res7517","Zer67172","ReL75499","Mul7330","Ave89609"],Ave89609,"Ave89609")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000]], [[-1.6586632], [-1.7792136]]]]
+
+Expected (Unparsed): [[[[0.0],[0.0]],[[-1.6586631991158522],[-1.7792136197462007]]]]
+
+Actual:   [[[[0], [0]], [[-1.6586], [-1.7792]]]]
+
+Expected: [[[[0], [0]], [[-1.6586], [-1.7792]]]]

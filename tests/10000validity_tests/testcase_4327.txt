@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub62742 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub62742 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con23483 = tf.keras.layers.Input(shape=([2, 1]))
+in0Loc94644 = tf.keras.layers.Input(shape=([1, 1]))
+
+Sub62742 = keras.layers.Subtract(name = 'Sub62742', )([in0Sub62742,in1Sub62742])
+Con23483 = keras.layers.Concatenate(axis=2, name = 'Con23483', )([Sub62742,in0Con23483])
+Loc94644 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc94644', )(in0Loc94644)
+Ave4979 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave4979', )(Loc94644)
+Zer44291 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer44291', )(Ave4979)
+Ave99114 = keras.layers.Average(name = 'Ave99114', )([Con23483,Zer44291])
+model = tf.keras.models.Model(inputs=[in0Sub62742,in1Sub62742,in0Con23483,in0Loc94644], outputs=Ave99114)
+w = model.get_layer('Loc94644').get_weights() 
+w[0] = np.array([[[0.4384, 0.8576, 0.263, 0.6939]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc94644').set_weights(w) 
+in0Sub62742 = tf.constant([[[0.709, 0.034, 0.6573], [0.0014, 0.9042, 0.8337]]])
+in1Sub62742 = tf.constant([[[0.738, 0.9719, 0.0948], [0.9248, 0.5661, 0.9272]]])
+in0Con23483 = tf.constant([[[0.605], [0.0611]]])
+in0Loc94644 = tf.constant([[[0.3895]]])
+print (np.array2string(model.predict([in0Sub62742,in1Sub62742,in0Con23483,in0Loc94644],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave99114.png')
+
+LSub62742 = subtract_layer([[[0.709, 0.034, 0.6573], [0.0014, 0.9042, 0.8337]]], [[[0.738, 0.9719, 0.0948], [0.9248, 0.5661, 0.9272]]], Sub62742), 
+LCon23483 = concatenate_layer([Sub62742,[[[0.605], [0.0611]]]], 2, Con23483), 
+LLoc94644 = locally_connected1D_layer([[[0.3895]]], 1,[[[0.4384, 0.8576, 0.263, 0.6939]]],[[0, 0, 0, 0]], 1, Loc94644), 
+LAve4979 = average_pooling1D_layer(Loc94644, 1, Ave4979), 
+LZer44291 = zero_padding1D_layer(Ave4979, 1, 0, Zer44291), 
+LAve99114 = average_layer([Con23483,Zer44291], Ave99114), 
+exec_layers([LSub62742,LCon23483,LLoc94644,LAve4979,LZer44291,LAve99114],["Sub62742","Con23483","Loc94644","Ave4979","Zer44291","Ave99114"],Ave99114,"Ave99114")
+
+Actual (Unparsed): [[[-0.0145000, -0.4689500, 0.2812500, 0.3025000], [-0.3763216, 0.3360676, 0.0044692, 0.1656870]]]
+
+Expected (Unparsed): [[[-0.014500000000000013,-0.46895,0.28125,0.3025],[-0.3763216,0.3360676,0.004469249999999987,0.165687025]]]
+
+Actual:   [[[-0.0145, -0.4689, 0.2813, 0.3025], [-0.3763, 0.3361, 0.0045, 0.1657]]]
+
+Expected: [[[-0.0145, -0.4689, 0.2813, 0.3025], [-0.3763, 0.3361, 0.0045, 0.1657]]]

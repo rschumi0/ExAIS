@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul57236 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul57236 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Lay67628 = tf.keras.layers.Input(shape=([1, 1]))
+
+Mul57236 = keras.layers.Multiply(name = 'Mul57236', )([in0Mul57236,in1Mul57236])
+Res12912 = keras.layers.Reshape((1, 4), name = 'Res12912', )(Mul57236)
+Res8290 = keras.layers.Reshape((1, 4, 1), name = 'Res8290', )(Res12912)
+Up_92594 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_92594', )(Res8290)
+Res53025 = keras.layers.Reshape((2, 4), name = 'Res53025', )(Up_92594)
+Sim2461 = keras.layers.SimpleRNN(1,name = 'Sim2461', )(Res53025)
+Res63579 = keras.layers.Reshape((1, 1), name = 'Res63579', )(Sim2461)
+Lay67628 = keras.layers.LayerNormalization(axis=2, epsilon=2.232472571030912, name = 'Lay67628', )(in0Lay67628)
+Dot2719 = keras.layers.Dot(axes=(2, 1), name = 'Dot2719', )([Res63579,Lay67628])
+model = tf.keras.models.Model(inputs=[in0Mul57236,in1Mul57236,in0Lay67628], outputs=Dot2719)
+w = model.get_layer('Sim2461').get_weights() 
+w[0] = np.array([[10], [8], [1], [10]])
+w[1] = np.array([[1]])
+w[2] = np.array([2])
+model.get_layer('Sim2461').set_weights(w) 
+in0Mul57236 = tf.constant([[[[0.1345, 0.851], [0.9957, 0.2714]]]])
+in1Mul57236 = tf.constant([[[[0.7291, 0.8431], [0.162, 0.1382]]]])
+in0Lay67628 = tf.constant([[[1.8729]]])
+print (np.array2string(model.predict([in0Mul57236,in1Mul57236,in0Lay67628],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot2719.png')
+
+LMul57236 = multiply_layer([[[[[0.1345, 0.851], [0.9957, 0.2714]]]], [[[[0.7291, 0.8431], [0.162, 0.1382]]]]], Mul57236), 
+LRes12912 = reshape_layer(Mul57236, [1, 4], Res12912), 
+LRes8290 = reshape_layer(Res12912, [1, 4, 1], Res8290), 
+LUp_92594 = up_sampling2D_layer(Res8290, 2, 1, Up_92594), 
+LRes53025 = reshape_layer(Up_92594, [2, 4], Res53025), 
+LSim2461 = simple_rnn_layer(Res53025,[[10], [8], [1], [10]],[[1]],[2], Sim2461), 
+LRes63579 = reshape_layer(Sim2461, [1, 1], Res63579), 
+LLay67628 = layer_normalization_layer([[[1.8729]]], 2, 2.232472571030912, Lay67628), 
+LDot2719 = dot_layer(Res63579,Lay67628, 2, 1, Dot2719), 
+exec_layers([LMul57236,LRes12912,LRes8290,LUp_92594,LRes53025,LSim2461,LRes63579,LLay67628,LDot2719],["Mul57236","Res12912","Res8290","Up_92594","Res53025","Sim2461","Res63579","Lay67628","Dot2719"],Dot2719,"Dot2719")
+
+Actual (Unparsed): [[[0.0000000]]]
+
+Expected (Unparsed): [[[0.0]]]
+
+Actual:   [[[0]]]
+
+Expected: [[[0]]]

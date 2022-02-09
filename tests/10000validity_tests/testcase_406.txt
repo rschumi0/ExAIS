@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add54952 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add54952 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con93100 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sub27352 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub27352 = tf.keras.layers.Input(shape=([3, 3]))
+
+Add54952 = keras.layers.Add(name = 'Add54952', )([in0Add54952,in1Add54952])
+Res19977 = keras.layers.Reshape((2, 2, 1), name = 'Res19977', )(Add54952)
+Loc39534 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 1), name = 'Loc39534', )(Res19977)
+Res32573 = keras.layers.Reshape((2, 2), name = 'Res32573', )(Loc39534)
+Zer8217 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer8217', )(Res32573)
+Con93100 = keras.layers.Concatenate(axis=2, name = 'Con93100', )([Zer8217,in0Con93100])
+Sub27352 = keras.layers.Subtract(name = 'Sub27352', )([in0Sub27352,in1Sub27352])
+Max89267 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max89267', )(Sub27352)
+ELU53284 = keras.layers.ELU(alpha=-1.3933579238671534, name = 'ELU53284', )(Max89267)
+Mul57436 = keras.layers.Multiply(name = 'Mul57436', )([Con93100,ELU53284])
+model = tf.keras.models.Model(inputs=[in0Add54952,in1Add54952,in0Con93100,in0Sub27352,in1Sub27352], outputs=Mul57436)
+w = model.get_layer('Loc39534').get_weights() 
+w[0] = np.array([[[0.5816, 0.9412], [0.761, 0.0574]], [[0.517, 0.488], [0.4423, 0.6641]]])
+w[1] = np.array([[[0, 0]], [[0, 0]]])
+model.get_layer('Loc39534').set_weights(w) 
+in0Add54952 = tf.constant([[[0.2743, 0.9092], [0.67, 0.2534]]])
+in1Add54952 = tf.constant([[[0.2943, 0.1099], [0.6189, 0.2145]]])
+in0Con93100 = tf.constant([[[0.5991], [0.0279], [0.6193]]])
+in0Sub27352 = tf.constant([[[0.9865, 0.4829, 0.6905], [0.3288, 0.9969, 0.6401], [0.0448, 0.651, 0.3018]]])
+in1Sub27352 = tf.constant([[[0.8452, 0.5902, 0.5876], [0.976, 0.6945, 0.57], [0.2283, 0.5247, 0.6349]]])
+print (np.array2string(model.predict([in0Add54952,in1Add54952,in0Con93100,in0Sub27352,in1Sub27352],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul57436.png')
+
+LAdd54952 = add_layer([[[[0.2743, 0.9092], [0.67, 0.2534]]], [[[0.2943, 0.1099], [0.6189, 0.2145]]]], Add54952), 
+LRes19977 = reshape_layer(Add54952, [2, 2, 1], Res19977), 
+LLoc39534 = locally_connected2D_layer(Res19977, 1, 2,[[[0.5816, 0.9412], [0.761, 0.0574]], [[0.517, 0.488], [0.4423, 0.6641]]],[[[0, 0]], [[0, 0]]], 1, 1, Loc39534), 
+LRes32573 = reshape_layer(Loc39534, [2, 2], Res32573), 
+LZer8217 = zero_padding1D_layer(Res32573, 1, 0, Zer8217), 
+LCon93100 = concatenate_layer([Zer8217,[[[0.5991], [0.0279], [0.6193]]]], 2, Con93100), 
+LSub27352 = subtract_layer([[[0.9865, 0.4829, 0.6905], [0.3288, 0.9969, 0.6401], [0.0448, 0.651, 0.3018]]], [[[0.8452, 0.5902, 0.5876], [0.976, 0.6945, 0.57], [0.2283, 0.5247, 0.6349]]], Sub27352), 
+LMax89267 = max_pool1D_layer(Sub27352, 1, Max89267), 
+LELU53284 = elu_layer(Max89267, -1.3933579238671534, ELU53284), 
+LMul57436 = multiply_layer([Con93100,ELU53284], Mul57436), 
+exec_layers([LAdd54952,LRes19977,LLoc39534,LRes32573,LZer8217,LCon93100,LSub27352,LMax89267,LELU53284,LMul57436],["Add54952","Res19977","Loc39534","Res32573","Zer8217","Con93100","Sub27352","Max89267","ELU53284","Mul57436"],Mul57436,"Mul57436")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0616474], [0.7344521, 0.1795236, 0.0019558], [0.2040007, 0.1186861, 0.2444627]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.06164738999999999],[0.7344520448169963,0.179523588384,0.0019557900000000015],[0.20400064904385196,0.11868607901699997,0.24446270556609445]]]
+
+Actual:   [[[0, 0, 0.0617], [0.7345, 0.1796, 0.002], [0.2041, 0.1187, 0.2445]]]
+
+Expected: [[[0, 0, 0.0617], [0.7345, 0.1796, 0.002], [0.2041, 0.1187, 0.2445]]]

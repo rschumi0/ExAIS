@@ -1,0 +1,72 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con72449 = tf.keras.layers.Input(shape=([1, 1]))
+in0Sim73500 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con61240 = tf.keras.layers.Input(shape=([1]))
+
+Con72449 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con72449', )(in0Con72449)
+Fla84531 = keras.layers.Flatten(name = 'Fla84531', )(Con72449)
+Sim73500 = keras.layers.SimpleRNN(3,name = 'Sim73500', )(in0Sim73500)
+Con61240 = keras.layers.Concatenate(axis=1, name = 'Con61240', )([Sim73500,in0Con61240])
+Min15591 = keras.layers.Minimum(name = 'Min15591', )([Fla84531,Con61240])
+Res52008 = keras.layers.Reshape((4, 1), name = 'Res52008', )(Min15591)
+Res3695 = keras.layers.Reshape((4, 1, 1), name = 'Res3695', )(Res52008)
+Con83238 = keras.layers.Conv2D(4, (4, 1),strides=(3, 1), padding='valid', dilation_rate=(1, 1), name = 'Con83238', )(Res3695)
+Con17787 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='valid', name = 'Con17787', )(Con83238)
+GRU57314 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU57314', )(Con17787)
+model = tf.keras.models.Model(inputs=[in0Con72449,in0Sim73500,in0Con61240], outputs=GRU57314)
+w = model.get_layer('Con72449').get_weights() 
+w[0] = np.array([[[0.7613, 0.3258, 0.5024, 0.2143]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con72449').set_weights(w) 
+w = model.get_layer('Sim73500').get_weights() 
+w[0] = np.array([[10, 10, 1]])
+w[1] = np.array([[4, 8, 5], [7, 6, 3], [7, 2, 6]])
+w[2] = np.array([7, 7, 5])
+model.get_layer('Sim73500').set_weights(w) 
+w = model.get_layer('Con83238').get_weights() 
+w[0] = np.array([[[[0.8623, 0.266, 0.3777, 0.2748]]], [[[0.3959, 0.7396, 0.9771, 0.4255]]], [[[0.665, 0.1815, 0.9012, 0.209]]], [[[0.0333, 0.3661, 0.2939, 0.1614]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con83238').set_weights(w) 
+w = model.get_layer('Con17787').get_weights() 
+w[0] = np.array([[[[0.6881, 0.044, 0.1089, 0.6505], [0.7537, 0.2866, 0.2021, 0.6507], [0.9747, 0.6101, 0.8757, 0.0556]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con17787').set_weights(w) 
+w = model.get_layer('GRU57314').get_weights() 
+w[0] = np.array([[10, 8, 7], [1, 1, 9]])
+w[1] = np.array([[6, 8, 2]])
+w[2] = np.array([[7, 4, 10], [8, 10, 10]])
+model.get_layer('GRU57314').set_weights(w) 
+in0Con72449 = tf.constant([[[0.5317]]])
+in0Sim73500 = tf.constant([[[9], [1]]])
+in0Con61240 = tf.constant([[0.4513]])
+print (np.array2string(model.predict([in0Con72449,in0Sim73500,in0Con61240],steps=1), separator=', '))
+
+
+LCon72449 = conv1D_layer([[[0.5317]]], 1,[[[0.7613, 0.3258, 0.5024, 0.2143]]],[0, 0, 0, 0], 1, false, 1, Con72449), 
+LFla84531 = flatten_layer(Con72449, Fla84531), 
+LSim73500 = simple_rnn_layer([[[9], [1]]],[[10, 10, 1]],[[4, 8, 5], [7, 6, 3], [7, 2, 6]],[7, 7, 5], Sim73500), 
+LCon61240 = concatenate_layer([Sim73500,[[0.4513]]], 1, Con61240), 
+LMin15591 = minimum_layer([Fla84531,Con61240], Min15591), 
+LRes52008 = reshape_layer(Min15591, [4, 1], Res52008), 
+LRes3695 = reshape_layer(Res52008, [4, 1, 1], Res3695), 
+LCon83238 = conv2D_layer(Res3695, 4, 1,[[[[0.8623, 0.266, 0.3777, 0.2748]]], [[[0.3959, 0.7396, 0.9771, 0.4255]]], [[[0.665, 0.1815, 0.9012, 0.209]]], [[[0.0333, 0.3661, 0.2939, 0.1614]]]],[0, 0, 0, 0], 3, 1, false, 1, 1, Con83238), 
+LCon17787 = conv2D_transpose_layer(Con83238, 1, 1,[[[[0.6881, 0.044, 0.1089, 0.6505], [0.7537, 0.2866, 0.2021, 0.6507], [0.9747, 0.6101, 0.8757, 0.0556]]]],[0, 0, 0], 1, 1, false, Con17787), 
+LGRU57314 = gru_layer(Con17787,[[10, 8, 7], [1, 1, 9]],[[6, 8, 2]],[[7, 4, 10], [8, 10, 10]], true, GRU57314), 
+exec_layers([LCon72449,LFla84531,LSim73500,LCon61240,LMin15591,LRes52008,LRes3695,LCon83238,LCon17787,LGRU57314],["Con72449","Fla84531","Sim73500","Con61240","Min15591","Res52008","Res3695","Con83238","Con17787","GRU57314"],GRU57314,"GRU57314")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer GRU57314 is incompatible with the layer: expected ndim=3, found ndim=4. Full shape received: (None, 1, 1, 3)
+
+Expected (Unparsed): 
+GRU57314: Dimension error, Input Shape [1,1,1,3]
+
+Actual:   
+
+Expected: 

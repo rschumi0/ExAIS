@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min61929 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Min61929 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0PRe24624 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con5819 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Max62028 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max62028 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Min61929 = keras.layers.Minimum(name = 'Min61929', )([in0Min61929,in1Min61929])
+PRe24624 = keras.layers.PReLU(name = 'PRe24624', input_shape=(1, 1, 1))(in0PRe24624)
+Zer71646 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer71646', )(PRe24624)
+Con5819 = keras.layers.Concatenate(axis=3, name = 'Con5819', )([Zer71646,in0Con5819])
+Sub48594 = keras.layers.Subtract(name = 'Sub48594', )([Min61929,Con5819])
+Zer45619 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer45619', )(Sub48594)
+Max62028 = keras.layers.Maximum(name = 'Max62028', )([in0Max62028,in1Max62028])
+Mul81447 = keras.layers.Multiply(name = 'Mul81447', )([Zer45619,Max62028])
+model = tf.keras.models.Model(inputs=[in0Min61929,in1Min61929,in0PRe24624,in0Con5819,in0Max62028,in1Max62028], outputs=Mul81447)
+w = model.get_layer('PRe24624').get_weights() 
+w[0] = np.array([[[0.84]]])
+model.get_layer('PRe24624').set_weights(w) 
+in0Min61929 = tf.constant([[[[0.5391, 0.2452]], [[0.9995, 0.2376]]]])
+in1Min61929 = tf.constant([[[[0.9973, 0.6406]], [[0.8039, 0.8564]]]])
+in0PRe24624 = tf.constant([[[[0.0479]]]])
+in0Con5819 = tf.constant([[[[0.439]], [[0.6876]]]])
+in0Max62028 = tf.constant([[[[0.7833, 0.892], [0.0596, 0.2899]], [[0.9848, 0.8386], [0.0578, 0.2134]]]])
+in1Max62028 = tf.constant([[[[0.4564, 0.1118], [0.8361, 0.9099]], [[0.2275, 0.3584], [0.4746, 0.0132]]]])
+print (np.array2string(model.predict([in0Min61929,in1Min61929,in0PRe24624,in0Con5819,in0Max62028,in1Max62028],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul81447.png')
+
+LMin61929 = minimum_layer([[[[[0.5391, 0.2452]], [[0.9995, 0.2376]]]], [[[[0.9973, 0.6406]], [[0.8039, 0.8564]]]]], Min61929), 
+LPRe24624 = prelu_layer([[[[0.0479]]]], [[[0.84]]], PRe24624), 
+LZer71646 = zero_padding2D_layer(PRe24624, 1, 0, 0, 0, Zer71646), 
+LCon5819 = concatenate_layer([Zer71646,[[[[0.439]], [[0.6876]]]]], 3, Con5819), 
+LSub48594 = subtract_layer(Min61929,Con5819, Sub48594), 
+LZer45619 = zero_padding2D_layer(Sub48594, 0, 0, 1, 0, Zer45619), 
+LMax62028 = maximum_layer([[[[[0.7833, 0.892], [0.0596, 0.2899]], [[0.9848, 0.8386], [0.0578, 0.2134]]]], [[[[0.4564, 0.1118], [0.8361, 0.9099]], [[0.2275, 0.3584], [0.4746, 0.0132]]]]], Max62028), 
+LMul81447 = multiply_layer([Zer45619,Max62028], Mul81447), 
+exec_layers([LMin61929,LPRe24624,LZer71646,LCon5819,LSub48594,LZer45619,LMax62028,LMul81447],["Min61929","PRe24624","Zer71646","Con5819","Sub48594","Zer45619","Max62028","Mul81447"],Mul81447,"Mul81447")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.4507415, -0.1763386]], [[0.0000000, 0.0000000], [0.3587976, -0.0960300]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[0.45074151,-0.17633862]],[[0.0,0.0],[0.3587976,-0.09602999999999999]]]]
+
+Actual:   [[[[0, 0], [0.4508, -0.1763]], [[0, 0], [0.3588, -0.096]]]]
+
+Expected: [[[[0, 0], [0.4508, -0.1763]], [[0, 0], [0.3588, -0.096]]]]

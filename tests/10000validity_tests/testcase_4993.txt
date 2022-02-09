@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max43018 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Max43018 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Glo91077 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+
+Max43018 = keras.layers.Maximum(name = 'Max43018', )([in0Max43018,in1Max43018])
+Res86613 = keras.layers.Reshape((2, 2, 2), name = 'Res86613', )(Max43018)
+Res55862 = keras.layers.Reshape((2, 4), name = 'Res55862', )(Res86613)
+GRU13479 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU13479', )(Res55862)
+Glo91077 = keras.layers.GlobalAveragePooling3D(name = 'Glo91077', )(in0Glo91077)
+Max81037 = keras.layers.Maximum(name = 'Max81037', )([GRU13479,Glo91077])
+Res16452 = keras.layers.Reshape((2, 1), name = 'Res16452', )(Max81037)
+Zer51757 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer51757', )(Res16452)
+model = tf.keras.models.Model(inputs=[in0Max43018,in1Max43018,in0Glo91077], outputs=Zer51757)
+w = model.get_layer('GRU13479').get_weights() 
+w[0] = np.array([[2, 10, 8, 1, 3, 8], [7, 10, 9, 8, 9, 3], [7, 8, 4, 1, 5, 10], [7, 9, 4, 10, 8, 2]])
+w[1] = np.array([[6, 4, 5, 1, 5, 7], [8, 6, 3, 10, 2, 3]])
+w[2] = np.array([[6, 7, 9, 6, 8, 9], [6, 10, 10, 9, 8, 7]])
+model.get_layer('GRU13479').set_weights(w) 
+in0Max43018 = tf.constant([[[[[0.348, 0.2545]], [[0.0153, 0.2929]]], [[[0.4706, 0.0232]], [[0.0205, 0.2616]]]]])
+in1Max43018 = tf.constant([[[[[0.7092, 0.1476]], [[0.5985, 0.0933]]], [[[0.5797, 0.8863]], [[0.7125, 0.4546]]]]])
+in0Glo91077 = tf.constant([[[[[1.9758, 1.5614]], [[1.974, 1.9676]]], [[[1.1259, 1.6246]], [[1.4364, 1.334]]]]])
+print (np.array2string(model.predict([in0Max43018,in1Max43018,in0Glo91077],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer51757.png')
+
+LMax43018 = maximum_layer([[[[[[0.348, 0.2545]], [[0.0153, 0.2929]]], [[[0.4706, 0.0232]], [[0.0205, 0.2616]]]]], [[[[[0.7092, 0.1476]], [[0.5985, 0.0933]]], [[[0.5797, 0.8863]], [[0.7125, 0.4546]]]]]], Max43018), 
+LRes86613 = reshape_layer(Max43018, [2, 2, 2], Res86613), 
+LRes55862 = reshape_layer(Res86613, [2, 4], Res55862), 
+LGRU13479 = gru_layer(Res55862,[[2, 10, 8, 1, 3, 8], [7, 10, 9, 8, 9, 3], [7, 8, 4, 1, 5, 10], [7, 9, 4, 10, 8, 2]],[[6, 4, 5, 1, 5, 7], [8, 6, 3, 10, 2, 3]],[[6, 7, 9, 6, 8, 9], [6, 10, 10, 9, 8, 7]], true, GRU13479), 
+LGlo91077 = global_average_pooling3D_layer([[[[[1.9758, 1.5614]], [[1.974, 1.9676]]], [[[1.1259, 1.6246]], [[1.4364, 1.334]]]]], Glo91077), 
+LMax81037 = maximum_layer([GRU13479,Glo91077], Max81037), 
+LRes16452 = reshape_layer(Max81037, [2, 1], Res16452), 
+LZer51757 = zero_padding1D_layer(Res16452, 1, 1, Zer51757), 
+exec_layers([LMax43018,LRes86613,LRes55862,LGRU13479,LGlo91077,LMax81037,LRes16452,LZer51757],["Max43018","Res86613","Res55862","GRU13479","Glo91077","Max81037","Res16452","Zer51757"],Zer51757,"Zer51757")
+
+Actual (Unparsed): [[[0.0000000], [1.6280250], [1.6219000], [0.0000000]]]
+
+Expected (Unparsed): [[[0],[1.628025],[1.6219000000000001],[0]]]
+
+Actual:   [[[0], [1.6281], [1.6219], [0]]]
+
+Expected: [[[0], [1.6281], [1.622], [0]]]

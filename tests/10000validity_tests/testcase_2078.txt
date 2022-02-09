@@ -1,0 +1,75 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max67387 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Max27589 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Max27589 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Thr52570 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Max67254 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max67254 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con5201 = tf.keras.layers.Input(shape=([2, 3]))
+
+Max67387 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Max67387', )(in0Max67387)
+Zer45127 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer45127', )(Max67387)
+Max27589 = keras.layers.Maximum(name = 'Max27589', )([in0Max27589,in1Max27589])
+Ave44679 = keras.layers.Average(name = 'Ave44679', )([Zer45127,Max27589])
+Sof3122 = keras.layers.Softmax(axis=1, name = 'Sof3122', )(Ave44679)
+Res97313 = keras.layers.Reshape((1, 4), name = 'Res97313', )(Sof3122)
+Zer18662 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer18662', )(Res97313)
+Thr52570 = keras.layers.ThresholdedReLU(theta=8.14284965886845, name = 'Thr52570', input_shape=(2, 1, 1, 1))(in0Thr52570)
+Res98037 = keras.layers.Reshape((2, 1, 1), name = 'Res98037', )(Thr52570)
+Dep37942 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='same', name = 'Dep37942', )(Res98037)
+Lay69210 = keras.layers.LayerNormalization(axis=2, epsilon=1.7134377473846094, name = 'Lay69210', )(Dep37942)
+Res66605 = keras.layers.Reshape((2, 1), name = 'Res66605', )(Lay69210)
+Max67254 = keras.layers.Maximum(name = 'Max67254', )([in0Max67254,in1Max67254])
+Up_2908 = keras.layers.UpSampling1D(size=(1), name = 'Up_2908', )(Max67254)
+Zer18770 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer18770', )(Up_2908)
+Max94599 = keras.layers.Maximum(name = 'Max94599', )([Res66605,Zer18770])
+Con5201 = keras.layers.Concatenate(axis=2, name = 'Con5201', )([Max94599,in0Con5201])
+Ave67052 = keras.layers.Average(name = 'Ave67052', )([Zer18662,Con5201])
+model = tf.keras.models.Model(inputs=[in0Max67387,in0Max27589,in1Max27589,in0Thr52570,in0Max67254,in1Max67254,in0Con5201], outputs=Ave67052)
+w = model.get_layer('Dep37942').get_weights() 
+w[0] = np.array([[[[0.1348]]], [[[0.5435]]]])
+w[1] = np.array([0])
+model.get_layer('Dep37942').set_weights(w) 
+in0Max67387 = tf.constant([[[[1.9376, 1.8102]]]])
+in0Max27589 = tf.constant([[[[0.7372, 0.7745], [0.5196, 0.9755]]]])
+in1Max27589 = tf.constant([[[[0.4964, 0.0219], [0.0264, 0.5462]]]])
+in0Thr52570 = tf.constant([[[[[0.6761]]], [[[0.504]]]]])
+in0Max67254 = tf.constant([[[0.4756]]])
+in1Max67254 = tf.constant([[[0.4788]]])
+in0Con5201 = tf.constant([[[0.8027, 0.876, 0.7439], [0.2277, 0.4596, 0.8944]]])
+print (np.array2string(model.predict([in0Max67387,in0Max27589,in1Max27589,in0Thr52570,in0Max67254,in1Max67254,in0Con5201],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave67052.png')
+
+LMax67387 = max_pool2D_layer([[[[1.9376, 1.8102]]]], 1, 1, 1, 1, false, Max67387), 
+LZer45127 = zero_padding2D_layer(Max67387, 0, 0, 1, 0, Zer45127), 
+LMax27589 = maximum_layer([[[[[0.7372, 0.7745], [0.5196, 0.9755]]]], [[[[0.4964, 0.0219], [0.0264, 0.5462]]]]], Max27589), 
+LAve44679 = average_layer([Zer45127,Max27589], Ave44679), 
+LSof3122 = softmax_layer(Ave44679, 1, Sof3122), 
+LRes97313 = reshape_layer(Sof3122, [1, 4], Res97313), 
+LZer18662 = zero_padding1D_layer(Res97313, 1, 0, Zer18662), 
+LThr52570 = thresholded_relu_layer([[[[[0.6761]]], [[[0.504]]]]], 8.14284965886845, Thr52570), 
+LRes98037 = reshape_layer(Thr52570, [2, 1, 1], Res98037), 
+LDep37942 = depthwise_conv2D_layer(Res98037, 2, 1,[[[[0.1348]]], [[[0.5435]]]],[0], 1, 1, true, Dep37942), 
+LLay69210 = layer_normalization_layer(Dep37942, 2, 1.7134377473846094, Lay69210), 
+LRes66605 = reshape_layer(Lay69210, [2, 1], Res66605), 
+LMax67254 = maximum_layer([[[[0.4756]]], [[[0.4788]]]], Max67254), 
+LUp_2908 = up_sampling1D_layer(Max67254, 1, Up_2908), 
+LZer18770 = zero_padding1D_layer(Up_2908, 1, 0, Zer18770), 
+LMax94599 = maximum_layer([Res66605,Zer18770], Max94599), 
+LCon5201 = concatenate_layer([Max94599,[[[0.8027, 0.876, 0.7439], [0.2277, 0.4596, 0.8944]]]], 2, Con5201), 
+LAve67052 = average_layer([Zer18662,Con5201], Ave67052), 
+exec_layers([LMax67387,LZer45127,LMax27589,LAve44679,LSof3122,LRes97313,LZer18662,LThr52570,LRes98037,LDep37942,LLay69210,LRes66605,LMax67254,LUp_2908,LZer18770,LMax94599,LCon5201,LAve67052],["Max67387","Zer45127","Max27589","Ave44679","Sof3122","Res97313","Zer18662","Thr52570","Res98037","Dep37942","Lay69210","Res66605","Max67254","Up_2908","Zer18770","Max94599","Con5201","Ave67052"],Ave67052,"Ave67052")
+
+Actual (Unparsed): [[[0.0000000, 0.4013500, 0.4380000, 0.3719500], [0.7394000, 0.6138500, 0.7298000, 0.9472000]]]
+
+Expected (Unparsed): [[[0.0,0.40135,0.438,0.37195],[0.7394000000000001,0.61385,0.7298,0.9472]]]
+
+Actual:   [[[0, 0.4014, 0.438, 0.372], [0.7394, 0.6139, 0.7298, 0.9472]]]
+
+Expected: [[[0, 0.4014, 0.438, 0.372], [0.7395, 0.6139, 0.7298, 0.9472]]]

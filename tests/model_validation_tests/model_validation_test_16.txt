@@ -1,0 +1,61 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con12817 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0LST72081 = tf.keras.layers.Input(shape=([1, 3]))
+in0Con36297 = tf.keras.layers.Input(shape=([16]))
+
+Con12817 = keras.layers.Conv3DTranspose(3, (1, 1, 2),strides=(1, 1, 1), padding='valid', name = 'Con12817', )(in0Con12817)
+Up_23260 = keras.layers.UpSampling3D(size=(1, 2, 1), name = 'Up_23260', )(Con12817)
+Fla72180 = keras.layers.Flatten(name = 'Fla72180', )(Up_23260)
+LST72081 = keras.layers.RNN(keras.layers.LSTMCell(2,recurrent_activation='sigmoid', ), name = 'LST72081', input_shape=(1, 3))(in0LST72081)
+Con36297 = keras.layers.Concatenate(axis=1, name = 'Con36297', )([LST72081,in0Con36297])
+Mul12899 = keras.layers.Multiply(name = 'Mul12899', )([Fla72180,Con36297])
+Res92436 = keras.layers.Reshape((18, 1), name = 'Res92436', )(Mul12899)
+Res69616 = keras.layers.Reshape((18, 1, 1), name = 'Res69616', )(Res92436)
+Con93582 = keras.layers.Conv3D(4, (1, 1, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con93582', )(Res69616)
+model = tf.keras.models.Model(inputs=[in0Con12817,in0LST72081,in0Con36297], outputs=Con93582)
+w = model.get_layer('Con12817').get_weights() 
+w[0] = np.array([[[[[0.1476], [0.3891], [0.4506]], [[0.5629], [0.9091], [0.2097]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con12817').set_weights(w) 
+w = model.get_layer('LST72081').get_weights() 
+w[0] = np.array([[2, 2, 2, 8, 6, 7, 10, 2], [6, 10, 5, 7, 8, 7, 2, 1], [8, 5, 2, 3, 8, 6, 7, 1]])
+w[1] = np.array([[3, 8, 6, 8, 1, 1, 4, 3], [10, 10, 9, 9, 6, 8, 9, 3]])
+w[2] = np.array([8, 4, 6, 5, 9, 9, 7, 4])
+model.get_layer('LST72081').set_weights(w) 
+w = model.get_layer('Con93582').get_weights() 
+w[0] = np.array([[[[[0.6894, 0.4029, 0.941, 0.7795], [0.8367, 0.4473, 0.0866, 0.9942]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con93582').set_weights(w) 
+in0Con12817 = tf.constant([[[[[0.9111], [0.438]]]]])
+in0LST72081 = tf.constant([[[3, 5, 5]]])
+in0Con36297 = tf.constant([[0.7876, 0.4121, 0.5982, 0.5504, 0.4578, 0.1311, 0.8615, 0.8981, 0.9822, 0.3857, 0.5434, 0.7654, 0.1482, 0.2562, 0.3238, 0.2625]])
+print (np.array2string(model.predict([in0Con12817,in0LST72081,in0Con36297],steps=1), separator=', '))
+
+
+LCon12817 = conv3D_transpose_layer([[[[[0.9111], [0.438]]]]], 1, 1, 2,[[[[[0.1476], [0.3891], [0.4506]], [[0.5629], [0.9091], [0.2097]]]]],[0, 0, 0], 1, 1, 1, false, Con12817), 
+LUp_23260 = up_sampling3D_layer(Con12817, 1, 2, 1, Up_23260), 
+LFla72180 = flatten_layer(Up_23260, Fla72180), 
+LLST72081 = lstmcell_layer([[[3, 5, 5]]],[[2, 2, 2, 8, 6, 7, 10, 2], [6, 10, 5, 7, 8, 7, 2, 1], [8, 5, 2, 3, 8, 6, 7, 1]],[[3, 8, 6, 8, 1, 1, 4, 3], [10, 10, 9, 9, 6, 8, 9, 3]],[8, 4, 6, 5, 9, 9, 7, 4], LST72081), 
+LCon36297 = concatenate_layer([LST72081,[[0.7876, 0.4121, 0.5982, 0.5504, 0.4578, 0.1311, 0.8615, 0.8981, 0.9822, 0.3857, 0.5434, 0.7654, 0.1482, 0.2562, 0.3238, 0.2625]]], 1, Con36297), 
+LMul12899 = multiply_layer([Fla72180,Con36297], Mul12899), 
+LRes92436 = reshape_layer(Mul12899, [18, 1], Res92436), 
+LRes69616 = reshape_layer(Res92436, [18, 1, 1], Res69616), 
+LCon93582 = conv3D_layer(Res69616, 1, 1, 1,[[[[[0.6894, 0.4029, 0.941, 0.7795], [0.8367, 0.4473, 0.0866, 0.9942]]]]],[0, 0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con93582), 
+exec_layers([LCon12817,LUp_23260,LFla72180,LLST72081,LCon36297,LMul12899,LRes92436,LRes69616,LCon93582],["Con12817","Up_23260","Fla72180","LST72081","Con36297","Mul12899","Res92436","Res69616","Con93582"],Con93582,"Con93582")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Con93582 is incompatible with the layer: : expected min_ndim=5, found ndim=4. Full shape received: (None, 18, 1, 1)
+
+Expected (Unparsed): 
+Con93582: Dimension error, Input Shape [1,18,1,1]
+
+Actual:   
+
+Expected: 

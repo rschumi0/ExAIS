@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr8342 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave1589 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Ave1589 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Con65041 = tf.keras.layers.Input(shape=([1, 1]))
+
+Thr8342 = keras.layers.ThresholdedReLU(theta=4.9034939164259885, name = 'Thr8342', input_shape=(1, 2, 2))(in0Thr8342)
+Res22890 = keras.layers.Reshape((1, 4), name = 'Res22890', )(Thr8342)
+Con6174 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con6174', )(Res22890)
+Ave1589 = keras.layers.Average(name = 'Ave1589', )([in0Ave1589,in1Ave1589])
+Res28856 = keras.layers.Reshape((2, 2, 2), name = 'Res28856', )(Ave1589)
+Res90678 = keras.layers.Reshape((2, 4), name = 'Res90678', )(Res28856)
+Glo1458 = keras.layers.GlobalAveragePooling1D(name = 'Glo1458', )(Res90678)
+Res24896 = keras.layers.Reshape((4, 1), name = 'Res24896', )(Glo1458)
+Max64607 = keras.layers.MaxPool1D(pool_size=(3), strides=(4), padding='valid', name = 'Max64607', )(Res24896)
+Con65041 = keras.layers.Concatenate(axis=2, name = 'Con65041', )([Max64607,in0Con65041])
+Mul6989 = keras.layers.Multiply(name = 'Mul6989', )([Con6174,Con65041])
+model = tf.keras.models.Model(inputs=[in0Thr8342,in0Ave1589,in1Ave1589,in0Con65041], outputs=Mul6989)
+w = model.get_layer('Con6174').get_weights() 
+w[0] = np.array([[[0.3086, 0.2578], [0.5854, 0.4101], [0.4663, 0.153], [0.4889, 0.476]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con6174').set_weights(w) 
+in0Thr8342 = tf.constant([[[[0.3963, 0.079], [0.3757, 0.9927]]]])
+in0Ave1589 = tf.constant([[[[[0.92, 0.3138]], [[0.4876, 0.1857]]], [[[0.4772, 0.1605]], [[0.9894, 0.8846]]]]])
+in1Ave1589 = tf.constant([[[[[0.9255, 0.7213]], [[0.9759, 0.5947]]], [[[0.9583, 0.7827]], [[0.4896, 0.467]]]]])
+in0Con65041 = tf.constant([[[0.0985]]])
+print (np.array2string(model.predict([in0Thr8342,in0Ave1589,in1Ave1589,in0Con65041],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul6989.png')
+
+LThr8342 = thresholded_relu_layer([[[[0.3963, 0.079], [0.3757, 0.9927]]]], 4.9034939164259885, Thr8342), 
+LRes22890 = reshape_layer(Thr8342, [1, 4], Res22890), 
+LCon6174 = conv1D_layer(Res22890, 1,[[[0.3086, 0.2578], [0.5854, 0.4101], [0.4663, 0.153], [0.4889, 0.476]]],[0, 0], 1, false, 1, Con6174), 
+LAve1589 = average_layer([[[[[[0.92, 0.3138]], [[0.4876, 0.1857]]], [[[0.4772, 0.1605]], [[0.9894, 0.8846]]]]], [[[[[0.9255, 0.7213]], [[0.9759, 0.5947]]], [[[0.9583, 0.7827]], [[0.4896, 0.467]]]]]], Ave1589), 
+LRes28856 = reshape_layer(Ave1589, [2, 2, 2], Res28856), 
+LRes90678 = reshape_layer(Res28856, [2, 4], Res90678), 
+LGlo1458 = global_average_pooling1D_layer(Res90678, Glo1458), 
+LRes24896 = reshape_layer(Glo1458, [4, 1], Res24896), 
+LMax64607 = max_pool1D_layer(Res24896, 3, 4, false, Max64607), 
+LCon65041 = concatenate_layer([Max64607,[[[0.0985]]]], 2, Con65041), 
+LMul6989 = multiply_layer([Con6174,Con65041], Mul6989), 
+exec_layers([LThr8342,LRes22890,LCon6174,LAve1589,LRes28856,LRes90678,LGlo1458,LRes24896,LMax64607,LCon65041,LMul6989],["Thr8342","Res22890","Con6174","Ave1589","Res28856","Res90678","Glo1458","Res24896","Max64607","Con65041","Mul6989"],Mul6989,"Mul6989")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0]]]
+
+Actual:   [[[0, 0]]]
+
+Expected: [[[0, 0]]]

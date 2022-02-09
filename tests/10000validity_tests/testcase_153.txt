@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min12394 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min12394 = tf.keras.layers.Input(shape=([1, 2]))
+in0Loc77160 = tf.keras.layers.Input(shape=([1, 2]))
+
+Min12394 = keras.layers.Minimum(name = 'Min12394', )([in0Min12394,in1Min12394])
+Loc77160 = keras.layers.LocallyConnected1D(3, (1),strides=(9), name = 'Loc77160', )(in0Loc77160)
+Sep78802 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep78802', )(Loc77160)
+Max94951 = keras.layers.Maximum(name = 'Max94951', )([Min12394,Sep78802])
+model = tf.keras.models.Model(inputs=[in0Min12394,in1Min12394,in0Loc77160], outputs=Max94951)
+w = model.get_layer('Loc77160').get_weights() 
+w[0] = np.array([[[0.626, 0.3052, 0.3265], [0.5797, 0.5678, 0.8991]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc77160').set_weights(w) 
+w = model.get_layer('Sep78802').get_weights() 
+w[0] = np.array([[[0.6754], [0.7665], [0.358]]])
+w[1] = np.array([[[0.6736, 0.0973], [0.7827, 0.1722], [0.8203, 0.686]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep78802').set_weights(w) 
+in0Min12394 = tf.constant([[[0.738, 0.9171]]])
+in1Min12394 = tf.constant([[[0.9589, 0.8772]]])
+in0Loc77160 = tf.constant([[[0.758, 0.1878]]])
+print (np.array2string(model.predict([in0Min12394,in1Min12394,in0Loc77160],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max94951.png')
+
+LMin12394 = minimum_layer([[[[0.738, 0.9171]]], [[[0.9589, 0.8772]]]], Min12394), 
+LLoc77160 = locally_connected1D_layer([[[0.758, 0.1878]]], 1,[[[0.626, 0.3052, 0.3265], [0.5797, 0.5678, 0.8991]]],[[0, 0, 0]], 9, Loc77160), 
+LSep78802 = separable_conv1D_layer(Loc77160, 1,[[[[0.6754], [0.7665], [0.358]]],[[[0.6736, 0.0973], [0.7827, 0.1722], [0.8203, 0.686]]]],[0, 0], 1, false, Sep78802), 
+LMax94951 = maximum_layer([Min12394,Sep78802], Max94951), 
+exec_layers([LMin12394,LLoc77160,LSep78802,LMax94951],["Min12394","Loc77160","Sep78802","Max94951"],Max94951,"Max94951")
+
+Actual (Unparsed): [[[0.7380000, 0.8772000]]]
+
+Expected (Unparsed): [[[0.738,0.8772]]]
+
+Actual:   [[[0.738, 0.8772]]]
+
+Expected: [[[0.738, 0.8772]]]

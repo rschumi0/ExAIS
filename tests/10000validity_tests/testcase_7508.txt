@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul58441 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul58441 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Mul58441 = keras.layers.Multiply(name = 'Mul58441', )([in0Mul58441,in1Mul58441])
+Res42829 = keras.layers.Reshape((2, 2), name = 'Res42829', )(Mul58441)
+ELU14138 = keras.layers.ELU(alpha=8.272043937424613, name = 'ELU14138', )(Res42829)
+Res52481 = keras.layers.Reshape((2, 2, 1), name = 'Res52481', )(ELU14138)
+Res44562 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res44562', )(Res52481)
+Con54666 = keras.layers.Conv3DTranspose(4, (1, 2, 1),strides=(1, 1, 1), padding='same', name = 'Con54666', )(Res44562)
+model = tf.keras.models.Model(inputs=[in0Mul58441,in1Mul58441], outputs=Con54666)
+w = model.get_layer('Con54666').get_weights() 
+w[0] = np.array([[[[[0.546], [0.0801], [0.5901], [0.1159]]], [[[0.739], [0.6756], [0.9395], [0.0602]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con54666').set_weights(w) 
+in0Mul58441 = tf.constant([[[[0.3827, 0.7381]], [[0.0557, 0.7334]]]])
+in1Mul58441 = tf.constant([[[[0.4387, 0.981]], [[0.8518, 0.0103]]]])
+print (np.array2string(model.predict([in0Mul58441,in1Mul58441],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con54666.png')
+
+LMul58441 = multiply_layer([[[[[0.3827, 0.7381]], [[0.0557, 0.7334]]]], [[[[0.4387, 0.981]], [[0.8518, 0.0103]]]]], Mul58441), 
+LRes42829 = reshape_layer(Mul58441, [2, 2], Res42829), 
+LELU14138 = elu_layer(Res42829, 8.272043937424613, ELU14138), 
+LRes52481 = reshape_layer(ELU14138, [2, 2, 1], Res52481), 
+LRes44562 = reshape_layer(Res52481, [2, 2, 1, 1], Res44562), 
+LCon54666 = conv3D_transpose_layer(Res44562, 1, 2, 1,[[[[[0.546], [0.0801], [0.5901], [0.1159]]], [[[0.739], [0.6756], [0.9395], [0.0602]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con54666), 
+exec_layers([LMul58441,LRes42829,LELU14138,LRes52481,LRes44562,LCon54666],["Mul58441","Res42829","ELU14138","Res52481","Res44562","Con54666"],Con54666,"Con54666")
+
+Actual (Unparsed): [[[[[0.0916682, 0.0134480, 0.0990722, 0.0194585]], [[0.5194166, 0.1714253, 0.5850104, 0.0940274]]], [[[0.0259051, 0.0038004, 0.0279974, 0.0054989]], [[0.0391865, 0.0326591, 0.0490325, 0.0037317]]]]]
+
+Expected (Unparsed): [[[[[0.09166820753999999,0.013448028248999998,0.09907217814899998,0.019458507790999998]],[[0.51941662271,0.171425310654,0.585010421965,0.09402742748800001]]],[[[0.025905111960000005,0.0038003653260000004,0.027997447926,0.005498905634]],[[0.03918654206,0.032659094658,0.049032448972,0.0037317155700000004]]]]]
+
+Actual:   [[[[[0.0917, 0.0135, 0.0991, 0.0195]], [[0.5195, 0.1715, 0.5851, 0.0941]]], [[[0.026, 0.0039, 0.028, 0.0055]], [[0.0392, 0.0327, 0.0491, 0.0038]]]]]
+
+Expected: [[[[[0.0917, 0.0135, 0.0991, 0.0195]], [[0.5195, 0.1715, 0.5851, 0.0941]]], [[[0.026, 0.0039, 0.028, 0.0055]], [[0.0392, 0.0327, 0.0491, 0.0038]]]]]

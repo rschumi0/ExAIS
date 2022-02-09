@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add38250 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add38250 = tf.keras.layers.Input(shape=([2, 2]))
+
+Add38250 = keras.layers.Add(name = 'Add38250', )([in0Add38250,in1Add38250])
+Res81507 = keras.layers.Reshape((2, 2, 1), name = 'Res81507', )(Add38250)
+Res53418 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res53418', )(Res81507)
+Con35260 = keras.layers.Conv3D(2, (1, 2, 1),strides=(1, 1, 10), padding='same', dilation_rate=(1, 1, 1), name = 'Con35260', )(Res53418)
+Res68510 = keras.layers.Reshape((2, 2, 2), name = 'Res68510', )(Con35260)
+Max32196 = keras.layers.MaxPool2D(pool_size=(2, 1), strides=(1, 3), padding='valid', name = 'Max32196', )(Res68510)
+Dep10527 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep10527', )(Max32196)
+model = tf.keras.models.Model(inputs=[in0Add38250,in1Add38250], outputs=Dep10527)
+w = model.get_layer('Con35260').get_weights() 
+w[0] = np.array([[[[[0.4083, 0.0318]]], [[[0.1211, 0.3553]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con35260').set_weights(w) 
+w = model.get_layer('Dep10527').get_weights() 
+w[0] = np.array([[[[0.5771], [0.2502]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep10527').set_weights(w) 
+in0Add38250 = tf.constant([[[0.2468, 0.9288], [0.9575, 0.3618]]])
+in1Add38250 = tf.constant([[[0.7527, 0.1008], [0.5617, 0.9654]]])
+print (np.array2string(model.predict([in0Add38250,in1Add38250],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep10527.png')
+
+LAdd38250 = add_layer([[[[0.2468, 0.9288], [0.9575, 0.3618]]], [[[0.7527, 0.1008], [0.5617, 0.9654]]]], Add38250), 
+LRes81507 = reshape_layer(Add38250, [2, 2, 1], Res81507), 
+LRes53418 = reshape_layer(Res81507, [2, 2, 1, 1], Res53418), 
+LCon35260 = conv3D_layer(Res53418, 1, 2, 1,[[[[[0.4083, 0.0318]]], [[[0.1211, 0.3553]]]]],[0, 0], 1, 1, 10, true, 1, 1, 1, Con35260), 
+LRes68510 = reshape_layer(Con35260, [2, 2, 2], Res68510), 
+LMax32196 = max_pool2D_layer(Res68510, 2, 1, 1, 3, false, Max32196), 
+LDep10527 = depthwise_conv2D_layer(Max32196, 1, 1,[[[[0.5771], [0.2502]]]],[0, 0], 1, 1, false, Dep10527), 
+exec_layers([LAdd38250,LRes81507,LRes53418,LCon35260,LRes68510,LMax32196,LDep10527],["Add38250","Res81507","Res53418","Con35260","Res68510","Max32196","Dep10527"],Dep10527,"Dep10527")
+
+Actual (Unparsed): [[[[0.4507228, 0.1300701]]]]
+
+Expected (Unparsed): [[[[0.450722763888,0.130070152944]]]]
+
+Actual:   [[[[0.4508, 0.1301]]]]
+
+Expected: [[[[0.4508, 0.1301]]]]

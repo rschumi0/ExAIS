@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min8180 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min8180 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Min44804 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Min44804 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Min8180 = keras.layers.Minimum(name = 'Min8180', )([in0Min8180,in1Min8180])
+Zer81898 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer81898', )(Min8180)
+Min44804 = keras.layers.Minimum(name = 'Min44804', )([in0Min44804,in1Min44804])
+Zer40418 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer40418', )(Min44804)
+Sub18132 = keras.layers.Subtract(name = 'Sub18132', )([Zer81898,Zer40418])
+Res4506 = keras.layers.Reshape((2, 6), name = 'Res4506', )(Sub18132)
+Cro58336 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro58336', )(Res4506)
+model = tf.keras.models.Model(inputs=[in0Min8180,in1Min8180,in0Min44804,in1Min44804], outputs=Cro58336)
+in0Min8180 = tf.constant([[[[0.792, 0.7399], [0.0312, 0.7157]]]])
+in1Min8180 = tf.constant([[[[0.4127, 0.8772], [0.9326, 0.4623]]]])
+in0Min44804 = tf.constant([[[[0.9917, 0.3484]], [[0.3931, 0.1704]]]])
+in1Min44804 = tf.constant([[[[0.5039, 0.8224]], [[0.4747, 0.4233]]]])
+print (np.array2string(model.predict([in0Min8180,in1Min8180,in0Min44804,in1Min44804],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro58336.png')
+
+LMin8180 = minimum_layer([[[[[0.792, 0.7399], [0.0312, 0.7157]]]], [[[[0.4127, 0.8772], [0.9326, 0.4623]]]]], Min8180), 
+LZer81898 = zero_padding2D_layer(Min8180, 1, 0, 1, 0, Zer81898), 
+LMin44804 = minimum_layer([[[[[0.9917, 0.3484]], [[0.3931, 0.1704]]]], [[[[0.5039, 0.8224]], [[0.4747, 0.4233]]]]], Min44804), 
+LZer40418 = zero_padding2D_layer(Min44804, 0, 0, 2, 0, Zer40418), 
+LSub18132 = subtract_layer(Zer81898,Zer40418, Sub18132), 
+LRes4506 = reshape_layer(Sub18132, [2, 6], Res4506), 
+LCro58336 = cropping1D_layer(Res4506, 1, 0, Cro58336), 
+exec_layers([LMin8180,LZer81898,LMin44804,LZer40418,LSub18132,LRes4506,LCro58336],["Min8180","Zer81898","Min44804","Zer40418","Sub18132","Res4506","Cro58336"],Cro58336,"Cro58336")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.4127000, 0.7399000, -0.3619000, 0.2919000]]]
+
+Expected (Unparsed): [[[0,0,0.4127,0.7399,-0.3619,0.2919]]]
+
+Actual:   [[[0, 0, 0.4127, 0.7399, -0.3619, 0.2919]]]
+
+Expected: [[[0, 0, 0.4127, 0.7399, -0.3619, 0.2919]]]

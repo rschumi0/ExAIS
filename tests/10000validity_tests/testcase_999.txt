@@ -1,0 +1,68 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc80985 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Ave37879 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con27900 = tf.keras.layers.Input(shape=([8, 1, 1]))
+in0Loc87258 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Loc80985 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc80985', )(in0Loc80985)
+Res82841 = keras.layers.Reshape((1, 8), name = 'Res82841', )(Loc80985)
+Ave37879 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Ave37879', )(in0Ave37879)
+Res3379 = keras.layers.Reshape((1, 1), name = 'Res3379', )(Ave37879)
+Dot70331 = keras.layers.Dot(axes=(1, 2), name = 'Dot70331', )([Res82841,Res3379])
+Res71986 = keras.layers.Reshape((8, 1, 1), name = 'Res71986', )(Dot70331)
+Con27900 = keras.layers.Concatenate(axis=3, name = 'Con27900', )([Res71986,in0Con27900])
+Loc87258 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(8, 1), name = 'Loc87258', )(in0Loc87258)
+Mas66894 = keras.layers.Masking(mask_value=1, name = 'Mas66894', )(Loc87258)
+Zer47621 = keras.layers.ZeroPadding2D(padding=((7, 0), (0, 0)), name = 'Zer47621', )(Mas66894)
+Mul63826 = keras.layers.Multiply(name = 'Mul63826', )([Con27900,Zer47621])
+Res47320 = keras.layers.Reshape((8, 2), name = 'Res47320', )(Mul63826)
+Sim15854 = keras.layers.SimpleRNN(1,name = 'Sim15854', )(Res47320)
+model = tf.keras.models.Model(inputs=[in0Loc80985,in0Ave37879,in0Con27900,in0Loc87258], outputs=Sim15854)
+w = model.get_layer('Loc80985').get_weights() 
+w[0] = np.array([[[0.3036, 0.4865, 0.9518, 0.5029]], [[0.908, 0.452, 0.3194, 0.5312]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc80985').set_weights(w) 
+w = model.get_layer('Loc87258').get_weights() 
+w[0] = np.array([[[0.4714, 0.7331], [0.0206, 0.8745]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc87258').set_weights(w) 
+w = model.get_layer('Sim15854').get_weights() 
+w[0] = np.array([[7], [8]])
+w[1] = np.array([[1]])
+w[2] = np.array([5])
+model.get_layer('Sim15854').set_weights(w) 
+in0Loc80985 = tf.constant([[[[0.798], [0.312]]]])
+in0Ave37879 = tf.constant([[[[1.8061]]]])
+in0Con27900 = tf.constant([[[[0.8193]], [[0.1033]], [[0.98]], [[0.6163]], [[0.0958]], [[0.5068]], [[0.9235]], [[0.9207]]]])
+in0Loc87258 = tf.constant([[[[0.4925, 0.4723]], [[0.4822, 0.0978]]]])
+print (np.array2string(model.predict([in0Loc80985,in0Ave37879,in0Con27900,in0Loc87258],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim15854.png')
+
+LLoc80985 = locally_connected2D_layer([[[[0.798], [0.312]]]], 1, 1,[[[0.3036, 0.4865, 0.9518, 0.5029]], [[0.908, 0.452, 0.3194, 0.5312]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 1, 1, Loc80985), 
+LRes82841 = reshape_layer(Loc80985, [1, 8], Res82841), 
+LAve37879 = average_pooling2D_layer([[[[1.8061]]]], 1, 1, 1, 1, true, Ave37879), 
+LRes3379 = reshape_layer(Ave37879, [1, 1], Res3379), 
+LDot70331 = dot_layer(Res82841,Res3379, 1, 2, Dot70331), 
+LRes71986 = reshape_layer(Dot70331, [8, 1, 1], Res71986), 
+LCon27900 = concatenate_layer([Res71986,[[[[0.8193]], [[0.1033]], [[0.98]], [[0.6163]], [[0.0958]], [[0.5068]], [[0.9235]], [[0.9207]]]]], 3, Con27900), 
+LLoc87258 = locally_connected2D_layer([[[[0.4925, 0.4723]], [[0.4822, 0.0978]]]], 1, 1,[[[0.4714, 0.7331], [0.0206, 0.8745]]],[[[0, 0]]], 8, 1, Loc87258), 
+LMas66894 = masking_layer(Loc87258, 1, Mas66894), 
+LZer47621 = zero_padding2D_layer(Mas66894, 7, 0, 0, 0, Zer47621), 
+LMul63826 = multiply_layer([Con27900,Zer47621], Mul63826), 
+LRes47320 = reshape_layer(Mul63826, [8, 2], Res47320), 
+LSim15854 = simple_rnn_layer(Res47320,[[7], [8]],[[1]],[5], Sim15854), 
+exec_layers([LLoc80985,LRes82841,LAve37879,LRes3379,LDot70331,LRes71986,LCon27900,LLoc87258,LMas66894,LZer47621,LMul63826,LRes47320,LSim15854],["Loc80985","Res82841","Ave37879","Res3379","Dot70331","Res71986","Con27900","Loc87258","Mas66894","Zer47621","Mul63826","Res47320","Sim15854"],Sim15854,"Sim15854")
+
+Actual (Unparsed): [[1.0000000]]
+
+Expected (Unparsed): [[0.9999999999502307]]
+
+Actual:   [[1]]
+
+Expected: [[1]]

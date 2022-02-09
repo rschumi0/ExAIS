@@ -1,0 +1,77 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Emb40581 = tf.keras.layers.Input(shape=([2]))
+in0Con69628 = tf.keras.layers.Input(shape=([2, 2]))
+in0ELU68572 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add5875 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Add5875 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Mul64399 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul64399 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con71875 = tf.keras.layers.Input(shape=([2, 2]))
+
+Emb40581 = keras.layers.Embedding(2, 4, name = 'Emb40581', )(in0Emb40581)
+Con69628 = keras.layers.Concatenate(axis=2, name = 'Con69628', )([Emb40581,in0Con69628])
+ELU68572 = keras.layers.ELU(alpha=-9.905721644417586, name = 'ELU68572', input_shape=(2, 2))(in0ELU68572)
+Dot31991 = keras.layers.Dot(axes=(1, 1), name = 'Dot31991', )([Con69628,ELU68572])
+Lea26425 = keras.layers.LeakyReLU(alpha=1.1980620658066878, name = 'Lea26425', )(Dot31991)
+Res52547 = keras.layers.Reshape((6, 2, 1), name = 'Res52547', )(Lea26425)
+Add5875 = keras.layers.Add(name = 'Add5875', )([in0Add5875,in1Add5875])
+Res86504 = keras.layers.Reshape((2, 2, 2), name = 'Res86504', )(Add5875)
+Res9654 = keras.layers.Reshape((2, 4), name = 'Res9654', )(Res86504)
+Mul64399 = keras.layers.Multiply(name = 'Mul64399', )([in0Mul64399,in1Mul64399])
+Con71875 = keras.layers.Concatenate(axis=2, name = 'Con71875', )([Mul64399,in0Con71875])
+Max54708 = keras.layers.Maximum(name = 'Max54708', )([Res9654,Con71875])
+Res83485 = keras.layers.Reshape((2, 4, 1), name = 'Res83485', )(Max54708)
+Cro38818 = keras.layers.Cropping2D(cropping=((0, 1), (3, 0)), name = 'Cro38818', )(Res83485)
+Zer60701 = keras.layers.ZeroPadding2D(padding=((5, 0), (1, 0)), name = 'Zer60701', )(Cro38818)
+Sub53510 = keras.layers.Subtract(name = 'Sub53510', )([Res52547,Zer60701])
+Zer92457 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer92457', )(Sub53510)
+model = tf.keras.models.Model(inputs=[in0Emb40581,in0Con69628,in0ELU68572,in0Add5875,in1Add5875,in0Mul64399,in1Mul64399,in0Con71875], outputs=Zer92457)
+w = model.get_layer('Emb40581').get_weights() 
+w[0] =  np.array([[0.3985, 0.1798, 0.7699, 0.4036], [0.7182, 0.8383, 0.3438, 0.122]])
+model.get_layer('Emb40581').set_weights(w) 
+in0Emb40581 = tf.constant([[0.4332, 0.5316]])
+in0Con69628 = tf.constant([[[0.8254, 0.3019], [0.6725, 0.4527]]])
+in0ELU68572 = tf.constant([[[0.5534, 0.4003], [0.4151, 0.6531]]])
+in0Add5875 = tf.constant([[[[[0.0089, 0.3864]], [[0.016, 0.6218]]], [[[0.9449, 0.2455]], [[0.5959, 0.144]]]]])
+in1Add5875 = tf.constant([[[[[0.8568, 0.182]], [[0.1284, 0.8545]]], [[[0.9193, 0.5517]], [[0.9459, 0.3241]]]]])
+in0Mul64399 = tf.constant([[[0.6125, 0.6155], [0.471, 0.3835]]])
+in1Mul64399 = tf.constant([[[0.7375, 0.8799], [0.9912, 0.9839]]])
+in0Con71875 = tf.constant([[[0.5833, 0.7664], [0.2005, 0.1448]]])
+print (np.array2string(model.predict([in0Emb40581,in0Con69628,in0ELU68572,in0Add5875,in1Add5875,in0Mul64399,in1Mul64399,in0Con71875],steps=1), separator=', '))
+
+
+LEmb40581 = embedding_layer([[0.4332, 0.5316]], [[0.3985, 0.1798, 0.7699, 0.4036], [0.7182, 0.8383, 0.3438, 0.122]], Emb40581), 
+LCon69628 = concatenate_layer([Emb40581,[[[0.8254, 0.3019], [0.6725, 0.4527]]]], 2, Con69628), 
+LELU68572 = elu_layer([[[0.5534, 0.4003], [0.4151, 0.6531]]], -9.905721644417586, ELU68572), 
+LDot31991 = dot_layer(Con69628,ELU68572, 1, 1, Dot31991), 
+LLea26425 = leaky_relu_layer(Dot31991, 1.1980620658066878, Lea26425), 
+LRes52547 = reshape_layer(Lea26425, [6, 2, 1], Res52547), 
+LAdd5875 = add_layer([[[[[[0.0089, 0.3864]], [[0.016, 0.6218]]], [[[0.9449, 0.2455]], [[0.5959, 0.144]]]]], [[[[[0.8568, 0.182]], [[0.1284, 0.8545]]], [[[0.9193, 0.5517]], [[0.9459, 0.3241]]]]]], Add5875), 
+LRes86504 = reshape_layer(Add5875, [2, 2, 2], Res86504), 
+LRes9654 = reshape_layer(Res86504, [2, 4], Res9654), 
+LMul64399 = multiply_layer([[[[0.6125, 0.6155], [0.471, 0.3835]]], [[[0.7375, 0.8799], [0.9912, 0.9839]]]], Mul64399), 
+LCon71875 = concatenate_layer([Mul64399,[[[0.5833, 0.7664], [0.2005, 0.1448]]]], 2, Con71875), 
+LMax54708 = maximum_layer([Res9654,Con71875], Max54708), 
+LRes83485 = reshape_layer(Max54708, [2, 4, 1], Res83485), 
+LCro38818 = cropping2D_layer(Res83485, 0, 1, 3, 0, Cro38818), 
+LZer60701 = zero_padding2D_layer(Cro38818, 5, 0, 1, 0, Zer60701), 
+LSub53510 = subtract_layer(Res52547,Zer60701, Sub53510), 
+LZer92457 = zero_padding3D_layer(Sub53510, 1, 1, 1, 1, 1, 1, Zer92457), 
+exec_layers([LEmb40581,LCon69628,LELU68572,LDot31991,LLea26425,LRes52547,LAdd5875,LRes86504,LRes9654,LMul64399,LCon71875,LMax54708,LRes83485,LCro38818,LZer60701,LSub53510,LZer92457],["Emb40581","Con69628","ELU68572","Dot31991","Lea26425","Res52547","Add5875","Res86504","Res9654","Mul64399","Con71875","Max54708","Res83485","Cro38818","Zer60701","Sub53510","Zer92457"],Zer92457,"Zer92457")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Zer92457 is incompatible with the layer: expected ndim=5, found ndim=4. Full shape received: (None, 6, 2, 1)
+
+Expected (Unparsed): 
+Zer92457: Dimension error, Input Shape [1,6,2,1]
+
+Actual:   
+
+Expected: 

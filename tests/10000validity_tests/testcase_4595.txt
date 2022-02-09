@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul20776 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul20776 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Dep19006 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con48110 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Mul20776 = keras.layers.Multiply(name = 'Mul20776', )([in0Mul20776,in1Mul20776])
+Zer37977 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer37977', )(Mul20776)
+Dep19006 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep19006', )(in0Dep19006)
+Con48110 = keras.layers.Concatenate(axis=3, name = 'Con48110', )([Dep19006,in0Con48110])
+Ave14438 = keras.layers.Average(name = 'Ave14438', )([Zer37977,Con48110])
+model = tf.keras.models.Model(inputs=[in0Mul20776,in1Mul20776,in0Dep19006,in0Con48110], outputs=Ave14438)
+w = model.get_layer('Dep19006').get_weights() 
+w[0] = np.array([[[[0.4088]]]])
+w[1] = np.array([0])
+model.get_layer('Dep19006').set_weights(w) 
+in0Mul20776 = tf.constant([[[[0.537, 0.7689]]]])
+in1Mul20776 = tf.constant([[[[0.4366, 0.3285]]]])
+in0Dep19006 = tf.constant([[[[0.8323], [0.6324]], [[0.6554], [0.5398]]]])
+in0Con48110 = tf.constant([[[[0.9265], [0.4342]], [[0.3635], [0.8637]]]])
+print (np.array2string(model.predict([in0Mul20776,in1Mul20776,in0Dep19006,in0Con48110],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave14438.png')
+
+LMul20776 = multiply_layer([[[[[0.537, 0.7689]]]], [[[[0.4366, 0.3285]]]]], Mul20776), 
+LZer37977 = zero_padding2D_layer(Mul20776, 1, 0, 1, 0, Zer37977), 
+LDep19006 = depthwise_conv2D_layer([[[[0.8323], [0.6324]], [[0.6554], [0.5398]]]], 1, 1,[[[[0.4088]]]],[0], 1, 1, false, Dep19006), 
+LCon48110 = concatenate_layer([Dep19006,[[[[0.9265], [0.4342]], [[0.3635], [0.8637]]]]], 3, Con48110), 
+LAve14438 = average_layer([Zer37977,Con48110], Ave14438), 
+exec_layers([LMul20776,LZer37977,LDep19006,LCon48110,LAve14438],["Mul20776","Zer37977","Dep19006","Con48110","Ave14438"],Ave14438,"Ave14438")
+
+Actual (Unparsed): [[[[0.1701221, 0.4632500], [0.1292626, 0.2171000]], [[0.1339638, 0.1817500], [0.2275622, 0.5581418]]]]
+
+Expected (Unparsed): [[[[0.17012212000000002,0.46325],[0.12926256,0.2171]],[[0.13396376,0.18175],[0.22756221999999998,0.558141825]]]]
+
+Actual:   [[[[0.1702, 0.4633], [0.1293, 0.2171]], [[0.134, 0.1818], [0.2276, 0.5582]]]]
+
+Expected: [[[[0.1702, 0.4633], [0.1293, 0.2171]], [[0.134, 0.1818], [0.2276, 0.5582]]]]

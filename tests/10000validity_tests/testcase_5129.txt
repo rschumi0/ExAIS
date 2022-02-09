@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add50541 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add50541 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con95404 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Cro67717 = tf.keras.layers.Input(shape=([3, 1, 2]))
+
+Add50541 = keras.layers.Add(name = 'Add50541', )([in0Add50541,in1Add50541])
+Res52314 = keras.layers.Reshape((1, 2, 1), name = 'Res52314', )(Add50541)
+Con95404 = keras.layers.Concatenate(axis=3, name = 'Con95404', )([Res52314,in0Con95404])
+Cro67717 = keras.layers.Cropping2D(cropping=((2, 0), (0, 0)), name = 'Cro67717', )(in0Cro67717)
+Zer6572 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer6572', )(Cro67717)
+Sub25973 = keras.layers.Subtract(name = 'Sub25973', )([Con95404,Zer6572])
+Res29523 = keras.layers.Reshape((1, 4), name = 'Res29523', )(Sub25973)
+Sim86349 = keras.layers.SimpleRNN(3,name = 'Sim86349', )(Res29523)
+Res62504 = keras.layers.Reshape((3, 1), name = 'Res62504', )(Sim86349)
+PRe29549 = keras.layers.PReLU(name = 'PRe29549', )(Res62504)
+model = tf.keras.models.Model(inputs=[in0Add50541,in1Add50541,in0Con95404,in0Cro67717], outputs=PRe29549)
+w = model.get_layer('Sim86349').get_weights() 
+w[0] = np.array([[1, 8, 4], [1, 1, 7], [1, 10, 4], [10, 8, 1]])
+w[1] = np.array([[5, 4, 4], [1, 5, 7], [10, 4, 3]])
+w[2] = np.array([7, 1, 1])
+model.get_layer('Sim86349').set_weights(w) 
+w = model.get_layer('PRe29549').get_weights() 
+w[0] = np.array([[0.5575], [0.8563], [0.9145]])
+model.get_layer('PRe29549').set_weights(w) 
+in0Add50541 = tf.constant([[[0.439, 0.4214]]])
+in1Add50541 = tf.constant([[[0.9238, 0.5907]]])
+in0Con95404 = tf.constant([[[[0.6703], [0.0489]]]])
+in0Cro67717 = tf.constant([[[[1.3054, 1.2682]], [[1.1959, 1.9591]], [[1.8821, 1.7313]]]])
+print (np.array2string(model.predict([in0Add50541,in1Add50541,in0Con95404,in0Cro67717],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe29549.png')
+
+LAdd50541 = add_layer([[[[0.439, 0.4214]]], [[[0.9238, 0.5907]]]], Add50541), 
+LRes52314 = reshape_layer(Add50541, [1, 2, 1], Res52314), 
+LCon95404 = concatenate_layer([Res52314,[[[[0.6703], [0.0489]]]]], 3, Con95404), 
+LCro67717 = cropping2D_layer([[[[1.3054, 1.2682]], [[1.1959, 1.9591]], [[1.8821, 1.7313]]]], 2, 0, 0, 0, Cro67717), 
+LZer6572 = zero_padding2D_layer(Cro67717, 0, 0, 1, 0, Zer6572), 
+LSub25973 = subtract_layer(Con95404,Zer6572, Sub25973), 
+LRes29523 = reshape_layer(Sub25973, [1, 4], Res29523), 
+LSim86349 = simple_rnn_layer(Res29523,[[1, 8, 4], [1, 1, 7], [1, 10, 4], [10, 8, 1]],[[5, 4, 4], [1, 5, 7], [10, 4, 3]],[7, 1, 1], Sim86349), 
+LRes62504 = reshape_layer(Sim86349, [3, 1], Res62504), 
+LPRe29549 = prelu_layer(Res62504, [[0.5575], [0.8563], [0.9145]], PRe29549), 
+exec_layers([LAdd50541,LRes52314,LCon95404,LCro67717,LZer6572,LSub25973,LRes29523,LSim86349,LRes62504,LPRe29549],["Add50541","Res52314","Con95404","Cro67717","Zer6572","Sub25973","Res29523","Sim86349","Res62504","PRe29549"],PRe29549,"PRe29549")
+
+Actual (Unparsed): [[[-0.5575000], [-0.8563000], [0.9999872]]]
+
+Expected (Unparsed): [[[-0.55749996654102],[-0.8562999919289909],[0.9999872331578216]]]
+
+Actual:   [[[-0.5575], [-0.8563], [1]]]
+
+Expected: [[[-0.5574], [-0.8562], [1]]]

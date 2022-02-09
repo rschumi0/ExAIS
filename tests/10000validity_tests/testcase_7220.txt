@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add22232 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add22232 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con38821 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con62860 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Add22232 = keras.layers.Add(name = 'Add22232', )([in0Add22232,in1Add22232])
+Thr58033 = keras.layers.ThresholdedReLU(theta=1.7565120722667458, name = 'Thr58033', )(Add22232)
+Res9219 = keras.layers.Reshape((2, 2, 1), name = 'Res9219', )(Thr58033)
+Con38821 = keras.layers.Concatenate(axis=3, name = 'Con38821', )([Res9219,in0Con38821])
+Con62860 = keras.layers.Conv2D(3, (2, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con62860', )(in0Con62860)
+Zer53800 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer53800', )(Con62860)
+Add12047 = keras.layers.Add(name = 'Add12047', )([Con38821,Zer53800])
+model = tf.keras.models.Model(inputs=[in0Add22232,in1Add22232,in0Con38821,in0Con62860], outputs=Add12047)
+w = model.get_layer('Con62860').get_weights() 
+w[0] = np.array([[[[0.382, 0.2022, 0.4746], [0.1315, 0.0705, 0.6552]]], [[[0.2954, 0.3053, 0.502], [0.3393, 0.5804, 0.2297]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con62860').set_weights(w) 
+in0Add22232 = tf.constant([[[0.5452, 0.1495], [0.2122, 0.529]]])
+in1Add22232 = tf.constant([[[0.8447, 0.0859], [0.0651, 0.1815]]])
+in0Con38821 = tf.constant([[[[0.8128, 0.5991], [0.6352, 0.788]], [[0.3144, 0.1267], [0.5787, 0.4446]]]])
+in0Con62860 = tf.constant([[[[0.8807, 0.4952], [0.9565, 0.1122]], [[0.4373, 0.0511], [0.0729, 0.9656]]]])
+print (np.array2string(model.predict([in0Add22232,in1Add22232,in0Con38821,in0Con62860],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add12047.png')
+
+LAdd22232 = add_layer([[[[0.5452, 0.1495], [0.2122, 0.529]]], [[[0.8447, 0.0859], [0.0651, 0.1815]]]], Add22232), 
+LThr58033 = thresholded_relu_layer(Add22232, 1.7565120722667458, Thr58033), 
+LRes9219 = reshape_layer(Thr58033, [2, 2, 1], Res9219), 
+LCon38821 = concatenate_layer([Res9219,[[[[0.8128, 0.5991], [0.6352, 0.788]], [[0.3144, 0.1267], [0.5787, 0.4446]]]]], 3, Con38821), 
+LCon62860 = conv2D_layer([[[[0.8807, 0.4952], [0.9565, 0.1122]], [[0.4373, 0.0511], [0.0729, 0.9656]]]], 2, 1,[[[[0.382, 0.2022, 0.4746], [0.1315, 0.0705, 0.6552]]], [[[0.2954, 0.3053, 0.502], [0.3393, 0.5804, 0.2297]]]],[0, 0, 0], 1, 1, false, 1, 1, Con62860), 
+LZer53800 = zero_padding2D_layer(Con62860, 1, 0, 0, 0, Zer53800), 
+LAdd12047 = add_layer([Con38821,Zer53800], Add12047), 
+exec_layers([LAdd22232,LThr58033,LRes9219,LCon38821,LCon62860,LZer53800,LAdd12047],["Add22232","Thr58033","Res9219","Con38821","Con62860","Zer53800","Add12047"],Add12047,"Add12047")
+
+Actual (Unparsed): [[[[0.0000000, 0.8128000, 0.5991000], [0.0000000, 0.6352000, 0.7880000]], [[0.5480628, 0.6905553, 1.1003975], [0.7293000, 1.3627050, 1.2304624]]]]
+
+Expected (Unparsed): [[[[0,0.8128,0.5991],[0,0.6352,0.788]],[[0.5480628500000001,0.69055527,1.10039753],[0.72930004,1.36270501,1.23046246]]]]
+
+Actual:   [[[[0, 0.8128, 0.5991], [0, 0.6352, 0.788]], [[0.5481, 0.6906, 1.1004], [0.7293, 1.3628, 1.2305]]]]
+
+Expected: [[[[0, 0.8128, 0.5991], [0, 0.6352, 0.788]], [[0.5481, 0.6906, 1.1004], [0.7294, 1.3628, 1.2305]]]]

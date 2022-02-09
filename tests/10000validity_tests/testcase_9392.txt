@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer35798 = tf.keras.layers.Input(shape=([3, 4]))
+in0Con55713 = tf.keras.layers.Input(shape=([3, 1, 3, 1]))
+in0Add20681 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Add20681 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con8833 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Mul59410 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Mul59410 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+
+Zer35798 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer35798', )(in0Zer35798)
+Res66439 = keras.layers.Reshape((5, 4, 1), name = 'Res66439', )(Zer35798)
+Res68742 = keras.layers.Reshape((5, 4, 1, 1), name = 'Res68742', )(Res66439)
+Cro35251 = keras.layers.Cropping3D(cropping=((0, 2), (1, 2), (0, 0)), name = 'Cro35251', )(Res68742)
+Zer81592 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer81592', )(Cro35251)
+Con55713 = keras.layers.Concatenate(axis=4, name = 'Con55713', )([Zer81592,in0Con55713])
+Add20681 = keras.layers.Add(name = 'Add20681', )([in0Add20681,in1Add20681])
+Zer13109 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer13109', )(Add20681)
+Con8833 = keras.layers.Concatenate(axis=4, name = 'Con8833', )([Zer13109,in0Con8833])
+Mul59410 = keras.layers.Multiply(name = 'Mul59410', )([in0Mul59410,in1Mul59410])
+Ave27021 = keras.layers.Average(name = 'Ave27021', )([Con8833,Mul59410])
+Zer80873 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer80873', )(Ave27021)
+Min45981 = keras.layers.Minimum(name = 'Min45981', )([Con55713,Zer80873])
+model = tf.keras.models.Model(inputs=[in0Zer35798,in0Con55713,in0Add20681,in1Add20681,in0Con8833,in0Mul59410,in1Mul59410], outputs=Min45981)
+in0Zer35798 = tf.constant([[[1.8321, 1.2389, 1.477, 1.9812], [1.4814, 1.5369, 1.8747, 1.5693], [1.0715, 1.6409, 1.8074, 1.6967]]])
+in0Con55713 = tf.constant([[[[[0.9403], [0.6913], [0.5138]]], [[[0.6764], [0.0918], [0.6164]]], [[[0.8191], [0.6507], [0.0276]]]]])
+in0Add20681 = tf.constant([[[[[0.0628]]]]])
+in1Add20681 = tf.constant([[[[[0.8836]]]]])
+in0Con8833 = tf.constant([[[[[0.1558], [0.0948]]], [[[0.3766], [0.7368]]]]])
+in0Mul59410 = tf.constant([[[[[0.1642, 0.029], [0.7943, 0.7807]]], [[[0.3887, 0.0786], [0.6635, 0.5128]]]]])
+in1Mul59410 = tf.constant([[[[[0.0196, 0.9807], [0.6563, 0.3994]]], [[[0.1453, 0.593], [0.3454, 0.6555]]]]])
+print (np.array2string(model.predict([in0Zer35798,in0Con55713,in0Add20681,in1Add20681,in0Con8833,in0Mul59410,in1Mul59410],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min45981.png')
+
+LZer35798 = zero_padding1D_layer([[[1.8321, 1.2389, 1.477, 1.9812], [1.4814, 1.5369, 1.8747, 1.5693], [1.0715, 1.6409, 1.8074, 1.6967]]], 1, 1, Zer35798), 
+LRes66439 = reshape_layer(Zer35798, [5, 4, 1], Res66439), 
+LRes68742 = reshape_layer(Res66439, [5, 4, 1, 1], Res68742), 
+LCro35251 = cropping3D_layer(Res68742, 0, 2, 1, 2, 0, 0, Cro35251), 
+LZer81592 = zero_padding3D_layer(Cro35251, 0, 0, 0, 0, 2, 0, Zer81592), 
+LCon55713 = concatenate_layer([Zer81592,[[[[[0.9403], [0.6913], [0.5138]]], [[[0.6764], [0.0918], [0.6164]]], [[[0.8191], [0.6507], [0.0276]]]]]], 4, Con55713), 
+LAdd20681 = add_layer([[[[[[0.0628]]]]], [[[[[0.8836]]]]]], Add20681), 
+LZer13109 = zero_padding3D_layer(Add20681, 1, 0, 0, 0, 1, 0, Zer13109), 
+LCon8833 = concatenate_layer([Zer13109,[[[[[0.1558], [0.0948]]], [[[0.3766], [0.7368]]]]]], 4, Con8833), 
+LMul59410 = multiply_layer([[[[[[0.1642, 0.029], [0.7943, 0.7807]]], [[[0.3887, 0.0786], [0.6635, 0.5128]]]]], [[[[[0.0196, 0.9807], [0.6563, 0.3994]]], [[[0.1453, 0.593], [0.3454, 0.6555]]]]]], Mul59410), 
+LAve27021 = average_layer([Con8833,Mul59410], Ave27021), 
+LZer80873 = zero_padding3D_layer(Ave27021, 1, 0, 0, 0, 1, 0, Zer80873), 
+LMin45981 = minimum_layer([Con55713,Zer80873], Min45981), 
+exec_layers([LZer35798,LRes66439,LRes68742,LCro35251,LZer81592,LCon55713,LAdd20681,LZer13109,LCon8833,LMul59410,LAve27021,LZer80873,LMin45981],["Zer35798","Res66439","Res68742","Cro35251","Zer81592","Con55713","Add20681","Zer13109","Con8833","Mul59410","Ave27021","Zer80873","Min45981"],Min45981,"Min45981")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]], [[[0.0000000, 0.0000000], [0.0000000, 0.0918000], [0.2606496, 0.2033058]]], [[[0.0000000, 0.0000000], [0.0000000, 0.2116049], [0.5877865, 0.0276000]]]]]
+
+Expected (Unparsed): [[[[[0,0],[0,0],[0,0]]],[[[0,0],[0,0.0918],[0.260649545,0.20330579]]],[[[0,0],[0,0.21160489999999998],[0.58778645,0.0276]]]]]
+
+Actual:   [[[[[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0.0918], [0.2607, 0.2034]]], [[[0, 0], [0, 0.2117], [0.5878, 0.0276]]]]]
+
+Expected: [[[[[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0.0918], [0.2607, 0.2034]]], [[[0, 0], [0, 0.2117], [0.5878, 0.0276]]]]]

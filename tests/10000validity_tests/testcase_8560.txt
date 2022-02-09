@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot61066 = tf.keras.layers.Input(shape=([2]))
+in1Dot61066 = tf.keras.layers.Input(shape=([2]))
+in0Add1012 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Add1012 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Dot61066 = keras.layers.Dot(axes=(1, 1), name = 'Dot61066', )([in0Dot61066,in1Dot61066])
+Sof18473 = keras.layers.Softmax(axis=1, name = 'Sof18473', )(Dot61066)
+Res79110 = keras.layers.Reshape((1, 1), name = 'Res79110', )(Sof18473)
+Res58647 = keras.layers.Reshape((1, 1, 1), name = 'Res58647', )(Res79110)
+Res40226 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res40226', )(Res58647)
+Zer39742 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer39742', )(Res40226)
+Add1012 = keras.layers.Add(name = 'Add1012', )([in0Add1012,in1Add1012])
+Min61092 = keras.layers.Minimum(name = 'Min61092', )([Zer39742,Add1012])
+Res26392 = keras.layers.Reshape((2, 1, 2), name = 'Res26392', )(Min61092)
+Sep57304 = keras.layers.SeparableConv2D(3, (1, 1),strides=(2, 2), padding='valid', name = 'Sep57304', )(Res26392)
+model = tf.keras.models.Model(inputs=[in0Dot61066,in1Dot61066,in0Add1012,in1Add1012], outputs=Sep57304)
+w = model.get_layer('Sep57304').get_weights() 
+w[0] = np.array([[[[0.7743], [0.058]]]])
+w[1] = np.array([[[[0.6552, 0.1647, 0.6544], [0.0168, 0.1291, 0.3098]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep57304').set_weights(w) 
+in0Dot61066 = tf.constant([[0.1955, 0.6702]])
+in1Dot61066 = tf.constant([[0.604, 0.2909]])
+in0Add1012 = tf.constant([[[[[0.1712], [0.4459]]], [[[0.9569], [0.1311]]]]])
+in1Add1012 = tf.constant([[[[[0.414], [0.7708]]], [[[0.4132], [0.1977]]]]])
+print (np.array2string(model.predict([in0Dot61066,in1Dot61066,in0Add1012,in1Add1012],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep57304.png')
+
+LDot61066 = dot_layer([[0.1955, 0.6702]], [[0.604, 0.2909]], 1, 1, Dot61066), 
+LSof18473 = softmax_layer(Dot61066, 1, Sof18473), 
+LRes79110 = reshape_layer(Sof18473, [1, 1], Res79110), 
+LRes58647 = reshape_layer(Res79110, [1, 1, 1], Res58647), 
+LRes40226 = reshape_layer(Res58647, [1, 1, 1, 1], Res40226), 
+LZer39742 = zero_padding3D_layer(Res40226, 1, 0, 0, 0, 1, 0, Zer39742), 
+LAdd1012 = add_layer([[[[[[0.1712], [0.4459]]], [[[0.9569], [0.1311]]]]], [[[[[0.414], [0.7708]]], [[[0.4132], [0.1977]]]]]], Add1012), 
+LMin61092 = minimum_layer([Zer39742,Add1012], Min61092), 
+LRes26392 = reshape_layer(Min61092, [2, 1, 2], Res26392), 
+LSep57304 = separable_conv2D_layer(Res26392, 1, 1,[[[[[0.7743], [0.058]]]],[[[[0.6552, 0.1647, 0.6544], [0.0168, 0.1291, 0.3098]]]]],[0, 0, 0], 2, 2, false, Sep57304), 
+exec_layers([LDot61066,LSof18473,LRes79110,LRes58647,LRes40226,LZer39742,LAdd1012,LMin61092,LRes26392,LSep57304],["Dot61066","Sof18473","Res79110","Res58647","Res40226","Zer39742","Add1012","Min61092","Res26392","Sep57304"],Sep57304,"Sep57304")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0.0,0.0,0.0]]]]
+
+Actual:   [[[[0, 0, 0]]]]
+
+Expected: [[[[0, 0, 0]]]]

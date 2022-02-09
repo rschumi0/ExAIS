@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot93223 = tf.keras.layers.Input(shape=([3]))
+in1Dot93223 = tf.keras.layers.Input(shape=([3]))
+in0Con99291 = tf.keras.layers.Input(shape=([2, 1]))
+in0Add88546 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add88546 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot93223 = keras.layers.Dot(axes=(1, 1), name = 'Dot93223', )([in0Dot93223,in1Dot93223])
+Res597 = keras.layers.Reshape((1, 1), name = 'Res597', )(Dot93223)
+Zer28531 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer28531', )(Res597)
+Con99291 = keras.layers.Concatenate(axis=2, name = 'Con99291', )([Zer28531,in0Con99291])
+Add88546 = keras.layers.Add(name = 'Add88546', )([in0Add88546,in1Add88546])
+Mul85278 = keras.layers.Multiply(name = 'Mul85278', )([Con99291,Add88546])
+Res33283 = keras.layers.Reshape((2, 2, 1), name = 'Res33283', )(Mul85278)
+Max73019 = keras.layers.MaxPool2D(pool_size=(1, 2), name = 'Max73019', )(Res33283)
+Res20673 = keras.layers.Reshape((2, 1), name = 'Res20673', )(Max73019)
+Loc46862 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc46862', )(Res20673)
+Res22685 = keras.layers.Reshape((2, 2, 1), name = 'Res22685', )(Loc46862)
+Dep84735 = keras.layers.DepthwiseConv2D((1, 2),strides=(2, 2), padding='valid', name = 'Dep84735', )(Res22685)
+model = tf.keras.models.Model(inputs=[in0Dot93223,in1Dot93223,in0Con99291,in0Add88546,in1Add88546], outputs=Dep84735)
+w = model.get_layer('Loc46862').get_weights() 
+w[0] = np.array([[[0.0411, 0.6787]], [[0.5602, 0.9774]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc46862').set_weights(w) 
+w = model.get_layer('Dep84735').get_weights() 
+w[0] = np.array([[[[0.2157]], [[0.5957]]]])
+w[1] = np.array([0])
+model.get_layer('Dep84735').set_weights(w) 
+in0Dot93223 = tf.constant([[0.4432, 0.7247, 0.5406]])
+in1Dot93223 = tf.constant([[0.4722, 0.2549, 0.32]])
+in0Con99291 = tf.constant([[[0.6743], [0.0572]]])
+in0Add88546 = tf.constant([[[0.7467, 0.0475], [0.0034, 0.3158]]])
+in1Add88546 = tf.constant([[[0.2522, 0.4141], [0.3783, 0.1376]]])
+print (np.array2string(model.predict([in0Dot93223,in1Dot93223,in0Con99291,in0Add88546,in1Add88546],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep84735.png')
+
+LDot93223 = dot_layer([[0.4432, 0.7247, 0.5406]], [[0.4722, 0.2549, 0.32]], 1, 1, Dot93223), 
+LRes597 = reshape_layer(Dot93223, [1, 1], Res597), 
+LZer28531 = zero_padding1D_layer(Res597, 1, 0, Zer28531), 
+LCon99291 = concatenate_layer([Zer28531,[[[0.6743], [0.0572]]]], 2, Con99291), 
+LAdd88546 = add_layer([[[[0.7467, 0.0475], [0.0034, 0.3158]]], [[[0.2522, 0.4141], [0.3783, 0.1376]]]], Add88546), 
+LMul85278 = multiply_layer([Con99291,Add88546], Mul85278), 
+LRes33283 = reshape_layer(Mul85278, [2, 2, 1], Res33283), 
+LMax73019 = max_pool2D_layer(Res33283, 1, 2, Max73019), 
+LRes20673 = reshape_layer(Max73019, [2, 1], Res20673), 
+LLoc46862 = locally_connected1D_layer(Res20673, 1,[[[0.0411, 0.6787]], [[0.5602, 0.9774]]],[[0, 0], [0, 0]], 1, Loc46862), 
+LRes22685 = reshape_layer(Loc46862, [2, 2, 1], Res22685), 
+LDep84735 = depthwise_conv2D_layer(Res22685, 1, 2,[[[[0.2157]], [[0.5957]]]],[0], 2, 2, false, Dep84735), 
+exec_layers([LDot93223,LRes597,LZer28531,LCon99291,LAdd88546,LMul85278,LRes33283,LMax73019,LRes20673,LLoc46862,LRes22685,LDep84735],["Dot93223","Res597","Zer28531","Con99291","Add88546","Mul85278","Res33283","Max73019","Res20673","Loc46862","Res22685","Dep84735"],Dep84735,"Dep84735")
+
+Actual (Unparsed): [[[[0.1286010]]]]
+
+Expected (Unparsed): [[[[0.1286010277629968]]]]
+
+Actual:   [[[[0.1287]]]]
+
+Expected: [[[[0.1287]]]]

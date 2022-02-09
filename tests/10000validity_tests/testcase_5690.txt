@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat14985 = tf.keras.layers.Input(shape=([3, 4]))
+in0Dot29420 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot29420 = tf.keras.layers.Input(shape=([3, 3]))
+
+Bat14985 = keras.layers.BatchNormalization(axis=1, epsilon=0.6451293830378138,  name = 'Bat14985', )(in0Bat14985)
+Res86298 = keras.layers.Reshape((3, 4, 1), name = 'Res86298', )(Bat14985)
+Dot29420 = keras.layers.Dot(axes=(1, 1), name = 'Dot29420', )([in0Dot29420,in1Dot29420])
+Res86696 = keras.layers.Reshape((3, 3, 1), name = 'Res86696', )(Dot29420)
+PRe19318 = keras.layers.PReLU(name = 'PRe19318', )(Res86696)
+Zer18160 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer18160', )(PRe19318)
+Min94743 = keras.layers.Minimum(name = 'Min94743', )([Res86298,Zer18160])
+model = tf.keras.models.Model(inputs=[in0Bat14985,in0Dot29420,in1Dot29420], outputs=Min94743)
+w = model.get_layer('Bat14985').get_weights() 
+w[0] = np.array([0.1017, 0.4876, 0.6228])
+w[1] = np.array([0.089, 0.493, 0.6807])
+w[2] = np.array([0.7809, 0.2783, 0.7777])
+w[3] = np.array([0.2047, 0.6345, 0.4981])
+model.get_layer('Bat14985').set_weights(w) 
+w = model.get_layer('PRe19318').get_weights() 
+w[0] = np.array([[[0.7392], [0.8165], [0.1403]], [[0.9119], [0.0362], [0.9076]], [[0.9678], [0.3257], [0.2003]]])
+model.get_layer('PRe19318').set_weights(w) 
+in0Bat14985 = tf.constant([[[1.5236, 1.5643, 1.9591, 1.4026], [1.389, 1.5338, 1.6788, 1.6905], [1.8955, 1.4719, 1.2639, 1.5661]]])
+in0Dot29420 = tf.constant([[[0.6887, 0.9186, 0.8939], [0.3507, 0.7672, 0.8522], [0.0348, 0.414, 0.5398]]])
+in1Dot29420 = tf.constant([[[0.0112, 0.2143, 0.9412], [0.0877, 0.7554, 0.0712], [0.1518, 0.7224, 0.4176]]])
+print (np.array2string(model.predict([in0Bat14985,in0Dot29420,in1Dot29420],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min94743.png')
+
+LBat14985 = batch_normalization_layer([[[1.5236, 1.5643, 1.9591, 1.4026], [1.389, 1.5338, 1.6788, 1.6905], [1.8955, 1.4719, 1.2639, 1.5661]]], 1, 0.6451293830378138, [0.1017, 0.4876, 0.6228], [0.089, 0.493, 0.6807], [0.7809, 0.2783, 0.7777], [0.2047, 0.6345, 0.4981], Bat14985), 
+LRes86298 = reshape_layer(Bat14985, [3, 4, 1], Res86298), 
+LDot29420 = dot_layer([[[0.6887, 0.9186, 0.8939], [0.3507, 0.7672, 0.8522], [0.0348, 0.414, 0.5398]]], [[[0.0112, 0.2143, 0.9412], [0.0877, 0.7554, 0.0712], [0.1518, 0.7224, 0.4176]]], 1, 1, Dot29420), 
+LRes86696 = reshape_layer(Dot29420, [3, 3, 1], Res86696), 
+LPRe19318 = prelu_layer(Res86696, [[[0.7392], [0.8165], [0.1403]], [[0.9119], [0.0362], [0.9076]], [[0.9678], [0.3257], [0.2003]]], PRe19318), 
+LZer18160 = zero_padding2D_layer(PRe19318, 0, 0, 1, 0, Zer18160), 
+LMin94743 = minimum_layer([Res86298,Zer18160], Min94743), 
+exec_layers([LBat14985,LRes86298,LDot29420,LRes86696,LPRe19318,LZer18160,LMin94743],["Bat14985","Res86298","Dot29420","Res86696","PRe19318","Zer18160","Min94743"],Min94743,"Min94743")
+
+Actual (Unparsed): [[[[0.0000000], [0.0437525], [0.2189793], [0.1575861]], [[0.0000000], [0.1404170], [1.0754725], [1.0920974]], [[0.0000000], [0.1666913], [0.9639024], [1.1274358]]]]
+
+Expected (Unparsed): [[[[0],[0.04375247],[0.2189792719107044],[0.15758607481487433]],[[0],[0.14041695999999998],[1.07547246],[1.09209736]],[[0],[0.16669125999999998],[0.9639023608117337],[1.1274358]]]]
+
+Actual:   [[[[0], [0.0438], [0.219], [0.1576]], [[0], [0.1405], [1.0755], [1.0921]], [[0], [0.1667], [0.964], [1.1275]]]]
+
+Expected: [[[[0], [0.0438], [0.219], [0.1576]], [[0], [0.1405], [1.0755], [1.0921]], [[0], [0.1667], [0.964], [1.1275]]]]

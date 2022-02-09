@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot14887 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot14887 = tf.keras.layers.Input(shape=([3, 3]))
+in0Loc3983 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con67685 = tf.keras.layers.Input(shape=([3, 1]))
+
+Dot14887 = keras.layers.Dot(axes=(2, 2), name = 'Dot14887', )([in0Dot14887,in1Dot14887])
+Loc3983 = keras.layers.LocallyConnected1D(2, (2),strides=(9), name = 'Loc3983', )(in0Loc3983)
+Zer63317 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer63317', )(Loc3983)
+Con67685 = keras.layers.Concatenate(axis=2, name = 'Con67685', )([Zer63317,in0Con67685])
+Sub34655 = keras.layers.Subtract(name = 'Sub34655', )([Dot14887,Con67685])
+Lay61878 = keras.layers.LayerNormalization(axis=1, epsilon=2.5403878258670716, name = 'Lay61878', )(Sub34655)
+model = tf.keras.models.Model(inputs=[in0Dot14887,in1Dot14887,in0Loc3983,in0Con67685], outputs=Lay61878)
+w = model.get_layer('Loc3983').get_weights() 
+w[0] = np.array([[[0.5285, 0.2751], [0.128, 0.8405], [0.2093, 0.4838], [0.2501, 0.0455]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc3983').set_weights(w) 
+in0Dot14887 = tf.constant([[[0.5002, 0.8911, 0.9889], [0.28, 0.6276, 0.7354], [0.757, 0.9978, 0.1331]]])
+in1Dot14887 = tf.constant([[[0.5229, 0.1538, 0.7166], [0.4797, 0.0148, 0.5135], [0.5757, 0.8334, 0.4054]]])
+in0Loc3983 = tf.constant([[[0.2958, 0.7181], [0.5913, 0.0495]]])
+in0Con67685 = tf.constant([[[0.4894], [0.6132], [0.7605]]])
+print (np.array2string(model.predict([in0Dot14887,in1Dot14887,in0Loc3983,in0Con67685],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay61878.png')
+
+LDot14887 = dot_layer([[[0.5002, 0.8911, 0.9889], [0.28, 0.6276, 0.7354], [0.757, 0.9978, 0.1331]]], [[[0.5229, 0.1538, 0.7166], [0.4797, 0.0148, 0.5135], [0.5757, 0.8334, 0.4054]]], 2, 2, Dot14887), 
+LLoc3983 = locally_connected1D_layer([[[0.2958, 0.7181], [0.5913, 0.0495]]], 2,[[[0.5285, 0.2751], [0.128, 0.8405], [0.2093, 0.4838], [0.2501, 0.0455]]],[[0, 0]], 9, Loc3983), 
+LZer63317 = zero_padding1D_layer(Loc3983, 2, 0, Zer63317), 
+LCon67685 = concatenate_layer([Zer63317,[[[0.4894], [0.6132], [0.7605]]]], 2, Con67685), 
+LSub34655 = subtract_layer(Dot14887,Con67685, Sub34655), 
+LLay61878 = layer_normalization_layer(Sub34655, 1, 2.5403878258670716, Lay61878), 
+exec_layers([LDot14887,LLoc3983,LZer63317,LCon67685,LSub34655,LLay61878],["Dot14887","Loc3983","Zer63317","Con67685","Sub34655","Lay61878"],Lay61878,"Lay61878")
+
+Actual (Unparsed): [[[0.2419720, 0.3014660, 0.1973703], [0.0352056, 0.1595579, -0.1581500], [-0.2771776, -0.4610239, -0.0392203]]]
+
+Expected (Unparsed): [[[0.24197205391267254,0.3014660308673446,0.1973703167503703],[0.035205573897970605,0.15955785558636176,-0.1581499891600776],[-0.277177627810643,-0.46102388645370634,-0.03922032759029265]]]
+
+Actual:   [[[0.242, 0.3015, 0.1974], [0.0353, 0.1596, -0.1581], [-0.2771, -0.461, -0.0392]]]
+
+Expected: [[[0.242, 0.3015, 0.1974], [0.0353, 0.1596, -0.1581], [-0.2771, -0.461, -0.0392]]]

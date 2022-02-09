@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub50443 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub50443 = tf.keras.layers.Input(shape=([3, 3]))
+in0Ave2648 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Ave2648 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Con98321 = tf.keras.layers.Input(shape=([3, 1]))
+
+Sub50443 = keras.layers.Subtract(name = 'Sub50443', )([in0Sub50443,in1Sub50443])
+Ave2648 = keras.layers.Average(name = 'Ave2648', )([in0Ave2648,in1Ave2648])
+Res54865 = keras.layers.Reshape((2, 2, 1), name = 'Res54865', )(Ave2648)
+Res84557 = keras.layers.Reshape((2, 2), name = 'Res84557', )(Res54865)
+Per80013 = keras.layers.Permute((2,1), name = 'Per80013',)(Res84557)
+Zer74930 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer74930', )(Per80013)
+Con98321 = keras.layers.Concatenate(axis=2, name = 'Con98321', )([Zer74930,in0Con98321])
+Add25759 = keras.layers.Add(name = 'Add25759', )([Sub50443,Con98321])
+model = tf.keras.models.Model(inputs=[in0Sub50443,in1Sub50443,in0Ave2648,in1Ave2648,in0Con98321], outputs=Add25759)
+in0Sub50443 = tf.constant([[[0.9171, 0.6335, 0.6728], [0.6063, 0.7835, 0.505], [0.104, 0.3208, 0.9921]]])
+in1Sub50443 = tf.constant([[[0.3915, 0.2666, 0.3496], [0.8644, 0.9591, 0.6198], [0.3011, 0.0985, 0.3414]]])
+in0Ave2648 = tf.constant([[[[[0.3704]], [[0.7082]]], [[[0.4999]], [[0.8107]]]]])
+in1Ave2648 = tf.constant([[[[[0.4975]], [[0.7801]]], [[[0.539]], [[0.1806]]]]])
+in0Con98321 = tf.constant([[[0.9501], [0.7944], [0.0562]]])
+print (np.array2string(model.predict([in0Sub50443,in1Sub50443,in0Ave2648,in1Ave2648,in0Con98321],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add25759.png')
+
+LSub50443 = subtract_layer([[[0.9171, 0.6335, 0.6728], [0.6063, 0.7835, 0.505], [0.104, 0.3208, 0.9921]]], [[[0.3915, 0.2666, 0.3496], [0.8644, 0.9591, 0.6198], [0.3011, 0.0985, 0.3414]]], Sub50443), 
+LAve2648 = average_layer([[[[[[0.3704]], [[0.7082]]], [[[0.4999]], [[0.8107]]]]], [[[[[0.4975]], [[0.7801]]], [[[0.539]], [[0.1806]]]]]], Ave2648), 
+LRes54865 = reshape_layer(Ave2648, [2, 2, 1], Res54865), 
+LRes84557 = reshape_layer(Res54865, [2, 2], Res84557), 
+LPer80013 = permute_layer(Res84557, 2,1, Per80013), 
+LZer74930 = zero_padding1D_layer(Per80013, 1, 0, Zer74930), 
+LCon98321 = concatenate_layer([Zer74930,[[[0.9501], [0.7944], [0.0562]]]], 2, Con98321), 
+LAdd25759 = add_layer([Sub50443,Con98321], Add25759), 
+exec_layers([LSub50443,LAve2648,LRes54865,LRes84557,LPer80013,LZer74930,LCon98321,LAdd25759],["Sub50443","Ave2648","Res54865","Res84557","Per80013","Zer74930","Con98321","Add25759"],Add25759,"Add25759")
+
+Actual (Unparsed): [[[0.5256000, 0.3669000, 1.2733000], [0.1758500, 0.3438500, 0.6796000], [0.5470500, 0.7179500, 0.7069000]]]
+
+Expected (Unparsed): [[[0.5256000000000001,0.36689999999999995,1.2732999999999999],[0.17585,0.34385,0.6796],[0.54705,0.71795,0.7069000000000001]]]
+
+Actual:   [[[0.5256, 0.3669, 1.2733], [0.1759, 0.3439, 0.6796], [0.5471, 0.718, 0.7069]]]
+
+Expected: [[[0.5257, 0.3669, 1.2733], [0.1759, 0.3439, 0.6796], [0.5471, 0.718, 0.707]]]

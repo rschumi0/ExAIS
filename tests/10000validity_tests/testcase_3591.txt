@@ -1,0 +1,73 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep61124 = tf.keras.layers.Input(shape=([1, 1]))
+in0LST67043 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con36420 = tf.keras.layers.Input(shape=([1]))
+in0Ave72750 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Ave72750 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Mul53527 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Mul53527 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Sep61124 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep61124', )(in0Sep61124)
+Fla95618 = keras.layers.Flatten(name = 'Fla95618', )(Sep61124)
+LST67043 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST67043', )(in0LST67043)
+Con36420 = keras.layers.Concatenate(axis=1, name = 'Con36420', )([LST67043,in0Con36420])
+Sub39272 = keras.layers.Subtract(name = 'Sub39272', )([Fla95618,Con36420])
+Res27318 = keras.layers.Reshape((2, 1), name = 'Res27318', )(Sub39272)
+Res3767 = keras.layers.Reshape((2, 1, 1), name = 'Res3767', )(Res27318)
+Zer84828 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer84828', )(Res3767)
+Ave72750 = keras.layers.Average(name = 'Ave72750', )([in0Ave72750,in1Ave72750])
+Zer48584 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer48584', )(Ave72750)
+Mul53527 = keras.layers.Multiply(name = 'Mul53527', )([in0Mul53527,in1Mul53527])
+Zer24923 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer24923', )(Mul53527)
+Ave60976 = keras.layers.Average(name = 'Ave60976', )([Zer48584,Zer24923])
+Sub49803 = keras.layers.Subtract(name = 'Sub49803', )([Zer84828,Ave60976])
+model = tf.keras.models.Model(inputs=[in0Sep61124,in0LST67043,in0Con36420,in0Ave72750,in1Ave72750,in0Mul53527,in1Mul53527], outputs=Sub49803)
+w = model.get_layer('Sep61124').get_weights() 
+w[0] = np.array([[[0.7433]]])
+w[1] = np.array([[[0.3836, 0.6874]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep61124').set_weights(w) 
+w = model.get_layer('LST67043').get_weights() 
+w[0] = np.array([[7, 4, 7, 6], [3, 1, 10, 3], [2, 3, 3, 8]])
+w[1] = np.array([[9, 9, 6, 8]])
+w[2] = np.array([3, 3, 6, 2])
+model.get_layer('LST67043').set_weights(w) 
+in0Sep61124 = tf.constant([[[0.3544]]])
+in0LST67043 = tf.constant([[[3, 2, 9], [6, 1, 2]]])
+in0Con36420 = tf.constant([[0.2853]])
+in0Ave72750 = tf.constant([[[[0.7054], [0.3848]]]])
+in1Ave72750 = tf.constant([[[[0.2734], [0.9631]]]])
+in0Mul53527 = tf.constant([[[[0.7135]], [[0.7145]]]])
+in1Mul53527 = tf.constant([[[[0.4438]], [[0.0486]]]])
+print (np.array2string(model.predict([in0Sep61124,in0LST67043,in0Con36420,in0Ave72750,in1Ave72750,in0Mul53527,in1Mul53527],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub49803.png')
+
+LSep61124 = separable_conv1D_layer([[[0.3544]]], 1,[[[[0.7433]]],[[[0.3836, 0.6874]]]],[0, 0], 1, false, Sep61124), 
+LFla95618 = flatten_layer(Sep61124, Fla95618), 
+LLST67043 = lstm_layer([[[3, 2, 9], [6, 1, 2]]],[[7, 4, 7, 6], [3, 1, 10, 3], [2, 3, 3, 8]],[[9, 9, 6, 8]],[3, 3, 6, 2], LST67043), 
+LCon36420 = concatenate_layer([LST67043,[[0.2853]]], 1, Con36420), 
+LSub39272 = subtract_layer(Fla95618,Con36420, Sub39272), 
+LRes27318 = reshape_layer(Sub39272, [2, 1], Res27318), 
+LRes3767 = reshape_layer(Res27318, [2, 1, 1], Res3767), 
+LZer84828 = zero_padding2D_layer(Res3767, 0, 0, 2, 0, Zer84828), 
+LAve72750 = average_layer([[[[[0.7054], [0.3848]]]], [[[[0.2734], [0.9631]]]]], Ave72750), 
+LZer48584 = zero_padding2D_layer(Ave72750, 1, 0, 1, 0, Zer48584), 
+LMul53527 = multiply_layer([[[[[0.7135]], [[0.7145]]]], [[[[0.4438]], [[0.0486]]]]], Mul53527), 
+LZer24923 = zero_padding2D_layer(Mul53527, 0, 0, 2, 0, Zer24923), 
+LAve60976 = average_layer([Zer48584,Zer24923], Ave60976), 
+LSub49803 = subtract_layer(Zer84828,Ave60976, Sub49803), 
+exec_layers([LSep61124,LFla95618,LLST67043,LCon36420,LSub39272,LRes27318,LRes3767,LZer84828,LAve72750,LZer48584,LMul53527,LZer24923,LAve60976,LSub49803],["Sep61124","Fla95618","LST67043","Con36420","Sub39272","Res27318","Res3767","Zer84828","Ave72750","Zer48584","Mul53527","Zer24923","Ave60976","Sub49803"],Sub49803,"Sub49803")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [-1.0213032]], [[0.0000000], [-0.2447000], [-0.4585586]]]]
+
+Expected (Unparsed): [[[[0],[0],[-1.0213032006038167]],[[0],[-0.2447],[-0.45855864755200004]]]]
+
+Actual:   [[[[0], [0], [-1.0213]], [[0], [-0.2447], [-0.4585]]]]
+
+Expected: [[[[0], [0], [-1.0213]], [[0], [-0.2447], [-0.4585]]]]

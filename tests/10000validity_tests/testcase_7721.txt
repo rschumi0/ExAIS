@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul5079 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul5079 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave25471 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Ave25471 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Min79350 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min79350 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con99680 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul5079 = keras.layers.Multiply(name = 'Mul5079', )([in0Mul5079,in1Mul5079])
+Ave25471 = keras.layers.Average(name = 'Ave25471', )([in0Ave25471,in1Ave25471])
+Res10173 = keras.layers.Reshape((2, 2), name = 'Res10173', )(Ave25471)
+Min79350 = keras.layers.Minimum(name = 'Min79350', )([in0Min79350,in1Min79350])
+Zer80090 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer80090', )(Min79350)
+Con99680 = keras.layers.Concatenate(axis=2, name = 'Con99680', )([Zer80090,in0Con99680])
+Max49512 = keras.layers.Maximum(name = 'Max49512', )([Res10173,Con99680])
+Ave19790 = keras.layers.Average(name = 'Ave19790', )([Mul5079,Max49512])
+ELU26918 = keras.layers.ELU(alpha=-3.1616177198580946, name = 'ELU26918', )(Ave19790)
+Den65865 = keras.layers.Dense(2,name = 'Den65865', )(ELU26918)
+model = tf.keras.models.Model(inputs=[in0Mul5079,in1Mul5079,in0Ave25471,in1Ave25471,in0Min79350,in1Min79350,in0Con99680], outputs=Den65865)
+w = model.get_layer('Den65865').get_weights() 
+w[0] = np.array([[0.9041, 0.3612], [0.6477, 0.8562]])
+w[1] = np.array([0.3839, 0.6905])
+model.get_layer('Den65865').set_weights(w) 
+in0Mul5079 = tf.constant([[[0.2689, 0.6788], [0.52, 0.9215]]])
+in1Mul5079 = tf.constant([[[0.9002, 0.6626], [0.5874, 0.2264]]])
+in0Ave25471 = tf.constant([[[[0.4895, 0.1746]], [[0.1898, 0.4373]]]])
+in1Ave25471 = tf.constant([[[[0.6217, 0.481]], [[0.7676, 0.4472]]]])
+in0Min79350 = tf.constant([[[0.376]]])
+in1Min79350 = tf.constant([[[0.3571]]])
+in0Con99680 = tf.constant([[[0.8908], [0.7019]]])
+print (np.array2string(model.predict([in0Mul5079,in1Mul5079,in0Ave25471,in1Ave25471,in0Min79350,in1Min79350,in0Con99680],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Den65865.png')
+
+LMul5079 = multiply_layer([[[[0.2689, 0.6788], [0.52, 0.9215]]], [[[0.9002, 0.6626], [0.5874, 0.2264]]]], Mul5079), 
+LAve25471 = average_layer([[[[[0.4895, 0.1746]], [[0.1898, 0.4373]]]], [[[[0.6217, 0.481]], [[0.7676, 0.4472]]]]], Ave25471), 
+LRes10173 = reshape_layer(Ave25471, [2, 2], Res10173), 
+LMin79350 = minimum_layer([[[[0.376]]], [[[0.3571]]]], Min79350), 
+LZer80090 = zero_padding1D_layer(Min79350, 1, 0, Zer80090), 
+LCon99680 = concatenate_layer([Zer80090,[[[0.8908], [0.7019]]]], 2, Con99680), 
+LMax49512 = maximum_layer([Res10173,Con99680], Max49512), 
+LAve19790 = average_layer([Mul5079,Max49512], Ave19790), 
+LELU26918 = elu_layer(Ave19790, -3.1616177198580946, ELU26918), 
+LDen65865 = dense_layer(ELU26918, [[0.9041, 0.3612], [0.6477, 0.8562]],[0.3839, 0.6905], Den65865), 
+exec_layers([LMul5079,LAve25471,LRes10173,LMin79350,LZer80090,LCon99680,LMax49512,LAve19790,LELU26918,LDen65865],["Mul5079","Ave25471","Res10173","Min79350","Zer80090","Con99680","Max49512","Ave19790","ELU26918","Den65865"],Den65865,"Den65865")
+
+Actual (Unparsed): [[[1.1786284, 1.4084573], [1.0332485, 1.2219140]]]
+
+Expected (Unparsed): [[[1.1786284389369999,1.408457328596],[1.03324846666,1.22191399436]]]
+
+Actual:   [[[1.1787, 1.4085], [1.0333, 1.222]]]
+
+Expected: [[[1.1787, 1.4085], [1.0333, 1.222]]]

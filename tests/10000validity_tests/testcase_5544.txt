@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer75520 = tf.keras.layers.Input(shape=([2, 1]))
+in0Dep54469 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Zer75520 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer75520', )(in0Zer75520)
+Loc68995 = keras.layers.LocallyConnected1D(4, (1),strides=(12), name = 'Loc68995', )(Zer75520)
+Res91764 = keras.layers.Reshape((1, 4, 1), name = 'Res91764', )(Loc68995)
+Dep54469 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep54469', )(in0Dep54469)
+Zer13102 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer13102', )(Dep54469)
+Max48834 = keras.layers.Maximum(name = 'Max48834', )([Res91764,Zer13102])
+ReL97057 = keras.layers.ReLU(max_value=9.833900507129883, negative_slope=9.020043745054934, threshold=9.889146223518207, name = 'ReL97057', )(Max48834)
+Fla23074 = keras.layers.Flatten(name = 'Fla23074', )(ReL97057)
+model = tf.keras.models.Model(inputs=[in0Zer75520,in0Dep54469], outputs=Fla23074)
+w = model.get_layer('Loc68995').get_weights() 
+w[0] = np.array([[[0.7327, 0.792, 0.4023, 0.298]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc68995').set_weights(w) 
+w = model.get_layer('Dep54469').get_weights() 
+w[0] = np.array([[[[0.705]]]])
+w[1] = np.array([0])
+model.get_layer('Dep54469').set_weights(w) 
+in0Zer75520 = tf.constant([[[1.7216], [1.9695]]])
+in0Dep54469 = tf.constant([[[[0.6781], [0.3937]]]])
+print (np.array2string(model.predict([in0Zer75520,in0Dep54469],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla23074.png')
+
+LZer75520 = zero_padding1D_layer([[[1.7216], [1.9695]]], 1, 1, Zer75520), 
+LLoc68995 = locally_connected1D_layer(Zer75520, 1,[[[0.7327, 0.792, 0.4023, 0.298]]],[[0, 0, 0, 0]], 12, Loc68995), 
+LRes91764 = reshape_layer(Loc68995, [1, 4, 1], Res91764), 
+LDep54469 = depthwise_conv2D_layer([[[[0.6781], [0.3937]]]], 1, 1,[[[[0.705]]]],[0], 1, 1, true, Dep54469), 
+LZer13102 = zero_padding2D_layer(Dep54469, 0, 0, 2, 0, Zer13102), 
+LMax48834 = maximum_layer([Res91764,Zer13102], Max48834), 
+LReL97057 = relu_layer(Max48834, 9.833900507129883, 9.020043745054934, 9.889146223518207, ReL97057), 
+LFla23074 = flatten_layer(ReL97057, Fla23074), 
+exec_layers([LZer75520,LLoc68995,LRes91764,LDep54469,LZer13102,LMax48834,LReL97057,LFla23074],["Zer75520","Loc68995","Res91764","Dep54469","Zer13102","Max48834","ReL97057","Fla23074"],Fla23074,"Fla23074")
+
+Actual (Unparsed): [[-89.2005315, -89.2005315, -84.8884050, -86.6969417]]
+
+Expected (Unparsed): [[-89.20053153737902,-89.20053153737902,-84.88840491459618,-86.69694172556719]]
+
+Actual:   [[-89.2005, -89.2005, -84.8884, -86.6969]]
+
+Expected: [[-89.2005, -89.2005, -84.8884, -86.6969]]

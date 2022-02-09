@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min38776 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min38776 = tf.keras.layers.Input(shape=([1, 2]))
+in0Dot22249 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot22249 = tf.keras.layers.Input(shape=([2, 3]))
+
+Min38776 = keras.layers.Minimum(name = 'Min38776', )([in0Min38776,in1Min38776])
+Res5585 = keras.layers.Reshape((1, 2, 1), name = 'Res5585', )(Min38776)
+Zer91655 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer91655', )(Res5585)
+Dot22249 = keras.layers.Dot(axes=(2, 2), name = 'Dot22249', )([in0Dot22249,in1Dot22249])
+Res62185 = keras.layers.Reshape((2, 2, 1), name = 'Res62185', )(Dot22249)
+PRe26109 = keras.layers.PReLU(name = 'PRe26109', )(Res62185)
+Max12249 = keras.layers.Maximum(name = 'Max12249', )([Zer91655,PRe26109])
+Res96589 = keras.layers.Reshape((2, 2), name = 'Res96589', )(Max12249)
+Sep24361 = keras.layers.SeparableConv1D(3, (2),strides=(1), padding='same', name = 'Sep24361', )(Res96589)
+model = tf.keras.models.Model(inputs=[in0Min38776,in1Min38776,in0Dot22249,in1Dot22249], outputs=Sep24361)
+w = model.get_layer('PRe26109').get_weights() 
+w[0] = np.array([[[0.6227], [0.7039]], [[0.4102], [0.8259]]])
+model.get_layer('PRe26109').set_weights(w) 
+w = model.get_layer('Sep24361').get_weights() 
+w[0] = np.array([[[0.6589], [0.1198]], [[0.7166], [0.5698]]])
+w[1] = np.array([[[0.0207, 0.3121, 0.5657], [0.053, 0.8438, 0.3104]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep24361').set_weights(w) 
+in0Min38776 = tf.constant([[[0.3398, 0.0205]]])
+in1Min38776 = tf.constant([[[0.5503, 0.9514]]])
+in0Dot22249 = tf.constant([[[0.0249, 0.4975, 0.9454], [0.6399, 0.6271, 0.8853]]])
+in1Dot22249 = tf.constant([[[0.4159, 0.9791, 0.7925], [0.8742, 0.5234, 0.1688]]])
+print (np.array2string(model.predict([in0Min38776,in1Min38776,in0Dot22249,in1Dot22249],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep24361.png')
+
+LMin38776 = minimum_layer([[[[0.3398, 0.0205]]], [[[0.5503, 0.9514]]]], Min38776), 
+LRes5585 = reshape_layer(Min38776, [1, 2, 1], Res5585), 
+LZer91655 = zero_padding2D_layer(Res5585, 1, 0, 0, 0, Zer91655), 
+LDot22249 = dot_layer([[[0.0249, 0.4975, 0.9454], [0.6399, 0.6271, 0.8853]]], [[[0.4159, 0.9791, 0.7925], [0.8742, 0.5234, 0.1688]]], 2, 2, Dot22249), 
+LRes62185 = reshape_layer(Dot22249, [2, 2, 1], Res62185), 
+LPRe26109 = prelu_layer(Res62185, [[[0.6227], [0.7039]], [[0.4102], [0.8259]]], PRe26109), 
+LMax12249 = maximum_layer([Zer91655,PRe26109], Max12249), 
+LRes96589 = reshape_layer(Max12249, [2, 2], Res96589), 
+LSep24361 = separable_conv1D_layer(Res96589, 2,[[[[0.6589], [0.1198]], [[0.7166], [0.5698]]],[[[0.0207, 0.3121, 0.5657], [0.053, 0.8438, 0.3104]]]],[0, 0, 0], 1, true, Sep24361), 
+exec_layers([LMin38776,LRes5585,LZer91655,LDot22249,LRes62185,LPRe26109,LMax12249,LRes96589,LSep24361],["Min38776","Res5585","Zer91655","Dot22249","Res62185","PRe26109","Max12249","Res96589","Sep24361"],Sep24361,"Sep24361")
+
+Actual (Unparsed): [[[0.0745901, 1.1533988, 1.3057398], [0.0281583, 0.4301047, 0.6281371]]]
+
+Expected (Unparsed): [[[0.0745901075317632,1.1533988332815681,1.305739778795742],[0.028158285770016098,0.4301047290593727,0.6281371234330582]]]
+
+Actual:   [[[0.0746, 1.1534, 1.3058], [0.0282, 0.4302, 0.6282]]]
+
+Expected: [[[0.0746, 1.1534, 1.3058], [0.0282, 0.4302, 0.6282]]]

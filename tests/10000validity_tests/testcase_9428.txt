@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep13407 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min85291 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min85291 = tf.keras.layers.Input(shape=([2, 1]))
+in0Glo65095 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con94564 = tf.keras.layers.Input(shape=([2]))
+
+Sep13407 = keras.layers.SeparableConv1D(4, (2),strides=(1), padding='valid', name = 'Sep13407', )(in0Sep13407)
+Fla11700 = keras.layers.Flatten(name = 'Fla11700', )(Sep13407)
+Min85291 = keras.layers.Minimum(name = 'Min85291', )([in0Min85291,in1Min85291])
+Fla8073 = keras.layers.Flatten(name = 'Fla8073', )(Min85291)
+Glo65095 = keras.layers.GlobalMaxPool2D(name = 'Glo65095', )(in0Glo65095)
+Res78670 = keras.layers.Reshape((1, 1), name = 'Res78670', )(Glo65095)
+Sim27951 = keras.layers.SimpleRNN(2,name = 'Sim27951', )(Res78670)
+Ave52253 = keras.layers.Average(name = 'Ave52253', )([Fla8073,Sim27951])
+Con94564 = keras.layers.Concatenate(axis=1, name = 'Con94564', )([Ave52253,in0Con94564])
+Sub14120 = keras.layers.Subtract(name = 'Sub14120', )([Fla11700,Con94564])
+model = tf.keras.models.Model(inputs=[in0Sep13407,in0Min85291,in1Min85291,in0Glo65095,in0Con94564], outputs=Sub14120)
+w = model.get_layer('Sep13407').get_weights() 
+w[0] = np.array([[[0.6923], [0.2703]], [[0.0561], [0.0654]]])
+w[1] = np.array([[[0.4635, 0.0157, 0.9246, 0.7933], [0.3231, 0.4882, 0.8827, 0.6349]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep13407').set_weights(w) 
+w = model.get_layer('Sim27951').get_weights() 
+w[0] = np.array([[2, 7]])
+w[1] = np.array([[1, 8], [2, 7]])
+w[2] = np.array([3, 1])
+model.get_layer('Sim27951').set_weights(w) 
+in0Sep13407 = tf.constant([[[0.1702, 0.5116], [0.4279, 0.4796]]])
+in0Min85291 = tf.constant([[[0.0492], [0.2814]]])
+in1Min85291 = tf.constant([[[0.9804], [0.4053]]])
+in0Glo65095 = tf.constant([[[[1.062], [1.1252]]]])
+in0Con94564 = tf.constant([[0.6095, 0.0252]])
+print (np.array2string(model.predict([in0Sep13407,in0Min85291,in1Min85291,in0Glo65095,in0Con94564],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub14120.png')
+
+LSep13407 = separable_conv1D_layer([[[0.1702, 0.5116], [0.4279, 0.4796]]], 2,[[[[0.6923], [0.2703]], [[0.0561], [0.0654]]],[[[0.4635, 0.0157, 0.9246, 0.7933], [0.3231, 0.4882, 0.8827, 0.6349]]]],[0, 0, 0, 0], 1, false, Sep13407), 
+LFla11700 = flatten_layer(Sep13407, Fla11700), 
+LMin85291 = minimum_layer([[[[0.0492], [0.2814]]], [[[0.9804], [0.4053]]]], Min85291), 
+LFla8073 = flatten_layer(Min85291, Fla8073), 
+LGlo65095 = global_max_pool2D_layer([[[[1.062], [1.1252]]]], Glo65095), 
+LRes78670 = reshape_layer(Glo65095, [1, 1], Res78670), 
+LSim27951 = simple_rnn_layer(Res78670,[[2, 7]],[[1, 8], [2, 7]],[3, 1], Sim27951), 
+LAve52253 = average_layer([Fla8073,Sim27951], Ave52253), 
+LCon94564 = concatenate_layer([Ave52253,[[0.6095, 0.0252]]], 1, Con94564), 
+LSub14120 = subtract_layer(Fla11700,Con94564, Sub14120), 
+exec_layers([LSep13407,LFla11700,LMin85291,LFla8073,LGlo65095,LRes78670,LSim27951,LAve52253,LCon94564,LSub14120],["Sep13407","Fla11700","Min85291","Fla8073","Glo65095","Res78670","Sim27951","Ave52253","Con94564","Sub14120"],Sub14120,"Sub14120")
+
+Actual (Unparsed): [[-0.4040178, -0.5556494, -0.3286084, 0.1950291]]
+
+Expected (Unparsed): [[-0.40401778456102333,-0.5556494020699986,-0.328608462446,0.19502905091300002]]
+
+Actual:   [[-0.404, -0.5556, -0.3286, 0.1951]]
+
+Expected: [[-0.404, -0.5556, -0.3286, 0.1951]]

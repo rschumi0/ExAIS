@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo73134 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con46982 = tf.keras.layers.Input(shape=([1, 3]))
+in0Dep81867 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con71529 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Min40289 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min40289 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Glo73134 = keras.layers.GlobalMaxPool2D(name = 'Glo73134', )(in0Glo73134)
+Thr85852 = keras.layers.ThresholdedReLU(theta=1.0027569661751912, name = 'Thr85852', )(Glo73134)
+Res10598 = keras.layers.Reshape((1, 1), name = 'Res10598', )(Thr85852)
+Res45547 = keras.layers.Reshape((1, 1, 1), name = 'Res45547', )(Res10598)
+Up_71311 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_71311', )(Res45547)
+Res26044 = keras.layers.Reshape((1, 1), name = 'Res26044', )(Up_71311)
+Con46982 = keras.layers.Concatenate(axis=2, name = 'Con46982', )([Res26044,in0Con46982])
+Dep81867 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep81867', )(in0Dep81867)
+Res72339 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res72339', )(Dep81867)
+Con71529 = keras.layers.Concatenate(axis=4, name = 'Con71529', )([Res72339,in0Con71529])
+Min40289 = keras.layers.Minimum(name = 'Min40289', )([in0Min40289,in1Min40289])
+Zer44378 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer44378', )(Min40289)
+Mul82019 = keras.layers.Multiply(name = 'Mul82019', )([Con71529,Zer44378])
+Res95141 = keras.layers.Reshape((1, 1, 4), name = 'Res95141', )(Mul82019)
+Res59901 = keras.layers.Reshape((1, 4), name = 'Res59901', )(Res95141)
+Dot34585 = keras.layers.Dot(axes=(2, 2), name = 'Dot34585', )([Con46982,Res59901])
+model = tf.keras.models.Model(inputs=[in0Glo73134,in0Con46982,in0Dep81867,in0Con71529,in0Min40289,in1Min40289], outputs=Dot34585)
+w = model.get_layer('Dep81867').get_weights() 
+w[0] = np.array([[[[0.3272], [0.2545]]], [[[0.4721], [0.092]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep81867').set_weights(w) 
+in0Glo73134 = tf.constant([[[[1.904], [1.4917]], [[1.3874], [1.9702]]]])
+in0Con46982 = tf.constant([[[0.1837, 0.3745, 0.7931]]])
+in0Dep81867 = tf.constant([[[[0.7182, 0.5468], [0.3932, 0.136]], [[0.6492, 0.0438], [0.9844, 0.1363]]]])
+in0Con71529 = tf.constant([[[[[0.2386], [0.8475]]]]])
+in0Min40289 = tf.constant([[[[[0.436, 0.3776]]]]])
+in1Min40289 = tf.constant([[[[[0.968, 0.1486]]]]])
+print (np.array2string(model.predict([in0Glo73134,in0Con46982,in0Dep81867,in0Con71529,in0Min40289,in1Min40289],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot34585.png')
+
+LGlo73134 = global_max_pool2D_layer([[[[1.904], [1.4917]], [[1.3874], [1.9702]]]], Glo73134), 
+LThr85852 = thresholded_relu_layer(Glo73134, 1.0027569661751912, Thr85852), 
+LRes10598 = reshape_layer(Thr85852, [1, 1], Res10598), 
+LRes45547 = reshape_layer(Res10598, [1, 1, 1], Res45547), 
+LUp_71311 = up_sampling2D_layer(Res45547, 1, 1, Up_71311), 
+LRes26044 = reshape_layer(Up_71311, [1, 1], Res26044), 
+LCon46982 = concatenate_layer([Res26044,[[[0.1837, 0.3745, 0.7931]]]], 2, Con46982), 
+LDep81867 = depthwise_conv2D_layer([[[[0.7182, 0.5468], [0.3932, 0.136]], [[0.6492, 0.0438], [0.9844, 0.1363]]]], 2, 1,[[[[0.3272], [0.2545]]], [[[0.4721], [0.092]]]],[0, 0], 2, 2, false, Dep81867), 
+LRes72339 = reshape_layer(Dep81867, [1, 1, 2, 1], Res72339), 
+LCon71529 = concatenate_layer([Res72339,[[[[[0.2386], [0.8475]]]]]], 4, Con71529), 
+LMin40289 = minimum_layer([[[[[[0.436, 0.3776]]]]], [[[[[0.968, 0.1486]]]]]], Min40289), 
+LZer44378 = zero_padding3D_layer(Min40289, 0, 0, 0, 0, 1, 0, Zer44378), 
+LMul82019 = multiply_layer([Con71529,Zer44378], Mul82019), 
+LRes95141 = reshape_layer(Mul82019, [1, 1, 4], Res95141), 
+LRes59901 = reshape_layer(Res95141, [1, 4], Res59901), 
+LDot34585 = dot_layer(Con46982,Res59901, 2, 2, Dot34585), 
+exec_layers([LGlo73134,LThr85852,LRes10598,LRes45547,LUp_71311,LRes26044,LCon46982,LDep81867,LRes72339,LCon71529,LMin40289,LZer44378,LMul82019,LRes95141,LRes59901,LDot34585],["Glo73134","Thr85852","Res10598","Res45547","Up_71311","Res26044","Con46982","Dep81867","Res72339","Con71529","Min40289","Zer44378","Mul82019","Res95141","Res59901","Dot34585"],Dot34585,"Dot34585")
+
+Actual (Unparsed): [[[0.1232622]]]
+
+Expected (Unparsed): [[[0.12326220658640001]]]
+
+Actual:   [[[0.1233]]]
+
+Expected: [[[0.1233]]]

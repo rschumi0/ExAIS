@@ -1,0 +1,90 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min21505 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Min21505 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Max17013 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min28431 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Min28431 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Sim57302 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con95865 = tf.keras.layers.Input(shape=([5]))
+in0Con49428 = tf.keras.layers.Input(shape=([1, 2]))
+
+Min21505 = keras.layers.Minimum(name = 'Min21505', )([in0Min21505,in1Min21505])
+Res99266 = keras.layers.Reshape((2, 2, 1), name = 'Res99266', )(Min21505)
+Res18470 = keras.layers.Reshape((2, 2), name = 'Res18470', )(Res99266)
+Max17013 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max17013', )(in0Max17013)
+Res65525 = keras.layers.Reshape((1, 2), name = 'Res65525', )(Max17013)
+Dot20832 = keras.layers.Dot(axes=(2, 2), name = 'Dot20832', )([Res18470,Res65525])
+Res84769 = keras.layers.Reshape((2, 1, 1), name = 'Res84769', )(Dot20832)
+Res38594 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res38594', )(Res84769)
+Con892 = keras.layers.Conv3D(3, (2, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con892', )(Res38594)
+Res82094 = keras.layers.Reshape((1, 1, 3), name = 'Res82094', )(Con892)
+Res58235 = keras.layers.Reshape((1, 3), name = 'Res58235', )(Res82094)
+Min28431 = keras.layers.Minimum(name = 'Min28431', )([in0Min28431,in1Min28431])
+Res4313 = keras.layers.Reshape((2, 2, 2), name = 'Res4313', )(Min28431)
+Res89488 = keras.layers.Reshape((2, 4), name = 'Res89488', )(Res4313)
+Fla26786 = keras.layers.Flatten(name = 'Fla26786', )(Res89488)
+Sim57302 = keras.layers.SimpleRNN(3,name = 'Sim57302', )(in0Sim57302)
+Con95865 = keras.layers.Concatenate(axis=1, name = 'Con95865', )([Sim57302,in0Con95865])
+Max11379 = keras.layers.Maximum(name = 'Max11379', )([Fla26786,Con95865])
+Res11478 = keras.layers.Reshape((8, 1), name = 'Res11478', )(Max11379)
+Max73267 = keras.layers.MaxPool1D(pool_size=(6), strides=(8), padding='same', name = 'Max73267', )(Res11478)
+Con49428 = keras.layers.Concatenate(axis=2, name = 'Con49428', )([Max73267,in0Con49428])
+Min90484 = keras.layers.Minimum(name = 'Min90484', )([Res58235,Con49428])
+model = tf.keras.models.Model(inputs=[in0Min21505,in1Min21505,in0Max17013,in0Min28431,in1Min28431,in0Sim57302,in0Con95865,in0Con49428], outputs=Min90484)
+w = model.get_layer('Con892').get_weights() 
+w[0] = np.array([[[[[0.8996, 0.3246, 0.3307]]]], [[[[0.8526, 0.6349, 0.927]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con892').set_weights(w) 
+w = model.get_layer('Sim57302').get_weights() 
+w[0] = np.array([[8, 6, 9], [10, 2, 9]])
+w[1] = np.array([[4, 6, 3], [4, 3, 5], [1, 6, 3]])
+w[2] = np.array([4, 6, 1])
+model.get_layer('Sim57302').set_weights(w) 
+in0Min21505 = tf.constant([[[[[0.1587]], [[0.351]]], [[[0.3191]], [[0.6191]]]]])
+in1Min21505 = tf.constant([[[[[0.35]], [[0.1081]]], [[[0.2837]], [[0.805]]]]])
+in0Max17013 = tf.constant([[[[1.4423, 1.7947]]]])
+in0Min28431 = tf.constant([[[[[0.8419, 0.6884]], [[0.1409, 0.1764]]], [[[0.5689, 0.3227]], [[0.5419, 0.0489]]]]])
+in1Min28431 = tf.constant([[[[[0.0487, 0.1713]], [[0.1846, 0.674]]], [[[0.0746, 0.901]], [[0.5727, 0.5199]]]]])
+in0Sim57302 = tf.constant([[[6, 8], [9, 4]]])
+in0Con95865 = tf.constant([[0.9805, 0.2171, 0.8097, 0.884, 0.001]])
+in0Con49428 = tf.constant([[[0.7939, 0.4602]]])
+print (np.array2string(model.predict([in0Min21505,in1Min21505,in0Max17013,in0Min28431,in1Min28431,in0Sim57302,in0Con95865,in0Con49428],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min90484.png')
+
+LMin21505 = minimum_layer([[[[[[0.1587]], [[0.351]]], [[[0.3191]], [[0.6191]]]]], [[[[[0.35]], [[0.1081]]], [[[0.2837]], [[0.805]]]]]], Min21505), 
+LRes99266 = reshape_layer(Min21505, [2, 2, 1], Res99266), 
+LRes18470 = reshape_layer(Res99266, [2, 2], Res18470), 
+LMax17013 = max_pool2D_layer([[[[1.4423, 1.7947]]]], 1, 1, Max17013), 
+LRes65525 = reshape_layer(Max17013, [1, 2], Res65525), 
+LDot20832 = dot_layer(Res18470,Res65525, 2, 2, Dot20832), 
+LRes84769 = reshape_layer(Dot20832, [2, 1, 1], Res84769), 
+LRes38594 = reshape_layer(Res84769, [2, 1, 1, 1], Res38594), 
+LCon892 = conv3D_layer(Res38594, 2, 1, 1,[[[[[0.8996, 0.3246, 0.3307]]]], [[[[0.8526, 0.6349, 0.927]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con892), 
+LRes82094 = reshape_layer(Con892, [1, 1, 3], Res82094), 
+LRes58235 = reshape_layer(Res82094, [1, 3], Res58235), 
+LMin28431 = minimum_layer([[[[[[0.8419, 0.6884]], [[0.1409, 0.1764]]], [[[0.5689, 0.3227]], [[0.5419, 0.0489]]]]], [[[[[0.0487, 0.1713]], [[0.1846, 0.674]]], [[[0.0746, 0.901]], [[0.5727, 0.5199]]]]]], Min28431), 
+LRes4313 = reshape_layer(Min28431, [2, 2, 2], Res4313), 
+LRes89488 = reshape_layer(Res4313, [2, 4], Res89488), 
+LFla26786 = flatten_layer(Res89488, Fla26786), 
+LSim57302 = simple_rnn_layer([[[6, 8], [9, 4]]],[[8, 6, 9], [10, 2, 9]],[[4, 6, 3], [4, 3, 5], [1, 6, 3]],[4, 6, 1], Sim57302), 
+LCon95865 = concatenate_layer([Sim57302,[[0.9805, 0.2171, 0.8097, 0.884, 0.001]]], 1, Con95865), 
+LMax11379 = maximum_layer([Fla26786,Con95865], Max11379), 
+LRes11478 = reshape_layer(Max11379, [8, 1], Res11478), 
+LMax73267 = max_pool1D_layer(Res11478, 6, 8, true, Max73267), 
+LCon49428 = concatenate_layer([Max73267,[[[0.7939, 0.4602]]]], 2, Con49428), 
+LMin90484 = minimum_layer([Res58235,Con49428], Min90484), 
+exec_layers([LMin21505,LRes99266,LRes18470,LMax17013,LRes65525,LDot20832,LRes84769,LRes38594,LCon892,LRes82094,LRes58235,LMin28431,LRes4313,LRes89488,LFla26786,LSim57302,LCon95865,LMax11379,LRes11478,LMax73267,LCon49428,LMin90484],["Min21505","Res99266","Res18470","Max17013","Res65525","Dot20832","Res84769","Res38594","Con892","Res82094","Res58235","Min28431","Res4313","Res89488","Fla26786","Sim57302","Con95865","Max11379","Res11478","Max73267","Con49428","Min90484"],Min90484,"Min90484")
+
+Actual (Unparsed): [[[1.0000000, 0.7939000, 0.4602000]]]
+
+Expected (Unparsed): [[[1.0,0.7939,0.4602]]]
+
+Actual:   [[[1, 0.7939, 0.4602]]]
+
+Expected: [[[1, 0.7939, 0.4602]]]

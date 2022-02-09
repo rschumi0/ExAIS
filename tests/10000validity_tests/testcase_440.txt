@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con3415 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Con3415 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con3415', )(in0Con3415)
+Glo64224 = keras.layers.GlobalMaxPool2D(name = 'Glo64224', )(Con3415)
+Res49536 = keras.layers.Reshape((3, 1), name = 'Res49536', )(Glo64224)
+Res37332 = keras.layers.Reshape((3, 1, 1), name = 'Res37332', )(Res49536)
+Loc53938 = keras.layers.LocallyConnected2D(4, (3, 1),strides=(4, 1), name = 'Loc53938', )(Res37332)
+model = tf.keras.models.Model(inputs=[in0Con3415], outputs=Loc53938)
+w = model.get_layer('Con3415').get_weights() 
+w[0] = np.array([[[[0.3861, 0.2758, 0.7043]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con3415').set_weights(w) 
+w = model.get_layer('Loc53938').get_weights() 
+w[0] = np.array([[[0.9605, 0.1416, 0.8877, 0.652], [0.3905, 0.0826, 0.0174, 0.7976], [0.3158, 0.6638, 0.7083, 0.0667]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc53938').set_weights(w) 
+in0Con3415 = tf.constant([[[[0.6206], [0.0539]]]])
+print (np.array2string(model.predict([in0Con3415],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc53938.png')
+
+LCon3415 = conv2D_layer([[[[0.6206], [0.0539]]]], 1, 1,[[[[0.3861, 0.2758, 0.7043]]]],[0, 0, 0], 1, 1, false, 1, 1, Con3415), 
+LGlo64224 = global_max_pool2D_layer(Con3415, Glo64224), 
+LRes49536 = reshape_layer(Glo64224, [3, 1], Res49536), 
+LRes37332 = reshape_layer(Res49536, [3, 1, 1], Res37332), 
+LLoc53938 = locally_connected2D_layer(Res37332, 3, 1,[[[0.9605, 0.1416, 0.8877, 0.652], [0.3905, 0.0826, 0.0174, 0.7976], [0.3158, 0.6638, 0.7083, 0.0667]]],[[[0, 0, 0, 0]]], 4, 1, Loc53938), 
+exec_layers([LCon3415,LGlo64224,LRes49536,LRes37332,LLoc53938],["Con3415","Glo64224","Res49536","Res37332","Loc53938"],Loc53938,"Loc53938")
+
+Actual (Unparsed): [[[[0.4350200, 0.3382066, 0.5252731, 0.3219003]]]]
+
+Expected (Unparsed): [[[[0.43502005193400006,0.33820663190800004,0.5252730969480001,0.321900311054]]]]
+
+Actual:   [[[[0.4351, 0.3383, 0.5253, 0.322]]]]
+
+Expected: [[[[0.4351, 0.3383, 0.5253, 0.322]]]]

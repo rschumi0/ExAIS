@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul84966 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul84966 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul84966 = keras.layers.Multiply(name = 'Mul84966', )([in0Mul84966,in1Mul84966])
+Res38835 = keras.layers.Reshape((2, 1, 1), name = 'Res38835', )(Mul84966)
+Res66645 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res66645', )(Res38835)
+Con1841 = keras.layers.Conv3DTranspose(4, (2, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con1841', )(Res66645)
+Res13473 = keras.layers.Reshape((2, 1, 4), name = 'Res13473', )(Con1841)
+Sep90449 = keras.layers.SeparableConv2D(2, (2, 1),strides=(1, 1), padding='valid', name = 'Sep90449', )(Res13473)
+model = tf.keras.models.Model(inputs=[in0Mul84966,in1Mul84966], outputs=Sep90449)
+w = model.get_layer('Con1841').get_weights() 
+w[0] = np.array([[[[[0.1852], [0.6391], [0.9761], [0.9628]]]], [[[[0.2645], [0.1974], [0.0519], [0.3059]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con1841').set_weights(w) 
+w = model.get_layer('Sep90449').get_weights() 
+w[0] = np.array([[[[0.0031], [0.2928], [0.4607], [0.8708]]], [[[0.5778], [0.1477], [0.1551], [0.5281]]]])
+w[1] = np.array([[[[0.6348, 0.6525], [0.4884, 0.4415], [0.1258, 0.9954], [0.1969, 0.6653]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep90449').set_weights(w) 
+in0Mul84966 = tf.constant([[[0.4664], [0.6922]]])
+in1Mul84966 = tf.constant([[[0.0477], [0.06]]])
+print (np.array2string(model.predict([in0Mul84966,in1Mul84966],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep90449.png')
+
+LMul84966 = multiply_layer([[[[0.4664], [0.6922]]], [[[0.0477], [0.06]]]], Mul84966), 
+LRes38835 = reshape_layer(Mul84966, [2, 1, 1], Res38835), 
+LRes66645 = reshape_layer(Res38835, [2, 1, 1, 1], Res66645), 
+LCon1841 = conv3D_transpose_layer(Res66645, 2, 1, 1,[[[[[0.1852], [0.6391], [0.9761], [0.9628]]]], [[[[0.2645], [0.1974], [0.0519], [0.3059]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con1841), 
+LRes13473 = reshape_layer(Con1841, [2, 1, 4], Res13473), 
+LSep90449 = separable_conv2D_layer(Res13473, 2, 1,[[[[[0.0031], [0.2928], [0.4607], [0.8708]]], [[[0.5778], [0.1477], [0.1551], [0.5281]]]],[[[[0.6348, 0.6525], [0.4884, 0.4415], [0.1258, 0.9954], [0.1969, 0.6653]]]]],[0, 0], 1, 1, false, Sep90449), 
+exec_layers([LMul84966,LRes38835,LRes66645,LCon1841,LRes13473,LSep90449],["Mul84966","Res38835","Res66645","Con1841","Res13473","Sep90449"],Sep90449,"Sep90449")
+
+Actual (Unparsed): [[[[0.0198628, 0.0542270]]]]
+
+Expected (Unparsed): [[[[0.01986275739847647,0.05422695687301111]]]]
+
+Actual:   [[[[0.0199, 0.0543]]]]
+
+Expected: [[[[0.0199, 0.0543]]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub33450 = tf.keras.layers.Input(shape=([2, 3, 3]))
+in1Sub33450 = tf.keras.layers.Input(shape=([2, 3, 3]))
+in0Loc62302 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con5743 = tf.keras.layers.Input(shape=([2, 3, 1]))
+
+Sub33450 = keras.layers.Subtract(name = 'Sub33450', )([in0Sub33450,in1Sub33450])
+Lay33203 = keras.layers.LayerNormalization(axis=1, epsilon=1.4712831884053668, name = 'Lay33203', )(Sub33450)
+Loc62302 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc62302', )(in0Loc62302)
+Zer70506 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer70506', )(Loc62302)
+Con5743 = keras.layers.Concatenate(axis=3, name = 'Con5743', )([Zer70506,in0Con5743])
+Ave96244 = keras.layers.Average(name = 'Ave96244', )([Lay33203,Con5743])
+Dep11014 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='valid', name = 'Dep11014', )(Ave96244)
+model = tf.keras.models.Model(inputs=[in0Sub33450,in1Sub33450,in0Loc62302,in0Con5743], outputs=Dep11014)
+w = model.get_layer('Loc62302').get_weights() 
+w[0] = np.array([[[0.7121, 0.6457]], [[0.4773, 0.104]]])
+w[1] = np.array([[[0, 0]], [[0, 0]]])
+model.get_layer('Loc62302').set_weights(w) 
+w = model.get_layer('Dep11014').get_weights() 
+w[0] = np.array([[[[0.6431], [0.2313], [0.5894]], [[0.6591], [0.1435], [0.2338]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Dep11014').set_weights(w) 
+in0Sub33450 = tf.constant([[[[0.4427, 0.7549, 0.4504], [0.5434, 0.1089, 0.3263], [0.8636, 0.1966, 0.3569]], [[0.7147, 0.4868, 0.1967], [0.5102, 0.991, 0.6735], [0.784, 0.1662, 0.22]]]])
+in1Sub33450 = tf.constant([[[[0.5608, 0.1914, 0.0104], [0.3968, 0.3644, 0.5062], [0.7396, 0.1416, 0.5226]], [[0.9837, 0.0283, 0.5641], [0.1881, 0.5869, 0.4802], [0.1277, 0.4634, 0.4632]]]])
+in0Loc62302 = tf.constant([[[[0.5492]], [[0.0537]]]])
+in0Con5743 = tf.constant([[[[0.5116], [0.5279], [0.197]], [[0.1005], [0.7501], [0.0186]]]])
+print (np.array2string(model.predict([in0Sub33450,in1Sub33450,in0Loc62302,in0Con5743],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep11014.png')
+
+LSub33450 = subtract_layer([[[[0.4427, 0.7549, 0.4504], [0.5434, 0.1089, 0.3263], [0.8636, 0.1966, 0.3569]], [[0.7147, 0.4868, 0.1967], [0.5102, 0.991, 0.6735], [0.784, 0.1662, 0.22]]]], [[[[0.5608, 0.1914, 0.0104], [0.3968, 0.3644, 0.5062], [0.7396, 0.1416, 0.5226]], [[0.9837, 0.0283, 0.5641], [0.1881, 0.5869, 0.4802], [0.1277, 0.4634, 0.4632]]]], Sub33450), 
+LLay33203 = layer_normalization_layer(Sub33450, 1, 1.4712831884053668, Lay33203), 
+LLoc62302 = locally_connected2D_layer([[[[0.5492]], [[0.0537]]]], 1, 1,[[[0.7121, 0.6457]], [[0.4773, 0.104]]],[[[0, 0]], [[0, 0]]], 1, 1, Loc62302), 
+LZer70506 = zero_padding2D_layer(Loc62302, 0, 0, 2, 0, Zer70506), 
+LCon5743 = concatenate_layer([Zer70506,[[[[0.5116], [0.5279], [0.197]], [[0.1005], [0.7501], [0.0186]]]]], 3, Con5743), 
+LAve96244 = average_layer([Lay33203,Con5743], Ave96244), 
+LDep11014 = depthwise_conv2D_layer(Ave96244, 1, 2,[[[[0.6431], [0.2313], [0.5894]], [[0.6591], [0.1435], [0.2338]]]],[0, 0, 0], 1, 1, false, Dep11014), 
+exec_layers([LSub33450,LLay33203,LLoc62302,LZer70506,LCon5743,LAve96244,LDep11014],["Sub33450","Lay33203","Loc62302","Zer70506","Con5743","Ave96244","Dep11014"],Dep11014,"Dep11014")
+
+Actual (Unparsed): [[[[-0.0038159, -0.0138242, 0.2877688], [0.0350508, 0.0054094, 0.1375251]], [[0.0038159, 0.0138242, 0.0420152], [0.1022780, 0.0204352, 0.2643051]]]]
+
+Expected (Unparsed): [[[[-0.003815847549740445,-0.013824160621922934,0.2877688295124778],[0.03505083625140948,0.00540941635690427,0.13752515424780581]],[[0.003815847549740445,0.013824160621922934,0.04201524048752224],[0.10227803030009054,0.02043516611309573,0.26430508575219425]]]]
+
+Actual:   [[[[-0.0038, -0.0138, 0.2878], [0.0351, 0.0055, 0.1376]], [[0.0039, 0.0139, 0.0421], [0.1023, 0.0205, 0.2644]]]]
+
+Expected: [[[[-0.0038, -0.0138, 0.2878], [0.0351, 0.0055, 0.1376]], [[0.0039, 0.0139, 0.0421], [0.1023, 0.0205, 0.2644]]]]

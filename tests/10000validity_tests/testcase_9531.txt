@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul2962 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in1Mul2962 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Dep13395 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con48488 = tf.keras.layers.Input(shape=([1, 2, 3]))
+
+Mul2962 = keras.layers.Multiply(name = 'Mul2962', )([in0Mul2962,in1Mul2962])
+Res23397 = keras.layers.Reshape((1, 2, 4), name = 'Res23397', )(Mul2962)
+Dep13395 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='valid', name = 'Dep13395', )(in0Dep13395)
+Zer47276 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer47276', )(Dep13395)
+Con48488 = keras.layers.Concatenate(axis=3, name = 'Con48488', )([Zer47276,in0Con48488])
+Add62726 = keras.layers.Add(name = 'Add62726', )([Res23397,Con48488])
+model = tf.keras.models.Model(inputs=[in0Mul2962,in1Mul2962,in0Dep13395,in0Con48488], outputs=Add62726)
+w = model.get_layer('Dep13395').get_weights() 
+w[0] = np.array([[[[0.6519]]], [[[0.2308]]]])
+w[1] = np.array([0])
+model.get_layer('Dep13395').set_weights(w) 
+in0Mul2962 = tf.constant([[[[[0.3047, 0.238], [0.7431, 0.5181]], [[0.5854, 0.9247], [0.8784, 0.732]]]]])
+in1Mul2962 = tf.constant([[[[[0.3472, 0.6393], [0.0902, 0.9083]], [[0.1662, 0.0571], [0.6521, 0.9111]]]]])
+in0Dep13395 = tf.constant([[[[0.2675]], [[0.1161]]]])
+in0Con48488 = tf.constant([[[[0.1058, 0.2658, 0.4884], [0.114, 0.834, 0.8361]]]])
+print (np.array2string(model.predict([in0Mul2962,in1Mul2962,in0Dep13395,in0Con48488],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add62726.png')
+
+LMul2962 = multiply_layer([[[[[[0.3047, 0.238], [0.7431, 0.5181]], [[0.5854, 0.9247], [0.8784, 0.732]]]]], [[[[[0.3472, 0.6393], [0.0902, 0.9083]], [[0.1662, 0.0571], [0.6521, 0.9111]]]]]], Mul2962), 
+LRes23397 = reshape_layer(Mul2962, [1, 2, 4], Res23397), 
+LDep13395 = depthwise_conv2D_layer([[[[0.2675]], [[0.1161]]]], 2, 1,[[[[0.6519]]], [[[0.2308]]]],[0], 1, 1, false, Dep13395), 
+LZer47276 = zero_padding2D_layer(Dep13395, 0, 0, 1, 0, Zer47276), 
+LCon48488 = concatenate_layer([Zer47276,[[[[0.1058, 0.2658, 0.4884], [0.114, 0.834, 0.8361]]]]], 3, Con48488), 
+LAdd62726 = add_layer([Res23397,Con48488], Add62726), 
+exec_layers([LMul2962,LRes23397,LDep13395,LZer47276,LCon48488,LAdd62726],["Mul2962","Res23397","Dep13395","Zer47276","Con48488","Add62726"],Add62726,"Add62726")
+
+Actual (Unparsed): [[[[0.1057918, 0.2579534, 0.3328276, 0.9589903], [0.2984726, 0.1668004, 1.4068047, 1.5030252]]]]
+
+Expected (Unparsed): [[[[0.10579184000000001,0.2579534,0.33282762,0.9589902299999999],[0.29847261,0.16680037,1.4068046399999998,1.5030252]]]]
+
+Actual:   [[[[0.1058, 0.258, 0.3329, 0.959], [0.2985, 0.1669, 1.4069, 1.5031]]]]
+
+Expected: [[[[0.1058, 0.258, 0.3329, 0.959], [0.2985, 0.1669, 1.4069, 1.5031]]]]

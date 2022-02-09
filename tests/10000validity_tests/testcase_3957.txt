@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con47286 = tf.keras.layers.Input(shape=([1, 1]))
+in0Mul80680 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Mul80680 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Con47286 = keras.layers.Conv1D(2, (1),strides=(2), padding='valid', dilation_rate=(1), name = 'Con47286', )(in0Con47286)
+Mul80680 = keras.layers.Multiply(name = 'Mul80680', )([in0Mul80680,in1Mul80680])
+Res19676 = keras.layers.Reshape((2, 1, 2), name = 'Res19676', )(Mul80680)
+Res86742 = keras.layers.Reshape((2, 2), name = 'Res86742', )(Res19676)
+Loc2828 = keras.layers.LocallyConnected1D(3, (2),strides=(1), name = 'Loc2828', )(Res86742)
+Dot71337 = keras.layers.Dot(axes=(1, 1), name = 'Dot71337', )([Con47286,Loc2828])
+model = tf.keras.models.Model(inputs=[in0Con47286,in0Mul80680,in1Mul80680], outputs=Dot71337)
+w = model.get_layer('Con47286').get_weights() 
+w[0] = np.array([[[0.2175, 0.1057]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con47286').set_weights(w) 
+w = model.get_layer('Loc2828').get_weights() 
+w[0] = np.array([[[0.4609, 0.6418, 0.8751], [0.9151, 0.7548, 0.5386], [0.4771, 0.5971, 0.5347], [0.5268, 0.6186, 0.3188]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc2828').set_weights(w) 
+in0Con47286 = tf.constant([[[0.4553]]])
+in0Mul80680 = tf.constant([[[[[0.8093], [0.2498]]], [[[0.6273], [0.5563]]]]])
+in1Mul80680 = tf.constant([[[[[0.0991], [0.9683]]], [[[0.0769], [0.3754]]]]])
+print (np.array2string(model.predict([in0Con47286,in0Mul80680,in1Mul80680],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot71337.png')
+
+LCon47286 = conv1D_layer([[[0.4553]]], 1,[[[0.2175, 0.1057]]],[0, 0], 2, false, 1, Con47286), 
+LMul80680 = multiply_layer([[[[[[0.8093], [0.2498]]], [[[0.6273], [0.5563]]]]], [[[[[0.0991], [0.9683]]], [[[0.0769], [0.3754]]]]]], Mul80680), 
+LRes19676 = reshape_layer(Mul80680, [2, 1, 2], Res19676), 
+LRes86742 = reshape_layer(Res19676, [2, 2], Res86742), 
+LLoc2828 = locally_connected1D_layer(Res86742, 2,[[[0.4609, 0.6418, 0.8751], [0.9151, 0.7548, 0.5386], [0.4771, 0.5971, 0.5347], [0.5268, 0.6186, 0.3188]]],[[0, 0, 0]], 1, Loc2828), 
+LDot71337 = dot_layer(Con47286,Loc2828, 1, 1, Dot71337), 
+exec_layers([LCon47286,LMul80680,LRes19676,LRes86742,LLoc2828,LDot71337],["Con47286","Mul80680","Res19676","Res86742","Loc2828","Dot71337"],Dot71337,"Dot71337")
+
+Actual (Unparsed): [[[0.0387535, 0.0388223, 0.0289985], [0.0188333, 0.0188667, 0.0140926]]]
+
+Expected (Unparsed): [[[0.03875350358942563,0.03882229572146423,0.028998487319651337],[0.01883331185932087,0.018866743254063307,0.014092598205458145]]]
+
+Actual:   [[[0.0388, 0.0389, 0.029], [0.0189, 0.0189, 0.0141]]]
+
+Expected: [[[0.0388, 0.0389, 0.029], [0.0189, 0.0189, 0.0141]]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add34673 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Add34673 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Per32109 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con75611 = tf.keras.layers.Input(shape=([1, 1]))
+
+Add34673 = keras.layers.Add(name = 'Add34673', )([in0Add34673,in1Add34673])
+Res87790 = keras.layers.Reshape((1, 1, 2), name = 'Res87790', )(Add34673)
+Res32601 = keras.layers.Reshape((1, 2), name = 'Res32601', )(Res87790)
+Per32109 = keras.layers.Permute((1,2), name = 'Per32109',)(in0Per32109)
+Con75611 = keras.layers.Concatenate(axis=2, name = 'Con75611', )([Per32109,in0Con75611])
+Add9950 = keras.layers.Add(name = 'Add9950', )([Res32601,Con75611])
+Res124 = keras.layers.Reshape((1, 2, 1), name = 'Res124', )(Add9950)
+Con2964 = keras.layers.Conv2DTranspose(3, (1, 2),strides=(1, 1), padding='valid', name = 'Con2964', )(Res124)
+Res2287 = keras.layers.Reshape((1, 9), name = 'Res2287', )(Con2964)
+Max65196 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max65196', )(Res2287)
+model = tf.keras.models.Model(inputs=[in0Add34673,in1Add34673,in0Per32109,in0Con75611], outputs=Max65196)
+w = model.get_layer('Con2964').get_weights() 
+w[0] = np.array([[[[0.8252], [0.6195], [0.8599]], [[0.5018], [0.4569], [0.799]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con2964').set_weights(w) 
+in0Add34673 = tf.constant([[[[[0.4721, 0.6745]]]]])
+in1Add34673 = tf.constant([[[[[0.3787, 0.831]]]]])
+in0Per32109 = tf.constant([[[1.8812]]])
+in0Con75611 = tf.constant([[[0.1389]]])
+print (np.array2string(model.predict([in0Add34673,in1Add34673,in0Per32109,in0Con75611],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max65196.png')
+
+LAdd34673 = add_layer([[[[[[0.4721, 0.6745]]]]], [[[[[0.3787, 0.831]]]]]], Add34673), 
+LRes87790 = reshape_layer(Add34673, [1, 1, 2], Res87790), 
+LRes32601 = reshape_layer(Res87790, [1, 2], Res32601), 
+LPer32109 = permute_layer([[[1.8812]]], 1,2, Per32109), 
+LCon75611 = concatenate_layer([Per32109,[[[0.1389]]]], 2, Con75611), 
+LAdd9950 = add_layer([Res32601,Con75611], Add9950), 
+LRes124 = reshape_layer(Add9950, [1, 2, 1], Res124), 
+LCon2964 = conv2D_transpose_layer(Res124, 1, 2,[[[[0.8252], [0.6195], [0.8599]], [[0.5018], [0.4569], [0.799]]]],[0, 0, 0], 1, 1, false, Con2964), 
+LRes2287 = reshape_layer(Con2964, [1, 9], Res2287), 
+LMax65196 = max_pool1D_layer(Res2287, 1, 1, true, Max65196), 
+exec_layers([LAdd34673,LRes87790,LRes32601,LPer32109,LCon75611,LAdd9950,LRes124,LCon2964,LRes2287,LMax65196],["Add34673","Res87790","Res32601","Per32109","Con75611","Add9950","Res124","Con2964","Res2287","Max65196"],Max65196,"Max65196")
+
+Actual (Unparsed): [[[2.2544463, 1.6924740, 2.3492467, 2.7278764, 2.2669565, 3.5968875, 0.8251599, 0.7513263, 1.3138756]]]
+
+Expected (Unparsed): [[[2.2544464000000004,1.6924740000000003,2.3492468,2.72787648,2.2669566000000003,3.5968875600000008,0.82515992,0.75132636,1.3138756]]]
+
+Actual:   [[[2.2545, 1.6925, 2.3493, 2.7279, 2.267, 3.5969, 0.8252, 0.7514, 1.3139]]]
+
+Expected: [[[2.2545, 1.6925, 2.3493, 2.7279, 2.267, 3.5969, 0.8252, 0.7514, 1.3139]]]

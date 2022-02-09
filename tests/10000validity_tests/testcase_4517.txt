@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot57955 = tf.keras.layers.Input(shape=([2]))
+in1Dot57955 = tf.keras.layers.Input(shape=([2]))
+in0Con64236 = tf.keras.layers.Input(shape=([2, 3]))
+in0Mul22843 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul22843 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Dot57955 = keras.layers.Dot(axes=(1, 1), name = 'Dot57955', )([in0Dot57955,in1Dot57955])
+Res65848 = keras.layers.Reshape((1, 1), name = 'Res65848', )(Dot57955)
+Zer6255 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer6255', )(Res65848)
+Con64236 = keras.layers.Concatenate(axis=2, name = 'Con64236', )([Zer6255,in0Con64236])
+Mul22843 = keras.layers.Multiply(name = 'Mul22843', )([in0Mul22843,in1Mul22843])
+Res29604 = keras.layers.Reshape((2, 2), name = 'Res29604', )(Mul22843)
+Con11558 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con11558', )(Res29604)
+Min88374 = keras.layers.Minimum(name = 'Min88374', )([Con64236,Con11558])
+model = tf.keras.models.Model(inputs=[in0Dot57955,in1Dot57955,in0Con64236,in0Mul22843,in1Mul22843], outputs=Min88374)
+w = model.get_layer('Con11558').get_weights() 
+w[0] = np.array([[[0.4273, 0.7356, 0.2292, 0.2981], [0.6862, 0.0769, 0.2259, 0.5874]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con11558').set_weights(w) 
+in0Dot57955 = tf.constant([[0.8129, 0.6076]])
+in1Dot57955 = tf.constant([[0.278, 0.4753]])
+in0Con64236 = tf.constant([[[0.2194, 0.5037, 0.9878], [0.2758, 0.0389, 0.3709]]])
+in0Mul22843 = tf.constant([[[[0.3794, 0.6648]], [[0.8165, 0.2956]]]])
+in1Mul22843 = tf.constant([[[[0.3709, 0.9015]], [[0.4549, 0.0341]]]])
+print (np.array2string(model.predict([in0Dot57955,in1Dot57955,in0Con64236,in0Mul22843,in1Mul22843],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min88374.png')
+
+LDot57955 = dot_layer([[0.8129, 0.6076]], [[0.278, 0.4753]], 1, 1, Dot57955), 
+LRes65848 = reshape_layer(Dot57955, [1, 1], Res65848), 
+LZer6255 = zero_padding1D_layer(Res65848, 1, 0, Zer6255), 
+LCon64236 = concatenate_layer([Zer6255,[[[0.2194, 0.5037, 0.9878], [0.2758, 0.0389, 0.3709]]]], 2, Con64236), 
+LMul22843 = multiply_layer([[[[[0.3794, 0.6648]], [[0.8165, 0.2956]]]], [[[[0.3709, 0.9015]], [[0.4549, 0.0341]]]]], Mul22843), 
+LRes29604 = reshape_layer(Mul22843, [2, 2], Res29604), 
+LCon11558 = conv1D_layer(Res29604, 1,[[[0.4273, 0.7356, 0.2292, 0.2981], [0.6862, 0.0769, 0.2259, 0.5874]]],[0, 0, 0, 0], 1, false, 1, Con11558), 
+LMin88374 = minimum_layer([Con64236,Con11558], Min88374), 
+exec_layers([LDot57955,LRes65848,LZer6255,LCon64236,LMul22843,LRes29604,LCon11558,LMin88374],["Dot57955","Res65848","Zer6255","Con64236","Mul22843","Res29604","Con11558","Min88374"],Min88374,"Min88374")
+
+Actual (Unparsed): [[[0.0000000, 0.1496007, 0.1676387, 0.3939874], [0.1656271, 0.2739960, 0.0389000, 0.1166430]]]
+
+Expected (Unparsed): [[[0,0.149600727456,0.16763865571199998,0.393987394306],[0.16562713425699999,0.273996004184,0.0389,0.11664301438899999]]]
+
+Actual:   [[[0, 0.1497, 0.1677, 0.394], [0.1657, 0.274, 0.0389, 0.1167]]]
+
+Expected: [[[0, 0.1497, 0.1677, 0.394], [0.1657, 0.274, 0.0389, 0.1167]]]

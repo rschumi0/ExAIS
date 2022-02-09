@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU76484 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con37011 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sub15351 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub15351 = tf.keras.layers.Input(shape=([3, 2]))
+
+GRU76484 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU76484', )(in0GRU76484)
+Res83037 = keras.layers.Reshape((1, 1), name = 'Res83037', )(GRU76484)
+Cro88215 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro88215', )(Res83037)
+Zer23813 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer23813', )(Cro88215)
+Con37011 = keras.layers.Concatenate(axis=2, name = 'Con37011', )([Zer23813,in0Con37011])
+Sub15351 = keras.layers.Subtract(name = 'Sub15351', )([in0Sub15351,in1Sub15351])
+Min75468 = keras.layers.Minimum(name = 'Min75468', )([Con37011,Sub15351])
+model = tf.keras.models.Model(inputs=[in0GRU76484,in0Con37011,in0Sub15351,in1Sub15351], outputs=Min75468)
+w = model.get_layer('GRU76484').get_weights() 
+w[0] = np.array([[3, 9, 7], [2, 4, 10]])
+w[1] = np.array([[7, 2, 6]])
+w[2] = np.array([[5, 4, 8], [10, 8, 8]])
+model.get_layer('GRU76484').set_weights(w) 
+in0GRU76484 = tf.constant([[[6, 5]]])
+in0Con37011 = tf.constant([[[0.222], [0.8365], [0.183]]])
+in0Sub15351 = tf.constant([[[0.8728, 0.8656], [0.5823, 0.7921], [0.3379, 0.9932]]])
+in1Sub15351 = tf.constant([[[0.407, 0.8235], [0.025, 0.8782], [0.3054, 0.0365]]])
+print (np.array2string(model.predict([in0GRU76484,in0Con37011,in0Sub15351,in1Sub15351],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min75468.png')
+
+LGRU76484 = gru_layer([[[6, 5]]],[[3, 9, 7], [2, 4, 10]],[[7, 2, 6]],[[5, 4, 8], [10, 8, 8]], true, GRU76484), 
+LRes83037 = reshape_layer(GRU76484, [1, 1], Res83037), 
+LCro88215 = cropping1D_layer(Res83037, 0, 0, Cro88215), 
+LZer23813 = zero_padding1D_layer(Cro88215, 2, 0, Zer23813), 
+LCon37011 = concatenate_layer([Zer23813,[[[0.222], [0.8365], [0.183]]]], 2, Con37011), 
+LSub15351 = subtract_layer([[[0.8728, 0.8656], [0.5823, 0.7921], [0.3379, 0.9932]]], [[[0.407, 0.8235], [0.025, 0.8782], [0.3054, 0.0365]]], Sub15351), 
+LMin75468 = minimum_layer([Con37011,Sub15351], Min75468), 
+exec_layers([LGRU76484,LRes83037,LCro88215,LZer23813,LCon37011,LSub15351,LMin75468],["GRU76484","Res83037","Cro88215","Zer23813","Con37011","Sub15351","Min75468"],Min75468,"Min75468")
+
+Actual (Unparsed): [[[0.0000000, 0.0421000], [0.0000000, -0.0861000], [0.0000000, 0.1830000]]]
+
+Expected (Unparsed): [[[0,0.042100000000000026],[0,-0.08609999999999995],[0.0,0.183]]]
+
+Actual:   [[[0, 0.0421], [0, -0.0861], [0, 0.183]]]
+
+Expected: [[[0, 0.0422], [0, -0.086], [0, 0.183]]]

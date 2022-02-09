@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add93694 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Add93694 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Loc57803 = tf.keras.layers.Input(shape=([2, 2]))
+in0Fla49600 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con47643 = tf.keras.layers.Input(shape=([2]))
+
+Add93694 = keras.layers.Add(name = 'Add93694', )([in0Add93694,in1Add93694])
+Res41249 = keras.layers.Reshape((1, 2, 2), name = 'Res41249', )(Add93694)
+Loc57803 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc57803', )(in0Loc57803)
+Fla70257 = keras.layers.Flatten(name = 'Fla70257', )(Loc57803)
+Fla49600 = keras.layers.Flatten(name = 'Fla49600', )(in0Fla49600)
+Con47643 = keras.layers.Concatenate(axis=1, name = 'Con47643', )([Fla49600,in0Con47643])
+Mul43462 = keras.layers.Multiply(name = 'Mul43462', )([Fla70257,Con47643])
+Mas95196 = keras.layers.Masking(mask_value=2, name = 'Mas95196', )(Mul43462)
+Res88418 = keras.layers.Reshape((1, 2, 2), name = 'Res88418', )(Mas95196)
+Ave68208 = keras.layers.Average(name = 'Ave68208', )([Res41249,Res88418])
+model = tf.keras.models.Model(inputs=[in0Add93694,in1Add93694,in0Loc57803,in0Fla49600,in0Con47643], outputs=Ave68208)
+w = model.get_layer('Loc57803').get_weights() 
+w[0] = np.array([[[0.6143, 0.3612], [0.4477, 0.7857]], [[0.0817, 0.0003], [0.0786, 0.3115]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc57803').set_weights(w) 
+in0Add93694 = tf.constant([[[[[0.0248, 0.4113]], [[0.6659, 0.7374]]]]])
+in1Add93694 = tf.constant([[[[[0.6207, 0.9963]], [[0.7847, 0.7237]]]]])
+in0Loc57803 = tf.constant([[[0.0482, 0.5571], [0.2904, 0.2563]]])
+in0Fla49600 = tf.constant([[[1.894], [1.3936]]])
+in0Con47643 = tf.constant([[0.9191, 0.3507]])
+print (np.array2string(model.predict([in0Add93694,in1Add93694,in0Loc57803,in0Fla49600,in0Con47643],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave68208.png')
+
+LAdd93694 = add_layer([[[[[[0.0248, 0.4113]], [[0.6659, 0.7374]]]]], [[[[[0.6207, 0.9963]], [[0.7847, 0.7237]]]]]], Add93694), 
+LRes41249 = reshape_layer(Add93694, [1, 2, 2], Res41249), 
+LLoc57803 = locally_connected1D_layer([[[0.0482, 0.5571], [0.2904, 0.2563]]], 1,[[[0.6143, 0.3612], [0.4477, 0.7857]], [[0.0817, 0.0003], [0.0786, 0.3115]]],[[0, 0], [0, 0]], 1, Loc57803), 
+LFla70257 = flatten_layer(Loc57803, Fla70257), 
+LFla49600 = flatten_layer([[[1.894], [1.3936]]], Fla49600), 
+LCon47643 = concatenate_layer([Fla49600,[[0.9191, 0.3507]]], 1, Con47643), 
+LMul43462 = multiply_layer([Fla70257,Con47643], Mul43462), 
+LMas95196 = masking_layer(Mul43462, 2, Mas95196), 
+LRes88418 = reshape_layer(Mas95196, [1, 2, 2], Res88418), 
+LAve68208 = average_layer([Res41249,Res88418], Ave68208), 
+exec_layers([LAdd93694,LRes41249,LLoc57803,LFla70257,LFla49600,LCon47643,LMul43462,LMas95196,LRes88418,LAve68208],["Add93694","Res41249","Loc57803","Fla70257","Fla49600","Con47643","Mul43462","Mas95196","Res88418","Ave68208"],Ave68208,"Ave68208")
+
+Actual (Unparsed): [[[[0.5869847, 1.0209299], [0.7454608, 0.7445648]]]]
+
+Expected (Unparsed): [[[[0.58698471471,1.020929922408],[0.7454608537130001,0.7445647733495]]]]
+
+Actual:   [[[[0.587, 1.021], [0.7455, 0.7446]]]]
+
+Expected: [[[[0.587, 1.021], [0.7455, 0.7446]]]]

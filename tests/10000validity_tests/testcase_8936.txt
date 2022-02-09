@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con7523 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min30003 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Min30003 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Con7523 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con7523', )(in0Con7523)
+Res95617 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res95617', )(Con7523)
+Min30003 = keras.layers.Minimum(name = 'Min30003', )([in0Min30003,in1Min30003])
+Zer25885 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer25885', )(Min30003)
+Mul6292 = keras.layers.Multiply(name = 'Mul6292', )([Res95617,Zer25885])
+Res2715 = keras.layers.Reshape((1, 1, 2), name = 'Res2715', )(Mul6292)
+Dep97701 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep97701', )(Res2715)
+model = tf.keras.models.Model(inputs=[in0Con7523,in0Min30003,in1Min30003], outputs=Dep97701)
+w = model.get_layer('Con7523').get_weights() 
+w[0] = np.array([[[[0.4978, 0.5504], [0.9143, 0.8101]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con7523').set_weights(w) 
+w = model.get_layer('Dep97701').get_weights() 
+w[0] = np.array([[[[0.1869], [0.5566]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep97701').set_weights(w) 
+in0Con7523 = tf.constant([[[[0.133, 0.4231]]]])
+in0Min30003 = tf.constant([[[[[0.4977]]]]])
+in1Min30003 = tf.constant([[[[[0.5378]]]]])
+print (np.array2string(model.predict([in0Con7523,in0Min30003,in1Min30003],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep97701.png')
+
+LCon7523 = conv2D_transpose_layer([[[[0.133, 0.4231]]]], 1, 1,[[[[0.4978, 0.5504], [0.9143, 0.8101]]]],[0, 0], 1, 1, false, Con7523), 
+LRes95617 = reshape_layer(Con7523, [1, 1, 2, 1], Res95617), 
+LMin30003 = minimum_layer([[[[[[0.4977]]]]], [[[[[0.5378]]]]]], Min30003), 
+LZer25885 = zero_padding3D_layer(Min30003, 0, 0, 0, 0, 1, 0, Zer25885), 
+LMul6292 = multiply_layer([Res95617,Zer25885], Mul6292), 
+LRes2715 = reshape_layer(Mul6292, [1, 1, 2], Res2715), 
+LDep97701 = depthwise_conv2D_layer(Res2715, 1, 1,[[[[0.1869], [0.5566]]]],[0, 0], 1, 1, true, Dep97701), 
+exec_layers([LCon7523,LRes95617,LMin30003,LZer25885,LMul6292,LRes2715,LDep97701],["Con7523","Res95617","Min30003","Zer25885","Mul6292","Res2715","Dep97701"],Dep97701,"Dep97701")
+
+Actual (Unparsed): [[[[0.0000000, 0.1286356]]]]
+
+Expected (Unparsed): [[[[0.0,0.1286355966902622]]]]
+
+Actual:   [[[[0, 0.1287]]]]
+
+Expected: [[[[0, 0.1287]]]]

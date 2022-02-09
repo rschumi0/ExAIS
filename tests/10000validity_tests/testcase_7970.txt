@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul92317 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul92317 = tf.keras.layers.Input(shape=([2, 1]))
+in0Up_56703 = tf.keras.layers.Input(shape=([1, 4]))
+in0Max78977 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Max78977 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Mul92317 = keras.layers.Multiply(name = 'Mul92317', )([in0Mul92317,in1Mul92317])
+ReL71203 = keras.layers.ReLU(max_value=6.645105586449481, negative_slope=0.9127587238469962, threshold=6.195154177383126, name = 'ReL71203', )(Mul92317)
+Res37124 = keras.layers.Reshape((2, 1, 1), name = 'Res37124', )(ReL71203)
+Zer38506 = keras.layers.ZeroPadding2D(padding=((0, 0), (3, 0)), name = 'Zer38506', )(Res37124)
+Up_56703 = keras.layers.UpSampling1D(size=(2), name = 'Up_56703', )(in0Up_56703)
+Res28953 = keras.layers.Reshape((2, 4, 1), name = 'Res28953', )(Up_56703)
+PRe92839 = keras.layers.PReLU(name = 'PRe92839', )(Res28953)
+Mul5566 = keras.layers.Multiply(name = 'Mul5566', )([Zer38506,PRe92839])
+Res50552 = keras.layers.Reshape((2, 4, 1, 1), name = 'Res50552', )(Mul5566)
+Max78977 = keras.layers.Maximum(name = 'Max78977', )([in0Max78977,in1Max78977])
+Zer23680 = keras.layers.ZeroPadding3D(padding=((1, 0), (2, 0), (0, 0)), name = 'Zer23680', )(Max78977)
+Sub50860 = keras.layers.Subtract(name = 'Sub50860', )([Res50552,Zer23680])
+model = tf.keras.models.Model(inputs=[in0Mul92317,in1Mul92317,in0Up_56703,in0Max78977,in1Max78977], outputs=Sub50860)
+w = model.get_layer('PRe92839').get_weights() 
+w[0] = np.array([[[0.3947], [0.0776], [0.1853], [0.0367]], [[0.8526], [0.8035], [0.6276], [0.6857]]])
+model.get_layer('PRe92839').set_weights(w) 
+in0Mul92317 = tf.constant([[[0.3746], [0.868]]])
+in1Mul92317 = tf.constant([[[0.7471], [0.2817]]])
+in0Up_56703 = tf.constant([[[1.1156, 1.7946, 1.9473, 1.1498]]])
+in0Max78977 = tf.constant([[[[[0.7657]], [[0.7063]]]]])
+in1Max78977 = tf.constant([[[[[0.6367]], [[0.7893]]]]])
+print (np.array2string(model.predict([in0Mul92317,in1Mul92317,in0Up_56703,in0Max78977,in1Max78977],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub50860.png')
+
+LMul92317 = multiply_layer([[[[0.3746], [0.868]]], [[[0.7471], [0.2817]]]], Mul92317), 
+LReL71203 = relu_layer(Mul92317, 6.645105586449481, 0.9127587238469962, 6.195154177383126, ReL71203), 
+LRes37124 = reshape_layer(ReL71203, [2, 1, 1], Res37124), 
+LZer38506 = zero_padding2D_layer(Res37124, 0, 0, 3, 0, Zer38506), 
+LUp_56703 = up_sampling1D_layer([[[1.1156, 1.7946, 1.9473, 1.1498]]], 2, Up_56703), 
+LRes28953 = reshape_layer(Up_56703, [2, 4, 1], Res28953), 
+LPRe92839 = prelu_layer(Res28953, [[[0.3947], [0.0776], [0.1853], [0.0367]], [[0.8526], [0.8035], [0.6276], [0.6857]]], PRe92839), 
+LMul5566 = multiply_layer([Zer38506,PRe92839], Mul5566), 
+LRes50552 = reshape_layer(Mul5566, [2, 4, 1, 1], Res50552), 
+LMax78977 = maximum_layer([[[[[[0.7657]], [[0.7063]]]]], [[[[[0.6367]], [[0.7893]]]]]], Max78977), 
+LZer23680 = zero_padding3D_layer(Max78977, 1, 0, 2, 0, 0, 0, Zer23680), 
+LSub50860 = subtract_layer(Res50552,Zer23680, Sub50860), 
+exec_layers([LMul92317,LReL71203,LRes37124,LZer38506,LUp_56703,LRes28953,LPRe92839,LMul5566,LRes50552,LMax78977,LZer23680,LSub50860],["Mul92317","ReL71203","Res37124","Zer38506","Up_56703","Res28953","PRe92839","Mul5566","Res50552","Max78977","Zer23680","Sub50860"],Sub50860,"Sub50860")
+
+Actual (Unparsed): [[[[[0.0000000]], [[0.0000000]], [[0.0000000]], [[-6.2080378]]], [[[0.0000000]], [[0.0000000]], [[-0.7657000]], [[-7.0344353]]]]]
+
+Expected (Unparsed): [[[[[0.0]],[[0.0]],[[0.0]],[[-6.208038130800722]]],[[[0.0]],[[0.0]],[[-0.7657]],[[-7.034435565607172]]]]]
+
+Actual:   [[[[[0]], [[0]], [[0]], [[-6.208]]], [[[0]], [[0]], [[-0.7657]], [[-7.0344]]]]]
+
+Expected: [[[[[0]], [[0]], [[0]], [[-6.208]]], [[[0]], [[0]], [[-0.7657]], [[-7.0344]]]]]

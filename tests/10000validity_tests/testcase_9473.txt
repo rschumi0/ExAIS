@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub8779 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Sub8779 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0PRe54687 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+Sub8779 = keras.layers.Subtract(name = 'Sub8779', )([in0Sub8779,in1Sub8779])
+Res11848 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res11848', )(Sub8779)
+PRe54687 = keras.layers.PReLU(name = 'PRe54687', input_shape=(1, 2, 2, 1))(in0PRe54687)
+Zer80757 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer80757', )(PRe54687)
+Ave70364 = keras.layers.Average(name = 'Ave70364', )([Res11848,Zer80757])
+Res54774 = keras.layers.Reshape((2, 2, 2), name = 'Res54774', )(Ave70364)
+Con48243 = keras.layers.Conv2DTranspose(3, (1, 2),strides=(1, 1), padding='same', name = 'Con48243', )(Res54774)
+model = tf.keras.models.Model(inputs=[in0Sub8779,in1Sub8779,in0PRe54687], outputs=Con48243)
+w = model.get_layer('PRe54687').get_weights() 
+w[0] = np.array([[[[0.9198], [0.026]], [[0.9223], [0.4644]]]])
+model.get_layer('PRe54687').set_weights(w) 
+w = model.get_layer('Con48243').get_weights() 
+w[0] = np.array([[[[0.3893, 0.7779], [0.6162, 0.8986], [0.151, 0.2637]], [[0.5453, 0.7567], [0.2567, 0.3421], [0.0507, 0.8466]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con48243').set_weights(w) 
+in0Sub8779 = tf.constant([[[[0.5608, 0.1265], [0.2841, 0.0377]], [[0.8413, 0.594], [0.6246, 0.8381]]]])
+in1Sub8779 = tf.constant([[[[0.3719, 0.1376], [0.7497, 0.1956]], [[0.8515, 0.7156], [0.7532, 0.5188]]]])
+in0PRe54687 = tf.constant([[[[[0.7148], [0.5149]], [[0.7923], [0.6005]]]]])
+print (np.array2string(model.predict([in0Sub8779,in1Sub8779,in0PRe54687],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con48243.png')
+
+LSub8779 = subtract_layer([[[[0.5608, 0.1265], [0.2841, 0.0377]], [[0.8413, 0.594], [0.6246, 0.8381]]]], [[[[0.3719, 0.1376], [0.7497, 0.1956]], [[0.8515, 0.7156], [0.7532, 0.5188]]]], Sub8779), 
+LRes11848 = reshape_layer(Sub8779, [2, 2, 2, 1], Res11848), 
+LPRe54687 = prelu_layer([[[[[0.7148], [0.5149]], [[0.7923], [0.6005]]]]], [[[[0.9198], [0.026]], [[0.9223], [0.4644]]]], PRe54687), 
+LZer80757 = zero_padding3D_layer(PRe54687, 1, 0, 0, 0, 0, 0, Zer80757), 
+LAve70364 = average_layer([Res11848,Zer80757], Ave70364), 
+LRes54774 = reshape_layer(Ave70364, [2, 2, 2], Res54774), 
+LCon48243 = conv2D_transpose_layer(Res54774, 1, 2,[[[[0.3893, 0.7779], [0.6162, 0.8986], [0.151, 0.2637]], [[0.5453, 0.7567], [0.2567, 0.3421], [0.0507, 0.8466]]]],[0, 0, 0], 1, 1, true, Con48243), 
+exec_layers([LSub8779,LRes11848,LPRe54687,LZer80757,LAve70364,LRes54774,LCon48243],["Sub8779","Res11848","PRe54687","Zer80757","Ave70364","Res54774","Con48243"],Con48243,"Con48243")
+
+Actual (Unparsed): [[[[0.0324520, 0.0532129, 0.0127984], [-0.1047403, -0.1920492, -0.0558819]], [[0.2901244, 0.3937970, 0.1050539], [0.8278597, 0.7754615, 0.3557305]]]]
+
+Expected (Unparsed): [[[[0.03245203999999999,0.05321285999999998,0.012798414999999995],[-0.104740345,-0.19204917,-0.055881929999999996]],[[0.290124425,0.39379695,0.10505390499999999],[0.82785966,0.7754614849999999,0.35573047999999996]]]]
+
+Actual:   [[[[0.0325, 0.0533, 0.0128], [-0.1047, -0.192, -0.0558]], [[0.2902, 0.3938, 0.1051], [0.8279, 0.7755, 0.3558]]]]
+
+Expected: [[[[0.0325, 0.0533, 0.0128], [-0.1047, -0.192, -0.0558]], [[0.2902, 0.3938, 0.1051], [0.8279, 0.7755, 0.3558]]]]

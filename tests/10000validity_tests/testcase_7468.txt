@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro26156 = tf.keras.layers.Input(shape=([2, 1, 4, 2]))
+in0Ave90893 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con88966 = tf.keras.layers.Input(shape=([1, 1, 6]))
+
+Cro26156 = keras.layers.Cropping3D(cropping=((1, 0), (0, 0), (0, 0)), name = 'Cro26156', )(in0Cro26156)
+Res42842 = keras.layers.Reshape((1, 1, 8), name = 'Res42842', )(Cro26156)
+Ave90893 = keras.layers.AveragePooling2D(pool_size=(2, 1), strides=(1, 5), padding='valid', name = 'Ave90893', )(in0Ave90893)
+Con88966 = keras.layers.Concatenate(axis=3, name = 'Con88966', )([Ave90893,in0Con88966])
+Ave39650 = keras.layers.Average(name = 'Ave39650', )([Res42842,Con88966])
+Res8535 = keras.layers.Reshape((1, 8), name = 'Res8535', )(Ave39650)
+Max65758 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max65758', )(Res8535)
+model = tf.keras.models.Model(inputs=[in0Cro26156,in0Ave90893,in0Con88966], outputs=Max65758)
+in0Cro26156 = tf.constant([[[[[1.2899, 1.1107], [1.5203, 1.3872], [1.103, 1.8312], [1.1745, 1.2427]]], [[[1.238, 1.7945], [1.8562, 1.0232], [1.8114, 1.8292], [1.51, 1.1789]]]]])
+in0Ave90893 = tf.constant([[[[1.9279, 1.2001]], [[1.8328, 1.7758]]]])
+in0Con88966 = tf.constant([[[[0.6484, 0.5361, 0.6079, 0.331, 0.0573, 0.4854]]]])
+print (np.array2string(model.predict([in0Cro26156,in0Ave90893,in0Con88966],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max65758.png')
+
+LCro26156 = cropping3D_layer([[[[[1.2899, 1.1107], [1.5203, 1.3872], [1.103, 1.8312], [1.1745, 1.2427]]], [[[1.238, 1.7945], [1.8562, 1.0232], [1.8114, 1.8292], [1.51, 1.1789]]]]], 1, 0, 0, 0, 0, 0, Cro26156), 
+LRes42842 = reshape_layer(Cro26156, [1, 1, 8], Res42842), 
+LAve90893 = average_pooling2D_layer([[[[1.9279, 1.2001]], [[1.8328, 1.7758]]]], 2, 1, 1, 5, false, Ave90893), 
+LCon88966 = concatenate_layer([Ave90893,[[[[0.6484, 0.5361, 0.6079, 0.331, 0.0573, 0.4854]]]]], 3, Con88966), 
+LAve39650 = average_layer([Res42842,Con88966], Ave39650), 
+LRes8535 = reshape_layer(Ave39650, [1, 8], Res8535), 
+LMax65758 = max_pool1D_layer(Res8535, 1, 1, false, Max65758), 
+exec_layers([LCro26156,LRes42842,LAve90893,LCon88966,LAve39650,LRes8535,LMax65758],["Cro26156","Res42842","Ave90893","Con88966","Ave39650","Res8535","Max65758"],Max65758,"Max65758")
+
+Actual (Unparsed): [[[1.5591750, 1.6412250, 1.2523000, 0.7796500, 1.2096500, 1.0801000, 0.7836500, 0.8321500]]]
+
+Expected (Unparsed): [[[1.559175,1.641225,1.2523,0.7796500000000001,1.20965,1.0801,0.78365,0.8321500000000001]]]
+
+Actual:   [[[1.5592, 1.6413, 1.2523, 0.7797, 1.2097, 1.0801, 0.7837, 0.8322]]]
+
+Expected: [[[1.5592, 1.6413, 1.2523, 0.7797, 1.2097, 1.0801, 0.7837, 0.8322]]]

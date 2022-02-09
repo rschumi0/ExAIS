@@ -1,0 +1,74 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max32378 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max32378 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Min99013 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min99013 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add82935 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add82935 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max32378 = keras.layers.Maximum(name = 'Max32378', )([in0Max32378,in1Max32378])
+Res33916 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res33916', )(Max32378)
+Con55046 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con55046', )(Res33916)
+Res49535 = keras.layers.Reshape((2, 1, 2), name = 'Res49535', )(Con55046)
+PRe1470 = keras.layers.PReLU(name = 'PRe1470', )(Res49535)
+Res98071 = keras.layers.Reshape((2, 2), name = 'Res98071', )(PRe1470)
+Fla30345 = keras.layers.Flatten(name = 'Fla30345', )(Res98071)
+Min99013 = keras.layers.Minimum(name = 'Min99013', )([in0Min99013,in1Min99013])
+Zer96549 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer96549', )(Min99013)
+Add82935 = keras.layers.Add(name = 'Add82935', )([in0Add82935,in1Add82935])
+Max41212 = keras.layers.Maximum(name = 'Max41212', )([Zer96549,Add82935])
+GRU2277 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU2277', )(Max41212)
+Max6861 = keras.layers.Maximum(name = 'Max6861', )([Fla30345,GRU2277])
+model = tf.keras.models.Model(inputs=[in0Max32378,in1Max32378,in0Min99013,in1Min99013,in0Add82935,in1Add82935], outputs=Max6861)
+w = model.get_layer('Con55046').get_weights() 
+w[0] = np.array([[[[[0.8871], [0.364]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con55046').set_weights(w) 
+w = model.get_layer('PRe1470').get_weights() 
+w[0] = np.array([[[0.1073, 0.9289]], [[0.4786, 0.531]]])
+model.get_layer('PRe1470').set_weights(w) 
+w = model.get_layer('GRU2277').get_weights() 
+w[0] = np.array([[8, 6, 9, 4, 10, 1], [2, 7, 4, 4, 3, 2]])
+w[1] = np.array([[9, 7, 9, 1, 5, 3], [4, 6, 2, 2, 6, 7]])
+w[2] = np.array([5, 8, 6, 1, 3, 4])
+model.get_layer('GRU2277').set_weights(w) 
+in0Max32378 = tf.constant([[[[0.5586]], [[0.7847]]]])
+in1Max32378 = tf.constant([[[[0.9329]], [[0.7654]]]])
+in0Min99013 = tf.constant([[[0.128, 0.1596]]])
+in1Min99013 = tf.constant([[[0.8402, 0.6446]]])
+in0Add82935 = tf.constant([[[0.8662, 0.6081], [0.6119, 0.3889]]])
+in1Add82935 = tf.constant([[[0.9153, 0.0174], [0.1928, 0.6658]]])
+print (np.array2string(model.predict([in0Max32378,in1Max32378,in0Min99013,in1Min99013,in0Add82935,in1Add82935],steps=1), separator=', '))
+
+
+LMax32378 = maximum_layer([[[[[0.5586]], [[0.7847]]]], [[[[0.9329]], [[0.7654]]]]], Max32378), 
+LRes33916 = reshape_layer(Max32378, [2, 1, 1, 1], Res33916), 
+LCon55046 = conv3D_transpose_layer(Res33916, 1, 1, 1,[[[[[0.8871], [0.364]]]]],[0, 0], 1, 1, 1, true, Con55046), 
+LRes49535 = reshape_layer(Con55046, [2, 1, 2], Res49535), 
+LPRe1470 = prelu_layer(Res49535, [[[0.1073, 0.9289]], [[0.4786, 0.531]]], PRe1470), 
+LRes98071 = reshape_layer(PRe1470, [2, 2], Res98071), 
+LFla30345 = flatten_layer(Res98071, Fla30345), 
+LMin99013 = minimum_layer([[[[0.128, 0.1596]]], [[[0.8402, 0.6446]]]], Min99013), 
+LZer96549 = zero_padding1D_layer(Min99013, 1, 0, Zer96549), 
+LAdd82935 = add_layer([[[[0.8662, 0.6081], [0.6119, 0.3889]]], [[[0.9153, 0.0174], [0.1928, 0.6658]]]], Add82935), 
+LMax41212 = maximum_layer([Zer96549,Add82935], Max41212), 
+LGRU2277 = gru_layer(Max41212,[[8, 6, 9, 4, 10, 1], [2, 7, 4, 4, 3, 2]],[[9, 7, 9, 1, 5, 3], [4, 6, 2, 2, 6, 7]],[5, 8, 6, 1, 3, 4], false, GRU2277), 
+LMax6861 = maximum_layer([Fla30345,GRU2277], Max6861), 
+exec_layers([LMax32378,LRes33916,LCon55046,LRes49535,LPRe1470,LRes98071,LFla30345,LMin99013,LZer96549,LAdd82935,LMax41212,LGRU2277,LMax6861],["Max32378","Res33916","Con55046","Res49535","PRe1470","Res98071","Fla30345","Min99013","Zer96549","Add82935","Max41212","GRU2277","Max6861"],Max6861,"Max6861")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Operands could not be broadcast together with shapes (4,) (2,)
+
+Expected (Unparsed): 
+Max6861: Inconsistent Input Shapes, Input Shape [1,4]
+
+Actual:   
+
+Expected: 

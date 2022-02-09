@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max46371 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Max46371 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con92756 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Min52475 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Min52475 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Max46371 = keras.layers.Maximum(name = 'Max46371', )([in0Max46371,in1Max46371])
+Con92756 = keras.layers.Concatenate(axis=3, name = 'Con92756', )([Max46371,in0Con92756])
+Min52475 = keras.layers.Minimum(name = 'Min52475', )([in0Min52475,in1Min52475])
+Res75732 = keras.layers.Reshape((1, 2), name = 'Res75732', )(Min52475)
+Con46781 = keras.layers.Conv1D(3, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con46781', )(Res75732)
+Res83855 = keras.layers.Reshape((1, 3, 1), name = 'Res83855', )(Con46781)
+Loc14124 = keras.layers.LocallyConnected2D(4, (1, 2),strides=(1, 1), name = 'Loc14124', )(Res83855)
+Mul92497 = keras.layers.Multiply(name = 'Mul92497', )([Con92756,Loc14124])
+model = tf.keras.models.Model(inputs=[in0Max46371,in1Max46371,in0Con92756,in0Min52475,in1Min52475], outputs=Mul92497)
+w = model.get_layer('Con46781').get_weights() 
+w[0] = np.array([[[0.0308, 0.6672, 0.5324], [0.1658, 0.9923, 0.0003]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con46781').set_weights(w) 
+w = model.get_layer('Loc14124').get_weights() 
+w[0] = np.array([[[0.4858, 0.516, 0.9883, 0.5495], [0.1575, 0.9112, 0.0144, 0.2719]], [[0.3235, 0.0596, 0.0425, 0.3946], [0.0542, 0.641, 0.1522, 0.0021]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc14124').set_weights(w) 
+in0Max46371 = tf.constant([[[[0.7363, 0.869], [0.8447, 0.3095]]]])
+in1Max46371 = tf.constant([[[[0.8833, 0.1157], [0.4959, 0.772]]]])
+in0Con92756 = tf.constant([[[[0.7236, 0.3254], [0.0872, 0.2028]]]])
+in0Min52475 = tf.constant([[[[0.0958, 0.2872]]]])
+in1Min52475 = tf.constant([[[[0.5888, 0.7284]]]])
+print (np.array2string(model.predict([in0Max46371,in1Max46371,in0Con92756,in0Min52475,in1Min52475],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul92497.png')
+
+LMax46371 = maximum_layer([[[[[0.7363, 0.869], [0.8447, 0.3095]]]], [[[[0.8833, 0.1157], [0.4959, 0.772]]]]], Max46371), 
+LCon92756 = concatenate_layer([Max46371,[[[[0.7236, 0.3254], [0.0872, 0.2028]]]]], 3, Con92756), 
+LMin52475 = minimum_layer([[[[[0.0958, 0.2872]]]], [[[[0.5888, 0.7284]]]]], Min52475), 
+LRes75732 = reshape_layer(Min52475, [1, 2], Res75732), 
+LCon46781 = conv1D_layer(Res75732, 1,[[[0.0308, 0.6672, 0.5324], [0.1658, 0.9923, 0.0003]]],[0, 0, 0], 1, false, 1, Con46781), 
+LRes83855 = reshape_layer(Con46781, [1, 3, 1], Res83855), 
+LLoc14124 = locally_connected2D_layer(Res83855, 1, 2,[[[0.4858, 0.516, 0.9883, 0.5495], [0.1575, 0.9112, 0.0144, 0.2719]], [[0.3235, 0.0596, 0.0425, 0.3946], [0.0542, 0.641, 0.1522, 0.0021]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 1, 1, Loc14124), 
+LMul92497 = multiply_layer([Con92756,Loc14124], Mul92497), 
+exec_layers([LMax46371,LCon92756,LMin52475,LRes75732,LCon46781,LRes83855,LLoc14124,LMul92497],["Max46371","Con92756","Min52475","Res75732","Con46781","Res83855","Loc14124","Mul92497"],Mul92497,"Mul92497")
+
+Actual (Unparsed): [[[[0.0702390, 0.2989505, 0.0397987, 0.0399119], [0.0976813, 0.0413356, 0.0019711, 0.0279429]]]]
+
+Expected (Unparsed): [[[[0.070239021510196,0.298950541136896,0.039798724126780795,0.039911925353283195],[0.0976813418602632,0.041335626738944,0.0019711061892672,0.027942944632512002]]]]
+
+Actual:   [[[[0.0703, 0.299, 0.0398, 0.04], [0.0977, 0.0414, 0.002, 0.028]]]]
+
+Expected: [[[[0.0703, 0.299, 0.0398, 0.04], [0.0977, 0.0414, 0.002, 0.028]]]]

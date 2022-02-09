@@ -1,0 +1,37 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot28582 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot28582 = tf.keras.layers.Input(shape=([2, 3]))
+
+Dot28582 = keras.layers.Dot(axes=(1, 1), name = 'Dot28582', )([in0Dot28582,in1Dot28582])
+Res44631 = keras.layers.Reshape((3, 3, 1), name = 'Res44631', )(Dot28582)
+Res29699 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res29699', )(Res44631)
+Con91281 = keras.layers.Conv3D(4, (2, 2, 1),strides=(4, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con91281', )(Res29699)
+model = tf.keras.models.Model(inputs=[in0Dot28582,in1Dot28582], outputs=Con91281)
+w = model.get_layer('Con91281').get_weights() 
+w[0] = np.array([[[[[0.0094, 0.9472, 0.6564, 0.0639]]], [[[0.0535, 0.6871, 0.0322, 0.0549]]]], [[[[0.6678, 0.7959, 0.7262, 0.4616]]], [[[0.1195, 0.5809, 0.3847, 0.0645]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con91281').set_weights(w) 
+in0Dot28582 = tf.constant([[[0.2684, 0.9469, 0.4665], [0.1572, 0.6923, 0.1838]]])
+in1Dot28582 = tf.constant([[[0.7416, 0.8833, 0.6252], [0.5542, 0.8867, 0.3883]]])
+print (np.array2string(model.predict([in0Dot28582,in1Dot28582],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con91281.png')
+
+LDot28582 = dot_layer([[[0.2684, 0.9469, 0.4665], [0.1572, 0.6923, 0.1838]]], [[[0.7416, 0.8833, 0.6252], [0.5542, 0.8867, 0.3883]]], 1, 1, Dot28582), 
+LRes44631 = reshape_layer(Dot28582, [3, 3, 1], Res44631), 
+LRes29699 = reshape_layer(Res44631, [3, 3, 1, 1], Res29699), 
+LCon91281 = conv3D_layer(Res29699, 2, 2, 1,[[[[[0.0094, 0.9472, 0.6564, 0.0639]]], [[[0.0535, 0.6871, 0.0322, 0.0549]]]], [[[[0.6678, 0.7959, 0.7262, 0.4616]]], [[[0.1195, 0.5809, 0.3847, 0.0645]]]]],[0, 0, 0, 0], 4, 1, 1, true, 1, 1, 1, Con91281), 
+exec_layers([LDot28582,LRes44631,LRes29699,LCon91281],["Dot28582","Res44631","Res29699","Con91281"],Con91281,"Con91281")
+
+Actual (Unparsed): [[[[[0.9212967, 2.2364449, 1.5464521, 0.6337443]], [[1.0871333, 2.1681413, 1.6388181, 0.7615825]], [[0.5770080, 0.9018897, 0.7753424, 0.4119786]]]]]
+
+Expected (Unparsed): [[[[[0.9212967246219997,2.236444933804,1.5464520999499998,0.633744272086]],[[1.0871332727829999,2.168141282971,1.6388181318869999,0.761582453053]],[[0.5770080493019999,0.901889659491,0.7753424050299998,0.41197858106799995]]]]]
+
+Actual:   [[[[[0.9213, 2.2365, 1.5465, 0.6338]], [[1.0872, 2.1682, 1.6389, 0.7616]], [[0.5771, 0.9019, 0.7754, 0.412]]]]]
+
+Expected: [[[[[0.9213, 2.2365, 1.5465, 0.6338]], [[1.0872, 2.1682, 1.6389, 0.7616]], [[0.5771, 0.9019, 0.7754, 0.412]]]]]

@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep13025 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con72832 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave58006 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave58006 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min2989 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min2989 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dep13025 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='same', name = 'Dep13025', )(in0Dep13025)
+ELU25643 = keras.layers.ELU(alpha=5.50225990691461, name = 'ELU25643', )(Dep13025)
+Res58837 = keras.layers.Reshape((1, 1), name = 'Res58837', )(ELU25643)
+Zer72558 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer72558', )(Res58837)
+Con72832 = keras.layers.Concatenate(axis=2, name = 'Con72832', )([Zer72558,in0Con72832])
+Ave58006 = keras.layers.Average(name = 'Ave58006', )([in0Ave58006,in1Ave58006])
+Res65042 = keras.layers.Reshape((2, 2), name = 'Res65042', )(Ave58006)
+Min2989 = keras.layers.Minimum(name = 'Min2989', )([in0Min2989,in1Min2989])
+Den732 = keras.layers.Dense(2,name = 'Den732', )(Min2989)
+Bat83039 = keras.layers.BatchNormalization(axis=1, epsilon=0.18206038477491354,  name = 'Bat83039', )(Den732)
+Sub76365 = keras.layers.Subtract(name = 'Sub76365', )([Res65042,Bat83039])
+Sub70742 = keras.layers.Subtract(name = 'Sub70742', )([Con72832,Sub76365])
+model = tf.keras.models.Model(inputs=[in0Dep13025,in0Con72832,in0Ave58006,in1Ave58006,in0Min2989,in1Min2989], outputs=Sub70742)
+w = model.get_layer('Dep13025').get_weights() 
+w[0] = np.array([[[[0.0238]]], [[[0.4622]]]])
+w[1] = np.array([0])
+model.get_layer('Dep13025').set_weights(w) 
+w = model.get_layer('Den732').get_weights() 
+w[0] = np.array([[0.7189, 0.1279]])
+w[1] = np.array([0.9936, 0.264])
+model.get_layer('Den732').set_weights(w) 
+w = model.get_layer('Bat83039').get_weights() 
+w[0] = np.array([0.8787, 0.2805])
+w[1] = np.array([0.9382, 0.7825])
+w[2] = np.array([0.5492, 0.9238])
+w[3] = np.array([0.7119, 0.3025])
+model.get_layer('Bat83039').set_weights(w) 
+in0Dep13025 = tf.constant([[[[0.4888]], [[0.8805]]]])
+in0Con72832 = tf.constant([[[0.2904], [0.7599]]])
+in0Ave58006 = tf.constant([[[[0.1504], [0.955]], [[0.586], [0.5555]]]])
+in1Ave58006 = tf.constant([[[[0.8946], [0.472]], [[0.9369], [0.6171]]]])
+in0Min2989 = tf.constant([[[0.4735], [0.6878]]])
+in1Min2989 = tf.constant([[[0.976], [0.5131]]])
+print (np.array2string(model.predict([in0Dep13025,in0Con72832,in0Ave58006,in1Ave58006,in0Min2989,in1Min2989],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub70742.png')
+
+LDep13025 = depthwise_conv2D_layer([[[[0.4888]], [[0.8805]]]], 2, 1,[[[[0.0238]]], [[[0.4622]]]],[0], 2, 2, true, Dep13025), 
+LELU25643 = elu_layer(Dep13025, 5.50225990691461, ELU25643), 
+LRes58837 = reshape_layer(ELU25643, [1, 1], Res58837), 
+LZer72558 = zero_padding1D_layer(Res58837, 1, 0, Zer72558), 
+LCon72832 = concatenate_layer([Zer72558,[[[0.2904], [0.7599]]]], 2, Con72832), 
+LAve58006 = average_layer([[[[[0.1504], [0.955]], [[0.586], [0.5555]]]], [[[[0.8946], [0.472]], [[0.9369], [0.6171]]]]], Ave58006), 
+LRes65042 = reshape_layer(Ave58006, [2, 2], Res65042), 
+LMin2989 = minimum_layer([[[[0.4735], [0.6878]]], [[[0.976], [0.5131]]]], Min2989), 
+LDen732 = dense_layer(Min2989, [[0.7189, 0.1279]],[0.9936, 0.264], Den732), 
+LBat83039 = batch_normalization_layer(Den732, 1, 0.18206038477491354, [0.8787, 0.2805], [0.9382, 0.7825], [0.5492, 0.9238], [0.7119, 0.3025], Bat83039), 
+LSub76365 = subtract_layer(Res65042,Bat83039, Sub76365), 
+LSub70742 = subtract_layer(Con72832,Sub76365, Sub70742), 
+exec_layers([LDep13025,LELU25643,LRes58837,LZer72558,LCon72832,LAve58006,LRes65042,LMin2989,LDen732,LBat83039,LSub76365,LSub70742],["Dep13025","ELU25643","Res58837","Zer72558","Con72832","Ave58006","Res65042","Min2989","Den732","Bat83039","Sub76365","Sub70742"],Sub70742,"Sub70742")
+
+Actual (Unparsed): [[[1.1450568, 0.3063304], [0.6164148, 0.7166731]]]
+
+Expected (Unparsed): [[[1.1450567616316245,0.3063303691319835],[0.6164148008362611,0.7166731071495442]]]
+
+Actual:   [[[1.1451, 0.3064], [0.6165, 0.7167]]]
+
+Expected: [[[1.1451, 0.3064], [0.6165, 0.7167]]]

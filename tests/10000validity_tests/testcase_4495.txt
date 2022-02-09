@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave6245 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Ave6245 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Ave6245 = keras.layers.Average(name = 'Ave6245', )([in0Ave6245,in1Ave6245])
+Res61369 = keras.layers.Reshape((1, 2, 1), name = 'Res61369', )(Ave6245)
+Res99321 = keras.layers.Reshape((1, 2), name = 'Res99321', )(Res61369)
+Sep79712 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep79712', )(Res99321)
+Fla99685 = keras.layers.Flatten(name = 'Fla99685', )(Sep79712)
+Res9471 = keras.layers.Reshape((2, 1), name = 'Res9471', )(Fla99685)
+Res39679 = keras.layers.Reshape((2, 1, 1), name = 'Res39679', )(Res9471)
+Res51598 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res51598', )(Res39679)
+Con71053 = keras.layers.Conv3DTranspose(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con71053', )(Res51598)
+Res68529 = keras.layers.Reshape((3, 1, 2), name = 'Res68529', )(Con71053)
+Sep16219 = keras.layers.SeparableConv2D(3, (2, 1),strides=(1, 1), padding='valid', name = 'Sep16219', )(Res68529)
+model = tf.keras.models.Model(inputs=[in0Ave6245,in1Ave6245], outputs=Sep16219)
+w = model.get_layer('Sep79712').get_weights() 
+w[0] = np.array([[[0.3542], [0.6163]]])
+w[1] = np.array([[[0.4604, 0.1924], [0.3587, 0.7553]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep79712').set_weights(w) 
+w = model.get_layer('Con71053').get_weights() 
+w[0] = np.array([[[[[0.9192], [0.5892]]]], [[[[0.6611], [0.3699]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con71053').set_weights(w) 
+w = model.get_layer('Sep16219').get_weights() 
+w[0] = np.array([[[[0.0534], [0.5804]]], [[[0.2234], [0.0218]]]])
+w[1] = np.array([[[[0.6138, 0.3223, 0.3825], [0.9572, 0.2272, 0.47]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep16219').set_weights(w) 
+in0Ave6245 = tf.constant([[[[[0.3473]], [[0.0192]]]]])
+in1Ave6245 = tf.constant([[[[[0.0272]], [[0.982]]]]])
+print (np.array2string(model.predict([in0Ave6245,in1Ave6245],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep16219.png')
+
+LAve6245 = average_layer([[[[[[0.3473]], [[0.0192]]]]], [[[[[0.0272]], [[0.982]]]]]], Ave6245), 
+LRes61369 = reshape_layer(Ave6245, [1, 2, 1], Res61369), 
+LRes99321 = reshape_layer(Res61369, [1, 2], Res99321), 
+LSep79712 = separable_conv1D_layer(Res99321, 1,[[[[0.3542], [0.6163]]],[[[0.4604, 0.1924], [0.3587, 0.7553]]]],[0, 0], 1, true, Sep79712), 
+LFla99685 = flatten_layer(Sep79712, Fla99685), 
+LRes9471 = reshape_layer(Fla99685, [2, 1], Res9471), 
+LRes39679 = reshape_layer(Res9471, [2, 1, 1], Res39679), 
+LRes51598 = reshape_layer(Res39679, [2, 1, 1, 1], Res51598), 
+LCon71053 = conv3D_transpose_layer(Res51598, 2, 1, 1,[[[[[0.9192], [0.5892]]]], [[[[0.6611], [0.3699]]]]],[0, 0], 1, 1, 1, false, Con71053), 
+LRes68529 = reshape_layer(Con71053, [3, 1, 2], Res68529), 
+LSep16219 = separable_conv2D_layer(Res68529, 2, 1,[[[[[0.0534], [0.5804]]], [[[0.2234], [0.0218]]]],[[[[0.6138, 0.3223, 0.3825], [0.9572, 0.2272, 0.47]]]]],[0, 0, 0], 1, 1, false, Sep16219), 
+exec_layers([LAve6245,LRes61369,LRes99321,LSep79712,LFla99685,LRes9471,LRes39679,LRes51598,LCon71053,LRes68529,LSep16219],["Ave6245","Res61369","Res99321","Sep79712","Fla99685","Res9471","Res39679","Res51598","Con71053","Res68529","Sep16219"],Sep16219,"Sep16219")
+
+Actual (Unparsed): [[[[0.0983661, 0.0371689, 0.0546471]], [[0.1441144, 0.0436288, 0.0750898]]]]
+
+Expected (Unparsed): [[[[0.09836610923266789,0.03716894996039381,0.05464706352132592]],[[0.14411437966101578,0.04362880865618511,0.07508980105235956]]]]
+
+Actual:   [[[[0.0984, 0.0372, 0.0547]], [[0.1442, 0.0437, 0.0751]]]]
+
+Expected: [[[[0.0984, 0.0372, 0.0547]], [[0.1442, 0.0437, 0.0751]]]]

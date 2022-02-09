@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas76916 = tf.keras.layers.Input(shape=([3, 2, 1]))
+in0Min18452 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Min18452 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Per11839 = tf.keras.layers.Input(shape=([3, 3]))
+
+Mas76916 = keras.layers.Masking(mask_value=1, name = 'Mas76916', )(in0Mas76916)
+Res61910 = keras.layers.Reshape((3, 2), name = 'Res61910', )(Mas76916)
+Min18452 = keras.layers.Minimum(name = 'Min18452', )([in0Min18452,in1Min18452])
+Res77602 = keras.layers.Reshape((2, 1), name = 'Res77602', )(Min18452)
+Zer15232 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer15232', )(Res77602)
+Per11839 = keras.layers.Permute((2,1), name = 'Per11839',)(in0Per11839)
+Res1116 = keras.layers.Reshape((3, 3, 1), name = 'Res1116', )(Per11839)
+Sep10763 = keras.layers.SeparableConv2D(3, (3, 2),strides=(2, 2), padding='valid', name = 'Sep10763', )(Res1116)
+Res5478 = keras.layers.Reshape((1, 3), name = 'Res5478', )(Sep10763)
+Dot57427 = keras.layers.Dot(axes=(2, 1), name = 'Dot57427', )([Zer15232,Res5478])
+Dot18873 = keras.layers.Dot(axes=(1, 1), name = 'Dot18873', )([Res61910,Dot57427])
+model = tf.keras.models.Model(inputs=[in0Mas76916,in0Min18452,in1Min18452,in0Per11839], outputs=Dot18873)
+w = model.get_layer('Sep10763').get_weights() 
+w[0] = np.array([[[[0.6973]], [[0.0715]]], [[[0.8058]], [[0.4599]]], [[[0.6036]], [[0.5649]]]])
+w[1] = np.array([[[[0.3767, 0.5572, 0.6613]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep10763').set_weights(w) 
+in0Mas76916 = tf.constant([[[[1.0898], [1.8356]], [[1.0546], [1.7093]], [[1.4115], [1.419]]]])
+in0Min18452 = tf.constant([[[[0.6631]], [[0.1299]]]])
+in1Min18452 = tf.constant([[[[0.8094]], [[0.7666]]]])
+in0Per11839 = tf.constant([[[1.9469, 1.8973, 1.2227], [1.9861, 1.6321, 1.4544], [1.5873, 1.1398, 1.0907]]])
+print (np.array2string(model.predict([in0Mas76916,in0Min18452,in1Min18452,in0Per11839],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot18873.png')
+
+LMas76916 = masking_layer([[[[1.0898], [1.8356]], [[1.0546], [1.7093]], [[1.4115], [1.419]]]], 1, Mas76916), 
+LRes61910 = reshape_layer(Mas76916, [3, 2], Res61910), 
+LMin18452 = minimum_layer([[[[[0.6631]], [[0.1299]]]], [[[[0.8094]], [[0.7666]]]]], Min18452), 
+LRes77602 = reshape_layer(Min18452, [2, 1], Res77602), 
+LZer15232 = zero_padding1D_layer(Res77602, 1, 0, Zer15232), 
+LPer11839 = permute_layer([[[1.9469, 1.8973, 1.2227], [1.9861, 1.6321, 1.4544], [1.5873, 1.1398, 1.0907]]], 2,1, Per11839), 
+LRes1116 = reshape_layer(Per11839, [3, 3, 1], Res1116), 
+LSep10763 = separable_conv2D_layer(Res1116, 3, 2,[[[[[0.6973]], [[0.0715]]], [[[0.8058]], [[0.4599]]], [[[0.6036]], [[0.5649]]]],[[[[0.3767, 0.5572, 0.6613]]]]],[0, 0, 0], 2, 2, false, Sep10763), 
+LRes5478 = reshape_layer(Sep10763, [1, 3], Res5478), 
+LDot57427 = dot_layer(Zer15232,Res5478, 2, 1, Dot57427), 
+LDot18873 = dot_layer(Res61910,Dot57427, 1, 1, Dot18873), 
+exec_layers([LMas76916,LRes61910,LMin18452,LRes77602,LZer15232,LPer11839,LRes1116,LSep10763,LRes5478,LDot57427,LDot18873],["Mas76916","Res61910","Min18452","Res77602","Zer15232","Per11839","Res1116","Sep10763","Res5478","Dot57427","Dot18873"],Dot18873,"Dot18873")
+
+Actual (Unparsed): [[[1.7750851, 2.6256368, 3.1161767], [2.6501113, 3.9199417, 4.6522926]]]
+
+Expected (Unparsed): [[[1.7750850945490928,2.625636885274103,3.1161767269055356],[2.6501113044225293,3.919941648060083,4.652292555387891]]]
+
+Actual:   [[[1.7751, 2.6257, 3.1162], [2.6502, 3.92, 4.6523]]]
+
+Expected: [[[1.7751, 2.6257, 3.1162], [2.6502, 3.92, 4.6523]]]

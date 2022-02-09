@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep89385 = tf.keras.layers.Input(shape=([1, 1]))
+in0Dot44955 = tf.keras.layers.Input(shape=([2]))
+in1Dot44955 = tf.keras.layers.Input(shape=([2]))
+in0Con89183 = tf.keras.layers.Input(shape=([1, 1]))
+
+Sep89385 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep89385', )(in0Sep89385)
+Dot44955 = keras.layers.Dot(axes=(1, 1), name = 'Dot44955', )([in0Dot44955,in1Dot44955])
+Res66592 = keras.layers.Reshape((1, 1), name = 'Res66592', )(Dot44955)
+Ave5545 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave5545', )(Res66592)
+Con89183 = keras.layers.Concatenate(axis=2, name = 'Con89183', )([Ave5545,in0Con89183])
+Min87360 = keras.layers.Minimum(name = 'Min87360', )([Sep89385,Con89183])
+Max54044 = keras.layers.MaxPool1D(pool_size=(2), strides=(2), padding='same', name = 'Max54044', )(Min87360)
+model = tf.keras.models.Model(inputs=[in0Sep89385,in0Dot44955,in1Dot44955,in0Con89183], outputs=Max54044)
+w = model.get_layer('Sep89385').get_weights() 
+w[0] = np.array([[[0.7332]]])
+w[1] = np.array([[[0.3329, 0.0732]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep89385').set_weights(w) 
+in0Sep89385 = tf.constant([[[0.9419]]])
+in0Dot44955 = tf.constant([[0.7359, 0.1651]])
+in1Dot44955 = tf.constant([[0.7562, 0.8138]])
+in0Con89183 = tf.constant([[[0.5936]]])
+print (np.array2string(model.predict([in0Sep89385,in0Dot44955,in1Dot44955,in0Con89183],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max54044.png')
+
+LSep89385 = separable_conv1D_layer([[[0.9419]]], 1,[[[[0.7332]]],[[[0.3329, 0.0732]]]],[0, 0], 1, true, Sep89385), 
+LDot44955 = dot_layer([[0.7359, 0.1651]], [[0.7562, 0.8138]], 1, 1, Dot44955), 
+LRes66592 = reshape_layer(Dot44955, [1, 1], Res66592), 
+LAve5545 = average_pooling1D_layer(Res66592, 1, Ave5545), 
+LCon89183 = concatenate_layer([Ave5545,[[[0.5936]]]], 2, Con89183), 
+LMin87360 = minimum_layer([Sep89385,Con89183], Min87360), 
+LMax54044 = max_pool1D_layer(Min87360, 2, 2, true, Max54044), 
+exec_layers([LSep89385,LDot44955,LRes66592,LAve5545,LCon89183,LMin87360,LMax54044],["Sep89385","Dot44955","Res66592","Ave5545","Con89183","Min87360","Max54044"],Max54044,"Max54044")
+
+Actual (Unparsed): [[[0.2299011, 0.0505520]]]
+
+Expected (Unparsed): [[[0.22990109953199997,0.050551999056]]]
+
+Actual:   [[[0.23, 0.0506]]]
+
+Expected: [[[0.23, 0.0506]]]

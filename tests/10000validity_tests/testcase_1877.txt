@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave13280 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave13280 = tf.keras.layers.Input(shape=([2, 1]))
+in0Zer9154 = tf.keras.layers.Input(shape=([4, 3, 1]))
+
+Ave13280 = keras.layers.Average(name = 'Ave13280', )([in0Ave13280,in1Ave13280])
+Per43414 = keras.layers.Permute((1,2), name = 'Per43414',)(Ave13280)
+Res84908 = keras.layers.Reshape((2, 1, 1), name = 'Res84908', )(Per43414)
+Res72531 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res72531', )(Res84908)
+Glo51346 = keras.layers.GlobalAveragePooling3D(name = 'Glo51346', )(Res72531)
+Res92549 = keras.layers.Reshape((1, 1), name = 'Res92549', )(Glo51346)
+Sim37618 = keras.layers.SimpleRNN(1,name = 'Sim37618', )(Res92549)
+Zer9154 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer9154', )(in0Zer9154)
+Res71808 = keras.layers.Reshape((6, 5, 1, 1), name = 'Res71808', )(Zer9154)
+Glo71688 = keras.layers.GlobalAveragePooling3D(name = 'Glo71688', )(Res71808)
+Sub91561 = keras.layers.Subtract(name = 'Sub91561', )([Sim37618,Glo71688])
+Res93803 = keras.layers.Reshape((1, 1), name = 'Res93803', )(Sub91561)
+Res44313 = keras.layers.Reshape((1, 1, 1), name = 'Res44313', )(Res93803)
+Dep40861 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep40861', )(Res44313)
+model = tf.keras.models.Model(inputs=[in0Ave13280,in1Ave13280,in0Zer9154], outputs=Dep40861)
+w = model.get_layer('Sim37618').get_weights() 
+w[0] = np.array([[9]])
+w[1] = np.array([[7]])
+w[2] = np.array([7])
+model.get_layer('Sim37618').set_weights(w) 
+w = model.get_layer('Dep40861').get_weights() 
+w[0] = np.array([[[[0.7458]]]])
+w[1] = np.array([0])
+model.get_layer('Dep40861').set_weights(w) 
+in0Ave13280 = tf.constant([[[0.9711], [0.012]]])
+in1Ave13280 = tf.constant([[[0.5501], [0.1736]]])
+in0Zer9154 = tf.constant([[[[1.8397], [1.4292], [1.4519]], [[1.2492], [1.1063], [1.9821]], [[1.4567], [1.2941], [1.7587]], [[1.0366], [1.0221], [1.5374]]]])
+print (np.array2string(model.predict([in0Ave13280,in1Ave13280,in0Zer9154],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep40861.png')
+
+LAve13280 = average_layer([[[[0.9711], [0.012]]], [[[0.5501], [0.1736]]]], Ave13280), 
+LPer43414 = permute_layer(Ave13280, 1,2, Per43414), 
+LRes84908 = reshape_layer(Per43414, [2, 1, 1], Res84908), 
+LRes72531 = reshape_layer(Res84908, [2, 1, 1, 1], Res72531), 
+LGlo51346 = global_average_pooling3D_layer(Res72531, Glo51346), 
+LRes92549 = reshape_layer(Glo51346, [1, 1], Res92549), 
+LSim37618 = simple_rnn_layer(Res92549,[[9]],[[7]],[7], Sim37618), 
+LZer9154 = zero_padding2D_layer([[[[1.8397], [1.4292], [1.4519]], [[1.2492], [1.1063], [1.9821]], [[1.4567], [1.2941], [1.7587]], [[1.0366], [1.0221], [1.5374]]]], 1, 1, 1, 1, Zer9154), 
+LRes71808 = reshape_layer(Zer9154, [6, 5, 1, 1], Res71808), 
+LGlo71688 = global_average_pooling3D_layer(Res71808, Glo71688), 
+LSub91561 = subtract_layer(Sim37618,Glo71688, Sub91561), 
+LRes93803 = reshape_layer(Sub91561, [1, 1], Res93803), 
+LRes44313 = reshape_layer(Res93803, [1, 1, 1], Res44313), 
+LDep40861 = depthwise_conv2D_layer(Res44313, 1, 1,[[[[0.7458]]]],[0], 1, 1, true, Dep40861), 
+exec_layers([LAve13280,LPer43414,LRes84908,LRes72531,LGlo51346,LRes92549,LSim37618,LZer9154,LRes71808,LGlo71688,LSub91561,LRes93803,LRes44313,LDep40861],["Ave13280","Per43414","Res84908","Res72531","Glo51346","Res92549","Sim37618","Zer9154","Res71808","Glo71688","Sub91561","Res93803","Res44313","Dep40861"],Dep40861,"Dep40861")
+
+Actual (Unparsed): [[[[0.3191030]]]]
+
+Expected (Unparsed): [[[[0.3191029594273525]]]]
+
+Actual:   [[[[0.3192]]]]
+
+Expected: [[[[0.3192]]]]

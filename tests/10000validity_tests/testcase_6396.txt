@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub58140 = tf.keras.layers.Input(shape=([2]))
+in1Sub58140 = tf.keras.layers.Input(shape=([2]))
+in0Con70706 = tf.keras.layers.Input(shape=([2, 1]))
+in0Loc70304 = tf.keras.layers.Input(shape=([1, 1]))
+
+Sub58140 = keras.layers.Subtract(name = 'Sub58140', )([in0Sub58140,in1Sub58140])
+Res71547 = keras.layers.Reshape((2, 1), name = 'Res71547', )(Sub58140)
+Con70706 = keras.layers.Concatenate(axis=2, name = 'Con70706', )([Res71547,in0Con70706])
+Loc70304 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc70304', )(in0Loc70304)
+Zer36134 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer36134', )(Loc70304)
+Sub60156 = keras.layers.Subtract(name = 'Sub60156', )([Con70706,Zer36134])
+model = tf.keras.models.Model(inputs=[in0Sub58140,in1Sub58140,in0Con70706,in0Loc70304], outputs=Sub60156)
+w = model.get_layer('Loc70304').get_weights() 
+w[0] = np.array([[[0.9571, 0.7691]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc70304').set_weights(w) 
+in0Sub58140 = tf.constant([[0.4715, 0.7398]])
+in1Sub58140 = tf.constant([[0.6105, 0.9472]])
+in0Con70706 = tf.constant([[[0.7003], [0.6311]]])
+in0Loc70304 = tf.constant([[[0.1711]]])
+print (np.array2string(model.predict([in0Sub58140,in1Sub58140,in0Con70706,in0Loc70304],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub60156.png')
+
+LSub58140 = subtract_layer([[0.4715, 0.7398]], [[0.6105, 0.9472]], Sub58140), 
+LRes71547 = reshape_layer(Sub58140, [2, 1], Res71547), 
+LCon70706 = concatenate_layer([Res71547,[[[0.7003], [0.6311]]]], 2, Con70706), 
+LLoc70304 = locally_connected1D_layer([[[0.1711]]], 1,[[[0.9571, 0.7691]]],[[0, 0]], 1, Loc70304), 
+LZer36134 = zero_padding1D_layer(Loc70304, 1, 0, Zer36134), 
+LSub60156 = subtract_layer(Con70706,Zer36134, Sub60156), 
+exec_layers([LSub58140,LRes71547,LCon70706,LLoc70304,LZer36134,LSub60156],["Sub58140","Res71547","Con70706","Loc70304","Zer36134","Sub60156"],Sub60156,"Sub60156")
+
+Actual (Unparsed): [[[-0.1390000, 0.7003000], [-0.3711598, 0.4995070]]]
+
+Expected (Unparsed): [[[-0.13900000000000007,0.7003],[-0.37115981000000003,0.49950699]]]
+
+Actual:   [[[-0.139, 0.7003], [-0.3711, 0.4996]]]
+
+Expected: [[[-0.139, 0.7003], [-0.3711, 0.4996]]]

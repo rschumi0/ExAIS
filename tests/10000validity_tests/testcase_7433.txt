@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min98935 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min98935 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Ave73391 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave73391 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add21935 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Add21935 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Sub60880 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub60880 = tf.keras.layers.Input(shape=([3, 2]))
+
+Min98935 = keras.layers.Minimum(name = 'Min98935', )([in0Min98935,in1Min98935])
+Ave73391 = keras.layers.Average(name = 'Ave73391', )([in0Ave73391,in1Ave73391])
+Res80869 = keras.layers.Reshape((2, 2, 1), name = 'Res80869', )(Ave73391)
+Add21935 = keras.layers.Add(name = 'Add21935', )([in0Add21935,in1Add21935])
+Zer11481 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer11481', )(Add21935)
+Max48080 = keras.layers.Maximum(name = 'Max48080', )([Res80869,Zer11481])
+Ave77174 = keras.layers.Average(name = 'Ave77174', )([Min98935,Max48080])
+Res10258 = keras.layers.Reshape((2, 2), name = 'Res10258', )(Ave77174)
+Zer16781 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer16781', )(Res10258)
+Sub60880 = keras.layers.Subtract(name = 'Sub60880', )([in0Sub60880,in1Sub60880])
+Mul16357 = keras.layers.Multiply(name = 'Mul16357', )([Zer16781,Sub60880])
+model = tf.keras.models.Model(inputs=[in0Min98935,in1Min98935,in0Ave73391,in1Ave73391,in0Add21935,in1Add21935,in0Sub60880,in1Sub60880], outputs=Mul16357)
+in0Min98935 = tf.constant([[[[0.8587], [0.2755]], [[0.2214], [0.82]]]])
+in1Min98935 = tf.constant([[[[0.3488], [0.7883]], [[0.7761], [0.308]]]])
+in0Ave73391 = tf.constant([[[0.6411, 0.9686], [0.072, 0.4509]]])
+in1Ave73391 = tf.constant([[[0.7639, 0.3633], [0.852, 0.4892]]])
+in0Add21935 = tf.constant([[[[0.8062]]]])
+in1Add21935 = tf.constant([[[[0.5677]]]])
+in0Sub60880 = tf.constant([[[0.0376, 0.9499], [0.3785, 0.416], [0.0539, 0.9802]]])
+in1Sub60880 = tf.constant([[[0.2927, 0.2199], [0.1991, 0.0751], [0.9199, 0.9049]]])
+print (np.array2string(model.predict([in0Min98935,in1Min98935,in0Ave73391,in1Ave73391,in0Add21935,in1Add21935,in0Sub60880,in1Sub60880],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul16357.png')
+
+LMin98935 = minimum_layer([[[[[0.8587], [0.2755]], [[0.2214], [0.82]]]], [[[[0.3488], [0.7883]], [[0.7761], [0.308]]]]], Min98935), 
+LAve73391 = average_layer([[[[0.6411, 0.9686], [0.072, 0.4509]]], [[[0.7639, 0.3633], [0.852, 0.4892]]]], Ave73391), 
+LRes80869 = reshape_layer(Ave73391, [2, 2, 1], Res80869), 
+LAdd21935 = add_layer([[[[[0.8062]]]], [[[[0.5677]]]]], Add21935), 
+LZer11481 = zero_padding2D_layer(Add21935, 1, 0, 1, 0, Zer11481), 
+LMax48080 = maximum_layer([Res80869,Zer11481], Max48080), 
+LAve77174 = average_layer([Min98935,Max48080], Ave77174), 
+LRes10258 = reshape_layer(Ave77174, [2, 2], Res10258), 
+LZer16781 = zero_padding1D_layer(Res10258, 1, 0, Zer16781), 
+LSub60880 = subtract_layer([[[0.0376, 0.9499], [0.3785, 0.416], [0.0539, 0.9802]]], [[[0.2927, 0.2199], [0.1991, 0.0751], [0.9199, 0.9049]]], Sub60880), 
+LMul16357 = multiply_layer([Zer16781,Sub60880], Mul16357), 
+exec_layers([LMin98935,LAve73391,LRes80869,LAdd21935,LZer11481,LMax48080,LAve77174,LRes10258,LZer16781,LSub60880,LMul16357],["Min98935","Ave73391","Res80869","Add21935","Zer11481","Max48080","Ave77174","Res10258","Zer16781","Sub60880","Mul16357"],Mul16357,"Mul16357")
+
+Actual (Unparsed): [[[-0.0000000, 0.0000000], [0.0943016, 0.1604702], [-0.2959122, 0.0633235]]]
+
+Expected (Unparsed): [[[-0.0,0.0],[0.09430161,0.16047015250000002],[-0.2959122,0.06332353499999993]]]
+
+Actual:   [[[-0, 0], [0.0944, 0.1605], [-0.2959, 0.0634]]]
+
+Expected: [[[-0, 0], [0.0944, 0.1605], [-0.2959, 0.0634]]]

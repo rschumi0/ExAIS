@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot72710 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot72710 = tf.keras.layers.Input(shape=([2, 3]))
+in0Max42728 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max42728 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con41704 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dot72710 = keras.layers.Dot(axes=(2, 2), name = 'Dot72710', )([in0Dot72710,in1Dot72710])
+Max42728 = keras.layers.Maximum(name = 'Max42728', )([in0Max42728,in1Max42728])
+PRe93295 = keras.layers.PReLU(name = 'PRe93295', )(Max42728)
+Res23440 = keras.layers.Reshape((1, 2), name = 'Res23440', )(PRe93295)
+Per14623 = keras.layers.Permute((2,1), name = 'Per14623',)(Res23440)
+Con41704 = keras.layers.Concatenate(axis=2, name = 'Con41704', )([Per14623,in0Con41704])
+Add21287 = keras.layers.Add(name = 'Add21287', )([Dot72710,Con41704])
+Per6536 = keras.layers.Permute((1,2), name = 'Per6536',)(Add21287)
+Up_8891 = keras.layers.UpSampling1D(size=(1), name = 'Up_8891', )(Per6536)
+model = tf.keras.models.Model(inputs=[in0Dot72710,in1Dot72710,in0Max42728,in1Max42728,in0Con41704], outputs=Up_8891)
+w = model.get_layer('PRe93295').get_weights() 
+w[0] = np.array([[[0.6933, 0.4579]]])
+model.get_layer('PRe93295').set_weights(w) 
+in0Dot72710 = tf.constant([[[0.0006, 0.6611, 0.8118], [0.2777, 0.3164, 0.5602]]])
+in1Dot72710 = tf.constant([[[0.5766, 0.9517, 0.0361], [0.0954, 0.8327, 0.4952]]])
+in0Max42728 = tf.constant([[[[0.2237, 0.0181]]]])
+in1Max42728 = tf.constant([[[[0.8763, 0.4814]]]])
+in0Con41704 = tf.constant([[[0.0591], [0.6888]]])
+print (np.array2string(model.predict([in0Dot72710,in1Dot72710,in0Max42728,in1Max42728,in0Con41704],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_8891.png')
+
+LDot72710 = dot_layer([[[0.0006, 0.6611, 0.8118], [0.2777, 0.3164, 0.5602]]], [[[0.5766, 0.9517, 0.0361], [0.0954, 0.8327, 0.4952]]], 2, 2, Dot72710), 
+LMax42728 = maximum_layer([[[[[0.2237, 0.0181]]]], [[[[0.8763, 0.4814]]]]], Max42728), 
+LPRe93295 = prelu_layer(Max42728, [[[0.6933, 0.4579]]], PRe93295), 
+LRes23440 = reshape_layer(PRe93295, [1, 2], Res23440), 
+LPer14623 = permute_layer(Res23440, 2,1, Per14623), 
+LCon41704 = concatenate_layer([Per14623,[[[0.0591], [0.6888]]]], 2, Con41704), 
+LAdd21287 = add_layer([Dot72710,Con41704], Add21287), 
+LPer6536 = permute_layer(Add21287, 1,2, Per6536), 
+LUp_8891 = up_sampling1D_layer(Per6536, 1, Up_8891), 
+exec_layers([LDot72710,LMax42728,LPRe93295,LRes23440,LPer14623,LCon41704,LAdd21287,LPer6536,LUp_8891],["Dot72710","Max42728","PRe93295","Res23440","Per14623","Con41704","Add21287","Per6536","Up_8891"],Up_8891,"Up_8891")
+
+Actual (Unparsed): [[[1.5351207, 1.0116586], [0.9628629, 1.2561699]]]
+
+Expected (Unparsed): [[[1.53512081,1.0116585699999998],[0.9628629200000001,1.2561699]]]
+
+Actual:   [[[1.5352, 1.0117], [0.9629, 1.2562]]]
+
+Expected: [[[1.5352, 1.0117], [0.9629, 1.2562]]]

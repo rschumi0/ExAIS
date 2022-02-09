@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim58209 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sim58209 = keras.layers.SimpleRNN(3,name = 'Sim58209', )(in0Sim58209)
+Res19041 = keras.layers.Reshape((3, 1), name = 'Res19041', )(Sim58209)
+Res95603 = keras.layers.Reshape((3, 1, 1), name = 'Res95603', )(Res19041)
+Res38885 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res38885', )(Res95603)
+Con21256 = keras.layers.Conv3DTranspose(3, (2, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con21256', )(Res38885)
+Mas41794 = keras.layers.Masking(mask_value=1, name = 'Mas41794', )(Con21256)
+model = tf.keras.models.Model(inputs=[in0Sim58209], outputs=Mas41794)
+w = model.get_layer('Sim58209').get_weights() 
+w[0] = np.array([[4, 6, 3]])
+w[1] = np.array([[6, 6, 4], [4, 5, 10], [5, 2, 8]])
+w[2] = np.array([3, 7, 7])
+model.get_layer('Sim58209').set_weights(w) 
+w = model.get_layer('Con21256').get_weights() 
+w[0] = np.array([[[[[0.1721], [0.4788], [0.8802]]]], [[[[0.7084], [0.2437], [0.8407]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con21256').set_weights(w) 
+in0Sim58209 = tf.constant([[[7], [1]]])
+print (np.array2string(model.predict([in0Sim58209],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas41794.png')
+
+LSim58209 = simple_rnn_layer([[[7], [1]]],[[4, 6, 3]],[[6, 6, 4], [4, 5, 10], [5, 2, 8]],[3, 7, 7], Sim58209), 
+LRes19041 = reshape_layer(Sim58209, [3, 1], Res19041), 
+LRes95603 = reshape_layer(Res19041, [3, 1, 1], Res95603), 
+LRes38885 = reshape_layer(Res95603, [3, 1, 1, 1], Res38885), 
+LCon21256 = conv3D_transpose_layer(Res38885, 2, 1, 1,[[[[[0.1721], [0.4788], [0.8802]]]], [[[[0.7084], [0.2437], [0.8407]]]]],[0, 0, 0], 1, 1, 1, true, Con21256), 
+LMas41794 = masking_layer(Con21256, 1, Mas41794), 
+exec_layers([LSim58209,LRes19041,LRes95603,LRes38885,LCon21256,LMas41794],["Sim58209","Res19041","Res95603","Res38885","Con21256","Mas41794"],Mas41794,"Mas41794")
+
+Actual (Unparsed): [[[[[0.1721000, 0.4788000, 0.8802000]]], [[[0.8805000, 0.7225000, 1.7209000]]], [[[0.8805000, 0.7225000, 1.7209000]]]]]
+
+Expected (Unparsed): [[[[[0.1721,0.4788,0.8802]]],[[[0.8805000000000001,0.7225,1.7208999999999999]]],[[[0.8805000000000001,0.7225,1.7208999999999999]]]]]
+
+Actual:   [[[[[0.1721, 0.4788, 0.8802]]], [[[0.8805, 0.7225, 1.7209]]], [[[0.8805, 0.7225, 1.7209]]]]]
+
+Expected: [[[[[0.1721, 0.4788, 0.8802]]], [[[0.8806, 0.7225, 1.7209]]], [[[0.8806, 0.7225, 1.7209]]]]]

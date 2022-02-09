@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro84395 = tf.keras.layers.Input(shape=([3, 3]))
+in0Ave37896 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave37896 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con4937 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave82704 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Ave82704 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Cro84395 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro84395', )(in0Cro84395)
+Res44736 = keras.layers.Reshape((2, 3, 1), name = 'Res44736', )(Cro84395)
+Glo22766 = keras.layers.GlobalMaxPool2D(name = 'Glo22766', )(Res44736)
+Res37301 = keras.layers.Reshape((1, 1), name = 'Res37301', )(Glo22766)
+Res35594 = keras.layers.Reshape((1, 1, 1), name = 'Res35594', )(Res37301)
+Ave37896 = keras.layers.Average(name = 'Ave37896', )([in0Ave37896,in1Ave37896])
+Max75105 = keras.layers.Maximum(name = 'Max75105', )([Res35594,Ave37896])
+Res11349 = keras.layers.Reshape((1, 1), name = 'Res11349', )(Max75105)
+Zer456 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer456', )(Res11349)
+Con4937 = keras.layers.Concatenate(axis=2, name = 'Con4937', )([Zer456,in0Con4937])
+Ave82704 = keras.layers.Average(name = 'Ave82704', )([in0Ave82704,in1Ave82704])
+Res71304 = keras.layers.Reshape((1, 1, 2), name = 'Res71304', )(Ave82704)
+Res60303 = keras.layers.Reshape((1, 2), name = 'Res60303', )(Res71304)
+Up_31132 = keras.layers.UpSampling1D(size=(2), name = 'Up_31132', )(Res60303)
+Max8070 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max8070', )(Up_31132)
+Ave28632 = keras.layers.Average(name = 'Ave28632', )([Con4937,Max8070])
+model = tf.keras.models.Model(inputs=[in0Cro84395,in0Ave37896,in1Ave37896,in0Con4937,in0Ave82704,in1Ave82704], outputs=Ave28632)
+in0Cro84395 = tf.constant([[[1.52, 1.3564, 1.8381], [1.4348, 1.3515, 1.2144], [1.939, 1.4048, 1.9372]]])
+in0Ave37896 = tf.constant([[[[0.5624]]]])
+in1Ave37896 = tf.constant([[[[0.751]]]])
+in0Con4937 = tf.constant([[[0.4073], [0.8131]]])
+in0Ave82704 = tf.constant([[[[[0.6144], [0.9821]]]]])
+in1Ave82704 = tf.constant([[[[[0.2809], [0.73]]]]])
+print (np.array2string(model.predict([in0Cro84395,in0Ave37896,in1Ave37896,in0Con4937,in0Ave82704,in1Ave82704],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave28632.png')
+
+LCro84395 = cropping1D_layer([[[1.52, 1.3564, 1.8381], [1.4348, 1.3515, 1.2144], [1.939, 1.4048, 1.9372]]], 0, 1, Cro84395), 
+LRes44736 = reshape_layer(Cro84395, [2, 3, 1], Res44736), 
+LGlo22766 = global_max_pool2D_layer(Res44736, Glo22766), 
+LRes37301 = reshape_layer(Glo22766, [1, 1], Res37301), 
+LRes35594 = reshape_layer(Res37301, [1, 1, 1], Res35594), 
+LAve37896 = average_layer([[[[[0.5624]]]], [[[[0.751]]]]], Ave37896), 
+LMax75105 = maximum_layer([Res35594,Ave37896], Max75105), 
+LRes11349 = reshape_layer(Max75105, [1, 1], Res11349), 
+LZer456 = zero_padding1D_layer(Res11349, 1, 0, Zer456), 
+LCon4937 = concatenate_layer([Zer456,[[[0.4073], [0.8131]]]], 2, Con4937), 
+LAve82704 = average_layer([[[[[[0.6144], [0.9821]]]]], [[[[[0.2809], [0.73]]]]]], Ave82704), 
+LRes71304 = reshape_layer(Ave82704, [1, 1, 2], Res71304), 
+LRes60303 = reshape_layer(Res71304, [1, 2], Res60303), 
+LUp_31132 = up_sampling1D_layer(Res60303, 2, Up_31132), 
+LMax8070 = max_pool1D_layer(Up_31132, 1, Max8070), 
+LAve28632 = average_layer([Con4937,Max8070], Ave28632), 
+exec_layers([LCro84395,LRes44736,LGlo22766,LRes37301,LRes35594,LAve37896,LMax75105,LRes11349,LZer456,LCon4937,LAve82704,LRes71304,LRes60303,LUp_31132,LMax8070,LAve28632],["Cro84395","Res44736","Glo22766","Res37301","Res35594","Ave37896","Max75105","Res11349","Zer456","Con4937","Ave82704","Res71304","Res60303","Up_31132","Max8070","Ave28632"],Ave28632,"Ave28632")
+
+Actual (Unparsed): [[[0.2238250, 0.6316750], [1.1428750, 0.8345750]]]
+
+Expected (Unparsed): [[[0.223825,0.631675],[1.142875,0.8345750000000001]]]
+
+Actual:   [[[0.2239, 0.6317], [1.1429, 0.8346]]]
+
+Expected: [[[0.2239, 0.6317], [1.1429, 0.8346]]]

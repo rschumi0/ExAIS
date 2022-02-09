@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con80971 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con53722 = tf.keras.layers.Input(shape=([1, 3]))
+in0Ave57035 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave57035 = tf.keras.layers.Input(shape=([1, 1]))
+
+Con80971 = keras.layers.Conv3D(4, (1, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con80971', )(in0Con80971)
+Res23623 = keras.layers.Reshape((1, 1, 4), name = 'Res23623', )(Con80971)
+Res25765 = keras.layers.Reshape((1, 4), name = 'Res25765', )(Res23623)
+Con53722 = keras.layers.Concatenate(axis=2, name = 'Con53722', )([Res25765,in0Con53722])
+Ave57035 = keras.layers.Average(name = 'Ave57035', )([in0Ave57035,in1Ave57035])
+Dot42028 = keras.layers.Dot(axes=(1, 1), name = 'Dot42028', )([Con53722,Ave57035])
+Glo41262 = keras.layers.GlobalAveragePooling1D(name = 'Glo41262', )(Dot42028)
+Mas55728 = keras.layers.Masking(mask_value=2, name = 'Mas55728', )(Glo41262)
+Res4951 = keras.layers.Reshape((1, 1), name = 'Res4951', )(Mas55728)
+Res78047 = keras.layers.Reshape((1, 1, 1), name = 'Res78047', )(Res4951)
+Res73114 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res73114', )(Res78047)
+Zer80229 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer80229', )(Res73114)
+model = tf.keras.models.Model(inputs=[in0Con80971,in0Con53722,in0Ave57035,in1Ave57035], outputs=Zer80229)
+w = model.get_layer('Con80971').get_weights() 
+w[0] = np.array([[[[[0.4076, 0.766, 0.7254, 0.4137], [0.4199, 0.2241, 0.7699, 0.6944]]], [[[0.0394, 0.8885, 0.4716, 0.2652], [0.2091, 0.0679, 0.6236, 0.2668]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con80971').set_weights(w) 
+in0Con80971 = tf.constant([[[[[0.1112, 0.9092]], [[0.8474, 0.5558]]]]])
+in0Con53722 = tf.constant([[[0.0029, 0.6587, 0.5938]]])
+in0Ave57035 = tf.constant([[[0.6002]]])
+in1Ave57035 = tf.constant([[[0.1643]]])
+print (np.array2string(model.predict([in0Con80971,in0Con53722,in0Ave57035,in1Ave57035],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer80229.png')
+
+LCon80971 = conv3D_layer([[[[[0.1112, 0.9092]], [[0.8474, 0.5558]]]]], 1, 2, 1,[[[[[0.4076, 0.766, 0.7254, 0.4137], [0.4199, 0.2241, 0.7699, 0.6944]]], [[[0.0394, 0.8885, 0.4716, 0.2652], [0.2091, 0.0679, 0.6236, 0.2668]]]]],[0, 0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con80971), 
+LRes23623 = reshape_layer(Con80971, [1, 1, 4], Res23623), 
+LRes25765 = reshape_layer(Res23623, [1, 4], Res25765), 
+LCon53722 = concatenate_layer([Res25765,[[[0.0029, 0.6587, 0.5938]]]], 2, Con53722), 
+LAve57035 = average_layer([[[[0.6002]]], [[[0.1643]]]], Ave57035), 
+LDot42028 = dot_layer(Con53722,Ave57035, 1, 1, Dot42028), 
+LGlo41262 = global_average_pooling1D_layer(Dot42028, Glo41262), 
+LMas55728 = masking_layer(Glo41262, 2, Mas55728), 
+LRes4951 = reshape_layer(Mas55728, [1, 1], Res4951), 
+LRes78047 = reshape_layer(Res4951, [1, 1, 1], Res78047), 
+LRes73114 = reshape_layer(Res78047, [1, 1, 1, 1], Res73114), 
+LZer80229 = zero_padding3D_layer(Res73114, 1, 1, 1, 1, 1, 1, Zer80229), 
+exec_layers([LCon80971,LRes23623,LRes25765,LCon53722,LAve57035,LDot42028,LGlo41262,LMas55728,LRes4951,LRes78047,LRes73114,LZer80229],["Con80971","Res23623","Res25765","Con53722","Ave57035","Dot42028","Glo41262","Mas55728","Res4951","Res78047","Res73114","Zer80229"],Zer80229,"Zer80229")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.2997357], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.29973567473928575],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.2998], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.2998], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]]]]

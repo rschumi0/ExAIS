@@ -1,0 +1,90 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul78070 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Mul78070 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Sub93993 = tf.keras.layers.Input(shape=([2]))
+in1Sub93993 = tf.keras.layers.Input(shape=([2]))
+in0ReL42772 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Glo67617 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con25269 = tf.keras.layers.Input(shape=([3]))
+in0Ave19196 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave19196 = tf.keras.layers.Input(shape=([1, 1]))
+
+Mul78070 = keras.layers.Multiply(name = 'Mul78070', )([in0Mul78070,in1Mul78070])
+Res72422 = keras.layers.Reshape((1, 1, 2), name = 'Res72422', )(Mul78070)
+Res99064 = keras.layers.Reshape((1, 2), name = 'Res99064', )(Res72422)
+GRU24168 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU24168', )(Res99064)
+Res59962 = keras.layers.Reshape((2, 1), name = 'Res59962', )(GRU24168)
+Zer44372 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer44372', )(Res59962)
+Sub93993 = keras.layers.Subtract(name = 'Sub93993', )([in0Sub93993,in1Sub93993])
+ReL18214 = keras.layers.ReLU(max_value=2.7591493412354753, negative_slope=3.459085672324071, threshold=5.284076402027872, name = 'ReL18214', )(Sub93993)
+Res81755 = keras.layers.Reshape((2, 1), name = 'Res81755', )(ReL18214)
+Res6274 = keras.layers.Reshape((2, 1, 1), name = 'Res6274', )(Res81755)
+Zer65693 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer65693', )(Res6274)
+ReL42772 = keras.layers.ReLU(max_value=0.0997269789570157, negative_slope=5.655883755233058, threshold=7.052301056077583, name = 'ReL42772', input_shape=(2, 2, 1))(in0ReL42772)
+Min97202 = keras.layers.Minimum(name = 'Min97202', )([Zer65693,ReL42772])
+Res45076 = keras.layers.Reshape((2, 2), name = 'Res45076', )(Min97202)
+Fla55237 = keras.layers.Flatten(name = 'Fla55237', )(Res45076)
+Glo67617 = keras.layers.GlobalAveragePooling2D(name = 'Glo67617', )(in0Glo67617)
+Con25269 = keras.layers.Concatenate(axis=1, name = 'Con25269', )([Glo67617,in0Con25269])
+Mul8223 = keras.layers.Multiply(name = 'Mul8223', )([Fla55237,Con25269])
+Res60346 = keras.layers.Reshape((4, 1), name = 'Res60346', )(Mul8223)
+Ave19196 = keras.layers.Average(name = 'Ave19196', )([in0Ave19196,in1Ave19196])
+Zer33631 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer33631', )(Ave19196)
+Max52861 = keras.layers.Maximum(name = 'Max52861', )([Res60346,Zer33631])
+Max1471 = keras.layers.Maximum(name = 'Max1471', )([Zer44372,Max52861])
+model = tf.keras.models.Model(inputs=[in0Mul78070,in1Mul78070,in0Sub93993,in1Sub93993,in0ReL42772,in0Glo67617,in0Con25269,in0Ave19196,in1Ave19196], outputs=Max1471)
+w = model.get_layer('GRU24168').get_weights() 
+w[0] = np.array([[10, 1, 6, 4, 2, 10], [3, 3, 8, 7, 7, 5]])
+w[1] = np.array([[4, 5, 3, 1, 1, 1], [5, 5, 1, 1, 3, 6]])
+w[2] = np.array([1, 7, 6, 7, 8, 4])
+model.get_layer('GRU24168').set_weights(w) 
+in0Mul78070 = tf.constant([[[[[0.0918, 0.0499]]]]])
+in1Mul78070 = tf.constant([[[[[0.7892, 0.7644]]]]])
+in0Sub93993 = tf.constant([[0.3559, 0.7761]])
+in1Sub93993 = tf.constant([[0.3264, 0.4442]])
+in0ReL42772 = tf.constant([[[[0.3405], [0.4856]], [[0.5082], [0.0614]]]])
+in0Glo67617 = tf.constant([[[[1.8505], [1.9719]], [[1.4547], [1.3506]]]])
+in0Con25269 = tf.constant([[0.7548, 0.0266, 0.3053]])
+in0Ave19196 = tf.constant([[[0.6233]]])
+in1Ave19196 = tf.constant([[[0.0246]]])
+print (np.array2string(model.predict([in0Mul78070,in1Mul78070,in0Sub93993,in1Sub93993,in0ReL42772,in0Glo67617,in0Con25269,in0Ave19196,in1Ave19196],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max1471.png')
+
+LMul78070 = multiply_layer([[[[[[0.0918, 0.0499]]]]], [[[[[0.7892, 0.7644]]]]]], Mul78070), 
+LRes72422 = reshape_layer(Mul78070, [1, 1, 2], Res72422), 
+LRes99064 = reshape_layer(Res72422, [1, 2], Res99064), 
+LGRU24168 = gru_layer(Res99064,[[10, 1, 6, 4, 2, 10], [3, 3, 8, 7, 7, 5]],[[4, 5, 3, 1, 1, 1], [5, 5, 1, 1, 3, 6]],[1, 7, 6, 7, 8, 4], false, GRU24168), 
+LRes59962 = reshape_layer(GRU24168, [2, 1], Res59962), 
+LZer44372 = zero_padding1D_layer(Res59962, 2, 0, Zer44372), 
+LSub93993 = subtract_layer([[0.3559, 0.7761]], [[0.3264, 0.4442]], Sub93993), 
+LReL18214 = relu_layer(Sub93993, 2.7591493412354753, 3.459085672324071, 5.284076402027872, ReL18214), 
+LRes81755 = reshape_layer(ReL18214, [2, 1], Res81755), 
+LRes6274 = reshape_layer(Res81755, [2, 1, 1], Res6274), 
+LZer65693 = zero_padding2D_layer(Res6274, 0, 0, 1, 0, Zer65693), 
+LReL42772 = relu_layer([[[[0.3405], [0.4856]], [[0.5082], [0.0614]]]], 0.0997269789570157, 5.655883755233058, 7.052301056077583, ReL42772), 
+LMin97202 = minimum_layer([Zer65693,ReL42772], Min97202), 
+LRes45076 = reshape_layer(Min97202, [2, 2], Res45076), 
+LFla55237 = flatten_layer(Res45076, Fla55237), 
+LGlo67617 = global_average_pooling2D_layer([[[[1.8505], [1.9719]], [[1.4547], [1.3506]]]], Glo67617), 
+LCon25269 = concatenate_layer([Glo67617,[[0.7548, 0.0266, 0.3053]]], 1, Con25269), 
+LMul8223 = multiply_layer([Fla55237,Con25269], Mul8223), 
+LRes60346 = reshape_layer(Mul8223, [4, 1], Res60346), 
+LAve19196 = average_layer([[[[0.6233]]], [[[0.0246]]]], Ave19196), 
+LZer33631 = zero_padding1D_layer(Ave19196, 3, 0, Zer33631), 
+LMax52861 = maximum_layer([Res60346,Zer33631], Max52861), 
+LMax1471 = maximum_layer([Zer44372,Max52861], Max1471), 
+exec_layers([LMul78070,LRes72422,LRes99064,LGRU24168,LRes59962,LZer44372,LSub93993,LReL18214,LRes81755,LRes6274,LZer65693,LReL42772,LMin97202,LRes45076,LFla55237,LGlo67617,LCon25269,LMul8223,LRes60346,LAve19196,LZer33631,LMax52861,LMax1471],["Mul78070","Res72422","Res99064","GRU24168","Res59962","Zer44372","Sub93993","ReL18214","Res81755","Res6274","Zer65693","ReL42772","Min97202","Res45076","Fla55237","Glo67617","Con25269","Mul8223","Res60346","Ave19196","Zer33631","Max52861","Max1471"],Max1471,"Max1471")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.1371795], [0.3239500]]]
+
+Expected (Unparsed): [[[0],[0],[0.13717949910208863],[0.32394999999999996]]]
+
+Actual:   [[[0], [0], [0.1372], [0.324]]]
+
+Expected: [[[0], [0], [0.1372], [0.324]]]

@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min12370 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min12370 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Loc75305 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Min12370 = keras.layers.Minimum(name = 'Min12370', )([in0Min12370,in1Min12370])
+Res15964 = keras.layers.Reshape((2, 4), name = 'Res15964', )(Min12370)
+Loc75305 = keras.layers.LocallyConnected2D(3, (1, 2),strides=(1, 2), name = 'Loc75305', )(in0Loc75305)
+Res40102 = keras.layers.Reshape((2, 3), name = 'Res40102', )(Loc75305)
+Dot9499 = keras.layers.Dot(axes=(1, 1), name = 'Dot9499', )([Res15964,Res40102])
+Up_66986 = keras.layers.UpSampling1D(size=(1), name = 'Up_66986', )(Dot9499)
+model = tf.keras.models.Model(inputs=[in0Min12370,in1Min12370,in0Loc75305], outputs=Up_66986)
+w = model.get_layer('Loc75305').get_weights() 
+w[0] = np.array([[[0.4106, 0.3585, 0.156], [0.4909, 0.1356, 0.72]], [[0.7121, 0.3501, 0.3191], [0.38, 0.3898, 0.7083]]])
+w[1] = np.array([[[0, 0, 0]], [[0, 0, 0]]])
+model.get_layer('Loc75305').set_weights(w) 
+in0Min12370 = tf.constant([[[[0.3107, 0.1286], [0.4807, 0.2745]], [[0.0266, 0.3204], [0.356, 0.3566]]]])
+in1Min12370 = tf.constant([[[[0.826, 0.2349], [0.3577, 0.4245]], [[0.6716, 0.5737], [0.2832, 0.6264]]]])
+in0Loc75305 = tf.constant([[[[0.5659], [0.7371]], [[0.337], [0.947]]]])
+print (np.array2string(model.predict([in0Min12370,in1Min12370,in0Loc75305],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_66986.png')
+
+LMin12370 = minimum_layer([[[[[0.3107, 0.1286], [0.4807, 0.2745]], [[0.0266, 0.3204], [0.356, 0.3566]]]], [[[[0.826, 0.2349], [0.3577, 0.4245]], [[0.6716, 0.5737], [0.2832, 0.6264]]]]], Min12370), 
+LRes15964 = reshape_layer(Min12370, [2, 4], Res15964), 
+LLoc75305 = locally_connected2D_layer([[[[0.5659], [0.7371]], [[0.337], [0.947]]]], 1, 2,[[[0.4106, 0.3585, 0.156], [0.4909, 0.1356, 0.72]], [[0.7121, 0.3501, 0.3191], [0.38, 0.3898, 0.7083]]],[[[0, 0, 0]], [[0, 0, 0]]], 1, 2, Loc75305), 
+LRes40102 = reshape_layer(Loc75305, [2, 3], Res40102), 
+LDot9499 = dot_layer(Res15964,Res40102, 1, 1, Dot9499), 
+LUp_66986 = up_sampling1D_layer(Dot9499, 1, Up_66986), 
+exec_layers([LMin12370,LRes15964,LLoc75305,LRes40102,LDot9499,LUp_66986],["Min12370","Res15964","Loc75305","Res40102","Dot9499","Up_66986"],Up_66986,"Up_66986")
+
+Actual (Unparsed): [[[0.2005739, 0.1070455, 0.2130236], [0.2686022, 0.1950180, 0.3289687], [0.3824197, 0.2462744, 0.4418272], [0.3770103, 0.2568342, 0.4474541]]]
+
+Expected (Unparsed): [[[0.20057391177099998,0.10704551661699999,0.21302363356],[0.26860223867800004,0.195018037746,0.32896871736],[0.382419709301,0.246274429767,0.44182723524],[0.37701027910499996,0.25683423767499997,0.44745405268]]]
+
+Actual:   [[[0.2006, 0.1071, 0.2131], [0.2687, 0.1951, 0.329], [0.3825, 0.2463, 0.4419], [0.3771, 0.2569, 0.4475]]]
+
+Expected: [[[0.2006, 0.1071, 0.2131], [0.2687, 0.1951, 0.329], [0.3825, 0.2463, 0.4419], [0.3771, 0.2569, 0.4475]]]

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max97032 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max97032 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Max2959 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Max2959 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con91359 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Max97032 = keras.layers.Maximum(name = 'Max97032', )([in0Max97032,in1Max97032])
+Zer70820 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer70820', )(Max97032)
+Max2959 = keras.layers.Maximum(name = 'Max2959', )([in0Max2959,in1Max2959])
+Con91359 = keras.layers.Concatenate(axis=3, name = 'Con91359', )([Max2959,in0Con91359])
+Ave23585 = keras.layers.Average(name = 'Ave23585', )([Zer70820,Con91359])
+Res64154 = keras.layers.Reshape((2, 4), name = 'Res64154', )(Ave23585)
+GRU22406 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU22406', )(Res64154)
+Res18459 = keras.layers.Reshape((2, 1), name = 'Res18459', )(GRU22406)
+Up_89190 = keras.layers.UpSampling1D(size=(2), name = 'Up_89190', )(Res18459)
+model = tf.keras.models.Model(inputs=[in0Max97032,in1Max97032,in0Max2959,in1Max2959,in0Con91359], outputs=Up_89190)
+w = model.get_layer('GRU22406').get_weights() 
+w[0] = np.array([[3, 1, 5, 1, 6, 1], [10, 3, 10, 6, 6, 8], [5, 7, 8, 5, 8, 6], [7, 8, 2, 3, 7, 3]])
+w[1] = np.array([[6, 3, 4, 7, 8, 7], [5, 9, 8, 1, 5, 4]])
+w[2] = np.array([[8, 10, 2, 4, 9, 3], [7, 2, 7, 6, 5, 8]])
+model.get_layer('GRU22406').set_weights(w) 
+in0Max97032 = tf.constant([[[[0.2218, 0.9296]]]])
+in1Max97032 = tf.constant([[[[0.0017, 0.1963]]]])
+in0Max2959 = tf.constant([[[[0.9348], [0.1441]], [[0.5493], [0.4076]]]])
+in1Max2959 = tf.constant([[[[0.0246], [0.786]], [[0.9346], [0.4404]]]])
+in0Con91359 = tf.constant([[[[0.1182], [0.2829]], [[0.4819], [0.6738]]]])
+print (np.array2string(model.predict([in0Max97032,in1Max97032,in0Max2959,in1Max2959,in0Con91359],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_89190.png')
+
+LMax97032 = maximum_layer([[[[[0.2218, 0.9296]]]], [[[[0.0017, 0.1963]]]]], Max97032), 
+LZer70820 = zero_padding2D_layer(Max97032, 1, 0, 1, 0, Zer70820), 
+LMax2959 = maximum_layer([[[[[0.9348], [0.1441]], [[0.5493], [0.4076]]]], [[[[0.0246], [0.786]], [[0.9346], [0.4404]]]]], Max2959), 
+LCon91359 = concatenate_layer([Max2959,[[[[0.1182], [0.2829]], [[0.4819], [0.6738]]]]], 3, Con91359), 
+LAve23585 = average_layer([Zer70820,Con91359], Ave23585), 
+LRes64154 = reshape_layer(Ave23585, [2, 4], Res64154), 
+LGRU22406 = gru_layer(Res64154,[[3, 1, 5, 1, 6, 1], [10, 3, 10, 6, 6, 8], [5, 7, 8, 5, 8, 6], [7, 8, 2, 3, 7, 3]],[[6, 3, 4, 7, 8, 7], [5, 9, 8, 1, 5, 4]],[[8, 10, 2, 4, 9, 3], [7, 2, 7, 6, 5, 8]], true, GRU22406), 
+LRes18459 = reshape_layer(GRU22406, [2, 1], Res18459), 
+LUp_89190 = up_sampling1D_layer(Res18459, 2, Up_89190), 
+exec_layers([LMax97032,LZer70820,LMax2959,LCon91359,LAve23585,LRes64154,LGRU22406,LRes18459,LUp_89190],["Max97032","Zer70820","Max2959","Con91359","Ave23585","Res64154","GRU22406","Res18459","Up_89190"],Up_89190,"Up_89190")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.0000001], [0.0000001]]]
+
+Expected (Unparsed): [[[2.175131408311569e-9],[2.175131408311569e-9],[6.671958650220538e-8],[6.671958650220538e-8]]]
+
+Actual:   [[[0], [0], [0], [0]]]
+
+Expected: [[[0], [0], [0], [0]]]

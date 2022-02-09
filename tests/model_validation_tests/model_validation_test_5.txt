@@ -1,0 +1,53 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU87564 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min34532 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min34532 = tf.keras.layers.Input(shape=([2, 1]))
+
+GRU87564 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU87564', )(in0GRU87564)
+Res48940 = keras.layers.Reshape((3, 1), name = 'Res48940', )(GRU87564)
+Min34532 = keras.layers.Minimum(name = 'Min34532', )([in0Min34532,in1Min34532])
+Zer68182 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer68182', )(Min34532)
+Ave21811 = keras.layers.Average(name = 'Ave21811', )([Res48940,Zer68182])
+Loc91990 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc91990', )(Ave21811)
+Fla79543 = keras.layers.Flatten(name = 'Fla79543', )(Loc91990)
+model = tf.keras.models.Model(inputs=[in0GRU87564,in0Min34532,in1Min34532], outputs=Fla79543)
+w = model.get_layer('GRU87564').get_weights() 
+w[0] = np.array([[8, 6, 9, 4, 9, 4, 2, 9, 3], [5, 10, 1, 2, 9, 5, 10, 9, 10]])
+w[1] = np.array([[2, 5, 1, 1, 8, 4, 8, 5, 4], [6, 7, 4, 6, 8, 4, 6, 4, 10], [9, 8, 7, 5, 4, 1, 3, 2, 1]])
+w[2] = np.array([2, 2, 8, 4, 4, 10, 4, 2, 6])
+model.get_layer('GRU87564').set_weights(w) 
+w = model.get_layer('Loc91990').get_weights() 
+w[0] = np.array([[[0.0724, 0.6955, 0.2695, 0.7205]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc91990').set_weights(w) 
+in0GRU87564 = tf.constant([[[2, 8]]])
+in0Min34532 = tf.constant([[[0.231], [0.021]]])
+in1Min34532 = tf.constant([[[0.4156], [0.5779]]])
+print (np.array2string(model.predict([in0GRU87564,in0Min34532,in1Min34532],steps=1), separator=', '))
+
+
+LGRU87564 = gru_layer([[[2, 8]]],[[8, 6, 9, 4, 9, 4, 2, 9, 3], [5, 10, 1, 2, 9, 5, 10, 9, 10]],[[2, 5, 1, 1, 8, 4, 8, 5, 4], [6, 7, 4, 6, 8, 4, 6, 4, 10], [9, 8, 7, 5, 4, 1, 3, 2, 1]],[2, 2, 8, 4, 4, 10, 4, 2, 6], false, GRU87564), 
+LRes48940 = reshape_layer(GRU87564, [3, 1], Res48940), 
+LMin34532 = minimum_layer([[[[0.231], [0.021]]], [[[0.4156], [0.5779]]]], Min34532), 
+LZer68182 = zero_padding1D_layer(Min34532, 1, 0, Zer68182), 
+LAve21811 = average_layer([Res48940,Zer68182], Ave21811), 
+LLoc91990 = locally_connected1D_layer(Ave21811, 1,[[[0.0724, 0.6955, 0.2695, 0.7205]]],[[0, 0, 0, 0]], 1, Loc91990), 
+LFla79543 = flatten_layer(Loc91990, Fla79543), 
+exec_layers([LGRU87564,LRes48940,LMin34532,LZer68182,LAve21811,LLoc91990,LFla79543],["GRU87564","Res48940","Min34532","Zer68182","Ave21811","Loc91990","Fla79543"],Fla79543,"Fla79543")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Layer weight shape (3, 1, 4) not compatible with provided weight shape (1, 1, 4)
+
+Expected (Unparsed): 
+Loc91990: Argument Error, Input Shape [1,3,1]
+
+Actual:   
+
+Expected: 

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave12931 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave12931 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con39079 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Loc72397 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Ave12931 = keras.layers.Average(name = 'Ave12931', )([in0Ave12931,in1Ave12931])
+Max84519 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max84519', )(Ave12931)
+Res99676 = keras.layers.Reshape((2, 1, 1), name = 'Res99676', )(Max84519)
+Con39079 = keras.layers.Concatenate(axis=3, name = 'Con39079', )([Res99676,in0Con39079])
+Loc72397 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc72397', )(in0Loc72397)
+Sep10356 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='valid', name = 'Sep10356', )(Loc72397)
+Zer58081 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer58081', )(Sep10356)
+Mul30262 = keras.layers.Multiply(name = 'Mul30262', )([Con39079,Zer58081])
+model = tf.keras.models.Model(inputs=[in0Ave12931,in1Ave12931,in0Con39079,in0Loc72397], outputs=Mul30262)
+w = model.get_layer('Loc72397').get_weights() 
+w[0] = np.array([[[0.8194, 0.8376], [0.4639, 0.4961]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc72397').set_weights(w) 
+w = model.get_layer('Sep10356').get_weights() 
+w[0] = np.array([[[[0.9225], [0.4522]]]])
+w[1] = np.array([[[[0.2573, 0.6109, 0.5363], [0.2215, 0.641, 0.8244]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep10356').set_weights(w) 
+in0Ave12931 = tf.constant([[[0.9952], [0.0722]]])
+in1Ave12931 = tf.constant([[[0.5732], [0.4249]]])
+in0Con39079 = tf.constant([[[[0.491, 0.4698]], [[0.9456, 0.0192]]]])
+in0Loc72397 = tf.constant([[[[0.8126]], [[0.6204]]]])
+print (np.array2string(model.predict([in0Ave12931,in1Ave12931,in0Con39079,in0Loc72397],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul30262.png')
+
+LAve12931 = average_layer([[[[0.9952], [0.0722]]], [[[0.5732], [0.4249]]]], Ave12931), 
+LMax84519 = max_pool1D_layer(Ave12931, 1, 1, true, Max84519), 
+LRes99676 = reshape_layer(Max84519, [2, 1, 1], Res99676), 
+LCon39079 = concatenate_layer([Res99676,[[[[0.491, 0.4698]], [[0.9456, 0.0192]]]]], 3, Con39079), 
+LLoc72397 = locally_connected2D_layer([[[[0.8126]], [[0.6204]]]], 2, 1,[[[0.8194, 0.8376], [0.4639, 0.4961]]],[[[0, 0]]], 1, 1, Loc72397), 
+LSep10356 = separable_conv2D_layer(Loc72397, 1, 1,[[[[[0.9225], [0.4522]]]],[[[[0.2573, 0.6109, 0.5363], [0.2215, 0.641, 0.8244]]]]],[0, 0, 0], 1, 1, false, Sep10356), 
+LZer58081 = zero_padding2D_layer(Sep10356, 1, 0, 0, 0, Zer58081), 
+LMul30262 = multiply_layer([Con39079,Zer58081], Mul30262), 
+exec_layers([LAve12931,LMax84519,LRes99676,LCon39079,LLoc72397,LSep10356,LZer58081,LMul30262],["Ave12931","Max84519","Res99676","Con39079","Loc72397","Sep10356","Zer58081","Mul30262"],Mul30262,"Mul30262")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000]], [[0.0808680, 0.7791132, 0.0161334]]]]
+
+Expected (Unparsed): [[[[0.0,0.0,0.0]],[[0.08086798284734542,0.7791131958006118,0.016133362159608113]]]]
+
+Actual:   [[[[0, 0, 0]], [[0.0809, 0.7792, 0.0162]]]]
+
+Expected: [[[[0, 0, 0]], [[0.0809, 0.7792, 0.0162]]]]

@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc69866 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Dot88077 = tf.keras.layers.Input(shape=([2]))
+in1Dot88077 = tf.keras.layers.Input(shape=([2]))
+in0Con411 = tf.keras.layers.Input(shape=([2]))
+in0Max30678 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max30678 = tf.keras.layers.Input(shape=([1, 2]))
+
+Loc69866 = keras.layers.LocallyConnected2D(3, (1, 2),strides=(7, 1), name = 'Loc69866', )(in0Loc69866)
+Res44170 = keras.layers.Reshape((1, 3), name = 'Res44170', )(Loc69866)
+Fla68960 = keras.layers.Flatten(name = 'Fla68960', )(Res44170)
+Dot88077 = keras.layers.Dot(axes=(1, 1), name = 'Dot88077', )([in0Dot88077,in1Dot88077])
+Con411 = keras.layers.Concatenate(axis=1, name = 'Con411', )([Dot88077,in0Con411])
+Max13862 = keras.layers.Maximum(name = 'Max13862', )([Fla68960,Con411])
+Max30678 = keras.layers.Maximum(name = 'Max30678', )([in0Max30678,in1Max30678])
+Sim93240 = keras.layers.SimpleRNN(3,name = 'Sim93240', )(Max30678)
+Dot44373 = keras.layers.Dot(axes=(1, 1), name = 'Dot44373', )([Max13862,Sim93240])
+model = tf.keras.models.Model(inputs=[in0Loc69866,in0Dot88077,in1Dot88077,in0Con411,in0Max30678,in1Max30678], outputs=Dot44373)
+w = model.get_layer('Loc69866').get_weights() 
+w[0] = np.array([[[0.2551, 0.9068, 0.3929], [0.9907, 0.7457, 0.0393], [0.6429, 0.531, 0.383], [0.0574, 0.458, 0.7938]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc69866').set_weights(w) 
+w = model.get_layer('Sim93240').get_weights() 
+w[0] = np.array([[8, 5, 6], [6, 7, 7]])
+w[1] = np.array([[9, 7, 7], [10, 9, 9], [8, 4, 10]])
+w[2] = np.array([2, 5, 1])
+model.get_layer('Sim93240').set_weights(w) 
+in0Loc69866 = tf.constant([[[[0.1463, 0.7208], [0.8612, 0.6151]], [[0.8763, 0.7756], [0.1644, 0.9238]]]])
+in0Dot88077 = tf.constant([[0.626, 0.5341]])
+in1Dot88077 = tf.constant([[0.9139, 0.1381]])
+in0Con411 = tf.constant([[0.7901, 0.7671]])
+in0Max30678 = tf.constant([[[0.6293, 0.1095]]])
+in1Max30678 = tf.constant([[[0.4681, 0.3861]]])
+print (np.array2string(model.predict([in0Loc69866,in0Dot88077,in1Dot88077,in0Con411,in0Max30678,in1Max30678],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot44373.png')
+
+LLoc69866 = locally_connected2D_layer([[[[0.1463, 0.7208], [0.8612, 0.6151]], [[0.8763, 0.7756], [0.1644, 0.9238]]]], 1, 2,[[[0.2551, 0.9068, 0.3929], [0.9907, 0.7457, 0.0393], [0.6429, 0.531, 0.383], [0.0574, 0.458, 0.7938]]],[[[0, 0, 0]]], 7, 1, Loc69866), 
+LRes44170 = reshape_layer(Loc69866, [1, 3], Res44170), 
+LFla68960 = flatten_layer(Res44170, Fla68960), 
+LDot88077 = dot_layer([[0.626, 0.5341]], [[0.9139, 0.1381]], 1, 1, Dot88077), 
+LCon411 = concatenate_layer([Dot88077,[[0.7901, 0.7671]]], 1, Con411), 
+LMax13862 = maximum_layer([Fla68960,Con411], Max13862), 
+LMax30678 = maximum_layer([[[[0.6293, 0.1095]]], [[[0.4681, 0.3861]]]], Max30678), 
+LSim93240 = simple_rnn_layer(Max30678,[[8, 5, 6], [6, 7, 7]],[[9, 7, 7], [10, 9, 9], [8, 4, 10]],[2, 5, 1], Sim93240), 
+LDot44373 = dot_layer(Max13862,Sim93240, 1, 1, Dot44373), 
+exec_layers([LLoc69866,LRes44170,LFla68960,LDot88077,LCon411,LMax13862,LMax30678,LSim93240,LDot44373],["Loc69866","Res44170","Fla68960","Dot88077","Con411","Max13862","Max30678","Sim93240","Dot44373"],Dot44373,"Dot44373")
+
+Actual (Unparsed): [[3.6534824]]
+
+Expected (Unparsed): [[3.6534824013853764]]
+
+Actual:   [[3.6535]]
+
+Expected: [[3.6535]]

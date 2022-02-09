@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer53379 = tf.keras.layers.Input(shape=([4, 2]))
+in0Con3856 = tf.keras.layers.Input(shape=([6, 1]))
+in0Loc22102 = tf.keras.layers.Input(shape=([2, 1]))
+in0Up_20062 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con76498 = tf.keras.layers.Input(shape=([6, 1]))
+
+Zer53379 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer53379', )(in0Zer53379)
+Con3856 = keras.layers.Concatenate(axis=2, name = 'Con3856', )([Zer53379,in0Con3856])
+Loc22102 = keras.layers.LocallyConnected1D(3, (1),strides=(11), name = 'Loc22102', )(in0Loc22102)
+Zer19726 = keras.layers.ZeroPadding1D(padding=((5, 0)), name = 'Zer19726', )(Loc22102)
+Ave59528 = keras.layers.Average(name = 'Ave59528', )([Con3856,Zer19726])
+Up_20062 = keras.layers.UpSampling1D(size=(1), name = 'Up_20062', )(in0Up_20062)
+Bat53762 = keras.layers.BatchNormalization(axis=1, epsilon=0.9834484001243657,  name = 'Bat53762', )(Up_20062)
+Zer69669 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer69669', )(Bat53762)
+Con76498 = keras.layers.Concatenate(axis=2, name = 'Con76498', )([Zer69669,in0Con76498])
+Min73269 = keras.layers.Minimum(name = 'Min73269', )([Ave59528,Con76498])
+model = tf.keras.models.Model(inputs=[in0Zer53379,in0Con3856,in0Loc22102,in0Up_20062,in0Con76498], outputs=Min73269)
+w = model.get_layer('Loc22102').get_weights() 
+w[0] = np.array([[[0.4499, 0.2264, 0.7621]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc22102').set_weights(w) 
+w = model.get_layer('Bat53762').get_weights() 
+w[0] = np.array([0.1987, 0.9346])
+w[1] = np.array([0.0752, 0.8047])
+w[2] = np.array([0.732, 0.3379])
+w[3] = np.array([0.2391, 0.3755])
+model.get_layer('Bat53762').set_weights(w) 
+in0Zer53379 = tf.constant([[[1.6169, 1.2949], [1.5859, 1.7142], [1.8641, 1.6569], [1.3637, 1.3003]]])
+in0Con3856 = tf.constant([[[0.3418], [0.4079], [0.6734], [0.4432], [0.377], [0.2357]]])
+in0Loc22102 = tf.constant([[[0.5643], [0.9995]]])
+in0Up_20062 = tf.constant([[[1.8653, 1.9009], [1.752, 1.9678]]])
+in0Con76498 = tf.constant([[[0.8018], [0.3152], [0.7655], [0.8388], [0.8951], [0.3663]]])
+print (np.array2string(model.predict([in0Zer53379,in0Con3856,in0Loc22102,in0Up_20062,in0Con76498],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min73269.png')
+
+LZer53379 = zero_padding1D_layer([[[1.6169, 1.2949], [1.5859, 1.7142], [1.8641, 1.6569], [1.3637, 1.3003]]], 1, 1, Zer53379), 
+LCon3856 = concatenate_layer([Zer53379,[[[0.3418], [0.4079], [0.6734], [0.4432], [0.377], [0.2357]]]], 2, Con3856), 
+LLoc22102 = locally_connected1D_layer([[[0.5643], [0.9995]]], 1,[[[0.4499, 0.2264, 0.7621]]],[[0, 0, 0]], 11, Loc22102), 
+LZer19726 = zero_padding1D_layer(Loc22102, 5, 0, Zer19726), 
+LAve59528 = average_layer([Con3856,Zer19726], Ave59528), 
+LUp_20062 = up_sampling1D_layer([[[1.8653, 1.9009], [1.752, 1.9678]]], 1, Up_20062), 
+LBat53762 = batch_normalization_layer(Up_20062, 1, 0.9834484001243657, [0.1987, 0.9346], [0.0752, 0.8047], [0.732, 0.3379], [0.2391, 0.3755], Bat53762), 
+LZer69669 = zero_padding1D_layer(Bat53762, 4, 0, Zer69669), 
+LCon76498 = concatenate_layer([Zer69669,[[[0.8018], [0.3152], [0.7655], [0.8388], [0.8951], [0.3663]]]], 2, Con76498), 
+LMin73269 = minimum_layer([Ave59528,Con76498], Min73269), 
+exec_layers([LZer53379,LCon3856,LLoc22102,LZer19726,LAve59528,LUp_20062,LBat53762,LZer69669,LCon76498,LMin73269],["Zer53379","Con3856","Loc22102","Zer19726","Ave59528","Up_20062","Bat53762","Zer69669","Con76498","Min73269"],Min73269,"Min73269")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.1709000], [0.0000000, 0.0000000, 0.2039500], [0.0000000, 0.0000000, 0.3367000], [0.0000000, 0.0000000, 0.2216000], [0.2788619, 0.2852594, 0.1885000], [0.1269393, 0.0638788, 0.3328765]]]
+
+Expected (Unparsed): [[[0,0,0.1709],[0,0,0.20395],[0,0,0.3367],[0,0,0.2216],[0.2788618690427367,0.28525943591639896,0.1885],[0.126939285,0.06387876,0.332876515]]]
+
+Actual:   [[[0, 0, 0.1709], [0, 0, 0.204], [0, 0, 0.3367], [0, 0, 0.2216], [0.2789, 0.2853, 0.1885], [0.127, 0.0639, 0.3329]]]
+
+Expected: [[[0, 0, 0.1709], [0, 0, 0.204], [0, 0, 0.3367], [0, 0, 0.2216], [0.2789, 0.2853, 0.1885], [0.127, 0.0639, 0.3329]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max79439 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sim50660 = tf.keras.layers.Input(shape=([1, 3]))
+in0Glo94925 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con31726 = tf.keras.layers.Input(shape=([1]))
+in0Con28805 = tf.keras.layers.Input(shape=([4, 1]))
+
+Max79439 = keras.layers.MaxPool1D(pool_size=(2), name = 'Max79439', )(in0Max79439)
+Zer52708 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer52708', )(Max79439)
+Sim50660 = keras.layers.SimpleRNN(2,name = 'Sim50660', )(in0Sim50660)
+Glo94925 = keras.layers.GlobalMaxPool1D(name = 'Glo94925', )(in0Glo94925)
+Con31726 = keras.layers.Concatenate(axis=1, name = 'Con31726', )([Glo94925,in0Con31726])
+Max32504 = keras.layers.Maximum(name = 'Max32504', )([Sim50660,Con31726])
+Res53198 = keras.layers.Reshape((2, 1), name = 'Res53198', )(Max32504)
+Zer89656 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer89656', )(Res53198)
+Con28805 = keras.layers.Concatenate(axis=2, name = 'Con28805', )([Zer89656,in0Con28805])
+Ave34726 = keras.layers.Average(name = 'Ave34726', )([Zer52708,Con28805])
+model = tf.keras.models.Model(inputs=[in0Max79439,in0Sim50660,in0Glo94925,in0Con31726,in0Con28805], outputs=Ave34726)
+w = model.get_layer('Sim50660').get_weights() 
+w[0] = np.array([[2, 2], [8, 6], [6, 6]])
+w[1] = np.array([[10, 5], [5, 7]])
+w[2] = np.array([2, 6])
+model.get_layer('Sim50660').set_weights(w) 
+in0Max79439 = tf.constant([[[1.371, 1.9838], [1.4884, 1.3731]]])
+in0Sim50660 = tf.constant([[[10, 10, 3]]])
+in0Glo94925 = tf.constant([[[1.126]]])
+in0Con31726 = tf.constant([[0.0748]])
+in0Con28805 = tf.constant([[[0.2277], [0.2936], [0.7658], [0.1472]]])
+print (np.array2string(model.predict([in0Max79439,in0Sim50660,in0Glo94925,in0Con31726,in0Con28805],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave34726.png')
+
+LMax79439 = max_pool1D_layer([[[1.371, 1.9838], [1.4884, 1.3731]]], 2, Max79439), 
+LZer52708 = zero_padding1D_layer(Max79439, 3, 0, Zer52708), 
+LSim50660 = simple_rnn_layer([[[10, 10, 3]]],[[2, 2], [8, 6], [6, 6]],[[10, 5], [5, 7]],[2, 6], Sim50660), 
+LGlo94925 = global_max_pool1D_layer([[[1.126]]], Glo94925), 
+LCon31726 = concatenate_layer([Glo94925,[[0.0748]]], 1, Con31726), 
+LMax32504 = maximum_layer([Sim50660,Con31726], Max32504), 
+LRes53198 = reshape_layer(Max32504, [2, 1], Res53198), 
+LZer89656 = zero_padding1D_layer(Res53198, 1, 1, Zer89656), 
+LCon28805 = concatenate_layer([Zer89656,[[[0.2277], [0.2936], [0.7658], [0.1472]]]], 2, Con28805), 
+LAve34726 = average_layer([Zer52708,Con28805], Ave34726), 
+exec_layers([LMax79439,LZer52708,LSim50660,LGlo94925,LCon31726,LMax32504,LRes53198,LZer89656,LCon28805,LAve34726],["Max79439","Zer52708","Sim50660","Glo94925","Con31726","Max32504","Res53198","Zer89656","Con28805","Ave34726"],Ave34726,"Ave34726")
+
+Actual (Unparsed): [[[0.0000000, 0.1138500], [0.5630000, 0.1468000], [0.5000000, 0.3829000], [0.7442000, 1.0655000]]]
+
+Expected (Unparsed): [[[0,0.11385],[0.563,0.1468],[0.5,0.3829],[0.7442,1.0655000000000001]]]
+
+Actual:   [[[0, 0.1139], [0.563, 0.1468], [0.5, 0.3829], [0.7442, 1.0655]]]
+
+Expected: [[[0, 0.1139], [0.563, 0.1468], [0.5, 0.3829], [0.7442, 1.0656]]]

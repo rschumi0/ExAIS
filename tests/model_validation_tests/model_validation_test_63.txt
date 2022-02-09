@@ -1,0 +1,88 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot19435 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot19435 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con615 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in0GRU85657 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con2750 = tf.keras.layers.Input(shape=([2]))
+
+Dot19435 = keras.layers.Dot(axes=(1, 2), name = 'Dot19435', )([in0Dot19435,in1Dot19435])
+Res57196 = keras.layers.Reshape((2, 2, 1), name = 'Res57196', )(Dot19435)
+Res92723 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res92723', )(Res57196)
+Con49095 = keras.layers.Conv3D(3, (2, 2, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con49095', )(Res92723)
+Res10962 = keras.layers.Reshape((2, 2, 3), name = 'Res10962', )(Con49095)
+PRe57376 = keras.layers.PReLU(name = 'PRe57376', )(Res10962)
+Res45931 = keras.layers.Reshape((2, 2, 3, 1), name = 'Res45931', )(PRe57376)
+Up_48244 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_48244', )(Res45931)
+Res93954 = keras.layers.Reshape((2, 2, 3), name = 'Res93954', )(Up_48244)
+Res48654 = keras.layers.Reshape((2, 6), name = 'Res48654', )(Res93954)
+Fla38487 = keras.layers.Flatten(name = 'Fla38487', )(Res48654)
+Con615 = keras.layers.Conv3D(2, (1, 1, 2),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con615', )(in0Con615)
+Res48864 = keras.layers.Reshape((1, 1, 4), name = 'Res48864', )(Con615)
+Res36878 = keras.layers.Reshape((1, 4), name = 'Res36878', )(Res48864)
+Fla67566 = keras.layers.Flatten(name = 'Fla67566', )(Res36878)
+GRU85657 = keras.layers.RNN(keras.layers.GRUCell(2,reset_after=True, recurrent_activation='sigmoid', ), name = 'GRU85657', input_shape=(2, 2))(in0GRU85657)
+Con2750 = keras.layers.Concatenate(axis=1, name = 'Con2750', )([GRU85657,in0Con2750])
+Mul90295 = keras.layers.Multiply(name = 'Mul90295', )([Fla67566,Con2750])
+Max23043 = keras.layers.Maximum(name = 'Max23043', )([Fla38487,Mul90295])
+model = tf.keras.models.Model(inputs=[in0Dot19435,in1Dot19435,in0Con615,in0GRU85657,in0Con2750], outputs=Max23043)
+w = model.get_layer('Con49095').get_weights() 
+w[0] = np.array([[[[[0.4834, 0.108, 0.5389]]], [[[0.3513, 0.4799, 0.6775]]]], [[[[0.6664, 0.3689, 0.6103]]], [[[0.3571, 0.8189, 0.0209]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con49095').set_weights(w) 
+w = model.get_layer('PRe57376').get_weights() 
+w[0] = np.array([[[0.6524, 0.6187, 0.2159], [0.298, 0.1029, 0.9682]], [[0.3998, 0.9039, 0.7648], [0.4222, 0.2646, 0.9804]]])
+model.get_layer('PRe57376').set_weights(w) 
+w = model.get_layer('Con615').get_weights() 
+w[0] = np.array([[[[[0.8553, 0.8307], [0.7533, 0.2759]], [[0.1794, 0.802], [0.7114, 0.7912]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con615').set_weights(w) 
+w = model.get_layer('GRU85657').get_weights() 
+w[0] = np.array([[7, 3, 7, 4, 4, 6], [9, 9, 3, 2, 2, 9]])
+w[1] = np.array([[7, 9, 10, 2, 5, 2], [1, 2, 4, 4, 8, 4]])
+w[2] = np.array([[10, 6, 1, 1, 1, 7], [7, 1, 6, 1, 7, 6]])
+model.get_layer('GRU85657').set_weights(w) 
+in0Dot19435 = tf.constant([[[0.3161, 0.7662], [0.5783, 0.3491]]])
+in1Dot19435 = tf.constant([[[0.8394, 0.0539], [0.4106, 0.9633]]])
+in0Con615 = tf.constant([[[[[0.2995, 0.0532], [0.6632, 0.5725]]]]])
+in0GRU85657 = tf.constant([[[7, 10], [1, 7]]])
+in0Con2750 = tf.constant([[0.2156, 0.0229]])
+print (np.array2string(model.predict([in0Dot19435,in1Dot19435,in0Con615,in0GRU85657,in0Con2750],steps=1), separator=', '))
+
+
+LDot19435 = dot_layer([[[0.3161, 0.7662], [0.5783, 0.3491]]], [[[0.8394, 0.0539], [0.4106, 0.9633]]], 1, 2, Dot19435), 
+LRes57196 = reshape_layer(Dot19435, [2, 2, 1], Res57196), 
+LRes92723 = reshape_layer(Res57196, [2, 2, 1, 1], Res92723), 
+LCon49095 = conv3D_layer(Res92723, 2, 2, 1,[[[[[0.4834, 0.108, 0.5389]]], [[[0.3513, 0.4799, 0.6775]]]], [[[[0.6664, 0.3689, 0.6103]]], [[[0.3571, 0.8189, 0.0209]]]]],[0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con49095), 
+LRes10962 = reshape_layer(Con49095, [2, 2, 3], Res10962), 
+LPRe57376 = prelu_layer(Res10962, [[[0.6524, 0.6187, 0.2159], [0.298, 0.1029, 0.9682]], [[0.3998, 0.9039, 0.7648], [0.4222, 0.2646, 0.9804]]], PRe57376), 
+LRes45931 = reshape_layer(PRe57376, [2, 2, 3, 1], Res45931), 
+LUp_48244 = up_sampling3D_layer(Res45931, 1, 1, 1, Up_48244), 
+LRes93954 = reshape_layer(Up_48244, [2, 2, 3], Res93954), 
+LRes48654 = reshape_layer(Res93954, [2, 6], Res48654), 
+LFla38487 = flatten_layer(Res48654, Fla38487), 
+LCon615 = conv3D_layer([[[[[0.2995, 0.0532], [0.6632, 0.5725]]]]], 1, 1, 2,[[[[[0.8553, 0.8307], [0.7533, 0.2759]], [[0.1794, 0.802], [0.7114, 0.7912]]]]],[0, 0], 1, 1, 1, true, 1, 1, 1, Con615), 
+LRes48864 = reshape_layer(Con615, [1, 1, 4], Res48864), 
+LRes36878 = reshape_layer(Res48864, [1, 4], Res36878), 
+LFla67566 = flatten_layer(Res36878, Fla67566), 
+LGRU85657 = grucell_layer([[[7, 10], [1, 7]]],[[7, 3, 7, 4, 4, 6], [9, 9, 3, 2, 2, 9]],[[7, 9, 10, 2, 5, 2], [1, 2, 4, 4, 8, 4]],[[10, 6, 1, 1, 1, 7], [7, 1, 6, 1, 7, 6]], true, GRU85657), 
+LCon2750 = concatenate_layer([GRU85657,[[0.2156, 0.0229]]], 1, Con2750), 
+LMul90295 = multiply_layer([Fla67566,Con2750], Mul90295), 
+LMax23043 = maximum_layer([Fla38487,Mul90295], Max23043), 
+exec_layers([LDot19435,LRes57196,LRes92723,LCon49095,LRes10962,LPRe57376,LRes45931,LUp_48244,LRes93954,LRes48654,LFla38487,LCon615,LRes48864,LRes36878,LFla67566,LGRU85657,LCon2750,LMul90295,LMax23043],["Dot19435","Res57196","Res92723","Con49095","Res10962","PRe57376","Res45931","Up_48244","Res93954","Res48654","Fla38487","Con615","Res48864","Res36878","Fla67566","GRU85657","Con2750","Mul90295","Max23043"],Max23043,"Max23043")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Operands could not be broadcast together with shapes (12,) (4,)
+
+Expected (Unparsed): 
+Max23043: Inconsistent Input Shapes, Input Shape [1,12]
+
+Actual:   
+
+Expected: 

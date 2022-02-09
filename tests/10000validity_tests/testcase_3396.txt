@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc7739 = tf.keras.layers.Input(shape=([1, 1]))
+in0Max65388 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Loc7739 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc7739', )(in0Loc7739)
+Res91134 = keras.layers.Reshape((1, 2, 1), name = 'Res91134', )(Loc7739)
+Dep32281 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep32281', )(Res91134)
+Res71812 = keras.layers.Reshape((1, 2), name = 'Res71812', )(Dep32281)
+Zer60696 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer60696', )(Res71812)
+Max65388 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max65388', )(in0Max65388)
+Res71668 = keras.layers.Reshape((2, 2), name = 'Res71668', )(Max65388)
+Per15777 = keras.layers.Permute((2,1), name = 'Per15777',)(Res71668)
+Ave72155 = keras.layers.Average(name = 'Ave72155', )([Zer60696,Per15777])
+model = tf.keras.models.Model(inputs=[in0Loc7739,in0Max65388], outputs=Ave72155)
+w = model.get_layer('Loc7739').get_weights() 
+w[0] = np.array([[[0.1738, 0.4629]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc7739').set_weights(w) 
+w = model.get_layer('Dep32281').get_weights() 
+w[0] = np.array([[[[0.9174]]]])
+w[1] = np.array([0])
+model.get_layer('Dep32281').set_weights(w) 
+in0Loc7739 = tf.constant([[[0.7227]]])
+in0Max65388 = tf.constant([[[[1.7412, 1.5491]], [[1.6871, 1.3591]]]])
+print (np.array2string(model.predict([in0Loc7739,in0Max65388],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave72155.png')
+
+LLoc7739 = locally_connected1D_layer([[[0.7227]]], 1,[[[0.1738, 0.4629]]],[[0, 0]], 1, Loc7739), 
+LRes91134 = reshape_layer(Loc7739, [1, 2, 1], Res91134), 
+LDep32281 = depthwise_conv2D_layer(Res91134, 1, 1,[[[[0.9174]]]],[0], 1, 1, true, Dep32281), 
+LRes71812 = reshape_layer(Dep32281, [1, 2], Res71812), 
+LZer60696 = zero_padding1D_layer(Res71812, 1, 0, Zer60696), 
+LMax65388 = max_pool2D_layer([[[[1.7412, 1.5491]], [[1.6871, 1.3591]]]], 1, 1, Max65388), 
+LRes71668 = reshape_layer(Max65388, [2, 2], Res71668), 
+LPer15777 = permute_layer(Res71668, 2,1, Per15777), 
+LAve72155 = average_layer([Zer60696,Per15777], Ave72155), 
+exec_layers([LLoc7739,LRes91134,LDep32281,LRes71812,LZer60696,LMax65388,LRes71668,LPer15777,LAve72155],["Loc7739","Res91134","Dep32281","Res71812","Zer60696","Max65388","Res71668","Per15777","Ave72155"],Ave72155,"Ave72155")
+
+Actual (Unparsed): [[[0.8706000, 0.8435500], [0.8321652, 0.8330025]]]
+
+Expected (Unparsed): [[[0.8706,0.84355],[0.832165132762,0.833002502621]]]
+
+Actual:   [[[0.8706, 0.8436], [0.8322, 0.8331]]]
+
+Expected: [[[0.8706, 0.8436], [0.8322, 0.8331]]]

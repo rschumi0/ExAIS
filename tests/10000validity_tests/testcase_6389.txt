@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min52983 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min52983 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Up_59641 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con90615 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min84927 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Min84927 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Min52983 = keras.layers.Minimum(name = 'Min52983', )([in0Min52983,in1Min52983])
+Res26395 = keras.layers.Reshape((1, 4), name = 'Res26395', )(Min52983)
+Up_59641 = keras.layers.UpSampling1D(size=(1), name = 'Up_59641', )(in0Up_59641)
+Con90615 = keras.layers.Concatenate(axis=2, name = 'Con90615', )([Up_59641,in0Con90615])
+Min77438 = keras.layers.Minimum(name = 'Min77438', )([Res26395,Con90615])
+Res39672 = keras.layers.Reshape((1, 4, 1), name = 'Res39672', )(Min77438)
+Max20844 = keras.layers.MaxPool2D(pool_size=(1, 3), name = 'Max20844', )(Res39672)
+Zer47430 = keras.layers.ZeroPadding2D(padding=((3, 0), (2, 0)), name = 'Zer47430', )(Max20844)
+Min84927 = keras.layers.Minimum(name = 'Min84927', )([in0Min84927,in1Min84927])
+Zer49163 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer49163', )(Min84927)
+Max71980 = keras.layers.Maximum(name = 'Max71980', )([Zer47430,Zer49163])
+model = tf.keras.models.Model(inputs=[in0Min52983,in1Min52983,in0Up_59641,in0Con90615,in0Min84927,in1Min84927], outputs=Max71980)
+in0Min52983 = tf.constant([[[[0.0594, 0.3944], [0.1558, 0.5371]]]])
+in1Min52983 = tf.constant([[[[0.109, 0.2945], [0.2565, 0.8195]]]])
+in0Up_59641 = tf.constant([[[1.4701, 1.4815]]])
+in0Con90615 = tf.constant([[[0.916, 0.5592]]])
+in0Min84927 = tf.constant([[[[0.2052]], [[0.8216]]]])
+in1Min84927 = tf.constant([[[[0.6963]], [[0.5755]]]])
+print (np.array2string(model.predict([in0Min52983,in1Min52983,in0Up_59641,in0Con90615,in0Min84927,in1Min84927],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max71980.png')
+
+LMin52983 = minimum_layer([[[[[0.0594, 0.3944], [0.1558, 0.5371]]]], [[[[0.109, 0.2945], [0.2565, 0.8195]]]]], Min52983), 
+LRes26395 = reshape_layer(Min52983, [1, 4], Res26395), 
+LUp_59641 = up_sampling1D_layer([[[1.4701, 1.4815]]], 1, Up_59641), 
+LCon90615 = concatenate_layer([Up_59641,[[[0.916, 0.5592]]]], 2, Con90615), 
+LMin77438 = minimum_layer([Res26395,Con90615], Min77438), 
+LRes39672 = reshape_layer(Min77438, [1, 4, 1], Res39672), 
+LMax20844 = max_pool2D_layer(Res39672, 1, 3, Max20844), 
+LZer47430 = zero_padding2D_layer(Max20844, 3, 0, 2, 0, Zer47430), 
+LMin84927 = minimum_layer([[[[[0.2052]], [[0.8216]]]], [[[[0.6963]], [[0.5755]]]]], Min84927), 
+LZer49163 = zero_padding2D_layer(Min84927, 1, 1, 1, 1, Zer49163), 
+LMax71980 = maximum_layer([Zer47430,Zer49163], Max71980), 
+exec_layers([LMin52983,LRes26395,LUp_59641,LCon90615,LMin77438,LRes39672,LMax20844,LZer47430,LMin84927,LZer49163,LMax71980],["Min52983","Res26395","Up_59641","Con90615","Min77438","Res39672","Max20844","Zer47430","Min84927","Zer49163","Max71980"],Max71980,"Max71980")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.2052000], [0.0000000]], [[0.0000000], [0.5755000], [0.0000000]], [[0.0000000], [0.0000000], [0.2945000]]]]
+
+Expected (Unparsed): [[[[0],[0],[0]],[[0],[0.2052],[0]],[[0],[0.5755],[0]],[[0],[0],[0.2945]]]]
+
+Actual:   [[[[0], [0], [0]], [[0], [0.2052], [0]], [[0], [0.5755], [0]], [[0], [0], [0.2945]]]]
+
+Expected: [[[[0], [0], [0]], [[0], [0.2052], [0]], [[0], [0.5755], [0]], [[0], [0], [0.2945]]]]

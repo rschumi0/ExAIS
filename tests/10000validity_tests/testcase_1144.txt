@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_87155 = tf.keras.layers.Input(shape=([2, 2]))
+in0Dot38530 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot38530 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con2749 = tf.keras.layers.Input(shape=([5]))
+
+Up_87155 = keras.layers.UpSampling1D(size=(2), name = 'Up_87155', )(in0Up_87155)
+Fla94055 = keras.layers.Flatten(name = 'Fla94055', )(Up_87155)
+Dot38530 = keras.layers.Dot(axes=(1, 2), name = 'Dot38530', )([in0Dot38530,in1Dot38530])
+Res71177 = keras.layers.Reshape((3, 3, 1), name = 'Res71177', )(Dot38530)
+Glo23553 = keras.layers.GlobalAveragePooling2D(name = 'Glo23553', )(Res71177)
+Res27892 = keras.layers.Reshape((1, 1), name = 'Res27892', )(Glo23553)
+Res59314 = keras.layers.Reshape((1, 1, 1), name = 'Res59314', )(Res27892)
+Glo79719 = keras.layers.GlobalMaxPool2D(name = 'Glo79719', )(Res59314)
+Res69570 = keras.layers.Reshape((1, 1), name = 'Res69570', )(Glo79719)
+GRU18391 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU18391', )(Res69570)
+Con2749 = keras.layers.Concatenate(axis=1, name = 'Con2749', )([GRU18391,in0Con2749])
+Mul76245 = keras.layers.Multiply(name = 'Mul76245', )([Fla94055,Con2749])
+Sof45570 = keras.layers.Softmax(axis=1, name = 'Sof45570', )(Mul76245)
+model = tf.keras.models.Model(inputs=[in0Up_87155,in0Dot38530,in1Dot38530,in0Con2749], outputs=Sof45570)
+w = model.get_layer('GRU18391').get_weights() 
+w[0] = np.array([[7, 3, 1, 9, 9, 6, 10, 1, 7]])
+w[1] = np.array([[9, 3, 9, 7, 6, 9, 2, 3, 10], [8, 1, 3, 5, 7, 5, 2, 1, 6], [2, 10, 9, 7, 8, 9, 4, 9, 1]])
+w[2] = np.array([[2, 2, 2, 4, 4, 6, 4, 7, 9], [10, 7, 5, 7, 6, 8, 2, 10, 3]])
+model.get_layer('GRU18391').set_weights(w) 
+in0Up_87155 = tf.constant([[[1.5552, 1.7644], [1.0204, 1.0756]]])
+in0Dot38530 = tf.constant([[[0.1181, 0.2662, 0.6301], [0.4646, 0.0044, 0.8442], [0.5372, 0.6453, 0.5853]]])
+in1Dot38530 = tf.constant([[[0.902, 0.9753, 0.4452], [0.4757, 0.2563, 0.4356], [0.5201, 0.4243, 0.8226]]])
+in0Con2749 = tf.constant([[0.3986, 0.4177, 0.8259, 0.9668, 0.5896]])
+print (np.array2string(model.predict([in0Up_87155,in0Dot38530,in1Dot38530,in0Con2749],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sof45570.png')
+
+LUp_87155 = up_sampling1D_layer([[[1.5552, 1.7644], [1.0204, 1.0756]]], 2, Up_87155), 
+LFla94055 = flatten_layer(Up_87155, Fla94055), 
+LDot38530 = dot_layer([[[0.1181, 0.2662, 0.6301], [0.4646, 0.0044, 0.8442], [0.5372, 0.6453, 0.5853]]], [[[0.902, 0.9753, 0.4452], [0.4757, 0.2563, 0.4356], [0.5201, 0.4243, 0.8226]]], 1, 2, Dot38530), 
+LRes71177 = reshape_layer(Dot38530, [3, 3, 1], Res71177), 
+LGlo23553 = global_average_pooling2D_layer(Res71177, Glo23553), 
+LRes27892 = reshape_layer(Glo23553, [1, 1], Res27892), 
+LRes59314 = reshape_layer(Res27892, [1, 1, 1], Res59314), 
+LGlo79719 = global_max_pool2D_layer(Res59314, Glo79719), 
+LRes69570 = reshape_layer(Glo79719, [1, 1], Res69570), 
+LGRU18391 = gru_layer(Res69570,[[7, 3, 1, 9, 9, 6, 10, 1, 7]],[[9, 3, 9, 7, 6, 9, 2, 3, 10], [8, 1, 3, 5, 7, 5, 2, 1, 6], [2, 10, 9, 7, 8, 9, 4, 9, 1]],[[2, 2, 2, 4, 4, 6, 4, 7, 9], [10, 7, 5, 7, 6, 8, 2, 10, 3]], true, GRU18391), 
+LCon2749 = concatenate_layer([GRU18391,[[0.3986, 0.4177, 0.8259, 0.9668, 0.5896]]], 1, Con2749), 
+LMul76245 = multiply_layer([Fla94055,Con2749], Mul76245), 
+LSof45570 = softmax_layer(Mul76245, 1, Sof45570), 
+exec_layers([LUp_87155,LFla94055,LDot38530,LRes71177,LGlo23553,LRes27892,LRes59314,LGlo79719,LRes69570,LGRU18391,LCon2749,LMul76245,LSof45570],["Up_87155","Fla94055","Dot38530","Res71177","Glo23553","Res27892","Res59314","Glo79719","Res69570","GRU18391","Con2749","Mul76245","Sof45570"],Sof45570,"Sof45570")
+
+Actual (Unparsed): [[0.0737955, 0.0737970, 0.0738430, 0.1490957, 0.1130149, 0.1794033, 0.1979117, 0.1391388]]
+
+Expected (Unparsed): [[0.07379554590293018,0.0737970447426104,0.07384303042895794,0.14909566968090018,0.11301487173155925,0.17940330613420735,0.19791171715253308,0.13913881422630153]]
+
+Actual:   [[0.0738, 0.0738, 0.0739, 0.1491, 0.1131, 0.1795, 0.198, 0.1392]]
+
+Expected: [[0.0738, 0.0738, 0.0739, 0.1491, 0.1131, 0.1795, 0.198, 0.1392]]

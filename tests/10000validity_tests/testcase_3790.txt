@@ -1,0 +1,85 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr5766 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con97967 = tf.keras.layers.Input(shape=([1]))
+in0Min44107 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Min44107 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con16892 = tf.keras.layers.Input(shape=([3, 1]))
+in0Mul68895 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul68895 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add29789 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add29789 = tf.keras.layers.Input(shape=([1, 2]))
+
+Thr5766 = keras.layers.ThresholdedReLU(theta=7.771731385138491, name = 'Thr5766', input_shape=(1, 2))(in0Thr5766)
+ReL51647 = keras.layers.ReLU(max_value=6.246280883841163, negative_slope=7.064938826636713, threshold=5.3174674633705665, name = 'ReL51647', )(Thr5766)
+Fla9496 = keras.layers.Flatten(name = 'Fla9496', )(ReL51647)
+Con97967 = keras.layers.Concatenate(axis=1, name = 'Con97967', )([Fla9496,in0Con97967])
+Min44107 = keras.layers.Minimum(name = 'Min44107', )([in0Min44107,in1Min44107])
+Res45105 = keras.layers.Reshape((1, 2, 2), name = 'Res45105', )(Min44107)
+Res87720 = keras.layers.Reshape((1, 4), name = 'Res87720', )(Res45105)
+GRU68902 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU68902', )(Res87720)
+Add19023 = keras.layers.Add(name = 'Add19023', )([Con97967,GRU68902])
+Res11787 = keras.layers.Reshape((3, 1), name = 'Res11787', )(Add19023)
+Con16892 = keras.layers.Concatenate(axis=2, name = 'Con16892', )([Res11787,in0Con16892])
+Mul68895 = keras.layers.Multiply(name = 'Mul68895', )([in0Mul68895,in1Mul68895])
+Zer64806 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer64806', )(Mul68895)
+Sub90441 = keras.layers.Subtract(name = 'Sub90441', )([Con16892,Zer64806])
+Add29789 = keras.layers.Add(name = 'Add29789', )([in0Add29789,in1Add29789])
+Res90044 = keras.layers.Reshape((1, 2, 1), name = 'Res90044', )(Add29789)
+PRe62108 = keras.layers.PReLU(name = 'PRe62108', )(Res90044)
+Res40456 = keras.layers.Reshape((1, 2), name = 'Res40456', )(PRe62108)
+Dot19777 = keras.layers.Dot(axes=(2, 2), name = 'Dot19777', )([Sub90441,Res40456])
+model = tf.keras.models.Model(inputs=[in0Thr5766,in0Con97967,in0Min44107,in1Min44107,in0Con16892,in0Mul68895,in1Mul68895,in0Add29789,in1Add29789], outputs=Dot19777)
+w = model.get_layer('GRU68902').get_weights() 
+w[0] = np.array([[3, 2, 2, 2, 4, 7, 5, 4, 2], [10, 8, 1, 9, 1, 4, 9, 2, 9], [1, 1, 3, 10, 1, 1, 3, 7, 8], [6, 3, 9, 3, 1, 10, 4, 3, 9]])
+w[1] = np.array([[6, 4, 7, 1, 2, 9, 5, 1, 2], [2, 7, 4, 7, 1, 4, 4, 6, 3], [1, 5, 10, 2, 5, 5, 5, 5, 9]])
+w[2] = np.array([[1, 6, 3, 7, 10, 1, 10, 8, 8], [3, 6, 5, 3, 1, 10, 1, 8, 3]])
+model.get_layer('GRU68902').set_weights(w) 
+w = model.get_layer('PRe62108').get_weights() 
+w[0] = np.array([[[0.1578], [0.7814]]])
+model.get_layer('PRe62108').set_weights(w) 
+in0Thr5766 = tf.constant([[[0.6715, 0.913]]])
+in0Con97967 = tf.constant([[0.6696]])
+in0Min44107 = tf.constant([[[[[0.9995], [0.9216]], [[0.7122], [0.0412]]]]])
+in1Min44107 = tf.constant([[[[[0.8353], [0.987]], [[0.7149], [0.0942]]]]])
+in0Con16892 = tf.constant([[[0.4614], [0.1197], [0.1525]]])
+in0Mul68895 = tf.constant([[[0.2513, 0.9585]]])
+in1Mul68895 = tf.constant([[[0.4267, 0.6584]]])
+in0Add29789 = tf.constant([[[0.3753, 0.9294]]])
+in1Add29789 = tf.constant([[[0.4382, 0.5292]]])
+print (np.array2string(model.predict([in0Thr5766,in0Con97967,in0Min44107,in1Min44107,in0Con16892,in0Mul68895,in1Mul68895,in0Add29789,in1Add29789],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot19777.png')
+
+LThr5766 = thresholded_relu_layer([[[0.6715, 0.913]]], 7.771731385138491, Thr5766), 
+LReL51647 = relu_layer(Thr5766, 6.246280883841163, 7.064938826636713, 5.3174674633705665, ReL51647), 
+LFla9496 = flatten_layer(ReL51647, Fla9496), 
+LCon97967 = concatenate_layer([Fla9496,[[0.6696]]], 1, Con97967), 
+LMin44107 = minimum_layer([[[[[[0.9995], [0.9216]], [[0.7122], [0.0412]]]]], [[[[[0.8353], [0.987]], [[0.7149], [0.0942]]]]]], Min44107), 
+LRes45105 = reshape_layer(Min44107, [1, 2, 2], Res45105), 
+LRes87720 = reshape_layer(Res45105, [1, 4], Res87720), 
+LGRU68902 = gru_layer(Res87720,[[3, 2, 2, 2, 4, 7, 5, 4, 2], [10, 8, 1, 9, 1, 4, 9, 2, 9], [1, 1, 3, 10, 1, 1, 3, 7, 8], [6, 3, 9, 3, 1, 10, 4, 3, 9]],[[6, 4, 7, 1, 2, 9, 5, 1, 2], [2, 7, 4, 7, 1, 4, 4, 6, 3], [1, 5, 10, 2, 5, 5, 5, 5, 9]],[[1, 6, 3, 7, 10, 1, 10, 8, 8], [3, 6, 5, 3, 1, 10, 1, 8, 3]], true, GRU68902), 
+LAdd19023 = add_layer([Con97967,GRU68902], Add19023), 
+LRes11787 = reshape_layer(Add19023, [3, 1], Res11787), 
+LCon16892 = concatenate_layer([Res11787,[[[0.4614], [0.1197], [0.1525]]]], 2, Con16892), 
+LMul68895 = multiply_layer([[[[0.2513, 0.9585]]], [[[0.4267, 0.6584]]]], Mul68895), 
+LZer64806 = zero_padding1D_layer(Mul68895, 2, 0, Zer64806), 
+LSub90441 = subtract_layer(Con16892,Zer64806, Sub90441), 
+LAdd29789 = add_layer([[[[0.3753, 0.9294]]], [[[0.4382, 0.5292]]]], Add29789), 
+LRes90044 = reshape_layer(Add29789, [1, 2, 1], Res90044), 
+LPRe62108 = prelu_layer(Res90044, [[[0.1578], [0.7814]]], PRe62108), 
+LRes40456 = reshape_layer(PRe62108, [1, 2], Res40456), 
+LDot19777 = dot_layer(Sub90441,Res40456, 2, 2, Dot19777), 
+exec_layers([LThr5766,LReL51647,LFla9496,LCon97967,LMin44107,LRes45105,LRes87720,LGRU68902,LAdd19023,LRes11787,LCon16892,LMul68895,LZer64806,LSub90441,LAdd29789,LRes90044,LPRe62108,LRes40456,LDot19777],["Thr5766","ReL51647","Fla9496","Con97967","Min44107","Res45105","Res87720","GRU68902","Add19023","Res11787","Con16892","Mul68895","Zer64806","Sub90441","Add29789","Res90044","PRe62108","Res40456","Dot19777"],Dot19777,"Dot19777")
+
+Actual (Unparsed): [[[-29.8882296], [-30.3866333], [-0.2405617]]]
+
+Expected (Unparsed): [[[-29.888230148364272],[-30.386633814427405],[-0.2405616416676416]]]
+
+Actual:   [[[-29.8882], [-30.3866], [-0.2405]]]
+
+Expected: [[[-29.8882], [-30.3866], [-0.2405]]]

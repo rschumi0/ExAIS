@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con60880 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con62691 = tf.keras.layers.Input(shape=([2]))
+in0Ave76161 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave76161 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Con60880 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con60880', )(in0Con60880)
+Res33763 = keras.layers.Reshape((1, 1, 2), name = 'Res33763', )(Con60880)
+Res72273 = keras.layers.Reshape((1, 2), name = 'Res72273', )(Res33763)
+GRU10158 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU10158', )(Res72273)
+Con62691 = keras.layers.Concatenate(axis=1, name = 'Con62691', )([GRU10158,in0Con62691])
+Ave76161 = keras.layers.Average(name = 'Ave76161', )([in0Ave76161,in1Ave76161])
+Res48659 = keras.layers.Reshape((1, 4), name = 'Res48659', )(Ave76161)
+Sep13203 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='same', name = 'Sep13203', )(Res48659)
+Bat65431 = keras.layers.BatchNormalization(axis=1, epsilon=0.24495678478214727,  name = 'Bat65431', )(Sep13203)
+Fla55121 = keras.layers.Flatten(name = 'Fla55121', )(Bat65431)
+Dot91470 = keras.layers.Dot(axes=(1, 1), name = 'Dot91470', )([Con62691,Fla55121])
+model = tf.keras.models.Model(inputs=[in0Con60880,in0Con62691,in0Ave76161,in1Ave76161], outputs=Dot91470)
+w = model.get_layer('Con60880').get_weights() 
+w[0] = np.array([[[[[0.2146, 0.8265], [0.0417, 0.6448]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con60880').set_weights(w) 
+w = model.get_layer('GRU10158').get_weights() 
+w[0] = np.array([[6, 7, 8, 3, 4, 5], [5, 7, 9, 4, 6, 6]])
+w[1] = np.array([[10, 9, 10, 9, 8, 7], [8, 8, 2, 2, 1, 8]])
+w[2] = np.array([6, 8, 9, 8, 10, 2])
+model.get_layer('GRU10158').set_weights(w) 
+w = model.get_layer('Sep13203').get_weights() 
+w[0] = np.array([[[0.5722], [0.0103], [0.6023], [0.155]]])
+w[1] = np.array([[[0.2312, 0.1908, 0.4298, 0.4111], [0.2513, 0.4234, 0.4407, 0.6247], [0.8338, 0.117, 0.3176, 0.8042], [0.0301, 0.3699, 0.7925, 0.9498]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep13203').set_weights(w) 
+w = model.get_layer('Bat65431').get_weights() 
+w[0] = np.array([0.5136])
+w[1] = np.array([0.0052])
+w[2] = np.array([0.1997])
+w[3] = np.array([0.7846])
+model.get_layer('Bat65431').set_weights(w) 
+in0Con60880 = tf.constant([[[[[0.7409, 0.2254]]]]])
+in0Con62691 = tf.constant([[0.6986, 0.3761]])
+in0Ave76161 = tf.constant([[[[0.1015, 0.1985], [0.7179, 0.3772]]]])
+in1Ave76161 = tf.constant([[[[0.048, 0.493], [0.9574, 0.3484]]]])
+print (np.array2string(model.predict([in0Con60880,in0Con62691,in0Ave76161,in1Ave76161],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot91470.png')
+
+LCon60880 = conv3D_transpose_layer([[[[[0.7409, 0.2254]]]]], 1, 1, 1,[[[[[0.2146, 0.8265], [0.0417, 0.6448]]]]],[0, 0], 1, 1, 1, false, Con60880), 
+LRes33763 = reshape_layer(Con60880, [1, 1, 2], Res33763), 
+LRes72273 = reshape_layer(Res33763, [1, 2], Res72273), 
+LGRU10158 = gru_layer(Res72273,[[6, 7, 8, 3, 4, 5], [5, 7, 9, 4, 6, 6]],[[10, 9, 10, 9, 8, 7], [8, 8, 2, 2, 1, 8]],[6, 8, 9, 8, 10, 2], false, GRU10158), 
+LCon62691 = concatenate_layer([GRU10158,[[0.6986, 0.3761]]], 1, Con62691), 
+LAve76161 = average_layer([[[[[0.1015, 0.1985], [0.7179, 0.3772]]]], [[[[0.048, 0.493], [0.9574, 0.3484]]]]], Ave76161), 
+LRes48659 = reshape_layer(Ave76161, [1, 4], Res48659), 
+LSep13203 = separable_conv1D_layer(Res48659, 1,[[[[0.5722], [0.0103], [0.6023], [0.155]]],[[[0.2312, 0.1908, 0.4298, 0.4111], [0.2513, 0.4234, 0.4407, 0.6247], [0.8338, 0.117, 0.3176, 0.8042], [0.0301, 0.3699, 0.7925, 0.9498]]]],[0, 0, 0, 0], 1, true, Sep13203), 
+LBat65431 = batch_normalization_layer(Sep13203, 1, 0.24495678478214727, [0.5136], [0.0052], [0.1997], [0.7846], Bat65431), 
+LFla55121 = flatten_layer(Bat65431, Fla55121), 
+LDot91470 = dot_layer(Con62691,Fla55121, 1, 1, Dot91470), 
+exec_layers([LCon60880,LRes33763,LRes72273,LGRU10158,LCon62691,LAve76161,LRes48659,LSep13203,LBat65431,LFla55121,LDot91470],["Con60880","Res33763","Res72273","GRU10158","Con62691","Ave76161","Res48659","Sep13203","Bat65431","Fla55121","Dot91470"],Dot91470,"Dot91470")
+
+Actual (Unparsed): [[0.0676246]]
+
+Expected (Unparsed): [[0.06762462175818221]]
+
+Actual:   [[0.0677]]
+
+Expected: [[0.0677]]

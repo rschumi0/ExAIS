@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro5056 = tf.keras.layers.Input(shape=([4, 2]))
+in0Con38739 = tf.keras.layers.Input(shape=([4, 2]))
+in0Con38812 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Cro5056 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro5056', )(in0Cro5056)
+Con38739 = keras.layers.Concatenate(axis=2, name = 'Con38739', )([Cro5056,in0Con38739])
+Con38812 = keras.layers.Conv2D(4, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con38812', )(in0Con38812)
+Res18012 = keras.layers.Reshape((1, 4), name = 'Res18012', )(Con38812)
+Max79159 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max79159', )(Res18012)
+Zer68619 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer68619', )(Max79159)
+Sub61607 = keras.layers.Subtract(name = 'Sub61607', )([Con38739,Zer68619])
+Den34249 = keras.layers.Dense(3,name = 'Den34249', )(Sub61607)
+model = tf.keras.models.Model(inputs=[in0Cro5056,in0Con38739,in0Con38812], outputs=Den34249)
+w = model.get_layer('Con38812').get_weights() 
+w[0] = np.array([[[[0.5271, 0.3449, 0.2029, 0.3187], [0.0966, 0.7932, 0.9167, 0.6059]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con38812').set_weights(w) 
+w = model.get_layer('Den34249').get_weights() 
+w[0] = np.array([[0.8692, 0.8385, 0.4254], [0.5036, 0.6955, 0.9827], [0.3743, 0.3667, 0.1026], [0.0211, 0.151, 0.9352]])
+w[1] = np.array([0.2001, 0.807, 0.0068])
+model.get_layer('Den34249').set_weights(w) 
+in0Cro5056 = tf.constant([[[1.6397, 1.1339], [1.0311, 1.9537], [1.3208, 1.5325], [1.4455, 1.1847]]])
+in0Con38739 = tf.constant([[[0.6713, 0.6049], [0.7106, 0.45], [0.7023, 0.3525], [0.5417, 0.8456]]])
+in0Con38812 = tf.constant([[[[0.5854, 0.6206]]]])
+print (np.array2string(model.predict([in0Cro5056,in0Con38739,in0Con38812],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Den34249.png')
+
+LCro5056 = cropping1D_layer([[[1.6397, 1.1339], [1.0311, 1.9537], [1.3208, 1.5325], [1.4455, 1.1847]]], 0, 0, Cro5056), 
+LCon38739 = concatenate_layer([Cro5056,[[[0.6713, 0.6049], [0.7106, 0.45], [0.7023, 0.3525], [0.5417, 0.8456]]]], 2, Con38739), 
+LCon38812 = conv2D_layer([[[[0.5854, 0.6206]]]], 1, 1,[[[[0.5271, 0.3449, 0.2029, 0.3187], [0.0966, 0.7932, 0.9167, 0.6059]]]],[0, 0, 0, 0], 1, 1, false, 1, 1, Con38812), 
+LRes18012 = reshape_layer(Con38812, [1, 4], Res18012), 
+LMax79159 = max_pool1D_layer(Res18012, 1, Max79159), 
+LZer68619 = zero_padding1D_layer(Max79159, 3, 0, Zer68619), 
+LSub61607 = subtract_layer(Con38739,Zer68619, Sub61607), 
+LDen34249 = dense_layer(Sub61607, [[0.8692, 0.8385, 0.4254], [0.5036, 0.6955, 0.9827], [0.3743, 0.3667, 0.1026], [0.0211, 0.151, 0.9352]],[0.2001, 0.807, 0.0068], Den34249), 
+exec_layers([LCro5056,LCon38739,LCon38812,LRes18012,LMax79159,LZer68619,LSub61607,LDen34249],["Cro5056","Con38739","Con38812","Res18012","Max79159","Zer68619","Sub61607","Den34249"],Den34249,"Den34249")
+
+Actual (Unparsed): [[[2.4603903, 3.3080216, 2.4531898], [2.3556880, 3.3589027, 2.8590784], [2.3902150, 3.2911054, 2.4763700], [1.3345804, 2.0404233, 1.1966937]]]
+
+Expected (Unparsed): [[[2.4603902599999996,3.30802151,2.45318977],[2.3556880199999997,3.35890272,2.85907849],[2.3902149999999995,3.2911054600000007,2.47637005],[1.334580308076,2.040423284584,1.196693686282]]]
+
+Actual:   [[[2.4604, 3.3081, 2.4532], [2.3557, 3.359, 2.8591], [2.3903, 3.2912, 2.4764], [1.3346, 2.0405, 1.1967]]]
+
+Expected: [[[2.4604, 3.3081, 2.4532], [2.3557, 3.359, 2.8591], [2.3903, 3.2912, 2.4764], [1.3346, 2.0405, 1.1967]]]

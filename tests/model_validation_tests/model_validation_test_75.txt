@@ -1,0 +1,76 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul62557 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul62557 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add76466 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Add76466 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Max71719 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max71719 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Dep62489 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con87813 = tf.keras.layers.Input(shape=([7]))
+
+Mul62557 = keras.layers.Multiply(name = 'Mul62557', )([in0Mul62557,in1Mul62557])
+Add76466 = keras.layers.Add(name = 'Add76466', )([in0Add76466,in1Add76466])
+Res64282 = keras.layers.Reshape((1, 2, 1), name = 'Res64282', )(Add76466)
+Res21710 = keras.layers.Reshape((1, 2), name = 'Res21710', )(Res64282)
+Dot70774 = keras.layers.Dot(axes=(1, 1), name = 'Dot70774', )([Mul62557,Res21710])
+Up_51154 = keras.layers.UpSampling1D(size=(1), name = 'Up_51154', )(Dot70774)
+Fla47789 = keras.layers.Flatten(name = 'Fla47789', )(Up_51154)
+Max71719 = keras.layers.Maximum(name = 'Max71719', )([in0Max71719,in1Max71719])
+Res40492 = keras.layers.Reshape((2, 4), name = 'Res40492', )(Max71719)
+Fla40814 = keras.layers.Flatten(name = 'Fla40814', )(Res40492)
+Dep62489 = keras.layers.DepthwiseConv2D((1, 1),strides=(2, 2), padding='same', name = 'Dep62489', )(in0Dep62489)
+Res63495 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res63495', )(Dep62489)
+Glo39623 = keras.layers.GlobalMaxPool3D(name = 'Glo39623', )(Res63495)
+Con87813 = keras.layers.Concatenate(axis=1, name = 'Con87813', )([Glo39623,in0Con87813])
+Mul51728 = keras.layers.Multiply(name = 'Mul51728', )([Fla40814,Con87813])
+Max5133 = keras.layers.Maximum(name = 'Max5133', )([Fla47789,Mul51728])
+model = tf.keras.models.Model(inputs=[in0Mul62557,in1Mul62557,in0Add76466,in1Add76466,in0Max71719,in1Max71719,in0Dep62489,in0Con87813], outputs=Max5133)
+w = model.get_layer('Dep62489').get_weights() 
+w[0] = np.array([[[[0.3723]]]])
+w[1] = np.array([0])
+model.get_layer('Dep62489').set_weights(w) 
+in0Mul62557 = tf.constant([[[0.2066]]])
+in1Mul62557 = tf.constant([[[0.2791]]])
+in0Add76466 = tf.constant([[[[[0.4987]], [[0.0503]]]]])
+in1Add76466 = tf.constant([[[[[0.1992]], [[0.6571]]]]])
+in0Max71719 = tf.constant([[[[0.149, 0.7301], [0.2731, 0.5334]], [[0.4558, 0.904], [0.5149, 0.3049]]]])
+in1Max71719 = tf.constant([[[[0.2849, 0.8163], [0.3738, 0.4394]], [[0.4409, 0.4709], [0.3526, 0.6689]]]])
+in0Dep62489 = tf.constant([[[[0.866]], [[0.8609]]]])
+in0Con87813 = tf.constant([[0.2008, 0.1109, 0.9108, 0.3844, 0.1108, 0.748, 0.617]])
+print (np.array2string(model.predict([in0Mul62557,in1Mul62557,in0Add76466,in1Add76466,in0Max71719,in1Max71719,in0Dep62489,in0Con87813],steps=1), separator=', '))
+
+
+LMul62557 = multiply_layer([[[[0.2066]]], [[[0.2791]]]], Mul62557), 
+LAdd76466 = add_layer([[[[[[0.4987]], [[0.0503]]]]], [[[[[0.1992]], [[0.6571]]]]]], Add76466), 
+LRes64282 = reshape_layer(Add76466, [1, 2, 1], Res64282), 
+LRes21710 = reshape_layer(Res64282, [1, 2], Res21710), 
+LDot70774 = dot_layer(Mul62557,Res21710, 1, 1, Dot70774), 
+LUp_51154 = up_sampling1D_layer(Dot70774, 1, Up_51154), 
+LFla47789 = flatten_layer(Up_51154, Fla47789), 
+LMax71719 = maximum_layer([[[[[0.149, 0.7301], [0.2731, 0.5334]], [[0.4558, 0.904], [0.5149, 0.3049]]]], [[[[0.2849, 0.8163], [0.3738, 0.4394]], [[0.4409, 0.4709], [0.3526, 0.6689]]]]], Max71719), 
+LRes40492 = reshape_layer(Max71719, [2, 4], Res40492), 
+LFla40814 = flatten_layer(Res40492, Fla40814), 
+LDep62489 = depthwise_conv2D_layer([[[[0.866]], [[0.8609]]]], 1, 1,[[[[0.3723]]]],[0], 2, 2, true, Dep62489), 
+LRes63495 = reshape_layer(Dep62489, [1, 1, 1, 1], Res63495), 
+LGlo39623 = global_max_pool3D_layer(Res63495, Glo39623), 
+LCon87813 = concatenate_layer([Glo39623,[[0.2008, 0.1109, 0.9108, 0.3844, 0.1108, 0.748, 0.617]]], 1, Con87813), 
+LMul51728 = multiply_layer([Fla40814,Con87813], Mul51728), 
+LMax5133 = maximum_layer([Fla47789,Mul51728], Max5133), 
+exec_layers([LMul62557,LAdd76466,LRes64282,LRes21710,LDot70774,LUp_51154,LFla47789,LMax71719,LRes40492,LFla40814,LDep62489,LRes63495,LGlo39623,LCon87813,LMul51728,LMax5133],["Mul62557","Add76466","Res64282","Res21710","Dot70774","Up_51154","Fla47789","Max71719","Res40492","Fla40814","Dep62489","Res63495","Glo39623","Con87813","Mul51728","Max5133"],Max5133,"Max5133")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Operands could not be broadcast together with shapes (2,) (8,)
+
+Expected (Unparsed): 
+Max5133: Inconsistent Input Shapes, Input Shape [1,2]
+
+Actual:   
+
+Expected: 

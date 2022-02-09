@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_52033 = tf.keras.layers.Input(shape=([2, 4]))
+in0Ave40025 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in1Ave40025 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Con72164 = tf.keras.layers.Input(shape=([2, 1]))
+
+Up_52033 = keras.layers.UpSampling1D(size=(1), name = 'Up_52033', )(in0Up_52033)
+Ave40025 = keras.layers.Average(name = 'Ave40025', )([in0Ave40025,in1Ave40025])
+Res68731 = keras.layers.Reshape((2, 2, 4), name = 'Res68731', )(Ave40025)
+Res39124 = keras.layers.Reshape((2, 8), name = 'Res39124', )(Res68731)
+Sep97966 = keras.layers.SeparableConv1D(3, (2),strides=(1), padding='same', name = 'Sep97966', )(Res39124)
+Lea21903 = keras.layers.LeakyReLU(alpha=8.889320811197187, name = 'Lea21903', )(Sep97966)
+Con72164 = keras.layers.Concatenate(axis=2, name = 'Con72164', )([Lea21903,in0Con72164])
+Mul19836 = keras.layers.Multiply(name = 'Mul19836', )([Up_52033,Con72164])
+model = tf.keras.models.Model(inputs=[in0Up_52033,in0Ave40025,in1Ave40025,in0Con72164], outputs=Mul19836)
+w = model.get_layer('Sep97966').get_weights() 
+w[0] = np.array([[[0.6975], [0.1518], [0.7115], [0.5976], [0.911], [0.0703], [0.366], [0.7057]], [[0.2154], [0.6276], [0.1906], [0.8304], [0.8959], [0.4047], [0.4506], [0.4657]]])
+w[1] = np.array([[[0.9225, 0.4656, 0.8089], [0.8934, 0.8753, 0.0317], [0.9145, 0.2254, 0.796], [0.962, 0.9967, 0.4901], [0.9789, 0.5617, 0.3866], [0.93, 0.3846, 0.842], [0.7221, 0.7303, 0.5886], [0.094, 0.4661, 0.8283]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep97966').set_weights(w) 
+in0Up_52033 = tf.constant([[[1.888, 1.7735, 1.6868, 1.4901], [1.5548, 1.9791, 1.4112, 1.0843]]])
+in0Ave40025 = tf.constant([[[[[0.2035, 0.176], [0.4302, 0.0483]], [[0.7039, 0.1556], [0.8489, 0.1869]]], [[[0.1153, 0.8985], [0.0113, 0.5237]], [[0.6302, 0.772], [0.5029, 0.0649]]]]])
+in1Ave40025 = tf.constant([[[[[0.2204, 0.9542], [0.8244, 0.6855]], [[0.1905, 0.2268], [0.9689, 0.252]]], [[[0.6896, 0.0707], [0.1797, 0.2068]], [[0.7226, 0.6858], [0.3661, 0.3617]]]]])
+in0Con72164 = tf.constant([[[0.7474], [0.2965]]])
+print (np.array2string(model.predict([in0Up_52033,in0Ave40025,in1Ave40025,in0Con72164],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul19836.png')
+
+LUp_52033 = up_sampling1D_layer([[[1.888, 1.7735, 1.6868, 1.4901], [1.5548, 1.9791, 1.4112, 1.0843]]], 1, Up_52033), 
+LAve40025 = average_layer([[[[[[0.2035, 0.176], [0.4302, 0.0483]], [[0.7039, 0.1556], [0.8489, 0.1869]]], [[[0.1153, 0.8985], [0.0113, 0.5237]], [[0.6302, 0.772], [0.5029, 0.0649]]]]], [[[[[0.2204, 0.9542], [0.8244, 0.6855]], [[0.1905, 0.2268], [0.9689, 0.252]]], [[[0.6896, 0.0707], [0.1797, 0.2068]], [[0.7226, 0.6858], [0.3661, 0.3617]]]]]], Ave40025), 
+LRes68731 = reshape_layer(Ave40025, [2, 2, 4], Res68731), 
+LRes39124 = reshape_layer(Res68731, [2, 8], Res39124), 
+LSep97966 = separable_conv1D_layer(Res39124, 2,[[[[0.6975], [0.1518], [0.7115], [0.5976], [0.911], [0.0703], [0.366], [0.7057]], [[0.2154], [0.6276], [0.1906], [0.8304], [0.8959], [0.4047], [0.4506], [0.4657]]],[[[0.9225, 0.4656, 0.8089], [0.8934, 0.8753, 0.0317], [0.9145, 0.2254, 0.796], [0.962, 0.9967, 0.4901], [0.9789, 0.5617, 0.3866], [0.93, 0.3846, 0.842], [0.7221, 0.7303, 0.5886], [0.094, 0.4661, 0.8283]]]],[0, 0, 0], 1, true, Sep97966), 
+LLea21903 = leaky_relu_layer(Sep97966, 8.889320811197187, Lea21903), 
+LCon72164 = concatenate_layer([Lea21903,[[[0.7474], [0.2965]]]], 2, Con72164), 
+LMul19836 = multiply_layer([Up_52033,Con72164], Mul19836), 
+exec_layers([LUp_52033,LAve40025,LRes68731,LRes39124,LSep97966,LLea21903,LCon72164,LMul19836],["Up_52033","Ave40025","Res68731","Res39124","Sep97966","Lea21903","Con72164","Mul19836"],Mul19836,"Mul19836")
+
+Actual (Unparsed): [[[5.9973049, 4.0227867, 3.3752917, 1.1137007], [2.1403818, 1.9396774, 1.2561265, 0.3214950]]]
+
+Expected (Unparsed): [[[5.997304766583279,4.022786720028011,3.375291619575564,1.1137007399999999],[2.1403816980430843,1.9396774329651751,1.2561264989371728,0.32149495]]]
+
+Actual:   [[[5.9974, 4.0228, 3.3753, 1.1138], [2.1404, 1.9397, 1.2562, 0.3215]]]
+
+Expected: [[[5.9974, 4.0228, 3.3753, 1.1138], [2.1404, 1.9397, 1.2562, 0.3215]]]

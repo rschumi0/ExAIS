@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_72117 = tf.keras.layers.Input(shape=([1, 3]))
+in0GRU19802 = tf.keras.layers.Input(shape=([1, 2]))
+
+Up_72117 = keras.layers.UpSampling1D(size=(2), name = 'Up_72117', )(in0Up_72117)
+Res25133 = keras.layers.Reshape((2, 3, 1), name = 'Res25133', )(Up_72117)
+Ave36559 = keras.layers.AveragePooling2D(pool_size=(2, 1), strides=(8, 1), padding='same', name = 'Ave36559', )(Res25133)
+Res54213 = keras.layers.Reshape((1, 3), name = 'Res54213', )(Ave36559)
+Fla36647 = keras.layers.Flatten(name = 'Fla36647', )(Res54213)
+GRU19802 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU19802', )(in0GRU19802)
+Dot48769 = keras.layers.Dot(axes=(1, 1), name = 'Dot48769', )([Fla36647,GRU19802])
+model = tf.keras.models.Model(inputs=[in0Up_72117,in0GRU19802], outputs=Dot48769)
+w = model.get_layer('GRU19802').get_weights() 
+w[0] = np.array([[7, 2, 7, 9, 6, 6, 8, 8, 1], [8, 10, 3, 9, 3, 10, 2, 5, 4]])
+w[1] = np.array([[8, 8, 6, 10, 5, 2, 10, 6, 9], [1, 3, 1, 2, 8, 6, 7, 9, 10], [7, 5, 5, 8, 9, 8, 3, 10, 3]])
+w[2] = np.array([[4, 8, 8, 3, 5, 8, 8, 2, 1], [1, 6, 2, 9, 2, 9, 6, 8, 8]])
+model.get_layer('GRU19802').set_weights(w) 
+in0Up_72117 = tf.constant([[[1.4282, 1.9594, 1.9989]]])
+in0GRU19802 = tf.constant([[[3, 3]]])
+print (np.array2string(model.predict([in0Up_72117,in0GRU19802],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot48769.png')
+
+LUp_72117 = up_sampling1D_layer([[[1.4282, 1.9594, 1.9989]]], 2, Up_72117), 
+LRes25133 = reshape_layer(Up_72117, [2, 3, 1], Res25133), 
+LAve36559 = average_pooling2D_layer(Res25133, 2, 1, 8, 1, true, Ave36559), 
+LRes54213 = reshape_layer(Ave36559, [1, 3], Res54213), 
+LFla36647 = flatten_layer(Res54213, Fla36647), 
+LGRU19802 = gru_layer([[[3, 3]]],[[7, 2, 7, 9, 6, 6, 8, 8, 1], [8, 10, 3, 9, 3, 10, 2, 5, 4]],[[8, 8, 6, 10, 5, 2, 10, 6, 9], [1, 3, 1, 2, 8, 6, 7, 9, 10], [7, 5, 5, 8, 9, 8, 3, 10, 3]],[[4, 8, 8, 3, 5, 8, 8, 2, 1], [1, 6, 2, 9, 2, 9, 6, 8, 8]], true, GRU19802), 
+LDot48769 = dot_layer(Fla36647,GRU19802, 1, 1, Dot48769), 
+exec_layers([LUp_72117,LRes25133,LAve36559,LRes54213,LFla36647,LGRU19802,LDot48769],["Up_72117","Res25133","Ave36559","Res54213","Fla36647","GRU19802","Dot48769"],Dot48769,"Dot48769")
+
+Actual (Unparsed): [[0.0000000]]
+
+Expected (Unparsed): [[0.0]]
+
+Actual:   [[0]]
+
+Expected: [[0]]

@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc47392 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Ave4477 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave4477 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Mul93422 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Mul93422 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Loc47392 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(11, 1), name = 'Loc47392', )(in0Loc47392)
+Res59959 = keras.layers.Reshape((1, 2, 4, 1), name = 'Res59959', )(Loc47392)
+Glo75897 = keras.layers.GlobalAveragePooling3D(name = 'Glo75897', )(Res59959)
+Res93142 = keras.layers.Reshape((1, 1), name = 'Res93142', )(Glo75897)
+Res78045 = keras.layers.Reshape((1, 1, 1), name = 'Res78045', )(Res93142)
+Ave4477 = keras.layers.Average(name = 'Ave4477', )([in0Ave4477,in1Ave4477])
+Max30492 = keras.layers.Maximum(name = 'Max30492', )([Res78045,Ave4477])
+Res15012 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res15012', )(Max30492)
+Zer14756 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer14756', )(Res15012)
+Mul93422 = keras.layers.Multiply(name = 'Mul93422', )([in0Mul93422,in1Mul93422])
+Ave71826 = keras.layers.Average(name = 'Ave71826', )([Zer14756,Mul93422])
+model = tf.keras.models.Model(inputs=[in0Loc47392,in0Ave4477,in1Ave4477,in0Mul93422,in1Mul93422], outputs=Ave71826)
+w = model.get_layer('Loc47392').get_weights() 
+w[0] = np.array([[[0.1052, 0.6891, 0.0114, 0.6581]], [[0.6657, 0.1234, 0.5365, 0.7453]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc47392').set_weights(w) 
+in0Loc47392 = tf.constant([[[[0.4057], [0.1717]], [[0.2854], [0.4764]]]])
+in0Ave4477 = tf.constant([[[[0.3867]]]])
+in1Ave4477 = tf.constant([[[[0.2051]]]])
+in0Mul93422 = tf.constant([[[[[0.3046], [0.233]], [[0.8867], [0.4934]]], [[[0.3513], [0.8429]], [[0.0454], [0.2154]]]]])
+in1Mul93422 = tf.constant([[[[[0.4658], [0.324]], [[0.1985], [0.8902]]], [[[0.1781], [0.6829]], [[0.9481], [0.0428]]]]])
+print (np.array2string(model.predict([in0Loc47392,in0Ave4477,in1Ave4477,in0Mul93422,in1Mul93422],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave71826.png')
+
+LLoc47392 = locally_connected2D_layer([[[[0.4057], [0.1717]], [[0.2854], [0.4764]]]], 1, 1,[[[0.1052, 0.6891, 0.0114, 0.6581]], [[0.6657, 0.1234, 0.5365, 0.7453]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 11, 1, Loc47392), 
+LRes59959 = reshape_layer(Loc47392, [1, 2, 4, 1], Res59959), 
+LGlo75897 = global_average_pooling3D_layer(Res59959, Glo75897), 
+LRes93142 = reshape_layer(Glo75897, [1, 1], Res93142), 
+LRes78045 = reshape_layer(Res93142, [1, 1, 1], Res78045), 
+LAve4477 = average_layer([[[[[0.3867]]]], [[[[0.2051]]]]], Ave4477), 
+LMax30492 = maximum_layer([Res78045,Ave4477], Max30492), 
+LRes15012 = reshape_layer(Max30492, [1, 1, 1, 1], Res15012), 
+LZer14756 = zero_padding3D_layer(Res15012, 1, 0, 1, 0, 1, 0, Zer14756), 
+LMul93422 = multiply_layer([[[[[[0.3046], [0.233]], [[0.8867], [0.4934]]], [[[0.3513], [0.8429]], [[0.0454], [0.2154]]]]], [[[[[0.4658], [0.324]], [[0.1985], [0.8902]]], [[[0.1781], [0.6829]], [[0.9481], [0.0428]]]]]], Mul93422), 
+LAve71826 = average_layer([Zer14756,Mul93422], Ave71826), 
+exec_layers([LLoc47392,LRes59959,LGlo75897,LRes93142,LRes78045,LAve4477,LMax30492,LRes15012,LZer14756,LMul93422,LAve71826],["Loc47392","Res59959","Glo75897","Res93142","Res78045","Ave4477","Max30492","Res15012","Zer14756","Mul93422","Ave71826"],Ave71826,"Ave71826")
+
+Actual (Unparsed): [[[[[0.0709413], [0.0377460]], [[0.0880050], [0.2196123]]], [[[0.0312833], [0.2878082]], [[0.0215219], [0.1525596]]]]]
+
+Expected (Unparsed): [[[[[0.07094133999999999],[0.037746]],[[0.08800497500000001],[0.21961234]]],[[[0.031283265000000005],[0.287808205]],[[0.021521870000000002],[0.15255956]]]]]
+
+Actual:   [[[[[0.071], [0.0378]], [[0.0881], [0.2197]]], [[[0.0313], [0.2879]], [[0.0216], [0.1526]]]]]
+
+Expected: [[[[[0.071], [0.0378]], [[0.0881], [0.2197]]], [[[0.0313], [0.2879]], [[0.0216], [0.1526]]]]]

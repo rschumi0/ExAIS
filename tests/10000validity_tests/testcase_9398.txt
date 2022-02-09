@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc77757 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min24397 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min24397 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Loc77757 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(11, 9), name = 'Loc77757', )(in0Loc77757)
+Res43021 = keras.layers.Reshape((1, 2), name = 'Res43021', )(Loc77757)
+Min24397 = keras.layers.Minimum(name = 'Min24397', )([in0Min24397,in1Min24397])
+Res92184 = keras.layers.Reshape((1, 4), name = 'Res92184', )(Min24397)
+Dot5920 = keras.layers.Dot(axes=(1, 1), name = 'Dot5920', )([Res43021,Res92184])
+Sep64374 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep64374', )(Dot5920)
+model = tf.keras.models.Model(inputs=[in0Loc77757,in0Min24397,in1Min24397], outputs=Sep64374)
+w = model.get_layer('Loc77757').get_weights() 
+w[0] = np.array([[[0.6005, 0.0199]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc77757').set_weights(w) 
+w = model.get_layer('Sep64374').get_weights() 
+w[0] = np.array([[[0.2364], [0.0158], [0.9805], [0.61]]])
+w[1] = np.array([[[0.4128, 0.7943], [0.0717, 0.339], [0.1875, 0.9294], [0.6708, 0.9809]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep64374').set_weights(w) 
+in0Loc77757 = tf.constant([[[[0.5375], [0.6965]], [[0.1708], [0.2458]]]])
+in0Min24397 = tf.constant([[[[0.9703, 0.333], [0.8202, 0.0544]]]])
+in1Min24397 = tf.constant([[[[0.2492, 0.2666], [0.35, 0.9149]]]])
+print (np.array2string(model.predict([in0Loc77757,in0Min24397,in1Min24397],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep64374.png')
+
+LLoc77757 = locally_connected2D_layer([[[[0.5375], [0.6965]], [[0.1708], [0.2458]]]], 1, 1,[[[0.6005, 0.0199]]],[[[0, 0]]], 11, 9, Loc77757), 
+LRes43021 = reshape_layer(Loc77757, [1, 2], Res43021), 
+LMin24397 = minimum_layer([[[[[0.9703, 0.333], [0.8202, 0.0544]]]], [[[[0.2492, 0.2666], [0.35, 0.9149]]]]], Min24397), 
+LRes92184 = reshape_layer(Min24397, [1, 4], Res92184), 
+LDot5920 = dot_layer(Res43021,Res92184, 1, 1, Dot5920), 
+LSep64374 = separable_conv1D_layer(Dot5920, 1,[[[[0.2364], [0.0158], [0.9805], [0.61]]],[[[0.4128, 0.7943], [0.0717, 0.339], [0.1875, 0.9294], [0.6708, 0.9809]]]],[0, 0], 1, false, Sep64374), 
+exec_layers([LLoc77757,LRes43021,LMin24397,LRes92184,LDot5920,LSep64374],["Loc77757","Res43021","Min24397","Res92184","Dot5920","Sep64374"],Sep64374,"Sep64374")
+
+Actual (Unparsed): [[[0.0359001, 0.1290165], [0.0011897, 0.0042755]]]
+
+Expected (Unparsed): [[[0.03590013866172449,0.1290164487121442],[0.0011896965185151,0.004275482646747161]]]
+
+Actual:   [[[0.036, 0.1291], [0.0012, 0.0043]]]
+
+Expected: [[[0.036, 0.1291], [0.0012, 0.0043]]]

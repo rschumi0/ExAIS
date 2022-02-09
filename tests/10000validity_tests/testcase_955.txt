@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo53634 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Ave54416 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Ave54416 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Glo53634 = keras.layers.GlobalMaxPool3D(name = 'Glo53634', )(in0Glo53634)
+Res68280 = keras.layers.Reshape((1, 1), name = 'Res68280', )(Glo53634)
+Per90607 = keras.layers.Permute((2,1), name = 'Per90607',)(Res68280)
+Res61800 = keras.layers.Reshape((1, 1, 1), name = 'Res61800', )(Per90607)
+Con81797 = keras.layers.Conv2D(4, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con81797', )(Res61800)
+Res32648 = keras.layers.Reshape((1, 4), name = 'Res32648', )(Con81797)
+Ave54416 = keras.layers.Average(name = 'Ave54416', )([in0Ave54416,in1Ave54416])
+Mas90491 = keras.layers.Masking(mask_value=2, name = 'Mas90491', )(Ave54416)
+Res73915 = keras.layers.Reshape((1, 4), name = 'Res73915', )(Mas90491)
+Dot47779 = keras.layers.Dot(axes=(1, 1), name = 'Dot47779', )([Res32648,Res73915])
+Res46466 = keras.layers.Reshape((4, 4, 1), name = 'Res46466', )(Dot47779)
+Cro18419 = keras.layers.Cropping2D(cropping=((2, 1), (3, 0)), name = 'Cro18419', )(Res46466)
+model = tf.keras.models.Model(inputs=[in0Glo53634,in0Ave54416,in1Ave54416], outputs=Cro18419)
+w = model.get_layer('Con81797').get_weights() 
+w[0] = np.array([[[[0.1631, 0.8721, 0.3012, 0.6803]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con81797').set_weights(w) 
+in0Glo53634 = tf.constant([[[[[1.3854]]]]])
+in0Ave54416 = tf.constant([[[[[0.6748, 0.1941], [0.5313, 0.0244]]]]])
+in1Ave54416 = tf.constant([[[[[0.4744, 0.5473], [0.4342, 0.4845]]]]])
+print (np.array2string(model.predict([in0Glo53634,in0Ave54416,in1Ave54416],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro18419.png')
+
+LGlo53634 = global_max_pool3D_layer([[[[[1.3854]]]]], Glo53634), 
+LRes68280 = reshape_layer(Glo53634, [1, 1], Res68280), 
+LPer90607 = permute_layer(Res68280, 2,1, Per90607), 
+LRes61800 = reshape_layer(Per90607, [1, 1, 1], Res61800), 
+LCon81797 = conv2D_layer(Res61800, 1, 1,[[[[0.1631, 0.8721, 0.3012, 0.6803]]]],[0, 0, 0, 0], 1, 1, false, 1, 1, Con81797), 
+LRes32648 = reshape_layer(Con81797, [1, 4], Res32648), 
+LAve54416 = average_layer([[[[[[0.6748, 0.1941], [0.5313, 0.0244]]]]], [[[[[0.4744, 0.5473], [0.4342, 0.4845]]]]]], Ave54416), 
+LMas90491 = masking_layer(Ave54416, 2, Mas90491), 
+LRes73915 = reshape_layer(Mas90491, [1, 4], Res73915), 
+LDot47779 = dot_layer(Res32648,Res73915, 1, 1, Dot47779), 
+LRes46466 = reshape_layer(Dot47779, [4, 4, 1], Res46466), 
+LCro18419 = cropping2D_layer(Res46466, 2, 1, 3, 0, Cro18419), 
+exec_layers([LGlo53634,LRes68280,LPer90607,LRes61800,LCon81797,LRes32648,LAve54416,LMas90491,LRes73915,LDot47779,LRes46466,LCro18419],["Glo53634","Res68280","Per90607","Res61800","Con81797","Res32648","Ave54416","Mas90491","Res73915","Dot47779","Res46466","Cro18419"],Cro18419,"Cro18419")
+
+Actual (Unparsed): [[[[0.1061775]]]]
+
+Expected (Unparsed): [[[[0.106177527036]]]]
+
+Actual:   [[[[0.1062]]]]
+
+Expected: [[[[0.1062]]]]

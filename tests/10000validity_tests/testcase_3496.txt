@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul33728 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul33728 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con78041 = tf.keras.layers.Input(shape=([1, 3]))
+in0Ave46297 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave46297 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Mul33728 = keras.layers.Multiply(name = 'Mul33728', )([in0Mul33728,in1Mul33728])
+Con78041 = keras.layers.Concatenate(axis=2, name = 'Con78041', )([Mul33728,in0Con78041])
+Ave46297 = keras.layers.Average(name = 'Ave46297', )([in0Ave46297,in1Ave46297])
+Lea6138 = keras.layers.LeakyReLU(alpha=4.752432564345881, name = 'Lea6138', )(Ave46297)
+Up_3232 = keras.layers.UpSampling3D(size=(2, 2, 1), name = 'Up_3232', )(Lea6138)
+Res29205 = keras.layers.Reshape((4, 2, 2), name = 'Res29205', )(Up_3232)
+Res34337 = keras.layers.Reshape((4, 4), name = 'Res34337', )(Res29205)
+Zer6487 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer6487', )(Res34337)
+Dot36659 = keras.layers.Dot(axes=(2, 2), name = 'Dot36659', )([Con78041,Zer6487])
+model = tf.keras.models.Model(inputs=[in0Mul33728,in1Mul33728,in0Con78041,in0Ave46297,in1Ave46297], outputs=Dot36659)
+in0Mul33728 = tf.constant([[[0.3017]]])
+in1Mul33728 = tf.constant([[[0.3254]]])
+in0Con78041 = tf.constant([[[0.3991, 0.0479, 0.2601]]])
+in0Ave46297 = tf.constant([[[[[0.4816], [0.6084]]], [[[0.9312], [0.0905]]]]])
+in1Ave46297 = tf.constant([[[[[0.5205], [0.6761]]], [[[0.7986], [0.7734]]]]])
+print (np.array2string(model.predict([in0Mul33728,in1Mul33728,in0Con78041,in0Ave46297,in1Ave46297],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot36659.png')
+
+LMul33728 = multiply_layer([[[[0.3017]]], [[[0.3254]]]], Mul33728), 
+LCon78041 = concatenate_layer([Mul33728,[[[0.3991, 0.0479, 0.2601]]]], 2, Con78041), 
+LAve46297 = average_layer([[[[[[0.4816], [0.6084]]], [[[0.9312], [0.0905]]]]], [[[[[0.5205], [0.6761]]], [[[0.7986], [0.7734]]]]]], Ave46297), 
+LLea6138 = leaky_relu_layer(Ave46297, 4.752432564345881, Lea6138), 
+LUp_3232 = up_sampling3D_layer(Lea6138, 2, 2, 1, Up_3232), 
+LRes29205 = reshape_layer(Up_3232, [4, 2, 2], Res29205), 
+LRes34337 = reshape_layer(Res29205, [4, 4], Res34337), 
+LZer6487 = zero_padding1D_layer(Res34337, 3, 0, Zer6487), 
+LDot36659 = dot_layer(Con78041,Zer6487, 2, 2, Dot36659), 
+exec_layers([LMul33728,LCon78041,LAve46297,LLea6138,LUp_3232,LRes29205,LRes34337,LZer6487,LDot36659],["Mul33728","Con78041","Ave46297","Lea6138","Up_3232","Res29205","Res34337","Zer6487","Dot36659"],Dot36659,"Dot36659")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.4965612, 0.4965612, 0.4110801, 0.4110801]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,0.496561166839,0.496561166839,0.41108013338199995,0.41108013338199995]]]
+
+Actual:   [[[0, 0, 0, 0.4966, 0.4966, 0.4111, 0.4111]]]
+
+Expected: [[[0, 0, 0, 0.4966, 0.4966, 0.4111, 0.4111]]]

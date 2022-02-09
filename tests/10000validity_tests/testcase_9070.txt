@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul52955 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul52955 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add9064 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Add9064 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Per13034 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con27398 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul52955 = keras.layers.Multiply(name = 'Mul52955', )([in0Mul52955,in1Mul52955])
+Res20430 = keras.layers.Reshape((1, 2, 1), name = 'Res20430', )(Mul52955)
+Add9064 = keras.layers.Add(name = 'Add9064', )([in0Add9064,in1Add9064])
+Add36765 = keras.layers.Add(name = 'Add36765', )([Res20430,Add9064])
+Res55298 = keras.layers.Reshape((1, 2), name = 'Res55298', )(Add36765)
+Zer22042 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer22042', )(Res55298)
+Per13034 = keras.layers.Permute((1,2), name = 'Per13034',)(in0Per13034)
+Con27398 = keras.layers.Concatenate(axis=2, name = 'Con27398', )([Per13034,in0Con27398])
+Ave63746 = keras.layers.Average(name = 'Ave63746', )([Zer22042,Con27398])
+Per93335 = keras.layers.Permute((2,1), name = 'Per93335',)(Ave63746)
+Mas29694 = keras.layers.Masking(mask_value=2, name = 'Mas29694', )(Per93335)
+model = tf.keras.models.Model(inputs=[in0Mul52955,in1Mul52955,in0Add9064,in1Add9064,in0Per13034,in0Con27398], outputs=Mas29694)
+in0Mul52955 = tf.constant([[[0.4758, 0.706]]])
+in1Mul52955 = tf.constant([[[0.2439, 0.151]]])
+in0Add9064 = tf.constant([[[[0.9594], [0.0465]]]])
+in1Add9064 = tf.constant([[[[0.2436], [0.8241]]]])
+in0Per13034 = tf.constant([[[1.59], [1.2987]]])
+in0Con27398 = tf.constant([[[0.987], [0.1799]]])
+print (np.array2string(model.predict([in0Mul52955,in1Mul52955,in0Add9064,in1Add9064,in0Per13034,in0Con27398],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mas29694.png')
+
+LMul52955 = multiply_layer([[[[0.4758, 0.706]]], [[[0.2439, 0.151]]]], Mul52955), 
+LRes20430 = reshape_layer(Mul52955, [1, 2, 1], Res20430), 
+LAdd9064 = add_layer([[[[[0.9594], [0.0465]]]], [[[[0.2436], [0.8241]]]]], Add9064), 
+LAdd36765 = add_layer([Res20430,Add9064], Add36765), 
+LRes55298 = reshape_layer(Add36765, [1, 2], Res55298), 
+LZer22042 = zero_padding1D_layer(Res55298, 1, 0, Zer22042), 
+LPer13034 = permute_layer([[[1.59], [1.2987]]], 1,2, Per13034), 
+LCon27398 = concatenate_layer([Per13034,[[[0.987], [0.1799]]]], 2, Con27398), 
+LAve63746 = average_layer([Zer22042,Con27398], Ave63746), 
+LPer93335 = permute_layer(Ave63746, 2,1, Per93335), 
+LMas29694 = masking_layer(Per93335, 2, Mas29694), 
+exec_layers([LMul52955,LRes20430,LAdd9064,LAdd36765,LRes55298,LZer22042,LPer13034,LCon27398,LAve63746,LPer93335,LMas29694],["Mul52955","Res20430","Add9064","Add36765","Res55298","Zer22042","Per13034","Con27398","Ave63746","Per93335","Mas29694"],Mas29694,"Mas29694")
+
+Actual (Unparsed): [[[0.7950000, 1.3088738], [0.4935000, 0.5785530]]]
+
+Expected (Unparsed): [[[0.795,1.3088738100000001],[0.4935,0.578553]]]
+
+Actual:   [[[0.795, 1.3089], [0.4935, 0.5786]]]
+
+Expected: [[[0.795, 1.3089], [0.4935, 0.5786]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Fla10382 = tf.keras.layers.Input(shape=([4]))
+in0Con74666 = tf.keras.layers.Input(shape=([4, 1, 2]))
+in0Mul81179 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul81179 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Fla10382 = keras.layers.Flatten(name = 'Fla10382', )(in0Fla10382)
+Res84151 = keras.layers.Reshape((4, 1), name = 'Res84151', )(Fla10382)
+Res41392 = keras.layers.Reshape((4, 1, 1), name = 'Res41392', )(Res84151)
+Con74666 = keras.layers.Concatenate(axis=3, name = 'Con74666', )([Res41392,in0Con74666])
+Mul81179 = keras.layers.Multiply(name = 'Mul81179', )([in0Mul81179,in1Mul81179])
+Den39298 = keras.layers.Dense(3,name = 'Den39298', )(Mul81179)
+Sof52986 = keras.layers.Softmax(axis=1, name = 'Sof52986', )(Den39298)
+Zer38469 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer38469', )(Sof52986)
+Max35993 = keras.layers.Maximum(name = 'Max35993', )([Con74666,Zer38469])
+model = tf.keras.models.Model(inputs=[in0Fla10382,in0Con74666,in0Mul81179,in1Mul81179], outputs=Max35993)
+w = model.get_layer('Den39298').get_weights() 
+w[0] = np.array([[0.2069, 0.2127, 0.6504], [0.2986, 0.8849, 0.5239]])
+w[1] = np.array([0.5782, 0.2699, 0.9343])
+model.get_layer('Den39298').set_weights(w) 
+in0Fla10382 = tf.constant([[1.2503, 1.2193, 1.642, 1.1367]])
+in0Con74666 = tf.constant([[[[0.5959, 0.0937]], [[0.4885, 0.1996]], [[0.0017, 0.4988]], [[0.1452, 0.088]]]])
+in0Mul81179 = tf.constant([[[[0.859, 0.2497]], [[0.049, 0.1539]]]])
+in1Mul81179 = tf.constant([[[[0.6797, 0.3518]], [[0.1971, 0.0849]]]])
+print (np.array2string(model.predict([in0Fla10382,in0Con74666,in0Mul81179,in1Mul81179],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max35993.png')
+
+LFla10382 = flatten_layer([[1.2503, 1.2193, 1.642, 1.1367]], Fla10382), 
+LRes84151 = reshape_layer(Fla10382, [4, 1], Res84151), 
+LRes41392 = reshape_layer(Res84151, [4, 1, 1], Res41392), 
+LCon74666 = concatenate_layer([Res41392,[[[[0.5959, 0.0937]], [[0.4885, 0.1996]], [[0.0017, 0.4988]], [[0.1452, 0.088]]]]], 3, Con74666), 
+LMul81179 = multiply_layer([[[[[0.859, 0.2497]], [[0.049, 0.1539]]]], [[[[0.6797, 0.3518]], [[0.1971, 0.0849]]]]], Mul81179), 
+LDen39298 = dense_layer(Mul81179, [[0.2069, 0.2127, 0.6504], [0.2986, 0.8849, 0.5239]],[0.5782, 0.2699, 0.9343], Den39298), 
+LSof52986 = softmax_layer(Den39298, 1, Sof52986), 
+LZer38469 = zero_padding2D_layer(Sof52986, 2, 0, 0, 0, Zer38469), 
+LMax35993 = maximum_layer([Con74666,Zer38469], Max35993), 
+exec_layers([LFla10382,LRes84151,LRes41392,LCon74666,LMul81179,LDen39298,LSof52986,LZer38469,LMax35993],["Fla10382","Res84151","Res41392","Con74666","Mul81179","Den39298","Sof52986","Zer38469","Max35993"],Max35993,"Max35993")
+
+Actual (Unparsed): [[[[1.2503000, 0.5959000, 0.0937000]], [[1.2193000, 0.4885000, 0.1996000]], [[1.6420000, 0.5469375, 0.6017205]], [[1.1367000, 0.4530625, 0.3982795]]]]
+
+Expected (Unparsed): [[[[1.2503,0.5959,0.0937]],[[1.2193,0.4885,0.1996]],[[1.642,0.5469375462289954,0.6017204730786663]],[[1.1367,0.45306245377100457,0.3982795269213336]]]]
+
+Actual:   [[[[1.2503, 0.5959, 0.0937]], [[1.2193, 0.4885, 0.1996]], [[1.642, 0.547, 0.6018]], [[1.1367, 0.4531, 0.3983]]]]
+
+Expected: [[[[1.2503, 0.5959, 0.0937]], [[1.2193, 0.4885, 0.1996]], [[1.642, 0.547, 0.6018]], [[1.1367, 0.4531, 0.3983]]]]

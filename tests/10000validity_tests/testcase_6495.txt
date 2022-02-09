@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas39595 = tf.keras.layers.Input(shape=([4, 2]))
+in0Con52633 = tf.keras.layers.Input(shape=([3, 2]))
+in0Ave3307 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave42197 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Ave42197 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Mas39595 = keras.layers.Masking(mask_value=2, name = 'Mas39595', )(in0Mas39595)
+GRU28045 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU28045', )(Mas39595)
+Res91090 = keras.layers.Reshape((3, 1), name = 'Res91090', )(GRU28045)
+Con52633 = keras.layers.Concatenate(axis=2, name = 'Con52633', )([Res91090,in0Con52633])
+Ave3307 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='valid', name = 'Ave3307', )(in0Ave3307)
+Ave42197 = keras.layers.Average(name = 'Ave42197', )([in0Ave42197,in1Ave42197])
+Ave27938 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave27938', )(Ave42197)
+Res72306 = keras.layers.Reshape((2, 2), name = 'Res72306', )(Ave27938)
+Dot63291 = keras.layers.Dot(axes=(1, 1), name = 'Dot63291', )([Ave3307,Res72306])
+Den976 = keras.layers.Dense(3,name = 'Den976', )(Dot63291)
+Zer84475 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer84475', )(Den976)
+Mul12148 = keras.layers.Multiply(name = 'Mul12148', )([Con52633,Zer84475])
+model = tf.keras.models.Model(inputs=[in0Mas39595,in0Con52633,in0Ave3307,in0Ave42197,in1Ave42197], outputs=Mul12148)
+w = model.get_layer('GRU28045').get_weights() 
+w[0] = np.array([[7, 1, 2, 5, 7, 3, 10, 6, 7], [3, 10, 1, 5, 9, 3, 1, 4, 9]])
+w[1] = np.array([[3, 7, 2, 6, 9, 1, 10, 10, 9], [3, 1, 6, 8, 3, 10, 1, 5, 5], [7, 9, 2, 10, 2, 5, 4, 3, 5]])
+w[2] = np.array([6, 1, 8, 9, 3, 1, 8, 5, 9])
+model.get_layer('GRU28045').set_weights(w) 
+w = model.get_layer('Den976').get_weights() 
+w[0] = np.array([[0.765, 0.2478, 0.0752], [0.0217, 0.5222, 0.0126]])
+w[1] = np.array([0.1224, 0.6875, 0.5894])
+model.get_layer('Den976').set_weights(w) 
+in0Mas39595 = tf.constant([[[1.229, 1.9046], [1.3637, 1.3673], [1.2144, 1.4102], [1.2001, 1.2014]]])
+in0Con52633 = tf.constant([[[0.6076, 0.5204], [0.0803, 0.6168], [0.7192, 0.6479]]])
+in0Ave3307 = tf.constant([[[1.0521, 1.5618], [1.1975, 1.9926]]])
+in0Ave42197 = tf.constant([[[[0.0875, 0.6811]], [[0.6096, 0.8281]]]])
+in1Ave42197 = tf.constant([[[[0.7043, 0.8226]], [[0.011, 0.8768]]]])
+print (np.array2string(model.predict([in0Mas39595,in0Con52633,in0Ave3307,in0Ave42197,in1Ave42197],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul12148.png')
+
+LMas39595 = masking_layer([[[1.229, 1.9046], [1.3637, 1.3673], [1.2144, 1.4102], [1.2001, 1.2014]]], 2, Mas39595), 
+LGRU28045 = gru_layer(Mas39595,[[7, 1, 2, 5, 7, 3, 10, 6, 7], [3, 10, 1, 5, 9, 3, 1, 4, 9]],[[3, 7, 2, 6, 9, 1, 10, 10, 9], [3, 1, 6, 8, 3, 10, 1, 5, 5], [7, 9, 2, 10, 2, 5, 4, 3, 5]],[6, 1, 8, 9, 3, 1, 8, 5, 9], false, GRU28045), 
+LRes91090 = reshape_layer(GRU28045, [3, 1], Res91090), 
+LCon52633 = concatenate_layer([Res91090,[[[0.6076, 0.5204], [0.0803, 0.6168], [0.7192, 0.6479]]]], 2, Con52633), 
+LAve3307 = average_pooling1D_layer([[[1.0521, 1.5618], [1.1975, 1.9926]]], 1, 1, false, Ave3307), 
+LAve42197 = average_layer([[[[[0.0875, 0.6811]], [[0.6096, 0.8281]]]], [[[[0.7043, 0.8226]], [[0.011, 0.8768]]]]], Ave42197), 
+LAve27938 = average_pooling2D_layer(Ave42197, 1, 1, Ave27938), 
+LRes72306 = reshape_layer(Ave27938, [2, 2], Res72306), 
+LDot63291 = dot_layer(Ave3307,Res72306, 1, 1, Dot63291), 
+LDen976 = dense_layer(Dot63291, [[0.765, 0.2478, 0.0752], [0.0217, 0.5222, 0.0126]],[0.1224, 0.6875, 0.5894], Den976), 
+LZer84475 = zero_padding1D_layer(Den976, 1, 0, Zer84475), 
+LMul12148 = multiply_layer([Con52633,Zer84475], Mul12148), 
+exec_layers([LMas39595,LGRU28045,LRes91090,LCon52633,LAve3307,LAve42197,LAve27938,LRes72306,LDot63291,LDen976,LZer84475,LMul12148],["Mas39595","GRU28045","Res91090","Con52633","Ave3307","Ave42197","Ave27938","Res72306","Dot63291","Den976","Zer84475","Mul12148"],Mul12148,"Mul12148")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000], [0.0000007, 0.1468632, 0.4141781], [0.0000297, 1.7937762, 0.4655754]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0],[6.592708809931469e-7,0.1468632057426292,0.41417810452998727],[2.966263346478482e-5,1.7937761295969916,0.46557545047288007]]]
+
+Actual:   [[[0, 0, 0], [0, 0.1469, 0.4142], [0.0001, 1.7938, 0.4656]]]
+
+Expected: [[[0, 0, 0], [0, 0.1469, 0.4142], [0.0001, 1.7938, 0.4656]]]

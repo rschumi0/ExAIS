@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min18123 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min18123 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con16103 = tf.keras.layers.Input(shape=([2]))
+in0LST71861 = tf.keras.layers.Input(shape=([1, 1]))
+
+Min18123 = keras.layers.Minimum(name = 'Min18123', )([in0Min18123,in1Min18123])
+Res88653 = keras.layers.Reshape((2, 1, 1), name = 'Res88653', )(Min18123)
+Res58627 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res58627', )(Res88653)
+Glo9479 = keras.layers.GlobalMaxPool3D(name = 'Glo9479', )(Res58627)
+Con16103 = keras.layers.Concatenate(axis=1, name = 'Con16103', )([Glo9479,in0Con16103])
+LST71861 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST71861', )(in0LST71861)
+Sub21166 = keras.layers.Subtract(name = 'Sub21166', )([Con16103,LST71861])
+model = tf.keras.models.Model(inputs=[in0Min18123,in1Min18123,in0Con16103,in0LST71861], outputs=Sub21166)
+w = model.get_layer('LST71861').get_weights() 
+w[0] = np.array([[9, 3, 8, 3, 6, 9, 5, 4, 6, 6, 10, 9]])
+w[1] = np.array([[8, 4, 10, 5, 6, 6, 4, 7, 4, 8, 6, 7], [5, 4, 7, 8, 10, 9, 8, 3, 10, 4, 7, 5], [5, 10, 3, 3, 2, 2, 3, 4, 5, 9, 8, 3]])
+w[2] = np.array([5, 3, 4, 6, 7, 7, 5, 10, 4, 9, 9, 6])
+model.get_layer('LST71861').set_weights(w) 
+in0Min18123 = tf.constant([[[0.8436], [0.2448]]])
+in1Min18123 = tf.constant([[[0.7343], [0.9444]]])
+in0Con16103 = tf.constant([[0.2435, 0.4575]])
+in0LST71861 = tf.constant([[[3]]])
+print (np.array2string(model.predict([in0Min18123,in1Min18123,in0Con16103,in0LST71861],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub21166.png')
+
+LMin18123 = minimum_layer([[[[0.8436], [0.2448]]], [[[0.7343], [0.9444]]]], Min18123), 
+LRes88653 = reshape_layer(Min18123, [2, 1, 1], Res88653), 
+LRes58627 = reshape_layer(Res88653, [2, 1, 1, 1], Res58627), 
+LGlo9479 = global_max_pool3D_layer(Res58627, Glo9479), 
+LCon16103 = concatenate_layer([Glo9479,[[0.2435, 0.4575]]], 1, Con16103), 
+LLST71861 = lstm_layer([[[3]]],[[9, 3, 8, 3, 6, 9, 5, 4, 6, 6, 10, 9]],[[8, 4, 10, 5, 6, 6, 4, 7, 4, 8, 6, 7], [5, 4, 7, 8, 10, 9, 8, 3, 10, 4, 7, 5], [5, 10, 3, 3, 2, 2, 3, 4, 5, 9, 8, 3]],[5, 3, 4, 6, 7, 7, 5, 10, 4, 9, 9, 6], LST71861), 
+LSub21166 = subtract_layer(Con16103,LST71861, Sub21166), 
+exec_layers([LMin18123,LRes88653,LRes58627,LGlo9479,LCon16103,LLST71861,LSub21166],["Min18123","Res88653","Res58627","Glo9479","Con16103","LST71861","Sub21166"],Sub21166,"Sub21166")
+
+Actual (Unparsed): [[-0.0272941, -0.5180916, -0.3040941]]
+
+Expected (Unparsed): [[-0.027294155954328048,-0.5180915755480069,-0.30409415595547096]]
+
+Actual:   [[-0.0272, -0.518, -0.304]]
+
+Expected: [[-0.0272, -0.518, -0.304]]

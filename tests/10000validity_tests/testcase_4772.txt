@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo7696 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Mul85440 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul85440 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con33046 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Glo7696 = keras.layers.GlobalAveragePooling2D(name = 'Glo7696', )(in0Glo7696)
+Res96895 = keras.layers.Reshape((2, 1), name = 'Res96895', )(Glo7696)
+Res74941 = keras.layers.Reshape((2, 1, 1), name = 'Res74941', )(Res96895)
+Con4632 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='same', name = 'Con4632', )(Res74941)
+Res75036 = keras.layers.Reshape((2, 1, 3, 1), name = 'Res75036', )(Con4632)
+Up_15326 = keras.layers.UpSampling3D(size=(1, 2, 1), name = 'Up_15326', )(Res75036)
+Res4920 = keras.layers.Reshape((2, 2, 3), name = 'Res4920', )(Up_15326)
+Mul85440 = keras.layers.Multiply(name = 'Mul85440', )([in0Mul85440,in1Mul85440])
+Ave77448 = keras.layers.AveragePooling2D(pool_size=(2, 2), strides=(1, 2), padding='same', name = 'Ave77448', )(Mul85440)
+Zer59377 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer59377', )(Ave77448)
+Con33046 = keras.layers.Concatenate(axis=3, name = 'Con33046', )([Zer59377,in0Con33046])
+Mul60288 = keras.layers.Multiply(name = 'Mul60288', )([Res4920,Con33046])
+model = tf.keras.models.Model(inputs=[in0Glo7696,in0Mul85440,in1Mul85440,in0Con33046], outputs=Mul60288)
+w = model.get_layer('Con4632').get_weights() 
+w[0] = np.array([[[[0.2071], [0.892], [0.4371]]], [[[0.1462], [0.4863], [0.5485]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con4632').set_weights(w) 
+in0Glo7696 = tf.constant([[[[1.3554, 1.146], [1.8537, 1.3538]], [[1.9421, 1.6672], [1.0036, 1.5855]]]])
+in0Mul85440 = tf.constant([[[[0.7547, 0.1758], [0.3758, 0.254]]]])
+in1Mul85440 = tf.constant([[[[0.9971, 0.1388], [0.7073, 0.0667]]]])
+in0Con33046 = tf.constant([[[[0.1969], [0.2902]], [[0.293], [0.898]]]])
+print (np.array2string(model.predict([in0Glo7696,in0Mul85440,in1Mul85440,in0Con33046],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul60288.png')
+
+LGlo7696 = global_average_pooling2D_layer([[[[1.3554, 1.146], [1.8537, 1.3538]], [[1.9421, 1.6672], [1.0036, 1.5855]]]], Glo7696), 
+LRes96895 = reshape_layer(Glo7696, [2, 1], Res96895), 
+LRes74941 = reshape_layer(Res96895, [2, 1, 1], Res74941), 
+LCon4632 = conv2D_transpose_layer(Res74941, 2, 1,[[[[0.2071], [0.892], [0.4371]]], [[[0.1462], [0.4863], [0.5485]]]],[0, 0, 0], 1, 1, true, Con4632), 
+LRes75036 = reshape_layer(Con4632, [2, 1, 3, 1], Res75036), 
+LUp_15326 = up_sampling3D_layer(Res75036, 1, 2, 1, Up_15326), 
+LRes4920 = reshape_layer(Up_15326, [2, 2, 3], Res4920), 
+LMul85440 = multiply_layer([[[[[0.7547, 0.1758], [0.3758, 0.254]]]], [[[[0.9971, 0.1388], [0.7073, 0.0667]]]]], Mul85440), 
+LAve77448 = average_pooling2D_layer(Mul85440, 2, 2, 1, 2, true, Ave77448), 
+LZer59377 = zero_padding2D_layer(Ave77448, 1, 0, 1, 0, Zer59377), 
+LCon33046 = concatenate_layer([Zer59377,[[[[0.1969], [0.2902]], [[0.293], [0.898]]]]], 3, Con33046), 
+LMul60288 = multiply_layer([Res4920,Con33046], Mul60288), 
+exec_layers([LGlo7696,LRes96895,LRes74941,LCon4632,LRes75036,LUp_15326,LRes4920,LMul85440,LAve77448,LZer59377,LCon33046,LMul60288],["Glo7696","Res96895","Res74941","Con4632","Res75036","Up_15326","Res4920","Mul85440","Ave77448","Zer59377","Con33046","Mul60288"],Mul60288,"Mul60288")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.1324282], [0.0000000, 0.0000000, 0.1951786]], [[0.0000000, 0.0000000, 0.4314664], [0.2661842, 0.0419853, 1.3223781]]]]
+
+Expected (Unparsed): [[[[0.0,0.0,0.132428200113],[0.0,0.0,0.195178586454]],[[0.0,0.0,0.4314663465375],[0.2661842205887553,0.0419852521274802,1.322378085975]]]]
+
+Actual:   [[[[0, 0, 0.1325], [0, 0, 0.1952]], [[0, 0, 0.4315], [0.2662, 0.042, 1.3224]]]]
+
+Expected: [[[[0, 0, 0.1325], [0, 0, 0.1952]], [[0, 0, 0.4315], [0.2662, 0.042, 1.3224]]]]

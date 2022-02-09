@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add53887 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add53887 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave38557 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave38557 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con35895 = tf.keras.layers.Input(shape=([2, 1]))
+
+Add53887 = keras.layers.Add(name = 'Add53887', )([in0Add53887,in1Add53887])
+Zer93919 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer93919', )(Add53887)
+Ave38557 = keras.layers.Average(name = 'Ave38557', )([in0Ave38557,in1Ave38557])
+Con35895 = keras.layers.Concatenate(axis=2, name = 'Con35895', )([Ave38557,in0Con35895])
+Mul45806 = keras.layers.Multiply(name = 'Mul45806', )([Zer93919,Con35895])
+Res32650 = keras.layers.Reshape((2, 2, 1), name = 'Res32650', )(Mul45806)
+Loc37105 = keras.layers.LocallyConnected2D(2, (2, 2),strides=(11, 2), name = 'Loc37105', )(Res32650)
+Res68538 = keras.layers.Reshape((1, 2), name = 'Res68538', )(Loc37105)
+GRU84893 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU84893', )(Res68538)
+model = tf.keras.models.Model(inputs=[in0Add53887,in1Add53887,in0Ave38557,in1Ave38557,in0Con35895], outputs=GRU84893)
+w = model.get_layer('Loc37105').get_weights() 
+w[0] = np.array([[[0.945, 0.8061], [0.0491, 0.9198], [0.5286, 0.3487], [0.0482, 0.481]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc37105').set_weights(w) 
+w = model.get_layer('GRU84893').get_weights() 
+w[0] = np.array([[4, 9, 7], [8, 10, 10]])
+w[1] = np.array([[7, 9, 2]])
+w[2] = np.array([5, 4, 9])
+model.get_layer('GRU84893').set_weights(w) 
+in0Add53887 = tf.constant([[[0.2736, 0.0297]]])
+in1Add53887 = tf.constant([[[0.2808, 0.939]]])
+in0Ave38557 = tf.constant([[[0.9642], [0.1092]]])
+in1Ave38557 = tf.constant([[[0.9485], [0.8431]]])
+in0Con35895 = tf.constant([[[0.2946], [0.425]]])
+print (np.array2string(model.predict([in0Add53887,in1Add53887,in0Ave38557,in1Ave38557,in0Con35895],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU84893.png')
+
+LAdd53887 = add_layer([[[[0.2736, 0.0297]]], [[[0.2808, 0.939]]]], Add53887), 
+LZer93919 = zero_padding1D_layer(Add53887, 1, 0, Zer93919), 
+LAve38557 = average_layer([[[[0.9642], [0.1092]]], [[[0.9485], [0.8431]]]], Ave38557), 
+LCon35895 = concatenate_layer([Ave38557,[[[0.2946], [0.425]]]], 2, Con35895), 
+LMul45806 = multiply_layer([Zer93919,Con35895], Mul45806), 
+LRes32650 = reshape_layer(Mul45806, [2, 2, 1], Res32650), 
+LLoc37105 = locally_connected2D_layer(Res32650, 2, 2,[[[0.945, 0.8061], [0.0491, 0.9198], [0.5286, 0.3487], [0.0482, 0.481]]],[[[0, 0]]], 11, 2, Loc37105), 
+LRes68538 = reshape_layer(Loc37105, [1, 2], Res68538), 
+LGRU84893 = gru_layer(Res68538,[[4, 9, 7], [8, 10, 10]],[[7, 9, 2]],[5, 4, 9], false, GRU84893), 
+exec_layers([LAdd53887,LZer93919,LAve38557,LCon35895,LMul45806,LRes32650,LLoc37105,LRes68538,LGRU84893],["Add53887","Zer93919","Ave38557","Con35895","Mul45806","Res32650","Loc37105","Res68538","GRU84893"],GRU84893,"GRU84893")
+
+Actual (Unparsed): [[0.0003497]]
+
+Expected (Unparsed): [[0.0003496831998684842]]
+
+Actual:   [[0.0004]]
+
+Expected: [[0.0004]]

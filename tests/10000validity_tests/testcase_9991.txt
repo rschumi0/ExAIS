@@ -1,0 +1,78 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU98863 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con72067 = tf.keras.layers.Input(shape=([1, 3, 1]))
+in0Mul81129 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul81129 = tf.keras.layers.Input(shape=([1, 2]))
+
+GRU98863 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU98863', )(in0GRU98863)
+Res28103 = keras.layers.Reshape((1, 1), name = 'Res28103', )(GRU98863)
+LST36563 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST36563', )(Res28103)
+Res99648 = keras.layers.Reshape((1, 1), name = 'Res99648', )(LST36563)
+Res13494 = keras.layers.Reshape((1, 1, 1), name = 'Res13494', )(Res99648)
+Glo60084 = keras.layers.GlobalAveragePooling2D(name = 'Glo60084', )(Res13494)
+Res28869 = keras.layers.Reshape((1, 1), name = 'Res28869', )(Glo60084)
+Sep85240 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep85240', )(Res28869)
+Res97735 = keras.layers.Reshape((1, 3, 1), name = 'Res97735', )(Sep85240)
+Con72067 = keras.layers.Concatenate(axis=3, name = 'Con72067', )([Res97735,in0Con72067])
+Mul81129 = keras.layers.Multiply(name = 'Mul81129', )([in0Mul81129,in1Mul81129])
+Res33384 = keras.layers.Reshape((1, 2, 1), name = 'Res33384', )(Mul81129)
+Con30403 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con30403', )(Res33384)
+Zer67434 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer67434', )(Con30403)
+Ave29475 = keras.layers.Average(name = 'Ave29475', )([Con72067,Zer67434])
+model = tf.keras.models.Model(inputs=[in0GRU98863,in0Con72067,in0Mul81129,in1Mul81129], outputs=Ave29475)
+w = model.get_layer('GRU98863').get_weights() 
+w[0] = np.array([[10, 2, 10]])
+w[1] = np.array([[6, 10, 10]])
+w[2] = np.array([[7, 6, 1], [4, 9, 8]])
+model.get_layer('GRU98863').set_weights(w) 
+w = model.get_layer('LST36563').get_weights() 
+w[0] = np.array([[9, 8, 1, 7]])
+w[1] = np.array([[6, 6, 3, 4]])
+w[2] = np.array([6, 5, 10, 1])
+model.get_layer('LST36563').set_weights(w) 
+w = model.get_layer('Sep85240').get_weights() 
+w[0] = np.array([[[0.6364]]])
+w[1] = np.array([[[0.6164, 0.9123, 0.6427]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep85240').set_weights(w) 
+w = model.get_layer('Con30403').get_weights() 
+w[0] = np.array([[[[0.4321, 0.8293]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con30403').set_weights(w) 
+in0GRU98863 = tf.constant([[[4], [4]]])
+in0Con72067 = tf.constant([[[[0.8793], [0.5258], [0.8597]]]])
+in0Mul81129 = tf.constant([[[0.1365, 0.0072]]])
+in1Mul81129 = tf.constant([[[0.0655, 0.9312]]])
+print (np.array2string(model.predict([in0GRU98863,in0Con72067,in0Mul81129,in1Mul81129],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave29475.png')
+
+LGRU98863 = gru_layer([[[4], [4]]],[[10, 2, 10]],[[6, 10, 10]],[[7, 6, 1], [4, 9, 8]], true, GRU98863), 
+LRes28103 = reshape_layer(GRU98863, [1, 1], Res28103), 
+LLST36563 = lstm_layer(Res28103,[[9, 8, 1, 7]],[[6, 6, 3, 4]],[6, 5, 10, 1], LST36563), 
+LRes99648 = reshape_layer(LST36563, [1, 1], Res99648), 
+LRes13494 = reshape_layer(Res99648, [1, 1, 1], Res13494), 
+LGlo60084 = global_average_pooling2D_layer(Res13494, Glo60084), 
+LRes28869 = reshape_layer(Glo60084, [1, 1], Res28869), 
+LSep85240 = separable_conv1D_layer(Res28869, 1,[[[[0.6364]]],[[[0.6164, 0.9123, 0.6427]]]],[0, 0, 0], 1, true, Sep85240), 
+LRes97735 = reshape_layer(Sep85240, [1, 3, 1], Res97735), 
+LCon72067 = concatenate_layer([Res97735,[[[[0.8793], [0.5258], [0.8597]]]]], 3, Con72067), 
+LMul81129 = multiply_layer([[[[0.1365, 0.0072]]], [[[0.0655, 0.9312]]]], Mul81129), 
+LRes33384 = reshape_layer(Mul81129, [1, 2, 1], Res33384), 
+LCon30403 = conv2D_layer(Res33384, 1, 1,[[[[0.4321, 0.8293]]]],[0, 0], 1, 1, false, 1, 1, Con30403), 
+LZer67434 = zero_padding2D_layer(Con30403, 0, 0, 1, 0, Zer67434), 
+LAve29475 = average_layer([Con72067,Zer67434], Ave29475), 
+exec_layers([LGRU98863,LRes28103,LLST36563,LRes99648,LRes13494,LGlo60084,LRes28869,LSep85240,LRes97735,LCon72067,LMul81129,LRes33384,LCon30403,LZer67434,LAve29475],["GRU98863","Res28103","LST36563","Res99648","Res13494","Glo60084","Res28869","Sep85240","Res97735","Con72067","Mul81129","Res33384","Con30403","Zer67434","Ave29475"],Ave29475,"Ave29475")
+
+Actual (Unparsed): [[[[0.1090548, 0.4396500], [0.1633377, 0.2666073], [0.1151564, 0.4326301]]]]
+
+Expected (Unparsed): [[[[0.10905482875914348,0.43965],[0.16333774942193643,0.2666072819875],[0.11515641943744699,0.43263007897600003]]]]
+
+Actual:   [[[[0.1091, 0.4397], [0.1634, 0.2667], [0.1152, 0.4327]]]]
+
+Expected: [[[[0.1091, 0.4397], [0.1634, 0.2667], [0.1152, 0.4327]]]]

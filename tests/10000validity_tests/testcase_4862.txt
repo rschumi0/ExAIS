@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul45022 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul45022 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con99007 = tf.keras.layers.Input(shape=([3, 2, 1]))
+in0PRe95561 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Mul45022 = keras.layers.Multiply(name = 'Mul45022', )([in0Mul45022,in1Mul45022])
+Res24001 = keras.layers.Reshape((1, 2), name = 'Res24001', )(Mul45022)
+Cro31166 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro31166', )(Res24001)
+Res18166 = keras.layers.Reshape((1, 2, 1), name = 'Res18166', )(Cro31166)
+Zer68235 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer68235', )(Res18166)
+Con99007 = keras.layers.Concatenate(axis=3, name = 'Con99007', )([Zer68235,in0Con99007])
+PRe95561 = keras.layers.PReLU(name = 'PRe95561', input_shape=(1, 1, 2))(in0PRe95561)
+Zer27230 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer27230', )(PRe95561)
+Ave35738 = keras.layers.AveragePooling2D(pool_size=(1, 2), strides=(1, 1), padding='valid', name = 'Ave35738', )(Zer27230)
+Min90381 = keras.layers.Minimum(name = 'Min90381', )([Con99007,Ave35738])
+model = tf.keras.models.Model(inputs=[in0Mul45022,in1Mul45022,in0Con99007,in0PRe95561], outputs=Min90381)
+w = model.get_layer('PRe95561').get_weights() 
+w[0] = np.array([[[0.7073, 0.4512]]])
+model.get_layer('PRe95561').set_weights(w) 
+in0Mul45022 = tf.constant([[[[0.0826, 0.117]]]])
+in1Mul45022 = tf.constant([[[[0.1854, 0.5136]]]])
+in0Con99007 = tf.constant([[[[0.3043], [0.641]], [[0.4072], [0.0098]], [[0.9784], [0.4706]]]])
+in0PRe95561 = tf.constant([[[[0.7418, 0.3326]]]])
+print (np.array2string(model.predict([in0Mul45022,in1Mul45022,in0Con99007,in0PRe95561],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min90381.png')
+
+LMul45022 = multiply_layer([[[[[0.0826, 0.117]]]], [[[[0.1854, 0.5136]]]]], Mul45022), 
+LRes24001 = reshape_layer(Mul45022, [1, 2], Res24001), 
+LCro31166 = cropping1D_layer(Res24001, 0, 0, Cro31166), 
+LRes18166 = reshape_layer(Cro31166, [1, 2, 1], Res18166), 
+LZer68235 = zero_padding2D_layer(Res18166, 2, 0, 0, 0, Zer68235), 
+LCon99007 = concatenate_layer([Zer68235,[[[[0.3043], [0.641]], [[0.4072], [0.0098]], [[0.9784], [0.4706]]]]], 3, Con99007), 
+LPRe95561 = prelu_layer([[[[0.7418, 0.3326]]]], [[[0.7073, 0.4512]]], PRe95561), 
+LZer27230 = zero_padding2D_layer(PRe95561, 1, 1, 1, 1, Zer27230), 
+LAve35738 = average_pooling2D_layer(Zer27230, 1, 2, 1, 1, false, Ave35738), 
+LMin90381 = minimum_layer([Con99007,Ave35738], Min90381), 
+exec_layers([LMul45022,LRes24001,LCro31166,LRes18166,LZer68235,LCon99007,LPRe95561,LZer27230,LAve35738,LMin90381],["Mul45022","Res24001","Cro31166","Res18166","Zer68235","Con99007","PRe95561","Zer27230","Ave35738","Min90381"],Min90381,"Min90381")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.1663000], [0.0000000, 0.0098000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0,0],[0,0]],[[0,0.1663],[0,0.0098]],[[0,0],[0,0]]]]
+
+Actual:   [[[[0, 0], [0, 0]], [[0, 0.1663], [0, 0.0098]], [[0, 0], [0, 0]]]]
+
+Expected: [[[[0, 0], [0, 0]], [[0, 0.1663], [0, 0.0098]], [[0, 0], [0, 0]]]]

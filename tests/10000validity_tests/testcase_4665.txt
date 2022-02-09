@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min15025 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min15025 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave13202 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave13202 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con79051 = tf.keras.layers.Input(shape=([15]))
+
+Min15025 = keras.layers.Minimum(name = 'Min15025', )([in0Min15025,in1Min15025])
+Res66140 = keras.layers.Reshape((2, 2, 1), name = 'Res66140', )(Min15025)
+Res90179 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res90179', )(Res66140)
+Up_26747 = keras.layers.UpSampling3D(size=(2, 2, 1), name = 'Up_26747', )(Res90179)
+Res7043 = keras.layers.Reshape((4, 4, 1), name = 'Res7043', )(Up_26747)
+Res3565 = keras.layers.Reshape((4, 4), name = 'Res3565', )(Res7043)
+Fla64414 = keras.layers.Flatten(name = 'Fla64414', )(Res3565)
+Ave13202 = keras.layers.Average(name = 'Ave13202', )([in0Ave13202,in1Ave13202])
+Res39707 = keras.layers.Reshape((2, 2, 1), name = 'Res39707', )(Ave13202)
+Glo16213 = keras.layers.GlobalMaxPool2D(name = 'Glo16213', )(Res39707)
+Con79051 = keras.layers.Concatenate(axis=1, name = 'Con79051', )([Glo16213,in0Con79051])
+Add55753 = keras.layers.Add(name = 'Add55753', )([Fla64414,Con79051])
+model = tf.keras.models.Model(inputs=[in0Min15025,in1Min15025,in0Ave13202,in1Ave13202,in0Con79051], outputs=Add55753)
+in0Min15025 = tf.constant([[[0.8939, 0.8803], [0.9202, 0.0637]]])
+in1Min15025 = tf.constant([[[0.7699, 0.314], [0.8921, 0.8265]]])
+in0Ave13202 = tf.constant([[[0.7506, 0.9339], [0.1989, 0.4141]]])
+in1Ave13202 = tf.constant([[[0.561, 0.8924], [0.359, 0.5107]]])
+in0Con79051 = tf.constant([[0.9871, 0.7187, 0.224, 0.7231, 0.137, 0.2359, 0.4844, 0.3409, 0.0953, 0.0205, 0.7978, 0.2294, 0.6231, 0.7222, 0.0813]])
+print (np.array2string(model.predict([in0Min15025,in1Min15025,in0Ave13202,in1Ave13202,in0Con79051],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add55753.png')
+
+LMin15025 = minimum_layer([[[[0.8939, 0.8803], [0.9202, 0.0637]]], [[[0.7699, 0.314], [0.8921, 0.8265]]]], Min15025), 
+LRes66140 = reshape_layer(Min15025, [2, 2, 1], Res66140), 
+LRes90179 = reshape_layer(Res66140, [2, 2, 1, 1], Res90179), 
+LUp_26747 = up_sampling3D_layer(Res90179, 2, 2, 1, Up_26747), 
+LRes7043 = reshape_layer(Up_26747, [4, 4, 1], Res7043), 
+LRes3565 = reshape_layer(Res7043, [4, 4], Res3565), 
+LFla64414 = flatten_layer(Res3565, Fla64414), 
+LAve13202 = average_layer([[[[0.7506, 0.9339], [0.1989, 0.4141]]], [[[0.561, 0.8924], [0.359, 0.5107]]]], Ave13202), 
+LRes39707 = reshape_layer(Ave13202, [2, 2, 1], Res39707), 
+LGlo16213 = global_max_pool2D_layer(Res39707, Glo16213), 
+LCon79051 = concatenate_layer([Glo16213,[[0.9871, 0.7187, 0.224, 0.7231, 0.137, 0.2359, 0.4844, 0.3409, 0.0953, 0.0205, 0.7978, 0.2294, 0.6231, 0.7222, 0.0813]]], 1, Con79051), 
+LAdd55753 = add_layer([Fla64414,Con79051], Add55753), 
+exec_layers([LMin15025,LRes66140,LRes90179,LUp_26747,LRes7043,LRes3565,LFla64414,LAve13202,LRes39707,LGlo16213,LCon79051,LAdd55753],["Min15025","Res66140","Res90179","Up_26747","Res7043","Res3565","Fla64414","Ave13202","Res39707","Glo16213","Con79051","Add55753"],Add55753,"Add55753")
+
+Actual (Unparsed): [[1.6830500, 1.7570000, 1.0327000, 0.5380000, 1.4930000, 0.9069000, 0.5499000, 0.7984000, 1.2330000, 0.9874000, 0.0842000, 0.8615000, 1.1215000, 1.5152000, 0.7859000, 0.1450000]]
+
+Expected (Unparsed): [[1.68305,1.7570000000000001,1.0327,0.538,1.4929999999999999,0.9069,0.5499,0.7984,1.233,0.9874,0.08420000000000001,0.8614999999999999,1.1215,1.5152,0.7858999999999999,0.14500000000000002]]
+
+Actual:   [[1.6831, 1.757, 1.0327, 0.538, 1.493, 0.9069, 0.5499, 0.7984, 1.233, 0.9874, 0.0842, 0.8615, 1.1215, 1.5152, 0.7859, 0.145]]
+
+Expected: [[1.6831, 1.7571, 1.0327, 0.538, 1.493, 0.9069, 0.5499, 0.7984, 1.233, 0.9874, 0.0843, 0.8615, 1.1215, 1.5152, 0.7859, 0.1451]]

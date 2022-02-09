@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot88475 = tf.keras.layers.Input(shape=([3]))
+in1Dot88475 = tf.keras.layers.Input(shape=([3]))
+in0Add11226 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add11226 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot88475 = keras.layers.Dot(axes=(1, 1), name = 'Dot88475', )([in0Dot88475,in1Dot88475])
+Res97223 = keras.layers.Reshape((1, 1), name = 'Res97223', )(Dot88475)
+Add11226 = keras.layers.Add(name = 'Add11226', )([in0Add11226,in1Add11226])
+Min89728 = keras.layers.Minimum(name = 'Min89728', )([Res97223,Add11226])
+LST1567 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST1567', )(Min89728)
+Fla49515 = keras.layers.Flatten(name = 'Fla49515', )(LST1567)
+Res53447 = keras.layers.Reshape((1, 1), name = 'Res53447', )(Fla49515)
+Res90093 = keras.layers.Reshape((1, 1, 1), name = 'Res90093', )(Res53447)
+Con71404 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 5), padding='valid', name = 'Con71404', )(Res90093)
+model = tf.keras.models.Model(inputs=[in0Dot88475,in1Dot88475,in0Add11226,in1Add11226], outputs=Con71404)
+w = model.get_layer('LST1567').get_weights() 
+w[0] = np.array([[5, 6, 5, 5]])
+w[1] = np.array([[1, 7, 3, 2]])
+w[2] = np.array([3, 2, 5, 1])
+model.get_layer('LST1567').set_weights(w) 
+w = model.get_layer('Con71404').get_weights() 
+w[0] = np.array([[[[0.9044], [0.0176], [0.5986], [0.0641]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con71404').set_weights(w) 
+in0Dot88475 = tf.constant([[0.1315, 0.1006, 0.8639]])
+in1Dot88475 = tf.constant([[0.1988, 0.9239, 0.9435]])
+in0Add11226 = tf.constant([[[0.6889]]])
+in1Add11226 = tf.constant([[[0.0768]]])
+print (np.array2string(model.predict([in0Dot88475,in1Dot88475,in0Add11226,in1Add11226],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con71404.png')
+
+LDot88475 = dot_layer([[0.1315, 0.1006, 0.8639]], [[0.1988, 0.9239, 0.9435]], 1, 1, Dot88475), 
+LRes97223 = reshape_layer(Dot88475, [1, 1], Res97223), 
+LAdd11226 = add_layer([[[[0.6889]]], [[[0.0768]]]], Add11226), 
+LMin89728 = minimum_layer([Res97223,Add11226], Min89728), 
+LLST1567 = lstm_layer(Min89728,[[5, 6, 5, 5]],[[1, 7, 3, 2]],[3, 2, 5, 1], LST1567), 
+LFla49515 = flatten_layer(LST1567, Fla49515), 
+LRes53447 = reshape_layer(Fla49515, [1, 1], Res53447), 
+LRes90093 = reshape_layer(Res53447, [1, 1, 1], Res90093), 
+LCon71404 = conv2D_transpose_layer(Res90093, 1, 1,[[[[0.9044], [0.0176], [0.5986], [0.0641]]]],[0, 0, 0, 0], 1, 5, false, Con71404), 
+exec_layers([LDot88475,LRes97223,LAdd11226,LMin89728,LLST1567,LFla49515,LRes53447,LRes90093,LCon71404],["Dot88475","Res97223","Add11226","Min89728","LST1567","Fla49515","Res53447","Res90093","Con71404"],Con71404,"Con71404")
+
+Actual (Unparsed): [[[[0.6829124, 0.0132898, 0.4520028, 0.0484019], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0.6829124098288186,0.013289759412856266,0.452002840030441,0.04840190786159584],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]]]
+
+Actual:   [[[[0.683, 0.0133, 0.4521, 0.0485], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]]
+
+Expected: [[[[0.683, 0.0133, 0.4521, 0.0485], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]]

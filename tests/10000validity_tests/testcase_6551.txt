@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min4979 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min4979 = tf.keras.layers.Input(shape=([2, 1]))
+
+Min4979 = keras.layers.Minimum(name = 'Min4979', )([in0Min4979,in1Min4979])
+Res12051 = keras.layers.Reshape((2, 1, 1), name = 'Res12051', )(Min4979)
+Res41000 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res41000', )(Res12051)
+Zer97510 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer97510', )(Res41000)
+Mas32885 = keras.layers.Masking(mask_value=1, name = 'Mas32885', )(Zer97510)
+Res96360 = keras.layers.Reshape((4, 3, 3), name = 'Res96360', )(Mas32885)
+Res68627 = keras.layers.Reshape((4, 9), name = 'Res68627', )(Res96360)
+Sep39112 = keras.layers.SeparableConv1D(2, (2),strides=(1), padding='same', name = 'Sep39112', )(Res68627)
+Up_65436 = keras.layers.UpSampling1D(size=(2), name = 'Up_65436', )(Sep39112)
+model = tf.keras.models.Model(inputs=[in0Min4979,in1Min4979], outputs=Up_65436)
+w = model.get_layer('Sep39112').get_weights() 
+w[0] = np.array([[[0.4686], [0.6395], [0.6733], [0.5645], [0.8191], [0.7164], [0.785], [0.7922], [0.6682]], [[0.1292], [0.2214], [0.3827], [0.6036], [0.0016], [0.1253], [0.1491], [0.5146], [0.8404]]])
+w[1] = np.array([[[0.924, 0.2657], [0.9681, 0.5978], [0.1602, 0.7658], [0.2854, 0.8202], [0.0423, 0.9951], [0.0997, 0.5557], [0.9014, 0.3879], [0.3995, 0.5351], [0.7867, 0.1539]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep39112').set_weights(w) 
+in0Min4979 = tf.constant([[[0.2762], [0.2921]]])
+in1Min4979 = tf.constant([[[0.0348], [0.5822]]])
+print (np.array2string(model.predict([in0Min4979,in1Min4979],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_65436.png')
+
+LMin4979 = minimum_layer([[[[0.2762], [0.2921]]], [[[0.0348], [0.5822]]]], Min4979), 
+LRes12051 = reshape_layer(Min4979, [2, 1, 1], Res12051), 
+LRes41000 = reshape_layer(Res12051, [2, 1, 1, 1], Res41000), 
+LZer97510 = zero_padding3D_layer(Res41000, 1, 1, 1, 1, 1, 1, Zer97510), 
+LMas32885 = masking_layer(Zer97510, 1, Mas32885), 
+LRes96360 = reshape_layer(Mas32885, [4, 3, 3], Res96360), 
+LRes68627 = reshape_layer(Res96360, [4, 9], Res68627), 
+LSep39112 = separable_conv1D_layer(Res68627, 2,[[[[0.4686], [0.6395], [0.6733], [0.5645], [0.8191], [0.7164], [0.785], [0.7922], [0.6682]], [[0.1292], [0.2214], [0.3827], [0.6036], [0.0016], [0.1253], [0.1491], [0.5146], [0.8404]]],[[[0.924, 0.2657], [0.9681, 0.5978], [0.1602, 0.7658], [0.2854, 0.8202], [0.0423, 0.9951], [0.0997, 0.5557], [0.9014, 0.3879], [0.3995, 0.5351], [0.7867, 0.1539]]]],[0, 0], 1, true, Sep39112), 
+LUp_65436 = up_sampling1D_layer(Sep39112, 2, Up_65436), 
+exec_layers([LMin4979,LRes12051,LRes41000,LZer97510,LMas32885,LRes96360,LRes68627,LSep39112,LUp_65436],["Min4979","Res12051","Res41000","Zer97510","Mas32885","Res96360","Res68627","Sep39112","Up_65436"],Up_65436,"Up_65436")
+
+Actual (Unparsed): [[[0.0000024, 0.0000554], [0.0000024, 0.0000554], [0.0012255, 0.0288301], [0.0012255, 0.0288301], [0.0101207, 0.2380868], [0.0101207, 0.2380868], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[2.3552639999999996e-6,5.540716799999999e-5],[2.3552639999999996e-6,5.540716799999999e-5],[0.0012255172919999999,0.028830077004],[0.0012255172919999999,0.028830077004],[0.010120660353,0.23808674036100003],[0.010120660353,0.23808674036100003],[0.0,0.0],[0.0,0.0]]]
+
+Actual:   [[[0, 0.0001], [0, 0.0001], [0.0013, 0.0289], [0.0013, 0.0289], [0.0102, 0.2381], [0.0102, 0.2381], [0, 0], [0, 0]]]
+
+Expected: [[[0, 0.0001], [0, 0.0001], [0.0013, 0.0289], [0.0013, 0.0289], [0.0102, 0.2381], [0.0102, 0.2381], [0, 0], [0, 0]]]

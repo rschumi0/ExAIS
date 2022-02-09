@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_79028 = tf.keras.layers.Input(shape=([2, 2]))
+
+Up_79028 = keras.layers.UpSampling1D(size=(1), name = 'Up_79028', )(in0Up_79028)
+Res83877 = keras.layers.Reshape((2, 2, 1), name = 'Res83877', )(Up_79028)
+Up_33713 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_33713', )(Res83877)
+Res9361 = keras.layers.Reshape((2, 4), name = 'Res9361', )(Up_33713)
+Sim59482 = keras.layers.SimpleRNN(3,name = 'Sim59482', )(Res9361)
+Lea72134 = keras.layers.LeakyReLU(alpha=6.989423088933132, name = 'Lea72134', )(Sim59482)
+Res98743 = keras.layers.Reshape((3, 1), name = 'Res98743', )(Lea72134)
+Res36727 = keras.layers.Reshape((3, 1, 1), name = 'Res36727', )(Res98743)
+Sep56771 = keras.layers.SeparableConv2D(2, (3, 1),strides=(2, 2), padding='same', name = 'Sep56771', )(Res36727)
+model = tf.keras.models.Model(inputs=[in0Up_79028], outputs=Sep56771)
+w = model.get_layer('Sim59482').get_weights() 
+w[0] = np.array([[10, 8, 4], [8, 4, 4], [1, 2, 10], [2, 3, 6]])
+w[1] = np.array([[9, 1, 8], [2, 10, 4], [6, 9, 2]])
+w[2] = np.array([5, 7, 4])
+model.get_layer('Sim59482').set_weights(w) 
+w = model.get_layer('Sep56771').get_weights() 
+w[0] = np.array([[[[0.2327]]], [[[0.2844]]], [[[0.8202]]]])
+w[1] = np.array([[[[0.1175, 0.6045]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep56771').set_weights(w) 
+in0Up_79028 = tf.constant([[[1.9587, 1.834], [1.6099, 1.1344]]])
+print (np.array2string(model.predict([in0Up_79028],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep56771.png')
+
+LUp_79028 = up_sampling1D_layer([[[1.9587, 1.834], [1.6099, 1.1344]]], 1, Up_79028), 
+LRes83877 = reshape_layer(Up_79028, [2, 2, 1], Res83877), 
+LUp_33713 = up_sampling2D_layer(Res83877, 1, 2, Up_33713), 
+LRes9361 = reshape_layer(Up_33713, [2, 4], Res9361), 
+LSim59482 = simple_rnn_layer(Res9361,[[10, 8, 4], [8, 4, 4], [1, 2, 10], [2, 3, 6]],[[9, 1, 8], [2, 10, 4], [6, 9, 2]],[5, 7, 4], Sim59482), 
+LLea72134 = leaky_relu_layer(Sim59482, 6.989423088933132, Lea72134), 
+LRes98743 = reshape_layer(Lea72134, [3, 1], Res98743), 
+LRes36727 = reshape_layer(Res98743, [3, 1, 1], Res36727), 
+LSep56771 = separable_conv2D_layer(Res36727, 3, 1,[[[[[0.2327]]], [[[0.2844]]], [[[0.8202]]]],[[[[0.1175, 0.6045]]]]],[0, 0], 2, 2, true, Sep56771), 
+exec_layers([LUp_79028,LRes83877,LUp_33713,LRes9361,LSim59482,LLea72134,LRes98743,LRes36727,LSep56771],["Up_79028","Res83877","Up_33713","Res9361","Sim59482","Lea72134","Res98743","Res36727","Sep56771"],Sep56771,"Sep56771")
+
+Actual (Unparsed): [[[[0.1297905, 0.6677307]], [[0.0607592, 0.3125870]]]]
+
+Expected (Unparsed): [[[[0.1297905,0.6677307000000001]],[[0.060759249999999994,0.31258695000000003]]]]
+
+Actual:   [[[[0.1298, 0.6678]], [[0.0608, 0.3126]]]]
+
+Expected: [[[[0.1298, 0.6678]], [[0.0608, 0.3126]]]]

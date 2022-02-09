@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0PRe8148 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Glo16018 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Con39087 = tf.keras.layers.Input(shape=([1]))
+in0Con36761 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave39024 = tf.keras.layers.Input(shape=([1, 2]))
+
+PRe8148 = keras.layers.PReLU(name = 'PRe8148', input_shape=(1, 1, 2))(in0PRe8148)
+Res41405 = keras.layers.Reshape((1, 2), name = 'Res41405', )(PRe8148)
+Fla91488 = keras.layers.Flatten(name = 'Fla91488', )(Res41405)
+Glo16018 = keras.layers.GlobalAveragePooling3D(name = 'Glo16018', )(in0Glo16018)
+Lea21984 = keras.layers.LeakyReLU(alpha=1.7513583413105975, name = 'Lea21984', )(Glo16018)
+Con39087 = keras.layers.Concatenate(axis=1, name = 'Con39087', )([Lea21984,in0Con39087])
+Sub42175 = keras.layers.Subtract(name = 'Sub42175', )([Fla91488,Con39087])
+Res80182 = keras.layers.Reshape((2, 1), name = 'Res80182', )(Sub42175)
+Con36761 = keras.layers.Concatenate(axis=2, name = 'Con36761', )([Res80182,in0Con36761])
+Ave39024 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='valid', name = 'Ave39024', )(in0Ave39024)
+Zer19057 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer19057', )(Ave39024)
+Mul85087 = keras.layers.Multiply(name = 'Mul85087', )([Con36761,Zer19057])
+model = tf.keras.models.Model(inputs=[in0PRe8148,in0Glo16018,in0Con39087,in0Con36761,in0Ave39024], outputs=Mul85087)
+w = model.get_layer('PRe8148').get_weights() 
+w[0] = np.array([[[0.9557, 0.6313]]])
+model.get_layer('PRe8148').set_weights(w) 
+in0PRe8148 = tf.constant([[[[0.0626, 0.2745]]]])
+in0Glo16018 = tf.constant([[[[[1.344]], [[1.2035]]]]])
+in0Con39087 = tf.constant([[0.4809]])
+in0Con36761 = tf.constant([[[0.3615], [0.2592]]])
+in0Ave39024 = tf.constant([[[1.1704, 1.9649]]])
+print (np.array2string(model.predict([in0PRe8148,in0Glo16018,in0Con39087,in0Con36761,in0Ave39024],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul85087.png')
+
+LPRe8148 = prelu_layer([[[[0.0626, 0.2745]]]], [[[0.9557, 0.6313]]], PRe8148), 
+LRes41405 = reshape_layer(PRe8148, [1, 2], Res41405), 
+LFla91488 = flatten_layer(Res41405, Fla91488), 
+LGlo16018 = global_average_pooling3D_layer([[[[[1.344]], [[1.2035]]]]], Glo16018), 
+LLea21984 = leaky_relu_layer(Glo16018, 1.7513583413105975, Lea21984), 
+LCon39087 = concatenate_layer([Lea21984,[[0.4809]]], 1, Con39087), 
+LSub42175 = subtract_layer(Fla91488,Con39087, Sub42175), 
+LRes80182 = reshape_layer(Sub42175, [2, 1], Res80182), 
+LCon36761 = concatenate_layer([Res80182,[[[0.3615], [0.2592]]]], 2, Con36761), 
+LAve39024 = average_pooling1D_layer([[[1.1704, 1.9649]]], 1, 1, false, Ave39024), 
+LZer19057 = zero_padding1D_layer(Ave39024, 1, 0, Zer19057), 
+LMul85087 = multiply_layer([Con36761,Zer19057], Mul85087), 
+exec_layers([LPRe8148,LRes41405,LFla91488,LGlo16018,LLea21984,LCon39087,LSub42175,LRes80182,LCon36761,LAve39024,LZer19057,LMul85087],["PRe8148","Res41405","Fla91488","Glo16018","Lea21984","Con39087","Sub42175","Res80182","Con36761","Ave39024","Zer19057","Mul85087"],Mul85087,"Mul85087")
+
+Actual (Unparsed): [[[-0.0000000, 0.0000000], [-0.2415705, 0.5093021]]]
+
+Expected (Unparsed): [[[-0.0,0.0],[-0.24157056,0.50930208]]]
+
+Actual:   [[[-0, 0], [-0.2415, 0.5094]]]
+
+Expected: [[[-0, 0], [-0.2415, 0.5094]]]

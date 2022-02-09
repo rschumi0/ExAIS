@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim14493 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con50923 = tf.keras.layers.Input(shape=([2, 3, 1]))
+in0Max17102 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Max17102 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Sim14493 = keras.layers.SimpleRNN(2,name = 'Sim14493', )(in0Sim14493)
+Res99310 = keras.layers.Reshape((2, 1), name = 'Res99310', )(Sim14493)
+Res17887 = keras.layers.Reshape((2, 1, 1), name = 'Res17887', )(Res99310)
+Zer49515 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer49515', )(Res17887)
+Con50923 = keras.layers.Concatenate(axis=3, name = 'Con50923', )([Zer49515,in0Con50923])
+Max17102 = keras.layers.Maximum(name = 'Max17102', )([in0Max17102,in1Max17102])
+Zer29218 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer29218', )(Max17102)
+Max43912 = keras.layers.Maximum(name = 'Max43912', )([Con50923,Zer29218])
+model = tf.keras.models.Model(inputs=[in0Sim14493,in0Con50923,in0Max17102,in1Max17102], outputs=Max43912)
+w = model.get_layer('Sim14493').get_weights() 
+w[0] = np.array([[1, 8]])
+w[1] = np.array([[1, 4], [10, 5]])
+w[2] = np.array([8, 3])
+model.get_layer('Sim14493').set_weights(w) 
+in0Sim14493 = tf.constant([[[4], [6]]])
+in0Con50923 = tf.constant([[[[0.0091], [0.0655], [0.9368]], [[0.9032], [0.0218], [0.3632]]]])
+in0Max17102 = tf.constant([[[[0.4254, 0.0252], [0.4585, 0.7381]]]])
+in1Max17102 = tf.constant([[[[0.5224, 0.1987], [0.9937, 0.3166]]]])
+print (np.array2string(model.predict([in0Sim14493,in0Con50923,in0Max17102,in1Max17102],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max43912.png')
+
+LSim14493 = simple_rnn_layer([[[4], [6]]],[[1, 8]],[[1, 4], [10, 5]],[8, 3], Sim14493), 
+LRes99310 = reshape_layer(Sim14493, [2, 1], Res99310), 
+LRes17887 = reshape_layer(Res99310, [2, 1, 1], Res17887), 
+LZer49515 = zero_padding2D_layer(Res17887, 0, 0, 2, 0, Zer49515), 
+LCon50923 = concatenate_layer([Zer49515,[[[[0.0091], [0.0655], [0.9368]], [[0.9032], [0.0218], [0.3632]]]]], 3, Con50923), 
+LMax17102 = maximum_layer([[[[[0.4254, 0.0252], [0.4585, 0.7381]]]], [[[[0.5224, 0.1987], [0.9937, 0.3166]]]]], Max17102), 
+LZer29218 = zero_padding2D_layer(Max17102, 1, 0, 1, 0, Zer29218), 
+LMax43912 = maximum_layer([Con50923,Zer29218], Max43912), 
+exec_layers([LSim14493,LRes99310,LRes17887,LZer49515,LCon50923,LMax17102,LZer29218,LMax43912],["Sim14493","Res99310","Res17887","Zer49515","Con50923","Max17102","Zer29218","Max43912"],Max43912,"Max43912")
+
+Actual (Unparsed): [[[[0.0000000, 0.0091000], [0.0000000, 0.0655000], [1.0000000, 0.9368000]], [[0.0000000, 0.9032000], [0.5224000, 0.1987000], [1.0000000, 0.7381000]]]]
+
+Expected (Unparsed): [[[[0,0.0091],[0,0.0655],[1.0,0.9368]],[[0,0.9032],[0.5224,0.1987],[1.0,0.7381]]]]
+
+Actual:   [[[[0, 0.0091], [0, 0.0655], [1, 0.9368]], [[0, 0.9032], [0.5224, 0.1987], [1, 0.7381]]]]
+
+Expected: [[[[0, 0.0091], [0, 0.0655], [1, 0.9368]], [[0, 0.9032], [0.5224, 0.1987], [1, 0.7381]]]]

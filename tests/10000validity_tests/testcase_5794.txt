@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add94561 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Add94561 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con81161 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con86703 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Add94561 = keras.layers.Add(name = 'Add94561', )([in0Add94561,in1Add94561])
+Res48052 = keras.layers.Reshape((1, 1, 1), name = 'Res48052', )(Add94561)
+Res51821 = keras.layers.Reshape((1, 1), name = 'Res51821', )(Res48052)
+Con81161 = keras.layers.Concatenate(axis=2, name = 'Con81161', )([Res51821,in0Con81161])
+Con86703 = keras.layers.Conv3D(2, (1, 1, 1),strides=(2, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con86703', )(in0Con86703)
+Res25922 = keras.layers.Reshape((1, 1, 2), name = 'Res25922', )(Con86703)
+Res90384 = keras.layers.Reshape((1, 2), name = 'Res90384', )(Res25922)
+Dot95940 = keras.layers.Dot(axes=(1, 1), name = 'Dot95940', )([Con81161,Res90384])
+Res18958 = keras.layers.Reshape((2, 2, 1), name = 'Res18958', )(Dot95940)
+Con42177 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='valid', name = 'Con42177', )(Res18958)
+model = tf.keras.models.Model(inputs=[in0Add94561,in1Add94561,in0Con81161,in0Con86703], outputs=Con42177)
+w = model.get_layer('Con86703').get_weights() 
+w[0] = np.array([[[[[0.2726, 0.4046], [0.5942, 0.9458]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con86703').set_weights(w) 
+w = model.get_layer('Con42177').get_weights() 
+w[0] = np.array([[[[0.051], [0.8801], [0.7749]]], [[[0.5966], [0.4465], [0.4523]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con42177').set_weights(w) 
+in0Add94561 = tf.constant([[[[[0.7813]]]]])
+in1Add94561 = tf.constant([[[[[0.0081]]]]])
+in0Con81161 = tf.constant([[[0.4234]]])
+in0Con86703 = tf.constant([[[[[0.3451, 0.2522]]], [[[0.4215, 0.9123]]]]])
+print (np.array2string(model.predict([in0Add94561,in1Add94561,in0Con81161,in0Con86703],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con42177.png')
+
+LAdd94561 = add_layer([[[[[[0.7813]]]]], [[[[[0.0081]]]]]], Add94561), 
+LRes48052 = reshape_layer(Add94561, [1, 1, 1], Res48052), 
+LRes51821 = reshape_layer(Res48052, [1, 1], Res51821), 
+LCon81161 = concatenate_layer([Res51821,[[[0.4234]]]], 2, Con81161), 
+LCon86703 = conv3D_layer([[[[[0.3451, 0.2522]]], [[[0.4215, 0.9123]]]]], 1, 1, 1,[[[[[0.2726, 0.4046], [0.5942, 0.9458]]]]],[0, 0], 2, 1, 1, false, 1, 1, 1, Con86703), 
+LRes25922 = reshape_layer(Con86703, [1, 1, 2], Res25922), 
+LRes90384 = reshape_layer(Res25922, [1, 2], Res90384), 
+LDot95940 = dot_layer(Con81161,Res90384, 1, 1, Dot95940), 
+LRes18958 = reshape_layer(Dot95940, [2, 2, 1], Res18958), 
+LCon42177 = conv2D_transpose_layer(Res18958, 2, 1,[[[[0.051], [0.8801], [0.7749]]], [[[0.5966], [0.4465], [0.4523]]]],[0, 0, 0], 1, 1, false, Con42177), 
+exec_layers([LAdd94561,LRes48052,LRes51821,LCon81161,LCon86703,LRes25922,LRes90384,LDot95940,LRes18958,LCon42177],["Add94561","Res48052","Res51821","Con81161","Con86703","Res25922","Res90384","Dot95940","Res18958","Con42177"],Con42177,"Con42177")
+
+Actual (Unparsed): [[[[0.0098205, 0.1694716, 0.1492144], [0.0152244, 0.2627258, 0.2313217]], [[0.1201483, 0.1768751, 0.1671268], [0.1862616, 0.2742031, 0.2590907]], [[0.0616172, 0.0461148, 0.0467138], [0.0955229, 0.0714901, 0.0724187]]]]
+
+Expected (Unparsed): [[[[0.009820535831099998,0.16947163892060996,0.14921437677488997],[0.015224423042267999,0.26272577881372683,0.2313216748128132]],[[0.12014832372335997,0.17687508191135998,0.16712680834781996],[0.18626161949239683,0.2742030698698368,0.25909067241866157]],[[0.061617204229859994,0.04611478660514999,0.04671381406832999],[0.0955229327616168,0.071490092990382,0.0724187436944004]]]]
+
+Actual:   [[[[0.0099, 0.1695, 0.1493], [0.0153, 0.2628, 0.2314]], [[0.1202, 0.1769, 0.1672], [0.1863, 0.2743, 0.2591]], [[0.0617, 0.0462, 0.0468], [0.0956, 0.0715, 0.0725]]]]
+
+Expected: [[[[0.0099, 0.1695, 0.1493], [0.0153, 0.2628, 0.2314]], [[0.1202, 0.1769, 0.1672], [0.1863, 0.2743, 0.2591]], [[0.0617, 0.0462, 0.0468], [0.0956, 0.0715, 0.0725]]]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min65871 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min65871 = tf.keras.layers.Input(shape=([2, 1]))
+in0Add2530 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Add2530 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Dep32811 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Min65871 = keras.layers.Minimum(name = 'Min65871', )([in0Min65871,in1Min65871])
+Res42477 = keras.layers.Reshape((2, 1, 1), name = 'Res42477', )(Min65871)
+Zer65421 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer65421', )(Res42477)
+Add2530 = keras.layers.Add(name = 'Add2530', )([in0Add2530,in1Add2530])
+Res72351 = keras.layers.Reshape((1, 2, 1), name = 'Res72351', )(Add2530)
+Dep32811 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='same', name = 'Dep32811', )(in0Dep32811)
+Ave88479 = keras.layers.Average(name = 'Ave88479', )([Res72351,Dep32811])
+Zer32643 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer32643', )(Ave88479)
+Min45733 = keras.layers.Minimum(name = 'Min45733', )([Zer65421,Zer32643])
+model = tf.keras.models.Model(inputs=[in0Min65871,in1Min65871,in0Add2530,in1Add2530,in0Dep32811], outputs=Min45733)
+w = model.get_layer('Dep32811').get_weights() 
+w[0] = np.array([[[[0.5049]], [[0.0419]]]])
+w[1] = np.array([0])
+model.get_layer('Dep32811').set_weights(w) 
+in0Min65871 = tf.constant([[[0.4722], [0.811]]])
+in1Min65871 = tf.constant([[[0.2221], [0.401]]])
+in0Add2530 = tf.constant([[[[[0.4971]], [[0.3008]]]]])
+in1Add2530 = tf.constant([[[[[0.1445]], [[0.3514]]]]])
+in0Dep32811 = tf.constant([[[[0.165], [0.8438]]]])
+print (np.array2string(model.predict([in0Min65871,in1Min65871,in0Add2530,in1Add2530,in0Dep32811],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min45733.png')
+
+LMin65871 = minimum_layer([[[[0.4722], [0.811]]], [[[0.2221], [0.401]]]], Min65871), 
+LRes42477 = reshape_layer(Min65871, [2, 1, 1], Res42477), 
+LZer65421 = zero_padding2D_layer(Res42477, 0, 0, 2, 0, Zer65421), 
+LAdd2530 = add_layer([[[[[[0.4971]], [[0.3008]]]]], [[[[[0.1445]], [[0.3514]]]]]], Add2530), 
+LRes72351 = reshape_layer(Add2530, [1, 2, 1], Res72351), 
+LDep32811 = depthwise_conv2D_layer([[[[0.165], [0.8438]]]], 1, 2,[[[[0.5049]], [[0.0419]]]],[0], 1, 1, true, Dep32811), 
+LAve88479 = average_layer([Res72351,Dep32811], Ave88479), 
+LZer32643 = zero_padding2D_layer(Ave88479, 1, 0, 1, 0, Zer32643), 
+LMin45733 = minimum_layer([Zer65421,Zer32643], Min45733), 
+exec_layers([LMin65871,LRes42477,LZer65421,LAdd2530,LRes72351,LDep32811,LAve88479,LZer32643,LMin45733],["Min65871","Res42477","Zer65421","Add2530","Res72351","Dep32811","Ave88479","Zer32643","Min45733"],Min45733,"Min45733")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.4010000]]]]
+
+Expected (Unparsed): [[[[0],[0],[0]],[[0],[0],[0.401]]]]
+
+Actual:   [[[[0], [0], [0]], [[0], [0], [0.401]]]]
+
+Expected: [[[[0], [0], [0]], [[0], [0], [0.401]]]]

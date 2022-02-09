@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer83164 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con78690 = tf.keras.layers.Input(shape=([5, 1]))
+in0Ave40428 = tf.keras.layers.Input(shape=([1, 2]))
+in0Cro52515 = tf.keras.layers.Input(shape=([4, 1, 1]))
+
+Zer83164 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer83164', )(in0Zer83164)
+Con78690 = keras.layers.Concatenate(axis=2, name = 'Con78690', )([Zer83164,in0Con78690])
+Ave40428 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave40428', )(in0Ave40428)
+Zer2713 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer2713', )(Ave40428)
+Sub89819 = keras.layers.Subtract(name = 'Sub89819', )([Con78690,Zer2713])
+Res51829 = keras.layers.Reshape((5, 2, 1), name = 'Res51829', )(Sub89819)
+Res33168 = keras.layers.Reshape((5, 2, 1, 1), name = 'Res33168', )(Res51829)
+Cro52515 = keras.layers.Cropping2D(cropping=((0, 3), (0, 0)), name = 'Cro52515', )(in0Cro52515)
+Res36426 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res36426', )(Cro52515)
+PRe37350 = keras.layers.PReLU(name = 'PRe37350', )(Res36426)
+Zer53375 = keras.layers.ZeroPadding3D(padding=((4, 0), (1, 0), (0, 0)), name = 'Zer53375', )(PRe37350)
+Ave65213 = keras.layers.Average(name = 'Ave65213', )([Res33168,Zer53375])
+model = tf.keras.models.Model(inputs=[in0Zer83164,in0Con78690,in0Ave40428,in0Cro52515], outputs=Ave65213)
+w = model.get_layer('PRe37350').get_weights() 
+w[0] = np.array([[[[0.8444]]]])
+model.get_layer('PRe37350').set_weights(w) 
+in0Zer83164 = tf.constant([[[1.9216], [1.1127], [1.205]]])
+in0Con78690 = tf.constant([[[0.3821], [0.6732], [0.9171], [0.7298], [0.7806]]])
+in0Ave40428 = tf.constant([[[1.113, 1.9542]]])
+in0Cro52515 = tf.constant([[[[1.0509]], [[1.0364]], [[1.0183]], [[1.5095]]]])
+print (np.array2string(model.predict([in0Zer83164,in0Con78690,in0Ave40428,in0Cro52515],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave65213.png')
+
+LZer83164 = zero_padding1D_layer([[[1.9216], [1.1127], [1.205]]], 1, 1, Zer83164), 
+LCon78690 = concatenate_layer([Zer83164,[[[0.3821], [0.6732], [0.9171], [0.7298], [0.7806]]]], 2, Con78690), 
+LAve40428 = average_pooling1D_layer([[[1.113, 1.9542]]], 1, Ave40428), 
+LZer2713 = zero_padding1D_layer(Ave40428, 4, 0, Zer2713), 
+LSub89819 = subtract_layer(Con78690,Zer2713, Sub89819), 
+LRes51829 = reshape_layer(Sub89819, [5, 2, 1], Res51829), 
+LRes33168 = reshape_layer(Res51829, [5, 2, 1, 1], Res33168), 
+LCro52515 = cropping2D_layer([[[[1.0509]], [[1.0364]], [[1.0183]], [[1.5095]]]], 0, 3, 0, 0, Cro52515), 
+LRes36426 = reshape_layer(Cro52515, [1, 1, 1, 1], Res36426), 
+LPRe37350 = prelu_layer(Res36426, [[[[0.8444]]]], PRe37350), 
+LZer53375 = zero_padding3D_layer(PRe37350, 4, 0, 1, 0, 0, 0, Zer53375), 
+LAve65213 = average_layer([Res33168,Zer53375], Ave65213), 
+exec_layers([LZer83164,LCon78690,LAve40428,LZer2713,LSub89819,LRes51829,LRes33168,LCro52515,LRes36426,LPRe37350,LZer53375,LAve65213],["Zer83164","Con78690","Ave40428","Zer2713","Sub89819","Res51829","Res33168","Cro52515","Res36426","PRe37350","Zer53375","Ave65213"],Ave65213,"Ave65213")
+
+Actual (Unparsed): [[[[[0.0000000]], [[0.1910500]]], [[[0.9608000]], [[0.3366000]]], [[[0.5563500]], [[0.4585500]]], [[[0.6025000]], [[0.3649000]]], [[[-0.5565000]], [[-0.0613500]]]]]
+
+Expected (Unparsed): [[[[[0]],[[0.19105]]],[[[0.9608]],[[0.3366]]],[[[0.55635]],[[0.45855]]],[[[0.6025]],[[0.3649]]],[[[-0.5565]],[[-0.061350000000000016]]]]]
+
+Actual:   [[[[[0]], [[0.1911]]], [[[0.9608]], [[0.3366]]], [[[0.5564]], [[0.4586]]], [[[0.6025]], [[0.3649]]], [[[-0.5565]], [[-0.0613]]]]]
+
+Expected: [[[[[0]], [[0.1911]]], [[[0.9608]], [[0.3366]]], [[[0.5564]], [[0.4586]]], [[[0.6025]], [[0.3649]]], [[[-0.5565]], [[-0.0613]]]]]

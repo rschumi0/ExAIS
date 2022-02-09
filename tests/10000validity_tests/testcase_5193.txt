@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul58166 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul58166 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave74019 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con51105 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add46309 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Add46309 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Mul58166 = keras.layers.Multiply(name = 'Mul58166', )([in0Mul58166,in1Mul58166])
+Lay37320 = keras.layers.LayerNormalization(axis=3, epsilon=1.5368804667498097, name = 'Lay37320', )(Mul58166)
+Res13233 = keras.layers.Reshape((1, 2), name = 'Res13233', )(Lay37320)
+Ave74019 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave74019', )(in0Ave74019)
+Con51105 = keras.layers.Concatenate(axis=2, name = 'Con51105', )([Ave74019,in0Con51105])
+Mul18794 = keras.layers.Multiply(name = 'Mul18794', )([Res13233,Con51105])
+Add46309 = keras.layers.Add(name = 'Add46309', )([in0Add46309,in1Add46309])
+Res13269 = keras.layers.Reshape((2, 2), name = 'Res13269', )(Add46309)
+Dot88619 = keras.layers.Dot(axes=(2, 1), name = 'Dot88619', )([Mul18794,Res13269])
+Max55121 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max55121', )(Dot88619)
+model = tf.keras.models.Model(inputs=[in0Mul58166,in1Mul58166,in0Ave74019,in0Con51105,in0Add46309,in1Add46309], outputs=Max55121)
+in0Mul58166 = tf.constant([[[[0.5496, 0.7997]]]])
+in1Mul58166 = tf.constant([[[[0.1927, 0.6113]]]])
+in0Ave74019 = tf.constant([[[1.9646]]])
+in0Con51105 = tf.constant([[[0.0971]]])
+in0Add46309 = tf.constant([[[[0.6178], [0.7186]], [[0.008], [0.3082]]]])
+in1Add46309 = tf.constant([[[[0.2893], [0.414]], [[0.6097], [0.8109]]]])
+print (np.array2string(model.predict([in0Mul58166,in1Mul58166,in0Ave74019,in0Con51105,in0Add46309,in1Add46309],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max55121.png')
+
+LMul58166 = multiply_layer([[[[[0.5496, 0.7997]]]], [[[[0.1927, 0.6113]]]]], Mul58166), 
+LLay37320 = layer_normalization_layer(Mul58166, 3, 1.5368804667498097, Lay37320), 
+LRes13233 = reshape_layer(Lay37320, [1, 2], Res13233), 
+LAve74019 = average_pooling1D_layer([[[1.9646]]], 1, Ave74019), 
+LCon51105 = concatenate_layer([Ave74019,[[[0.0971]]]], 2, Con51105), 
+LMul18794 = multiply_layer([Res13233,Con51105], Mul18794), 
+LAdd46309 = add_layer([[[[[0.6178], [0.7186]], [[0.008], [0.3082]]]], [[[[0.2893], [0.414]], [[0.6097], [0.8109]]]]], Add46309), 
+LRes13269 = reshape_layer(Add46309, [2, 2], Res13269), 
+LDot88619 = dot_layer(Mul18794,Res13269, 2, 1, Dot88619), 
+LMax55121 = max_pool1D_layer(Dot88619, 1, Max55121), 
+exec_layers([LMul58166,LLay37320,LRes13233,LAve74019,LCon51105,LMul18794,LAdd46309,LRes13269,LDot88619,LMax55121],["Mul58166","Lay37320","Res13233","Ave74019","Con51105","Mul18794","Add46309","Res13269","Dot88619","Max55121"],Max55121,"Max55121")
+
+Actual (Unparsed): [[[-0.2628646, -0.3230558]]]
+
+Expected (Unparsed): [[[-0.262864649869971,-0.3230557964756239]]]
+
+Actual:   [[[-0.2628, -0.323]]]
+
+Expected: [[[-0.2628, -0.323]]]

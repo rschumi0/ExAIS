@@ -1,0 +1,92 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul64333 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul64333 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sep50117 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add43997 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Add43997 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Min45982 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min45982 = tf.keras.layers.Input(shape=([2, 2]))
+in0Cro73432 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave94935 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave94935 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sof92173 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con90171 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul64333 = keras.layers.Multiply(name = 'Mul64333', )([in0Mul64333,in1Mul64333])
+Sep50117 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep50117', )(in0Sep50117)
+Max53801 = keras.layers.Maximum(name = 'Max53801', )([Mul64333,Sep50117])
+Zer29968 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer29968', )(Max53801)
+Add43997 = keras.layers.Add(name = 'Add43997', )([in0Add43997,in1Add43997])
+Res80554 = keras.layers.Reshape((2, 2, 1), name = 'Res80554', )(Add43997)
+Res77032 = keras.layers.Reshape((2, 2), name = 'Res77032', )(Res80554)
+Min45982 = keras.layers.Minimum(name = 'Min45982', )([in0Min45982,in1Min45982])
+Min87306 = keras.layers.Minimum(name = 'Min87306', )([Res77032,Min45982])
+Add75504 = keras.layers.Add(name = 'Add75504', )([Zer29968,Min87306])
+Lay3440 = keras.layers.LayerNormalization(axis=2, epsilon=1.5488460896877057, name = 'Lay3440', )(Add75504)
+Cro73432 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro73432', )(in0Cro73432)
+Res4327 = keras.layers.Reshape((1, 2), name = 'Res4327', )(Cro73432)
+Zer33522 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer33522', )(Res4327)
+Ave94935 = keras.layers.Average(name = 'Ave94935', )([in0Ave94935,in1Ave94935])
+Sof92173 = keras.layers.Softmax(axis=1, name = 'Sof92173', input_shape=(2, 1))(in0Sof92173)
+Lea67070 = keras.layers.LeakyReLU(alpha=7.948192691086602, name = 'Lea67070', )(Sof92173)
+Ave7956 = keras.layers.Average(name = 'Ave7956', )([Ave94935,Lea67070])
+Con90171 = keras.layers.Concatenate(axis=2, name = 'Con90171', )([Ave7956,in0Con90171])
+Min70460 = keras.layers.Minimum(name = 'Min70460', )([Zer33522,Con90171])
+Add8611 = keras.layers.Add(name = 'Add8611', )([Lay3440,Min70460])
+model = tf.keras.models.Model(inputs=[in0Mul64333,in1Mul64333,in0Sep50117,in0Add43997,in1Add43997,in0Min45982,in1Min45982,in0Cro73432,in0Ave94935,in1Ave94935,in0Sof92173,in0Con90171], outputs=Add8611)
+w = model.get_layer('Sep50117').get_weights() 
+w[0] = np.array([[[0.4119], [0.0843]]])
+w[1] = np.array([[[0.2393, 0.5287], [0.9806, 0.035]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep50117').set_weights(w) 
+in0Mul64333 = tf.constant([[[0.49, 0.5485]]])
+in1Mul64333 = tf.constant([[[0.9702, 0.4969]]])
+in0Sep50117 = tf.constant([[[0.3224, 0.0616]]])
+in0Add43997 = tf.constant([[[[[0.1442]], [[0.4354]]], [[[0.8713]], [[0.0594]]]]])
+in1Add43997 = tf.constant([[[[[0.1167]], [[0.6334]]], [[[0.8587]], [[0.0001]]]]])
+in0Min45982 = tf.constant([[[0.4111, 0.4467], [0.6691, 0.227]]])
+in1Min45982 = tf.constant([[[0.9984, 0.0477], [0.7595, 0.6119]]])
+in0Cro73432 = tf.constant([[[[1.8995, 1.0541]]]])
+in0Ave94935 = tf.constant([[[0.2682], [0.7316]]])
+in1Ave94935 = tf.constant([[[0.4196], [0.6333]]])
+in0Sof92173 = tf.constant([[[0.1443], [0.8959]]])
+in0Con90171 = tf.constant([[[0.4645], [0.0693]]])
+print (np.array2string(model.predict([in0Mul64333,in1Mul64333,in0Sep50117,in0Add43997,in1Add43997,in0Min45982,in1Min45982,in0Cro73432,in0Ave94935,in1Ave94935,in0Sof92173,in0Con90171],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add8611.png')
+
+LMul64333 = multiply_layer([[[[0.49, 0.5485]]], [[[0.9702, 0.4969]]]], Mul64333), 
+LSep50117 = separable_conv1D_layer([[[0.3224, 0.0616]]], 1,[[[[0.4119], [0.0843]]],[[[0.2393, 0.5287], [0.9806, 0.035]]]],[0, 0], 1, false, Sep50117), 
+LMax53801 = maximum_layer([Mul64333,Sep50117], Max53801), 
+LZer29968 = zero_padding1D_layer(Max53801, 1, 0, Zer29968), 
+LAdd43997 = add_layer([[[[[[0.1442]], [[0.4354]]], [[[0.8713]], [[0.0594]]]]], [[[[[0.1167]], [[0.6334]]], [[[0.8587]], [[0.0001]]]]]], Add43997), 
+LRes80554 = reshape_layer(Add43997, [2, 2, 1], Res80554), 
+LRes77032 = reshape_layer(Res80554, [2, 2], Res77032), 
+LMin45982 = minimum_layer([[[[0.4111, 0.4467], [0.6691, 0.227]]], [[[0.9984, 0.0477], [0.7595, 0.6119]]]], Min45982), 
+LMin87306 = minimum_layer([Res77032,Min45982], Min87306), 
+LAdd75504 = add_layer([Zer29968,Min87306], Add75504), 
+LLay3440 = layer_normalization_layer(Add75504, 2, 1.5488460896877057, Lay3440), 
+LCro73432 = cropping2D_layer([[[[1.8995, 1.0541]]]], 0, 0, 0, 0, Cro73432), 
+LRes4327 = reshape_layer(Cro73432, [1, 2], Res4327), 
+LZer33522 = zero_padding1D_layer(Res4327, 1, 0, Zer33522), 
+LAve94935 = average_layer([[[[0.2682], [0.7316]]], [[[0.4196], [0.6333]]]], Ave94935), 
+LSof92173 = softmax_layer([[[0.1443], [0.8959]]], 1, Sof92173), 
+LLea67070 = leaky_relu_layer(Sof92173, 7.948192691086602, Lea67070), 
+LAve7956 = average_layer([Ave94935,Lea67070], Ave7956), 
+LCon90171 = concatenate_layer([Ave7956,[[[0.4645], [0.0693]]]], 2, Con90171), 
+LMin70460 = minimum_layer([Zer33522,Con90171], Min70460), 
+LAdd8611 = add_layer([Lay3440,Min70460], Add8611), 
+exec_layers([LMul64333,LSep50117,LMax53801,LZer29968,LAdd43997,LRes80554,LRes77032,LMin45982,LMin87306,LAdd75504,LLay3440,LCro73432,LRes4327,LZer33522,LAve94935,LSof92173,LLea67070,LAve7956,LCon90171,LMin70460,LAdd8611],["Mul64333","Sep50117","Max53801","Zer29968","Add43997","Res80554","Res77032","Min45982","Min87306","Add75504","Lay3440","Cro73432","Res4327","Zer33522","Ave94935","Sof92173","Lea67070","Ave7956","Con90171","Min70460","Add8611"],Add8611,"Add8611")
+
+Actual (Unparsed): [[[0.0853426, -0.0853426], [0.9912856, -0.2409970]]]
+
+Expected (Unparsed): [[[0.08534257154145106,-0.08534257154145107],[0.9912856075819496,-0.24099699199602834]]]
+
+Actual:   [[[0.0854, -0.0853], [0.9913, -0.2409]]]
+
+Expected: [[[0.0854, -0.0853], [0.9913, -0.2409]]]

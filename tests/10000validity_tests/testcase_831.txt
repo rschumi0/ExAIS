@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_59929 = tf.keras.layers.Input(shape=([4, 1, 1]))
+in0Con88920 = tf.keras.layers.Input(shape=([4, 1]))
+in0Ave60077 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave60077 = tf.keras.layers.Input(shape=([2, 2]))
+in0Lay13182 = tf.keras.layers.Input(shape=([1]))
+in0Con30368 = tf.keras.layers.Input(shape=([4, 1]))
+
+Up_59929 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_59929', )(in0Up_59929)
+Res38172 = keras.layers.Reshape((4, 1), name = 'Res38172', )(Up_59929)
+Con88920 = keras.layers.Concatenate(axis=2, name = 'Con88920', )([Res38172,in0Con88920])
+Ave60077 = keras.layers.Average(name = 'Ave60077', )([in0Ave60077,in1Ave60077])
+Max88858 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max88858', )(Ave60077)
+Zer64563 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer64563', )(Max88858)
+Max1898 = keras.layers.Maximum(name = 'Max1898', )([Con88920,Zer64563])
+Lay13182 = keras.layers.LayerNormalization(axis=1, epsilon=1.7115760055257183, name = 'Lay13182', )(in0Lay13182)
+Res54210 = keras.layers.Reshape((1, 1), name = 'Res54210', )(Lay13182)
+Ave48011 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave48011', )(Res54210)
+Zer53674 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer53674', )(Ave48011)
+Con30368 = keras.layers.Concatenate(axis=2, name = 'Con30368', )([Zer53674,in0Con30368])
+Sub80509 = keras.layers.Subtract(name = 'Sub80509', )([Max1898,Con30368])
+model = tf.keras.models.Model(inputs=[in0Up_59929,in0Con88920,in0Ave60077,in1Ave60077,in0Lay13182,in0Con30368], outputs=Sub80509)
+in0Up_59929 = tf.constant([[[[1.4236]], [[1.7549]], [[1.3965]], [[1.7811]]]])
+in0Con88920 = tf.constant([[[0.8368], [0.6122], [0.1799], [0.1988]]])
+in0Ave60077 = tf.constant([[[0.7198, 0.0101], [0.1518, 0.4997]]])
+in1Ave60077 = tf.constant([[[0.9019, 0.4949], [0.6723, 0.3555]]])
+in0Lay13182 = tf.constant([[1.4096]])
+in0Con30368 = tf.constant([[[0.2118], [0.1564], [0.1931], [0.959]]])
+print (np.array2string(model.predict([in0Up_59929,in0Con88920,in0Ave60077,in1Ave60077,in0Lay13182,in0Con30368],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub80509.png')
+
+LUp_59929 = up_sampling2D_layer([[[[1.4236]], [[1.7549]], [[1.3965]], [[1.7811]]]], 1, 1, Up_59929), 
+LRes38172 = reshape_layer(Up_59929, [4, 1], Res38172), 
+LCon88920 = concatenate_layer([Res38172,[[[0.8368], [0.6122], [0.1799], [0.1988]]]], 2, Con88920), 
+LAve60077 = average_layer([[[[0.7198, 0.0101], [0.1518, 0.4997]]], [[[0.9019, 0.4949], [0.6723, 0.3555]]]], Ave60077), 
+LMax88858 = max_pool1D_layer(Ave60077, 1, Max88858), 
+LZer64563 = zero_padding1D_layer(Max88858, 2, 0, Zer64563), 
+LMax1898 = maximum_layer([Con88920,Zer64563], Max1898), 
+LLay13182 = layer_normalization_layer([[1.4096]], 1, 1.7115760055257183, Lay13182), 
+LRes54210 = reshape_layer(Lay13182, [1, 1], Res54210), 
+LAve48011 = average_pooling1D_layer(Res54210, 1, Ave48011), 
+LZer53674 = zero_padding1D_layer(Ave48011, 3, 0, Zer53674), 
+LCon30368 = concatenate_layer([Zer53674,[[[0.2118], [0.1564], [0.1931], [0.959]]]], 2, Con30368), 
+LSub80509 = subtract_layer(Max1898,Con30368, Sub80509), 
+exec_layers([LUp_59929,LRes38172,LCon88920,LAve60077,LMax88858,LZer64563,LMax1898,LLay13182,LRes54210,LAve48011,LZer53674,LCon30368,LSub80509],["Up_59929","Res38172","Con88920","Ave60077","Max88858","Zer64563","Max1898","Lay13182","Res54210","Ave48011","Zer53674","Con30368","Sub80509"],Sub80509,"Sub80509")
+
+Actual (Unparsed): [[[1.4236000, 0.6250000], [1.7549000, 0.4558000], [1.3965000, 0.0594000], [1.7811000, -0.5314000]]]
+
+Expected (Unparsed): [[[1.4236,0.625],[1.7549,0.4558],[1.3965,0.05940000000000001],[1.7811,-0.5314]]]
+
+Actual:   [[[1.4236, 0.625], [1.7549, 0.4558], [1.3965, 0.0594], [1.7811, -0.5314]]]
+
+Expected: [[[1.4236, 0.625], [1.7549, 0.4558], [1.3965, 0.0595], [1.7811, -0.5314]]]

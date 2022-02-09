@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo46451 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Ave51665 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Ave51665 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Glo46451 = keras.layers.GlobalMaxPool3D(name = 'Glo46451', )(in0Glo46451)
+Mas51134 = keras.layers.Masking(mask_value=2, name = 'Mas51134', )(Glo46451)
+Res21227 = keras.layers.Reshape((2, 1), name = 'Res21227', )(Mas51134)
+Ave51665 = keras.layers.Average(name = 'Ave51665', )([in0Ave51665,in1Ave51665])
+Res48492 = keras.layers.Reshape((2, 1), name = 'Res48492', )(Ave51665)
+Mul23938 = keras.layers.Multiply(name = 'Mul23938', )([Res21227,Res48492])
+Res80915 = keras.layers.Reshape((2, 1, 1), name = 'Res80915', )(Mul23938)
+Res20416 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res20416', )(Res80915)
+Con21654 = keras.layers.Conv3D(4, (1, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con21654', )(Res20416)
+Lay37421 = keras.layers.LayerNormalization(axis=3, epsilon=2.4557569151572176, name = 'Lay37421', )(Con21654)
+Res86069 = keras.layers.Reshape((2, 1, 4), name = 'Res86069', )(Lay37421)
+Res43491 = keras.layers.Reshape((2, 4), name = 'Res43491', )(Res86069)
+Ave94549 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave94549', )(Res43491)
+model = tf.keras.models.Model(inputs=[in0Glo46451,in0Ave51665,in1Ave51665], outputs=Ave94549)
+w = model.get_layer('Con21654').get_weights() 
+w[0] = np.array([[[[[0.8336, 0.5264, 0.1293, 0.9644]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con21654').set_weights(w) 
+in0Glo46451 = tf.constant([[[[[1.9214, 1.8257]]], [[[1.3801, 1.733]]]]])
+in0Ave51665 = tf.constant([[[[0.2556]], [[0.6617]]]])
+in1Ave51665 = tf.constant([[[[0.257]], [[0.9137]]]])
+print (np.array2string(model.predict([in0Glo46451,in0Ave51665,in1Ave51665],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave94549.png')
+
+LGlo46451 = global_max_pool3D_layer([[[[[1.9214, 1.8257]]], [[[1.3801, 1.733]]]]], Glo46451), 
+LMas51134 = masking_layer(Glo46451, 2, Mas51134), 
+LRes21227 = reshape_layer(Mas51134, [2, 1], Res21227), 
+LAve51665 = average_layer([[[[[0.2556]], [[0.6617]]]], [[[[0.257]], [[0.9137]]]]], Ave51665), 
+LRes48492 = reshape_layer(Ave51665, [2, 1], Res48492), 
+LMul23938 = multiply_layer([Res21227,Res48492], Mul23938), 
+LRes80915 = reshape_layer(Mul23938, [2, 1, 1], Res80915), 
+LRes20416 = reshape_layer(Res80915, [2, 1, 1, 1], Res20416), 
+LCon21654 = conv3D_layer(Res20416, 1, 1, 1,[[[[[0.8336, 0.5264, 0.1293, 0.9644]]]]],[0, 0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con21654), 
+LLay37421 = layer_normalization_layer(Con21654, 3, 2.4557569151572176, Lay37421), 
+LRes86069 = reshape_layer(Lay37421, [2, 1, 4], Res86069), 
+LRes43491 = reshape_layer(Res86069, [2, 4], Res43491), 
+LAve94549 = average_pooling1D_layer(Res43491, 1, Ave94549), 
+exec_layers([LGlo46451,LMas51134,LRes21227,LAve51665,LRes48492,LMul23938,LRes80915,LRes20416,LCon21654,LLay37421,LRes86069,LRes43491,LAve94549],["Glo46451","Mas51134","Res21227","Ave51665","Res48492","Mul23938","Res80915","Res20416","Con21654","Lay37421","Res86069","Res43491","Ave94549"],Ave94549,"Ave94549")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0]]]
+
+Actual:   [[[0, 0, 0, 0], [0, 0, 0, 0]]]
+
+Expected: [[[0, 0, 0, 0], [0, 0, 0, 0]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_16183 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Dep24513 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con44494 = tf.keras.layers.Input(shape=([3]))
+
+Up_16183 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_16183', )(in0Up_16183)
+Res62848 = keras.layers.Reshape((2, 2), name = 'Res62848', )(Up_16183)
+Per51563 = keras.layers.Permute((2,1), name = 'Per51563',)(Res62848)
+Fla92136 = keras.layers.Flatten(name = 'Fla92136', )(Per51563)
+Dep24513 = keras.layers.DepthwiseConv2D((1, 2),strides=(2, 2), padding='valid', name = 'Dep24513', )(in0Dep24513)
+Res11787 = keras.layers.Reshape((1, 2), name = 'Res11787', )(Dep24513)
+Up_17428 = keras.layers.UpSampling1D(size=(1), name = 'Up_17428', )(Res11787)
+Sim28509 = keras.layers.SimpleRNN(1,name = 'Sim28509', )(Up_17428)
+Con44494 = keras.layers.Concatenate(axis=1, name = 'Con44494', )([Sim28509,in0Con44494])
+Ave65524 = keras.layers.Average(name = 'Ave65524', )([Fla92136,Con44494])
+model = tf.keras.models.Model(inputs=[in0Up_16183,in0Dep24513,in0Con44494], outputs=Ave65524)
+w = model.get_layer('Dep24513').get_weights() 
+w[0] = np.array([[[[0.4253], [0.861]], [[0.9977], [0.2749]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep24513').set_weights(w) 
+w = model.get_layer('Sim28509').get_weights() 
+w[0] = np.array([[6], [2]])
+w[1] = np.array([[8]])
+w[2] = np.array([3])
+model.get_layer('Sim28509').set_weights(w) 
+in0Up_16183 = tf.constant([[[[1.5054], [1.6268]]]])
+in0Dep24513 = tf.constant([[[[0.7655, 0.8836], [0.9471, 0.1977]], [[0.8915, 0.1052], [0.7936, 0.0066]]]])
+in0Con44494 = tf.constant([[0.6727, 0.1699, 0.496]])
+print (np.array2string(model.predict([in0Up_16183,in0Dep24513,in0Con44494],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave65524.png')
+
+LUp_16183 = up_sampling2D_layer([[[[1.5054], [1.6268]]]], 2, 1, Up_16183), 
+LRes62848 = reshape_layer(Up_16183, [2, 2], Res62848), 
+LPer51563 = permute_layer(Res62848, 2,1, Per51563), 
+LFla92136 = flatten_layer(Per51563, Fla92136), 
+LDep24513 = depthwise_conv2D_layer([[[[0.7655, 0.8836], [0.9471, 0.1977]], [[0.8915, 0.1052], [0.7936, 0.0066]]]], 1, 2,[[[[0.4253], [0.861]], [[0.9977], [0.2749]]]],[0, 0], 2, 2, false, Dep24513), 
+LRes11787 = reshape_layer(Dep24513, [1, 2], Res11787), 
+LUp_17428 = up_sampling1D_layer(Res11787, 1, Up_17428), 
+LSim28509 = simple_rnn_layer(Up_17428,[[6], [2]],[[8]],[3], Sim28509), 
+LCon44494 = concatenate_layer([Sim28509,[[0.6727, 0.1699, 0.496]]], 1, Con44494), 
+LAve65524 = average_layer([Fla92136,Con44494], Ave65524), 
+exec_layers([LUp_16183,LRes62848,LPer51563,LFla92136,LDep24513,LRes11787,LUp_17428,LSim28509,LCon44494,LAve65524],["Up_16183","Res62848","Per51563","Fla92136","Dep24513","Res11787","Up_17428","Sim28509","Con44494","Ave65524"],Ave65524,"Ave65524")
+
+Actual (Unparsed): [[1.2527000, 1.0890500, 0.8983500, 1.0614000]]
+
+Expected (Unparsed): [[1.2526999999772481,1.08905,0.89835,1.0614]]
+
+Actual:   [[1.2527, 1.0891, 0.8984, 1.0614]]
+
+Expected: [[1.2527, 1.0891, 0.8984, 1.0614]]

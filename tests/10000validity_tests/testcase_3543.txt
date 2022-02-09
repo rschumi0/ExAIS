@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot33623 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot33623 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con52973 = tf.keras.layers.Input(shape=([2, 4, 1, 1]))
+in0Per4714 = tf.keras.layers.Input(shape=([4, 2]))
+
+Dot33623 = keras.layers.Dot(axes=(1, 1), name = 'Dot33623', )([in0Dot33623,in1Dot33623])
+Con39912 = keras.layers.Conv1D(4, (2),strides=(2), padding='same', dilation_rate=(1), name = 'Con39912', )(Dot33623)
+Res28329 = keras.layers.Reshape((1, 4, 1), name = 'Res28329', )(Con39912)
+Res65103 = keras.layers.Reshape((1, 4, 1, 1), name = 'Res65103', )(Res28329)
+Zer25070 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer25070', )(Res65103)
+Con52973 = keras.layers.Concatenate(axis=4, name = 'Con52973', )([Zer25070,in0Con52973])
+Per4714 = keras.layers.Permute((2,1), name = 'Per4714',)(in0Per4714)
+Res12739 = keras.layers.Reshape((2, 4, 1), name = 'Res12739', )(Per4714)
+Res30740 = keras.layers.Reshape((2, 4, 1, 1), name = 'Res30740', )(Res12739)
+Con89101 = keras.layers.Conv3D(2, (1, 4, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con89101', )(Res30740)
+Add60620 = keras.layers.Add(name = 'Add60620', )([Con52973,Con89101])
+model = tf.keras.models.Model(inputs=[in0Dot33623,in1Dot33623,in0Con52973,in0Per4714], outputs=Add60620)
+w = model.get_layer('Con39912').get_weights() 
+w[0] = np.array([[[0.5363, 0.3297, 0.3309, 0.4696], [0.9952, 0.5694, 0.4732, 0.6819]], [[0.7505, 0.1451, 0.6952, 0.8746], [0.1776, 0.5907, 0.8913, 0.3671]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con39912').set_weights(w) 
+w = model.get_layer('Con89101').get_weights() 
+w[0] = np.array([[[[[0.5305, 0.7282]]], [[[0.6921, 0.8468]]], [[[0.7879, 0.3281]]], [[[0.1861, 0.5277]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con89101').set_weights(w) 
+in0Dot33623 = tf.constant([[[0.536, 0.3421], [0.1094, 0.5607]]])
+in1Dot33623 = tf.constant([[[0.0861, 0.5701], [0.1616, 0.6138]]])
+in0Con52973 = tf.constant([[[[[0.8789]], [[0.7094]], [[0.637]], [[0.1392]]], [[[0.3902]], [[0.8875]], [[0.2742]], [[0.2858]]]]])
+in0Per4714 = tf.constant([[[1.7145, 1.0421], [1.0701, 1.7774], [1.841, 1.5821], [1.3454, 1.6586]]])
+print (np.array2string(model.predict([in0Dot33623,in1Dot33623,in0Con52973,in0Per4714],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add60620.png')
+
+LDot33623 = dot_layer([[[0.536, 0.3421], [0.1094, 0.5607]]], [[[0.0861, 0.5701], [0.1616, 0.6138]]], 1, 1, Dot33623), 
+LCon39912 = conv1D_layer(Dot33623, 2,[[[0.5363, 0.3297, 0.3309, 0.4696], [0.9952, 0.5694, 0.4732, 0.6819]], [[0.7505, 0.1451, 0.6952, 0.8746], [0.1776, 0.5907, 0.8913, 0.3671]]],[0, 0, 0, 0], 2, true, 1, Con39912), 
+LRes28329 = reshape_layer(Con39912, [1, 4, 1], Res28329), 
+LRes65103 = reshape_layer(Res28329, [1, 4, 1, 1], Res65103), 
+LZer25070 = zero_padding3D_layer(Res65103, 1, 0, 0, 0, 0, 0, Zer25070), 
+LCon52973 = concatenate_layer([Zer25070,[[[[[0.8789]], [[0.7094]], [[0.637]], [[0.1392]]], [[[0.3902]], [[0.8875]], [[0.2742]], [[0.2858]]]]]], 4, Con52973), 
+LPer4714 = permute_layer([[[1.7145, 1.0421], [1.0701, 1.7774], [1.841, 1.5821], [1.3454, 1.6586]]], 2,1, Per4714), 
+LRes12739 = reshape_layer(Per4714, [2, 4, 1], Res12739), 
+LRes30740 = reshape_layer(Res12739, [2, 4, 1, 1], Res30740), 
+LCon89101 = conv3D_layer(Res30740, 1, 4, 1,[[[[[0.5305, 0.7282]]], [[[0.6921, 0.8468]]], [[[0.7879, 0.3281]]], [[[0.1861, 0.5277]]]]],[0, 0], 1, 1, 1, true, 1, 1, 1, Con89101), 
+LAdd60620 = add_layer([Con52973,Con89101], Add60620), 
+exec_layers([LDot33623,LCon39912,LRes28329,LRes65103,LZer25070,LCon52973,LPer4714,LRes12739,LRes30740,LCon89101,LAdd60620],["Dot33623","Con39912","Res28329","Res65103","Zer25070","Con52973","Per4714","Res12739","Res30740","Con89101","Add60620"],Add60620,"Add60620")
+
+Actual (Unparsed): [[[[[2.3723473, 3.6533340]], [[3.3510612, 4.1780592]], [[2.9018847, 3.4166313]], [[1.9078018, 2.6191009]]], [[[3.0071131, 2.6906894]], [[3.9073678, 4.5457897]], [[4.1062341, 3.4524116]], [[2.5742992, 2.8423877]]]]]
+
+Expected (Unparsed): [[[[[2.37234734,3.6533341099999994]],[[3.3510613000000005,4.1780592599999995]],[[2.9018848100000003,3.4166313600000002]],[[1.9078018399999999,2.61910092]]],[[[3.007113150473,2.69068939]],[[3.9073677427680003,4.54578977]],[[4.106234105967,3.45241162]],[[2.574299218607,2.8423877]]]]]
+
+Actual:   [[[[[2.3724, 3.6534]], [[3.3511, 4.1781]], [[2.9019, 3.4167]], [[1.9079, 2.6192]]], [[[3.0072, 2.6907]], [[3.9074, 4.5458]], [[4.1063, 3.4525]], [[2.5743, 2.8424]]]]]
+
+Expected: [[[[[2.3724, 3.6534]], [[3.3511, 4.1781]], [[2.9019, 3.4167]], [[1.9079, 2.6192]]], [[[3.0072, 2.6907]], [[3.9074, 4.5458]], [[4.1063, 3.4525]], [[2.5743, 2.8424]]]]]

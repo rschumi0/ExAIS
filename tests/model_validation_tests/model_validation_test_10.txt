@@ -1,0 +1,61 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul43369 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul43369 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo94568 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Mul43369 = keras.layers.Multiply(name = 'Mul43369', )([in0Mul43369,in1Mul43369])
+Glo94568 = keras.layers.GlobalMaxPool2D(name = 'Glo94568', )(in0Glo94568)
+Res67199 = keras.layers.Reshape((2, 1), name = 'Res67199', )(Glo94568)
+Res72258 = keras.layers.Reshape((2, 1, 1), name = 'Res72258', )(Res67199)
+Loc49460 = keras.layers.LocallyConnected2D(3, (2, 1),strides=(1, 1), name = 'Loc49460', )(Res72258)
+Dep13939 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep13939', )(Loc49460)
+Res31124 = keras.layers.Reshape((1, 3), name = 'Res31124', )(Dep13939)
+PRe82457 = keras.layers.PReLU(name = 'PRe82457', )(Res31124)
+Zer82321 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer82321', )(PRe82457)
+Sub56492 = keras.layers.Subtract(name = 'Sub56492', )([Mul43369,Zer82321])
+model = tf.keras.models.Model(inputs=[in0Mul43369,in1Mul43369,in0Glo94568], outputs=Sub56492)
+w = model.get_layer('Loc49460').get_weights() 
+w[0] = np.array([[[0.57, 0.3096, 0.3314], [0.0785, 0.9147, 0.0247]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc49460').set_weights(w) 
+w = model.get_layer('Dep13939').get_weights() 
+w[0] = np.array([[[[0.6148], [0.9076], [0.2967]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Dep13939').set_weights(w) 
+w = model.get_layer('PRe82457').get_weights() 
+w[0] = np.array([[0.6196, 0.4751, 0.002]])
+model.get_layer('PRe82457').set_weights(w) 
+in0Mul43369 = tf.constant([[[0.8799, 0.8007], [0.3509, 0.2012]]])
+in1Mul43369 = tf.constant([[[0.7139, 0.2363], [0.061, 0.6328]]])
+in0Glo94568 = tf.constant([[[[1.177, 1.3789], [1.5873, 1.0771]], [[1.1056, 1.9192], [1.5306, 1.4496]]]])
+print (np.array2string(model.predict([in0Mul43369,in1Mul43369,in0Glo94568],steps=1), separator=', '))
+
+
+LMul43369 = multiply_layer([[[[0.8799, 0.8007], [0.3509, 0.2012]]], [[[0.7139, 0.2363], [0.061, 0.6328]]]], Mul43369), 
+LGlo94568 = global_max_pool2D_layer([[[[1.177, 1.3789], [1.5873, 1.0771]], [[1.1056, 1.9192], [1.5306, 1.4496]]]], Glo94568), 
+LRes67199 = reshape_layer(Glo94568, [2, 1], Res67199), 
+LRes72258 = reshape_layer(Res67199, [2, 1, 1], Res72258), 
+LLoc49460 = locally_connected2D_layer(Res72258, 2, 1,[[[0.57, 0.3096, 0.3314], [0.0785, 0.9147, 0.0247]]],[[[0, 0, 0]]], 1, 1, Loc49460), 
+LDep13939 = depthwise_conv2D_layer(Loc49460, 1, 1,[[[[0.6148], [0.9076], [0.2967]]]],[0, 0, 0], 1, 1, true, Dep13939), 
+LRes31124 = reshape_layer(Dep13939, [1, 3], Res31124), 
+LPRe82457 = prelu_layer(Res31124, [[0.6196, 0.4751, 0.002]], PRe82457), 
+LZer82321 = zero_padding1D_layer(PRe82457, 1, 0, Zer82321), 
+LSub56492 = subtract_layer(Mul43369,Zer82321, Sub56492), 
+exec_layers([LMul43369,LGlo94568,LRes67199,LRes72258,LLoc49460,LDep13939,LRes31124,LPRe82457,LZer82321,LSub56492],["Mul43369","Glo94568","Res67199","Res72258","Loc49460","Dep13939","Res31124","PRe82457","Zer82321","Sub56492"],Sub56492,"Sub56492")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Operands could not be broadcast together with shapes (2, 2) (2, 3)
+
+Expected (Unparsed): 
+Sub56492: Inconsistent Input Shapes, Input Shape [1,2,2]
+
+Actual:   
+
+Expected: 

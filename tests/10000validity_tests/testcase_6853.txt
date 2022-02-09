@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave50011 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave50011 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con37030 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Con25979 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+Ave50011 = keras.layers.Average(name = 'Ave50011', )([in0Ave50011,in1Ave50011])
+Res49869 = keras.layers.Reshape((2, 2, 1), name = 'Res49869', )(Ave50011)
+Res85322 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res85322', )(Res49869)
+Con37030 = keras.layers.Concatenate(axis=4, name = 'Con37030', )([Res85322,in0Con37030])
+Con25979 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con25979', )(in0Con25979)
+Zer18225 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer18225', )(Con25979)
+Sub62 = keras.layers.Subtract(name = 'Sub62', )([Con37030,Zer18225])
+Glo99470 = keras.layers.GlobalMaxPool3D(name = 'Glo99470', )(Sub62)
+Res88657 = keras.layers.Reshape((3, 1), name = 'Res88657', )(Glo99470)
+Sep23229 = keras.layers.SeparableConv1D(2, (2),strides=(2), padding='same', name = 'Sep23229', )(Res88657)
+model = tf.keras.models.Model(inputs=[in0Ave50011,in1Ave50011,in0Con37030,in0Con25979], outputs=Sep23229)
+w = model.get_layer('Con25979').get_weights() 
+w[0] = np.array([[[[[0.23, 0.7359], [0.602, 0.1687], [0.9001, 0.9539]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con25979').set_weights(w) 
+w = model.get_layer('Sep23229').get_weights() 
+w[0] = np.array([[[0.4874]], [[0.0427]]])
+w[1] = np.array([[[0.5902, 0.4676]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep23229').set_weights(w) 
+in0Ave50011 = tf.constant([[[0.6334, 0.5221], [0.7183, 0.1099]]])
+in1Ave50011 = tf.constant([[[0.8285, 0.474], [0.9437, 0.2814]]])
+in0Con37030 = tf.constant([[[[[0.2634, 0.6845]], [[0.8376, 0.391]]], [[[0.9937, 0.1551]], [[0.2758, 0.7242]]]]])
+in0Con25979 = tf.constant([[[[[0.7948, 0.524]], [[0.2856, 0.8884]]]]])
+print (np.array2string(model.predict([in0Ave50011,in1Ave50011,in0Con37030,in0Con25979],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep23229.png')
+
+LAve50011 = average_layer([[[[0.6334, 0.5221], [0.7183, 0.1099]]], [[[0.8285, 0.474], [0.9437, 0.2814]]]], Ave50011), 
+LRes49869 = reshape_layer(Ave50011, [2, 2, 1], Res49869), 
+LRes85322 = reshape_layer(Res49869, [2, 2, 1, 1], Res85322), 
+LCon37030 = concatenate_layer([Res85322,[[[[[0.2634, 0.6845]], [[0.8376, 0.391]]], [[[0.9937, 0.1551]], [[0.2758, 0.7242]]]]]], 4, Con37030), 
+LCon25979 = conv3D_transpose_layer([[[[[0.7948, 0.524]], [[0.2856, 0.8884]]]]], 1, 1, 1,[[[[[0.23, 0.7359], [0.602, 0.1687], [0.9001, 0.9539]]]]],[0, 0, 0], 1, 1, 1, true, Con25979), 
+LZer18225 = zero_padding3D_layer(Con25979, 1, 0, 0, 0, 0, 0, Zer18225), 
+LSub62 = subtract_layer(Con37030,Zer18225, Sub62), 
+LGlo99470 = global_max_pool3D_layer(Sub62, Glo99470), 
+LRes88657 = reshape_layer(Glo99470, [3, 1], Res88657), 
+LSep23229 = separable_conv1D_layer(Res88657, 2,[[[[0.4874]], [[0.0427]]],[[[0.5902, 0.4676]]]],[0, 0], 2, true, Sep23229), 
+exec_layers([LAve50011,LRes49869,LRes85322,LCon37030,LCon25979,LZer18225,LSub62,LGlo99470,LRes88657,LSep23229],["Ave50011","Res49869","Res85322","Con37030","Con25979","Zer18225","Sub62","Glo99470","Res88657","Sep23229"],Sep23229,"Sep23229")
+
+Actual (Unparsed): [[[0.2313764, 0.1833135], [0.1969056, 0.1560032]]]
+
+Expected (Unparsed): [[[0.23137643060999996,0.18331348518],[0.19690565206,0.15600319028]]]
+
+Actual:   [[[0.2314, 0.1834], [0.197, 0.1561]]]
+
+Expected: [[[0.2314, 0.1834], [0.197, 0.1561]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU54306 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Sub85410 = tf.keras.layers.Input(shape=([2]))
+in1Sub85410 = tf.keras.layers.Input(shape=([2]))
+
+ELU54306 = keras.layers.ELU(alpha=5.59820221659556, name = 'ELU54306', input_shape=(1, 2, 1))(in0ELU54306)
+Fla17013 = keras.layers.Flatten(name = 'Fla17013', )(ELU54306)
+Res37303 = keras.layers.Reshape((2, 1), name = 'Res37303', )(Fla17013)
+LST32702 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST32702', )(Res37303)
+Sub85410 = keras.layers.Subtract(name = 'Sub85410', )([in0Sub85410,in1Sub85410])
+Mul37471 = keras.layers.Multiply(name = 'Mul37471', )([LST32702,Sub85410])
+Res90271 = keras.layers.Reshape((2, 1), name = 'Res90271', )(Mul37471)
+Res17522 = keras.layers.Reshape((2, 1, 1), name = 'Res17522', )(Res90271)
+Res45183 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res45183', )(Res17522)
+Con67654 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con67654', )(Res45183)
+model = tf.keras.models.Model(inputs=[in0ELU54306,in0Sub85410,in1Sub85410], outputs=Con67654)
+w = model.get_layer('LST32702').get_weights() 
+w[0] = np.array([[2, 9, 2, 6, 9, 7, 7, 5]])
+w[1] = np.array([[3, 2, 2, 8, 3, 4, 8, 9], [3, 6, 2, 5, 1, 8, 3, 5]])
+w[2] = np.array([10, 8, 10, 9, 1, 9, 9, 3])
+model.get_layer('LST32702').set_weights(w) 
+w = model.get_layer('Con67654').get_weights() 
+w[0] = np.array([[[[[0.3191], [0.0402], [0.657], [0.5391]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con67654').set_weights(w) 
+in0ELU54306 = tf.constant([[[[0.2959], [0.0259]]]])
+in0Sub85410 = tf.constant([[0.175, 0.4318]])
+in1Sub85410 = tf.constant([[0.1787, 0.7746]])
+print (np.array2string(model.predict([in0ELU54306,in0Sub85410,in1Sub85410],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con67654.png')
+
+LELU54306 = elu_layer([[[[0.2959], [0.0259]]]], 5.59820221659556, ELU54306), 
+LFla17013 = flatten_layer(ELU54306, Fla17013), 
+LRes37303 = reshape_layer(Fla17013, [2, 1], Res37303), 
+LLST32702 = lstm_layer(Res37303,[[2, 9, 2, 6, 9, 7, 7, 5]],[[3, 2, 2, 8, 3, 4, 8, 9], [3, 6, 2, 5, 1, 8, 3, 5]],[10, 8, 10, 9, 1, 9, 9, 3], LST32702), 
+LSub85410 = subtract_layer([[0.175, 0.4318]], [[0.1787, 0.7746]], Sub85410), 
+LMul37471 = multiply_layer([LST32702,Sub85410], Mul37471), 
+LRes90271 = reshape_layer(Mul37471, [2, 1], Res90271), 
+LRes17522 = reshape_layer(Res90271, [2, 1, 1], Res17522), 
+LRes45183 = reshape_layer(Res17522, [2, 1, 1, 1], Res45183), 
+LCon67654 = conv3D_transpose_layer(Res45183, 1, 1, 1,[[[[[0.3191], [0.0402], [0.657], [0.5391]]]]],[0, 0, 0, 0], 1, 1, 1, false, Con67654), 
+exec_layers([LELU54306,LFla17013,LRes37303,LLST32702,LSub85410,LMul37471,LRes90271,LRes17522,LRes45183,LCon67654],["ELU54306","Fla17013","Res37303","LST32702","Sub85410","Mul37471","Res90271","Res17522","Res45183","Con67654"],Con67654,"Con67654")
+
+Actual (Unparsed): [[[[[-0.0011381, -0.0001434, -0.0023432, -0.0019227]]], [[[-0.1054523, -0.0132848, -0.2171173, -0.1781552]]]]]
+
+Expected (Unparsed): [[[[[-0.0011380534948343493,-0.00014337120179360965,-0.002343156208417949,-0.0019226720121128102]]],[[[-0.10545224863445816,-0.013284802241006638,-0.21711729035675031,-0.17815514647081293]]]]]
+
+Actual:   [[[[[-0.0011, -0.0001, -0.0023, -0.0019]]], [[[-0.1054, -0.0132, -0.2171, -0.1781]]]]]
+
+Expected: [[[[[-0.0011, -0.0001, -0.0023, -0.0019]]], [[[-0.1054, -0.0132, -0.2171, -0.1781]]]]]

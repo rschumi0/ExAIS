@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul19307 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Mul19307 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+Mul19307 = keras.layers.Multiply(name = 'Mul19307', )([in0Mul19307,in1Mul19307])
+Res97678 = keras.layers.Reshape((1, 2, 2), name = 'Res97678', )(Mul19307)
+Res57127 = keras.layers.Reshape((1, 4), name = 'Res57127', )(Res97678)
+Sim27880 = keras.layers.SimpleRNN(3,name = 'Sim27880', )(Res57127)
+Res36039 = keras.layers.Reshape((3, 1), name = 'Res36039', )(Sim27880)
+Res63636 = keras.layers.Reshape((3, 1, 1), name = 'Res63636', )(Res36039)
+Res76872 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res76872', )(Res63636)
+Up_20441 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_20441', )(Res76872)
+model = tf.keras.models.Model(inputs=[in0Mul19307,in1Mul19307], outputs=Up_20441)
+w = model.get_layer('Sim27880').get_weights() 
+w[0] = np.array([[2, 4, 8], [10, 2, 7], [10, 3, 8], [5, 10, 6]])
+w[1] = np.array([[5, 10, 9], [2, 9, 9], [10, 10, 10]])
+w[2] = np.array([6, 3, 6])
+model.get_layer('Sim27880').set_weights(w) 
+in0Mul19307 = tf.constant([[[[[0.3554], [0.854]], [[0.243], [0.6904]]]]])
+in1Mul19307 = tf.constant([[[[[0.0331], [0.85]], [[0.7176], [0.3317]]]]])
+print (np.array2string(model.predict([in0Mul19307,in1Mul19307],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_20441.png')
+
+LMul19307 = multiply_layer([[[[[[0.3554], [0.854]], [[0.243], [0.6904]]]]], [[[[[0.0331], [0.85]], [[0.7176], [0.3317]]]]]], Mul19307), 
+LRes97678 = reshape_layer(Mul19307, [1, 2, 2], Res97678), 
+LRes57127 = reshape_layer(Res97678, [1, 4], Res57127), 
+LSim27880 = simple_rnn_layer(Res57127,[[2, 4, 8], [10, 2, 7], [10, 3, 8], [5, 10, 6]],[[5, 10, 9], [2, 9, 9], [10, 10, 10]],[6, 3, 6], Sim27880), 
+LRes36039 = reshape_layer(Sim27880, [3, 1], Res36039), 
+LRes63636 = reshape_layer(Res36039, [3, 1, 1], Res63636), 
+LRes76872 = reshape_layer(Res63636, [3, 1, 1, 1], Res76872), 
+LUp_20441 = up_sampling3D_layer(Res76872, 1, 1, 1, Up_20441), 
+exec_layers([LMul19307,LRes97678,LRes57127,LSim27880,LRes36039,LRes63636,LRes76872,LUp_20441],["Mul19307","Res97678","Res57127","Sim27880","Res36039","Res63636","Res76872","Up_20441"],Up_20441,"Up_20441")
+
+Actual (Unparsed): [[[[[1.0000000]]], [[[0.9999991]]], [[[1.0000000]]]]]
+
+Expected (Unparsed): [[[[[0.999999999999982]]],[[[0.9999991090144122]]],[[[0.9999999999984547]]]]]
+
+Actual:   [[[[[1]]], [[[1]]], [[[1]]]]]
+
+Expected: [[[[[1]]], [[[1]]], [[[1]]]]]

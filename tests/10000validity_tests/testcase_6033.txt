@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot43486 = tf.keras.layers.Input(shape=([3]))
+in1Dot43486 = tf.keras.layers.Input(shape=([3]))
+in0Min52918 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min52918 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot43486 = keras.layers.Dot(axes=(1, 1), name = 'Dot43486', )([in0Dot43486,in1Dot43486])
+Res68032 = keras.layers.Reshape((1, 1), name = 'Res68032', )(Dot43486)
+GRU93242 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU93242', )(Res68032)
+Res44647 = keras.layers.Reshape((2, 1), name = 'Res44647', )(GRU93242)
+Res42882 = keras.layers.Reshape((2, 1, 1), name = 'Res42882', )(Res44647)
+Res75932 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res75932', )(Res42882)
+Glo96575 = keras.layers.GlobalMaxPool3D(name = 'Glo96575', )(Res75932)
+Res57830 = keras.layers.Reshape((1, 1), name = 'Res57830', )(Glo96575)
+Min52918 = keras.layers.Minimum(name = 'Min52918', )([in0Min52918,in1Min52918])
+Add79454 = keras.layers.Add(name = 'Add79454', )([Res57830,Min52918])
+model = tf.keras.models.Model(inputs=[in0Dot43486,in1Dot43486,in0Min52918,in1Min52918], outputs=Add79454)
+w = model.get_layer('GRU93242').get_weights() 
+w[0] = np.array([[9, 2, 3, 9, 6, 1]])
+w[1] = np.array([[3, 4, 7, 10, 7, 4], [4, 10, 1, 1, 8, 7]])
+w[2] = np.array([[9, 10, 7, 4, 2, 8], [3, 8, 9, 1, 6, 5]])
+model.get_layer('GRU93242').set_weights(w) 
+in0Dot43486 = tf.constant([[0.5068, 0.2202, 0.1869]])
+in1Dot43486 = tf.constant([[0.6035, 0.6485, 0.784]])
+in0Min52918 = tf.constant([[[0.9343]]])
+in1Min52918 = tf.constant([[[0.3589]]])
+print (np.array2string(model.predict([in0Dot43486,in1Dot43486,in0Min52918,in1Min52918],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add79454.png')
+
+LDot43486 = dot_layer([[0.5068, 0.2202, 0.1869]], [[0.6035, 0.6485, 0.784]], 1, 1, Dot43486), 
+LRes68032 = reshape_layer(Dot43486, [1, 1], Res68032), 
+LGRU93242 = gru_layer(Res68032,[[9, 2, 3, 9, 6, 1]],[[3, 4, 7, 10, 7, 4], [4, 10, 1, 1, 8, 7]],[[9, 10, 7, 4, 2, 8], [3, 8, 9, 1, 6, 5]], true, GRU93242), 
+LRes44647 = reshape_layer(GRU93242, [2, 1], Res44647), 
+LRes42882 = reshape_layer(Res44647, [2, 1, 1], Res42882), 
+LRes75932 = reshape_layer(Res42882, [2, 1, 1, 1], Res75932), 
+LGlo96575 = global_max_pool3D_layer(Res75932, Glo96575), 
+LRes57830 = reshape_layer(Glo96575, [1, 1], Res57830), 
+LMin52918 = minimum_layer([[[[0.9343]]], [[[0.3589]]]], Min52918), 
+LAdd79454 = add_layer([Res57830,Min52918], Add79454), 
+exec_layers([LDot43486,LRes68032,LGRU93242,LRes44647,LRes42882,LRes75932,LGlo96575,LRes57830,LMin52918,LAdd79454],["Dot43486","Res68032","GRU93242","Res44647","Res42882","Res75932","Glo96575","Res57830","Min52918","Add79454"],Add79454,"Add79454")
+
+Actual (Unparsed): [[[0.3589000]]]
+
+Expected (Unparsed): [[[0.3589000289803468]]]
+
+Actual:   [[[0.3589]]]
+
+Expected: [[[0.359]]]

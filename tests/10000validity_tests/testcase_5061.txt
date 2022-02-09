@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot3467 = tf.keras.layers.Input(shape=([2]))
+in1Dot3467 = tf.keras.layers.Input(shape=([2]))
+in0Add3852 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Add3852 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Dot3467 = keras.layers.Dot(axes=(1, 1), name = 'Dot3467', )([in0Dot3467,in1Dot3467])
+Res6854 = keras.layers.Reshape((1, 1), name = 'Res6854', )(Dot3467)
+Res39311 = keras.layers.Reshape((1, 1, 1), name = 'Res39311', )(Res6854)
+Res61430 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res61430', )(Res39311)
+Zer84363 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer84363', )(Res61430)
+Add3852 = keras.layers.Add(name = 'Add3852', )([in0Add3852,in1Add3852])
+Min52740 = keras.layers.Minimum(name = 'Min52740', )([Zer84363,Add3852])
+Res73155 = keras.layers.Reshape((1, 1, 2), name = 'Res73155', )(Min52740)
+Max59244 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Max59244', )(Res73155)
+model = tf.keras.models.Model(inputs=[in0Dot3467,in1Dot3467,in0Add3852,in1Add3852], outputs=Max59244)
+in0Dot3467 = tf.constant([[0.329, 0.6245]])
+in1Dot3467 = tf.constant([[0.6293, 0.7602]])
+in0Add3852 = tf.constant([[[[[0.467], [0.2896]]]]])
+in1Add3852 = tf.constant([[[[[0.9996], [0.229]]]]])
+print (np.array2string(model.predict([in0Dot3467,in1Dot3467,in0Add3852,in1Add3852],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max59244.png')
+
+LDot3467 = dot_layer([[0.329, 0.6245]], [[0.6293, 0.7602]], 1, 1, Dot3467), 
+LRes6854 = reshape_layer(Dot3467, [1, 1], Res6854), 
+LRes39311 = reshape_layer(Res6854, [1, 1, 1], Res39311), 
+LRes61430 = reshape_layer(Res39311, [1, 1, 1, 1], Res61430), 
+LZer84363 = zero_padding3D_layer(Res61430, 0, 0, 0, 0, 1, 0, Zer84363), 
+LAdd3852 = add_layer([[[[[[0.467], [0.2896]]]]], [[[[[0.9996], [0.229]]]]]], Add3852), 
+LMin52740 = minimum_layer([Zer84363,Add3852], Min52740), 
+LRes73155 = reshape_layer(Min52740, [1, 1, 2], Res73155), 
+LMax59244 = max_pool2D_layer(Res73155, 1, 1, 1, 1, true, Max59244), 
+exec_layers([LDot3467,LRes6854,LRes39311,LRes61430,LZer84363,LAdd3852,LMin52740,LRes73155,LMax59244],["Dot3467","Res6854","Res39311","Res61430","Zer84363","Add3852","Min52740","Res73155","Max59244"],Max59244,"Max59244")
+
+Actual (Unparsed): [[[[0.0000000, 0.5186000]]]]
+
+Expected (Unparsed): [[[[0,0.5186000000000001]]]]
+
+Actual:   [[[[0, 0.5186]]]]
+
+Expected: [[[[0, 0.5187]]]]

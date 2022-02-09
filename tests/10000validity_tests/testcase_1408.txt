@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo68175 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con70734 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Zer59439 = tf.keras.layers.Input(shape=([2, 4]))
+
+Glo68175 = keras.layers.GlobalAveragePooling3D(name = 'Glo68175', )(in0Glo68175)
+Res35912 = keras.layers.Reshape((2, 1), name = 'Res35912', )(Glo68175)
+Res38322 = keras.layers.Reshape((2, 1, 1), name = 'Res38322', )(Res35912)
+Zer24031 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer24031', )(Res38322)
+Con70734 = keras.layers.Concatenate(axis=3, name = 'Con70734', )([Zer24031,in0Con70734])
+Zer59439 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer59439', )(in0Zer59439)
+Res75439 = keras.layers.Reshape((4, 4, 1), name = 'Res75439', )(Zer59439)
+Sep57360 = keras.layers.SeparableConv2D(4, (3, 3),strides=(3, 3), padding='same', name = 'Sep57360', )(Res75439)
+Sub74014 = keras.layers.Subtract(name = 'Sub74014', )([Con70734,Sep57360])
+model = tf.keras.models.Model(inputs=[in0Glo68175,in0Con70734,in0Zer59439], outputs=Sub74014)
+w = model.get_layer('Sep57360').get_weights() 
+w[0] = np.array([[[[0.8878]], [[0.2829]], [[0.742]]], [[[0.5186]], [[0.8119]], [[0.1112]]], [[[0.1301]], [[0.9307]], [[0.0095]]]])
+w[1] = np.array([[[[0.1987, 0.4873, 0.7977, 0.2624]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep57360').set_weights(w) 
+in0Glo68175 = tf.constant([[[[[1.1549, 1.5685]], [[1.44, 1.016]]]]])
+in0Con70734 = tf.constant([[[[0.0372, 0.0422, 0.5789], [0.3287, 0.3706, 0.3099]], [[0.0745, 0.4045, 0.7615], [0.0592, 0.1922, 0.7823]]]])
+in0Zer59439 = tf.constant([[[1.9599, 1.7741, 1.562, 1.2063], [1.5357, 1.2482, 1.4748, 1.0585]]])
+print (np.array2string(model.predict([in0Glo68175,in0Con70734,in0Zer59439],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub74014.png')
+
+LGlo68175 = global_average_pooling3D_layer([[[[[1.1549, 1.5685]], [[1.44, 1.016]]]]], Glo68175), 
+LRes35912 = reshape_layer(Glo68175, [2, 1], Res35912), 
+LRes38322 = reshape_layer(Res35912, [2, 1, 1], Res38322), 
+LZer24031 = zero_padding2D_layer(Res38322, 0, 0, 1, 0, Zer24031), 
+LCon70734 = concatenate_layer([Zer24031,[[[[0.0372, 0.0422, 0.5789], [0.3287, 0.3706, 0.3099]], [[0.0745, 0.4045, 0.7615], [0.0592, 0.1922, 0.7823]]]]], 3, Con70734), 
+LZer59439 = zero_padding1D_layer([[[1.9599, 1.7741, 1.562, 1.2063], [1.5357, 1.2482, 1.4748, 1.0585]]], 1, 1, Zer59439), 
+LRes75439 = reshape_layer(Zer59439, [4, 4, 1], Res75439), 
+LSep57360 = separable_conv2D_layer(Res75439, 3, 3,[[[[[0.8878]], [[0.2829]], [[0.742]]], [[[0.5186]], [[0.8119]], [[0.1112]]], [[[0.1301]], [[0.9307]], [[0.0095]]]],[[[[0.1987, 0.4873, 0.7977, 0.2624]]]]],[0, 0, 0, 0], 3, 3, true, Sep57360), 
+LSub74014 = subtract_layer(Con70734,Sep57360, Sub74014), 
+exec_layers([LGlo68175,LRes35912,LRes38322,LZer24031,LCon70734,LZer59439,LRes75439,LSep57360,LSub74014],["Glo68175","Res35912","Res38322","Zer24031","Con70734","Zer59439","Res75439","Sep57360","Sub74014"],Sub74014,"Sub74014")
+
+Actual (Unparsed): [[[[-0.3657934, -0.8598866, -1.4263122, 0.0958392], [1.0339898, -0.3174206, -0.6870861, -0.0380213]], [[-0.2703540, -0.5885272, -0.6808618, 0.4044749], [0.9725860, -0.7247571, -1.0911215, 0.3601569]]]]
+
+Expected (Unparsed): [[[[-0.365793363256,-0.859886592424,-1.426312158376,0.09583921228799996],[1.033989773493,-0.317420625953,-0.6870860728969999,-0.03802130566399997]],[[-0.27035398789099996,-0.588527168089,-0.680861731961,0.4044749047679999],[0.9725859922170002,-0.724757075957,-1.0911214846930002,0.36015689158399994]]]]
+
+Actual:   [[[[-0.3657, -0.8598, -1.4263, 0.0959], [1.034, -0.3174, -0.687, -0.038]], [[-0.2703, -0.5885, -0.6808, 0.4045], [0.9726, -0.7247, -1.0911, 0.3602]]]]
+
+Expected: [[[[-0.3657, -0.8598, -1.4263, 0.0959], [1.034, -0.3174, -0.687, -0.038]], [[-0.2703, -0.5885, -0.6808, 0.4045], [0.9726, -0.7247, -1.0911, 0.3602]]]]

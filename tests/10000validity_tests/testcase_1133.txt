@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub91191 = tf.keras.layers.Input(shape=([2]))
+in1Sub91191 = tf.keras.layers.Input(shape=([2]))
+in0Con38250 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sep89914 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sub91191 = keras.layers.Subtract(name = 'Sub91191', )([in0Sub91191,in1Sub91191])
+Res71816 = keras.layers.Reshape((2, 1), name = 'Res71816', )(Sub91191)
+Con38250 = keras.layers.Concatenate(axis=2, name = 'Con38250', )([Res71816,in0Con38250])
+Sep89914 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep89914', )(in0Sep89914)
+Min60006 = keras.layers.Minimum(name = 'Min60006', )([Con38250,Sep89914])
+LST97153 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST97153', )(Min60006)
+Res30469 = keras.layers.Reshape((1, 1), name = 'Res30469', )(LST97153)
+Res64883 = keras.layers.Reshape((1, 1, 1), name = 'Res64883', )(Res30469)
+Con80873 = keras.layers.Conv2D(4, (1, 1),strides=(1, 7), padding='same', dilation_rate=(1, 1), name = 'Con80873', )(Res64883)
+model = tf.keras.models.Model(inputs=[in0Sub91191,in1Sub91191,in0Con38250,in0Sep89914], outputs=Con80873)
+w = model.get_layer('Sep89914').get_weights() 
+w[0] = np.array([[[0.6551], [0.1929]]])
+w[1] = np.array([[[0.3101, 0.4036], [0.3493, 0.6591]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep89914').set_weights(w) 
+w = model.get_layer('LST97153').get_weights() 
+w[0] = np.array([[3, 3, 4, 6], [1, 9, 5, 1]])
+w[1] = np.array([[2, 9, 1, 5]])
+w[2] = np.array([4, 3, 2, 7])
+model.get_layer('LST97153').set_weights(w) 
+w = model.get_layer('Con80873').get_weights() 
+w[0] = np.array([[[[0.2088, 0.2361, 0.5278, 0.5271]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con80873').set_weights(w) 
+in0Sub91191 = tf.constant([[0.3004, 0.3535]])
+in1Sub91191 = tf.constant([[0.4388, 0.0939]])
+in0Con38250 = tf.constant([[[0.9524], [0.8617]]])
+in0Sep89914 = tf.constant([[[0.9406, 0.7451], [0.8321, 0.224]]])
+print (np.array2string(model.predict([in0Sub91191,in1Sub91191,in0Con38250,in0Sep89914],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con80873.png')
+
+LSub91191 = subtract_layer([[0.3004, 0.3535]], [[0.4388, 0.0939]], Sub91191), 
+LRes71816 = reshape_layer(Sub91191, [2, 1], Res71816), 
+LCon38250 = concatenate_layer([Res71816,[[[0.9524], [0.8617]]]], 2, Con38250), 
+LSep89914 = separable_conv1D_layer([[[0.9406, 0.7451], [0.8321, 0.224]]], 1,[[[[0.6551], [0.1929]]],[[[0.3101, 0.4036], [0.3493, 0.6591]]]],[0, 0], 1, false, Sep89914), 
+LMin60006 = minimum_layer([Con38250,Sep89914], Min60006), 
+LLST97153 = lstm_layer(Min60006,[[3, 3, 4, 6], [1, 9, 5, 1]],[[2, 9, 1, 5]],[4, 3, 2, 7], LST97153), 
+LRes30469 = reshape_layer(LST97153, [1, 1], Res30469), 
+LRes64883 = reshape_layer(Res30469, [1, 1, 1], Res64883), 
+LCon80873 = conv2D_layer(Res64883, 1, 1,[[[[0.2088, 0.2361, 0.5278, 0.5271]]]],[0, 0, 0, 0], 1, 7, true, 1, 1, Con80873), 
+exec_layers([LSub91191,LRes71816,LCon38250,LSep89914,LMin60006,LLST97153,LRes30469,LRes64883,LCon80873],["Sub91191","Res71816","Con38250","Sep89914","Min60006","LST97153","Res30469","Res64883","Con80873"],Con80873,"Con80873")
+
+Actual (Unparsed): [[[[0.2009133, 0.2271822, 0.5078643, 0.5071907]]]]
+
+Expected (Unparsed): [[[[0.20091333917844215,0.2271821809388419,0.5078642740343955,0.507190713989257]]]]
+
+Actual:   [[[[0.201, 0.2272, 0.5079, 0.5072]]]]
+
+Expected: [[[[0.201, 0.2272, 0.5079, 0.5072]]]]

@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep43677 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con45240 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Ave59651 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Ave59651 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con98743 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Max90934 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Max90934 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Dep43677 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep43677', )(in0Dep43677)
+Con45240 = keras.layers.Concatenate(axis=3, name = 'Con45240', )([Dep43677,in0Con45240])
+Ave59651 = keras.layers.Average(name = 'Ave59651', )([in0Ave59651,in1Ave59651])
+Con98743 = keras.layers.Concatenate(axis=3, name = 'Con98743', )([Ave59651,in0Con98743])
+Max90934 = keras.layers.Maximum(name = 'Max90934', )([in0Max90934,in1Max90934])
+Add40755 = keras.layers.Add(name = 'Add40755', )([Con98743,Max90934])
+ReL21253 = keras.layers.ReLU(max_value=9.351117237909618, negative_slope=2.21943836439767, threshold=3.420292427391317, name = 'ReL21253', )(Add40755)
+Zer44595 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer44595', )(ReL21253)
+Mul8527 = keras.layers.Multiply(name = 'Mul8527', )([Con45240,Zer44595])
+model = tf.keras.models.Model(inputs=[in0Dep43677,in0Con45240,in0Ave59651,in1Ave59651,in0Con98743,in0Max90934,in1Max90934], outputs=Mul8527)
+w = model.get_layer('Dep43677').get_weights() 
+w[0] = np.array([[[[0.3581]]]])
+w[1] = np.array([0])
+model.get_layer('Dep43677').set_weights(w) 
+in0Dep43677 = tf.constant([[[[0.5644], [0.5183]], [[0.7179], [0.5675]]]])
+in0Con45240 = tf.constant([[[[0.9055], [0.4224]], [[0.0239], [0.6316]]]])
+in0Ave59651 = tf.constant([[[[0.4349]], [[0.7132]]]])
+in1Ave59651 = tf.constant([[[[0.868]], [[0.6619]]]])
+in0Con98743 = tf.constant([[[[0.7871]], [[0.7817]]]])
+in0Max90934 = tf.constant([[[[0.0271, 0.6365]], [[0.2704, 0.599]]]])
+in1Max90934 = tf.constant([[[[0.3467, 0.0111]], [[0.4591, 0.357]]]])
+print (np.array2string(model.predict([in0Dep43677,in0Con45240,in0Ave59651,in1Ave59651,in0Con98743,in0Max90934,in1Max90934],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul8527.png')
+
+LDep43677 = depthwise_conv2D_layer([[[[0.5644], [0.5183]], [[0.7179], [0.5675]]]], 1, 1,[[[[0.3581]]]],[0], 1, 1, true, Dep43677), 
+LCon45240 = concatenate_layer([Dep43677,[[[[0.9055], [0.4224]], [[0.0239], [0.6316]]]]], 3, Con45240), 
+LAve59651 = average_layer([[[[[0.4349]], [[0.7132]]]], [[[[0.868]], [[0.6619]]]]], Ave59651), 
+LCon98743 = concatenate_layer([Ave59651,[[[[0.7871]], [[0.7817]]]]], 3, Con98743), 
+LMax90934 = maximum_layer([[[[[0.0271, 0.6365]], [[0.2704, 0.599]]]], [[[[0.3467, 0.0111]], [[0.4591, 0.357]]]]], Max90934), 
+LAdd40755 = add_layer([Con98743,Max90934], Add40755), 
+LReL21253 = relu_layer(Add40755, 9.351117237909618, 2.21943836439767, 3.420292427391317, ReL21253), 
+LZer44595 = zero_padding2D_layer(ReL21253, 0, 0, 1, 0, Zer44595), 
+LMul8527 = multiply_layer([Con45240,Zer44595], Mul8527), 
+exec_layers([LDep43677,LCon45240,LAve59651,LCon98743,LMax90934,LAdd40755,LReL21253,LZer44595,LMul8527],["Dep43677","Con45240","Ave59651","Con98743","Max90934","Add40755","ReL21253","Zer44595","Mul8527"],Mul8527,"Mul8527")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [-0.9977651, -1.8718807]], [[0.0000000, 0.0000000], [-1.0254995, -2.8590952]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[-0.9977650693836584,-1.871880711467542]],[[0.0,0.0],[-1.0254994706425435,-2.859095098574713]]]]
+
+Actual:   [[[[0, 0], [-0.9977, -1.8718]], [[0, 0], [-1.0254, -2.859]]]]
+
+Expected: [[[[0, 0], [-0.9977, -1.8718]], [[0, 0], [-1.0254, -2.859]]]]

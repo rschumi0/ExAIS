@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro83949 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con26047 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Loc99417 = tf.keras.layers.Input(shape=([1, 2]))
+
+Cro83949 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro83949', )(in0Cro83949)
+Res97907 = keras.layers.Reshape((1, 1), name = 'Res97907', )(Cro83949)
+Sep8823 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='valid', name = 'Sep8823', )(Res97907)
+Con26047 = keras.layers.Conv3D(4, (1, 1, 1),strides=(11, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con26047', )(in0Con26047)
+Res52582 = keras.layers.Reshape((1, 1, 4), name = 'Res52582', )(Con26047)
+Res80256 = keras.layers.Reshape((1, 4), name = 'Res80256', )(Res52582)
+Loc99417 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc99417', )(in0Loc99417)
+Mul73617 = keras.layers.Multiply(name = 'Mul73617', )([Res80256,Loc99417])
+Max77735 = keras.layers.Maximum(name = 'Max77735', )([Sep8823,Mul73617])
+model = tf.keras.models.Model(inputs=[in0Cro83949,in0Con26047,in0Loc99417], outputs=Max77735)
+w = model.get_layer('Sep8823').get_weights() 
+w[0] = np.array([[[0.6378]]])
+w[1] = np.array([[[0.7939, 0.1031, 0.0339, 0.2051]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep8823').set_weights(w) 
+w = model.get_layer('Con26047').get_weights() 
+w[0] = np.array([[[[[0.6938, 0.4242, 0.6154, 0.288]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con26047').set_weights(w) 
+w = model.get_layer('Loc99417').get_weights() 
+w[0] = np.array([[[0.2093, 0.2895, 0.4074, 0.3805], [0.0877, 0.4908, 0.0601, 0.7638]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc99417').set_weights(w) 
+in0Cro83949 = tf.constant([[[[1.871]]]])
+in0Con26047 = tf.constant([[[[[0.2574]]], [[[0.7096]]]]])
+in0Loc99417 = tf.constant([[[0.0451, 0.6907]]])
+print (np.array2string(model.predict([in0Cro83949,in0Con26047,in0Loc99417],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max77735.png')
+
+LCro83949 = cropping2D_layer([[[[1.871]]]], 0, 0, 0, 0, Cro83949), 
+LRes97907 = reshape_layer(Cro83949, [1, 1], Res97907), 
+LSep8823 = separable_conv1D_layer(Res97907, 1,[[[[0.6378]]],[[[0.7939, 0.1031, 0.0339, 0.2051]]]],[0, 0, 0, 0], 1, false, Sep8823), 
+LCon26047 = conv3D_layer([[[[[0.2574]]], [[[0.7096]]]]], 1, 1, 1,[[[[[0.6938, 0.4242, 0.6154, 0.288]]]]],[0, 0, 0, 0], 11, 1, 1, false, 1, 1, 1, Con26047), 
+LRes52582 = reshape_layer(Con26047, [1, 1, 4], Res52582), 
+LRes80256 = reshape_layer(Res52582, [1, 4], Res80256), 
+LLoc99417 = locally_connected1D_layer([[[0.0451, 0.6907]]], 1,[[[0.2093, 0.2895, 0.4074, 0.3805], [0.0877, 0.4908, 0.0601, 0.7638]]],[[0, 0, 0, 0]], 1, Loc99417), 
+LMul73617 = multiply_layer([Res80256,Loc99417], Mul73617), 
+LMax77735 = maximum_layer([Sep8823,Mul73617], Max77735), 
+exec_layers([LCro83949,LRes97907,LSep8823,LCon26047,LRes52582,LRes80256,LLoc99417,LMul73617,LMax77735],["Cro83949","Res97907","Sep8823","Con26047","Res52582","Res80256","Loc99417","Mul73617","Max77735"],Max77735,"Max77735")
+
+Actual (Unparsed): [[[0.9473798, 0.1230317, 0.0404537, 0.2447507]]]
+
+Expected (Unparsed): [[[0.9473797648200002,0.12303168378000001,0.040453676820000006,0.24475071138000004]]]
+
+Actual:   [[[0.9474, 0.1231, 0.0405, 0.2448]]]
+
+Expected: [[[0.9474, 0.1231, 0.0405, 0.2448]]]

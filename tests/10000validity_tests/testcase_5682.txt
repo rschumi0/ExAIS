@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep30299 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con4686 = tf.keras.layers.Input(shape=([2, 3]))
+in0Sim81812 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dep30299 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='valid', name = 'Dep30299', )(in0Dep30299)
+Res27607 = keras.layers.Reshape((2, 1), name = 'Res27607', )(Dep30299)
+Con4686 = keras.layers.Concatenate(axis=2, name = 'Con4686', )([Res27607,in0Con4686])
+Sim81812 = keras.layers.SimpleRNN(1,name = 'Sim81812', )(in0Sim81812)
+Res47441 = keras.layers.Reshape((1, 1), name = 'Res47441', )(Sim81812)
+Loc87670 = keras.layers.LocallyConnected1D(4, (1),strides=(12), name = 'Loc87670', )(Res47441)
+Zer437 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer437', )(Loc87670)
+Max57784 = keras.layers.Maximum(name = 'Max57784', )([Con4686,Zer437])
+model = tf.keras.models.Model(inputs=[in0Dep30299,in0Con4686,in0Sim81812], outputs=Max57784)
+w = model.get_layer('Dep30299').get_weights() 
+w[0] = np.array([[[[0.9203]], [[0.6738]]]])
+w[1] = np.array([0])
+model.get_layer('Dep30299').set_weights(w) 
+w = model.get_layer('Sim81812').get_weights() 
+w[0] = np.array([[6]])
+w[1] = np.array([[4]])
+w[2] = np.array([3])
+model.get_layer('Sim81812').set_weights(w) 
+w = model.get_layer('Loc87670').get_weights() 
+w[0] = np.array([[[0.2476, 0.4976, 0.7408, 0.454]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc87670').set_weights(w) 
+in0Dep30299 = tf.constant([[[[0.9677], [0.2076]], [[0.3207], [0.9667]]]])
+in0Con4686 = tf.constant([[[0.5471, 0.9153, 0.8989], [0.4691, 0.8563, 0.1287]]])
+in0Sim81812 = tf.constant([[[1]]])
+print (np.array2string(model.predict([in0Dep30299,in0Con4686,in0Sim81812],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max57784.png')
+
+LDep30299 = depthwise_conv2D_layer([[[[0.9677], [0.2076]], [[0.3207], [0.9667]]]], 1, 2,[[[[0.9203]], [[0.6738]]]],[0], 1, 1, false, Dep30299), 
+LRes27607 = reshape_layer(Dep30299, [2, 1], Res27607), 
+LCon4686 = concatenate_layer([Res27607,[[[0.5471, 0.9153, 0.8989], [0.4691, 0.8563, 0.1287]]]], 2, Con4686), 
+LSim81812 = simple_rnn_layer([[[1]]],[[6]],[[4]],[3], Sim81812), 
+LRes47441 = reshape_layer(Sim81812, [1, 1], Res47441), 
+LLoc87670 = locally_connected1D_layer(Res47441, 1,[[[0.2476, 0.4976, 0.7408, 0.454]]],[[0, 0, 0, 0]], 12, Loc87670), 
+LZer437 = zero_padding1D_layer(Loc87670, 1, 0, Zer437), 
+LMax57784 = maximum_layer([Con4686,Zer437], Max57784), 
+exec_layers([LDep30299,LRes27607,LCon4686,LSim81812,LRes47441,LLoc87670,LZer437,LMax57784],["Dep30299","Res27607","Con4686","Sim81812","Res47441","Loc87670","Zer437","Max57784"],Max57784,"Max57784")
+
+Actual (Unparsed): [[[1.0304552, 0.5471000, 0.9153000, 0.8989000], [0.9465027, 0.4976000, 0.8563000, 0.4540000]]]
+
+Expected (Unparsed): [[[1.03045519,0.5471,0.9153,0.8989],[0.94650267,0.4975999848431244,0.8563,0.45399998617117865]]]
+
+Actual:   [[[1.0305, 0.5471, 0.9153, 0.8989], [0.9466, 0.4976, 0.8563, 0.454]]]
+
+Expected: [[[1.0305, 0.5471, 0.9153, 0.8989], [0.9466, 0.4976, 0.8563, 0.454]]]

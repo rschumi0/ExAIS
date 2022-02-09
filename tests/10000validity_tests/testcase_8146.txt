@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot12884 = tf.keras.layers.Input(shape=([2]))
+in1Dot12884 = tf.keras.layers.Input(shape=([2]))
+in0Glo31141 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Con55228 = tf.keras.layers.Input(shape=([2]))
+
+Dot12884 = keras.layers.Dot(axes=(1, 1), name = 'Dot12884', )([in0Dot12884,in1Dot12884])
+Res84826 = keras.layers.Reshape((1, 1), name = 'Res84826', )(Dot12884)
+Res71861 = keras.layers.Reshape((1, 1, 1), name = 'Res71861', )(Res84826)
+Loc35032 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc35032', )(Res71861)
+Res68940 = keras.layers.Reshape((1, 4), name = 'Res68940', )(Loc35032)
+Fla34468 = keras.layers.Flatten(name = 'Fla34468', )(Res68940)
+Glo31141 = keras.layers.GlobalMaxPool3D(name = 'Glo31141', )(in0Glo31141)
+Con55228 = keras.layers.Concatenate(axis=1, name = 'Con55228', )([Glo31141,in0Con55228])
+Max75490 = keras.layers.Maximum(name = 'Max75490', )([Fla34468,Con55228])
+model = tf.keras.models.Model(inputs=[in0Dot12884,in1Dot12884,in0Glo31141,in0Con55228], outputs=Max75490)
+w = model.get_layer('Loc35032').get_weights() 
+w[0] = np.array([[[0.5702, 0.0463, 0.5156, 0.1304]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc35032').set_weights(w) 
+in0Dot12884 = tf.constant([[0.6783, 0.0438]])
+in1Dot12884 = tf.constant([[0.1089, 0.7425]])
+in0Glo31141 = tf.constant([[[[[1.2865, 1.943]]], [[[1.2047, 1.8872]]]]])
+in0Con55228 = tf.constant([[0.9141, 0.186]])
+print (np.array2string(model.predict([in0Dot12884,in1Dot12884,in0Glo31141,in0Con55228],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max75490.png')
+
+LDot12884 = dot_layer([[0.6783, 0.0438]], [[0.1089, 0.7425]], 1, 1, Dot12884), 
+LRes84826 = reshape_layer(Dot12884, [1, 1], Res84826), 
+LRes71861 = reshape_layer(Res84826, [1, 1, 1], Res71861), 
+LLoc35032 = locally_connected2D_layer(Res71861, 1, 1,[[[0.5702, 0.0463, 0.5156, 0.1304]]],[[[0, 0, 0, 0]]], 1, 1, Loc35032), 
+LRes68940 = reshape_layer(Loc35032, [1, 4], Res68940), 
+LFla34468 = flatten_layer(Res68940, Fla34468), 
+LGlo31141 = global_max_pool3D_layer([[[[[1.2865, 1.943]]], [[[1.2047, 1.8872]]]]], Glo31141), 
+LCon55228 = concatenate_layer([Glo31141,[[0.9141, 0.186]]], 1, Con55228), 
+LMax75490 = maximum_layer([Fla34468,Con55228], Max75490), 
+exec_layers([LDot12884,LRes84826,LRes71861,LLoc35032,LRes68940,LFla34468,LGlo31141,LCon55228,LMax75490],["Dot12884","Res84826","Res71861","Loc35032","Res68940","Fla34468","Glo31141","Con55228","Max75490"],Max75490,"Max75490")
+
+Actual (Unparsed): [[1.2865000, 1.9430000, 0.9141000, 0.1860000]]
+
+Expected (Unparsed): [[1.2865,1.943,0.9141,0.186]]
+
+Actual:   [[1.2865, 1.943, 0.9141, 0.186]]
+
+Expected: [[1.2865, 1.943, 0.9141, 0.186]]

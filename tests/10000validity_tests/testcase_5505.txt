@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo72203 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Con80807 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Add40199 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Add40199 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Glo72203 = keras.layers.GlobalMaxPool3D(name = 'Glo72203', )(in0Glo72203)
+Res8040 = keras.layers.Reshape((2, 1), name = 'Res8040', )(Glo72203)
+Res23600 = keras.layers.Reshape((2, 1, 1), name = 'Res23600', )(Res8040)
+Res70730 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res70730', )(Res23600)
+Con80807 = keras.layers.Concatenate(axis=4, name = 'Con80807', )([Res70730,in0Con80807])
+Add40199 = keras.layers.Add(name = 'Add40199', )([in0Add40199,in1Add40199])
+Ave3898 = keras.layers.Average(name = 'Ave3898', )([Con80807,Add40199])
+Res81992 = keras.layers.Reshape((2, 1, 2), name = 'Res81992', )(Ave3898)
+Res76932 = keras.layers.Reshape((2, 2), name = 'Res76932', )(Res81992)
+Sep90015 = keras.layers.SeparableConv1D(3, (2),strides=(2), padding='same', name = 'Sep90015', )(Res76932)
+model = tf.keras.models.Model(inputs=[in0Glo72203,in0Con80807,in0Add40199,in1Add40199], outputs=Sep90015)
+w = model.get_layer('Sep90015').get_weights() 
+w[0] = np.array([[[0.5066], [0.2203]], [[0.0842], [0.7835]]])
+w[1] = np.array([[[0.2236, 0.0832, 0.3105], [0.4049, 0.0947, 0.2475]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep90015').set_weights(w) 
+in0Glo72203 = tf.constant([[[[[1.1277, 1.2001]], [[1.5327, 1.7691]]]]])
+in0Con80807 = tf.constant([[[[[0.9657]]], [[[0.5066]]]]])
+in0Add40199 = tf.constant([[[[[0.2489, 0.992]]], [[[0.248, 0.0871]]]]])
+in1Add40199 = tf.constant([[[[[0.0915, 0.5896]]], [[[0.8723, 0.5223]]]]])
+print (np.array2string(model.predict([in0Glo72203,in0Con80807,in0Add40199,in1Add40199],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep90015.png')
+
+LGlo72203 = global_max_pool3D_layer([[[[[1.1277, 1.2001]], [[1.5327, 1.7691]]]]], Glo72203), 
+LRes8040 = reshape_layer(Glo72203, [2, 1], Res8040), 
+LRes23600 = reshape_layer(Res8040, [2, 1, 1], Res23600), 
+LRes70730 = reshape_layer(Res23600, [2, 1, 1, 1], Res70730), 
+LCon80807 = concatenate_layer([Res70730,[[[[[0.9657]]], [[[0.5066]]]]]], 4, Con80807), 
+LAdd40199 = add_layer([[[[[[0.2489, 0.992]]], [[[0.248, 0.0871]]]]], [[[[[0.0915, 0.5896]]], [[[0.8723, 0.5223]]]]]], Add40199), 
+LAve3898 = average_layer([Con80807,Add40199], Ave3898), 
+LRes81992 = reshape_layer(Ave3898, [2, 1, 2], Res81992), 
+LRes76932 = reshape_layer(Res81992, [2, 2], Res76932), 
+LSep90015 = separable_conv1D_layer(Res76932, 2,[[[[0.5066], [0.2203]], [[0.0842], [0.7835]]],[[[0.2236, 0.0832, 0.3105], [0.4049, 0.0947, 0.2475]]]],[0, 0, 0], 2, true, Sep90015), 
+exec_layers([LGlo72203,LRes8040,LRes23600,LRes70730,LCon80807,LAdd40199,LAve3898,LRes81992,LRes76932,LSep90015],["Glo72203","Res8040","Res23600","Res70730","Con80807","Add40199","Ave3898","Res81992","Res76932","Sep90015"],Sep90015,"Sep90015")
+
+Actual (Unparsed): [[[0.4239163, 0.1175691, 0.3627391]]]
+
+Expected (Unparsed): [[[0.4239163039575,0.1175691031005,0.36273911919749996]]]
+
+Actual:   [[[0.424, 0.1176, 0.3628]]]
+
+Expected: [[[0.424, 0.1176, 0.3628]]]

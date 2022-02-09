@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave18564 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave18564 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con17345 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Glo99602 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Ave18564 = keras.layers.Average(name = 'Ave18564', )([in0Ave18564,in1Ave18564])
+Res2171 = keras.layers.Reshape((2, 2, 1), name = 'Res2171', )(Ave18564)
+Con17345 = keras.layers.Concatenate(axis=3, name = 'Con17345', )([Res2171,in0Con17345])
+Glo99602 = keras.layers.GlobalMaxPool3D(name = 'Glo99602', )(in0Glo99602)
+Bat73881 = keras.layers.BatchNormalization(axis=1, epsilon=0.6660299806698838,  name = 'Bat73881', )(Glo99602)
+Res42442 = keras.layers.Reshape((1, 1), name = 'Res42442', )(Bat73881)
+Res15186 = keras.layers.Reshape((1, 1, 1), name = 'Res15186', )(Res42442)
+Loc17888 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc17888', )(Res15186)
+Zer30823 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer30823', )(Loc17888)
+Add9361 = keras.layers.Add(name = 'Add9361', )([Con17345,Zer30823])
+model = tf.keras.models.Model(inputs=[in0Ave18564,in1Ave18564,in0Con17345,in0Glo99602], outputs=Add9361)
+w = model.get_layer('Bat73881').get_weights() 
+w[0] = np.array([0.2866])
+w[1] = np.array([0.842])
+w[2] = np.array([0.0462])
+w[3] = np.array([0.4082])
+model.get_layer('Bat73881').set_weights(w) 
+w = model.get_layer('Loc17888').get_weights() 
+w[0] = np.array([[[0.4258, 0.5216, 0.1112]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc17888').set_weights(w) 
+in0Ave18564 = tf.constant([[[0.8434, 0.8285], [0.4509, 0.916]]])
+in1Ave18564 = tf.constant([[[0.6789, 0.462], [0.9652, 0.7249]]])
+in0Con17345 = tf.constant([[[[0.2067, 0.1046], [0.696, 0.581]], [[0.5734, 0.5327], [0.0066, 0.7741]]]])
+in0Glo99602 = tf.constant([[[[[1.582], [1.0816]]]]])
+print (np.array2string(model.predict([in0Ave18564,in1Ave18564,in0Con17345,in0Glo99602],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add9361.png')
+
+LAve18564 = average_layer([[[[0.8434, 0.8285], [0.4509, 0.916]]], [[[0.6789, 0.462], [0.9652, 0.7249]]]], Ave18564), 
+LRes2171 = reshape_layer(Ave18564, [2, 2, 1], Res2171), 
+LCon17345 = concatenate_layer([Res2171,[[[[0.2067, 0.1046], [0.696, 0.581]], [[0.5734, 0.5327], [0.0066, 0.7741]]]]], 3, Con17345), 
+LGlo99602 = global_max_pool3D_layer([[[[[1.582], [1.0816]]]]], Glo99602), 
+LBat73881 = batch_normalization_layer(Glo99602, 1, 0.6660299806698838, [0.2866], [0.842], [0.0462], [0.4082], Bat73881), 
+LRes42442 = reshape_layer(Bat73881, [1, 1], Res42442), 
+LRes15186 = reshape_layer(Res42442, [1, 1, 1], Res15186), 
+LLoc17888 = locally_connected2D_layer(Res15186, 1, 1,[[[0.4258, 0.5216, 0.1112]]],[[[0, 0, 0]]], 1, 1, Loc17888), 
+LZer30823 = zero_padding2D_layer(Loc17888, 1, 0, 1, 0, Zer30823), 
+LAdd9361 = add_layer([Con17345,Zer30823], Add9361), 
+exec_layers([LAve18564,LRes2171,LCon17345,LGlo99602,LBat73881,LRes42442,LRes15186,LLoc17888,LZer30823,LAdd9361],["Ave18564","Res2171","Con17345","Glo99602","Bat73881","Res42442","Res15186","Loc17888","Zer30823","Add9361"],Add9361,"Add9361")
+
+Actual (Unparsed): [[[[0.7611500, 0.2067000, 0.1046000], [0.6452500, 0.6960000, 0.5810000]], [[0.7080500, 0.5734000, 0.5327000], [1.3598025, 0.6673005, 0.9149549]]]]
+
+Expected (Unparsed): [[[[0.76115,0.2067,0.1046],[0.64525,0.696,0.581]],[[0.70805,0.5734,0.5327],[1.359802513116632,0.6673004951658885,0.9149548601657339]]]]
+
+Actual:   [[[[0.7612, 0.2067, 0.1046], [0.6453, 0.696, 0.581]], [[0.7081, 0.5734, 0.5327], [1.3599, 0.6674, 0.915]]]]
+
+Expected: [[[[0.7612, 0.2067, 0.1046], [0.6453, 0.696, 0.581]], [[0.7081, 0.5734, 0.5327], [1.3599, 0.6674, 0.915]]]]

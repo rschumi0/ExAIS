@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sof10088 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Sep23794 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Sof10088 = keras.layers.Softmax(axis=1, name = 'Sof10088', input_shape=(1, 2, 1))(in0Sof10088)
+Res67174 = keras.layers.Reshape((1, 2), name = 'Res67174', )(Sof10088)
+Res2173 = keras.layers.Reshape((1, 2, 1), name = 'Res2173', )(Res67174)
+Up_57699 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_57699', )(Res2173)
+Res47104 = keras.layers.Reshape((1, 4), name = 'Res47104', )(Up_57699)
+LST26760 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST26760', )(Res47104)
+Sep23794 = keras.layers.SeparableConv2D(4, (1, 2),strides=(2, 2), padding='same', name = 'Sep23794', )(in0Sep23794)
+Con1813 = keras.layers.Conv2D(3, (1, 1),strides=(1, 7), padding='same', dilation_rate=(1, 1), name = 'Con1813', )(Sep23794)
+Glo96983 = keras.layers.GlobalMaxPool2D(name = 'Glo96983', )(Con1813)
+Dot45439 = keras.layers.Dot(axes=(1, 1), name = 'Dot45439', )([LST26760,Glo96983])
+model = tf.keras.models.Model(inputs=[in0Sof10088,in0Sep23794], outputs=Dot45439)
+w = model.get_layer('LST26760').get_weights() 
+w[0] = np.array([[3, 1, 4, 8, 7, 2, 4, 8, 8, 4, 3, 5], [4, 6, 3, 5, 9, 4, 1, 3, 9, 1, 4, 4], [4, 5, 5, 6, 8, 3, 3, 5, 3, 10, 5, 2], [9, 1, 4, 3, 10, 4, 1, 8, 4, 3, 4, 7]])
+w[1] = np.array([[10, 3, 10, 7, 4, 8, 10, 8, 10, 5, 5, 6], [8, 7, 3, 5, 1, 3, 10, 1, 9, 2, 8, 6], [9, 2, 4, 8, 2, 9, 1, 9, 10, 9, 7, 10]])
+w[2] = np.array([10, 3, 10, 1, 10, 5, 6, 4, 7, 1, 9, 8])
+model.get_layer('LST26760').set_weights(w) 
+w = model.get_layer('Sep23794').get_weights() 
+w[0] = np.array([[[[0.5405], [0.1815]], [[0.9882], [0.4215]]]])
+w[1] = np.array([[[[0.0101, 0.7854, 0.5632, 0.4842], [0.7052, 0.6894, 0.3542, 0.357]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep23794').set_weights(w) 
+w = model.get_layer('Con1813').get_weights() 
+w[0] = np.array([[[[0.8108, 0.544, 0.049], [0.2388, 0.7632, 0.5336], [0.6733, 0.7928, 0.6196], [0.5064, 0.4511, 0.1956]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con1813').set_weights(w) 
+in0Sof10088 = tf.constant([[[[0.5285], [0.3669]]]])
+in0Sep23794 = tf.constant([[[[0.5768, 0.9215], [0.5112, 0.4714]], [[0.7, 0.0603], [0.5443, 0.0875]]]])
+print (np.array2string(model.predict([in0Sof10088,in0Sep23794],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot45439.png')
+
+LSof10088 = softmax_layer([[[[0.5285], [0.3669]]]], 1, Sof10088), 
+LRes67174 = reshape_layer(Sof10088, [1, 2], Res67174), 
+LRes2173 = reshape_layer(Res67174, [1, 2, 1], Res2173), 
+LUp_57699 = up_sampling2D_layer(Res2173, 1, 2, Up_57699), 
+LRes47104 = reshape_layer(Up_57699, [1, 4], Res47104), 
+LLST26760 = lstm_layer(Res47104,[[3, 1, 4, 8, 7, 2, 4, 8, 8, 4, 3, 5], [4, 6, 3, 5, 9, 4, 1, 3, 9, 1, 4, 4], [4, 5, 5, 6, 8, 3, 3, 5, 3, 10, 5, 2], [9, 1, 4, 3, 10, 4, 1, 8, 4, 3, 4, 7]],[[10, 3, 10, 7, 4, 8, 10, 8, 10, 5, 5, 6], [8, 7, 3, 5, 1, 3, 10, 1, 9, 2, 8, 6], [9, 2, 4, 8, 2, 9, 1, 9, 10, 9, 7, 10]],[10, 3, 10, 1, 10, 5, 6, 4, 7, 1, 9, 8], LST26760), 
+LSep23794 = separable_conv2D_layer([[[[0.5768, 0.9215], [0.5112, 0.4714]], [[0.7, 0.0603], [0.5443, 0.0875]]]], 1, 2,[[[[[0.5405], [0.1815]], [[0.9882], [0.4215]]]],[[[[0.0101, 0.7854, 0.5632, 0.4842], [0.7052, 0.6894, 0.3542, 0.357]]]]],[0, 0, 0, 0], 2, 2, true, Sep23794), 
+LCon1813 = conv2D_layer(Sep23794, 1, 1,[[[[0.8108, 0.544, 0.049], [0.2388, 0.7632, 0.5336], [0.6733, 0.7928, 0.6196], [0.5064, 0.4511, 0.1956]]]],[0, 0, 0], 1, 7, true, 1, 1, Con1813), 
+LGlo96983 = global_max_pool2D_layer(Con1813, Glo96983), 
+LDot45439 = dot_layer(LST26760,Glo96983, 1, 1, Dot45439), 
+exec_layers([LSof10088,LRes67174,LRes2173,LUp_57699,LRes47104,LLST26760,LSep23794,LCon1813,LGlo96983,LDot45439],["Sof10088","Res67174","Res2173","Up_57699","Res47104","LST26760","Sep23794","Con1813","Glo96983","Dot45439"],Dot45439,"Dot45439")
+
+Actual (Unparsed): [[2.7289841]]
+
+Expected (Unparsed): [[2.7289840864548998]]
+
+Actual:   [[2.729]]
+
+Expected: [[2.729]]

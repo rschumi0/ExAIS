@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_76605 = tf.keras.layers.Input(shape=([3, 1, 2]))
+in0PRe92402 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Up_76605 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_76605', )(in0Up_76605)
+Res35407 = keras.layers.Reshape((3, 2, 2, 1), name = 'Res35407', )(Up_76605)
+Up_60555 = keras.layers.UpSampling3D(size=(1, 2, 1), name = 'Up_60555', )(Res35407)
+PRe92402 = keras.layers.PReLU(name = 'PRe92402', input_shape=(2, 2, 1, 1))(in0PRe92402)
+Zer96912 = keras.layers.ZeroPadding3D(padding=((1, 0), (2, 0), (1, 0)), name = 'Zer96912', )(PRe92402)
+Mul18426 = keras.layers.Multiply(name = 'Mul18426', )([Up_60555,Zer96912])
+Res86738 = keras.layers.Reshape((3, 4, 2), name = 'Res86738', )(Mul18426)
+Res94332 = keras.layers.Reshape((3, 8), name = 'Res94332', )(Res86738)
+ELU43255 = keras.layers.ELU(alpha=-8.040039629333426, name = 'ELU43255', )(Res94332)
+model = tf.keras.models.Model(inputs=[in0Up_76605,in0PRe92402], outputs=ELU43255)
+w = model.get_layer('PRe92402').get_weights() 
+w[0] = np.array([[[[0.6625]], [[0.4394]]], [[[0.8627]], [[0.151]]]])
+model.get_layer('PRe92402').set_weights(w) 
+in0Up_76605 = tf.constant([[[[1.1381, 1.3777]], [[1.4249, 1.4258]], [[1.4051, 1.8532]]]])
+in0PRe92402 = tf.constant([[[[[0.6027]], [[0.169]]], [[[0.3117]], [[0.6664]]]]])
+print (np.array2string(model.predict([in0Up_76605,in0PRe92402],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU43255.png')
+
+LUp_76605 = up_sampling2D_layer([[[[1.1381, 1.3777]], [[1.4249, 1.4258]], [[1.4051, 1.8532]]]], 1, 2, Up_76605), 
+LRes35407 = reshape_layer(Up_76605, [3, 2, 2, 1], Res35407), 
+LUp_60555 = up_sampling3D_layer(Res35407, 1, 2, 1, Up_60555), 
+LPRe92402 = prelu_layer([[[[[0.6027]], [[0.169]]], [[[0.3117]], [[0.6664]]]]], [[[[0.6625]], [[0.4394]]], [[[0.8627]], [[0.151]]]], PRe92402), 
+LZer96912 = zero_padding3D_layer(PRe92402, 1, 0, 2, 0, 1, 0, Zer96912), 
+LMul18426 = multiply_layer([Up_60555,Zer96912], Mul18426), 
+LRes86738 = reshape_layer(Mul18426, [3, 4, 2], Res86738), 
+LRes94332 = reshape_layer(Res86738, [3, 8], Res94332), 
+LELU43255 = elu_layer(Res94332, -8.040039629333426, ELU43255), 
+exec_layers([LUp_76605,LRes35407,LUp_60555,LPRe92402,LZer96912,LMul18426,LRes86738,LRes94332,LELU43255],["Up_76605","Res35407","Up_60555","PRe92402","Zer96912","Mul18426","Res86738","Res94332","ELU43255"],ELU43255,"ELU43255")
+
+Actual (Unparsed): [[[-0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000], [-0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000, 0.8593296, -0.0000000, 0.2409602], [-0.0000000, -0.0000000, -0.0000000, -0.0000000, -0.0000000, 0.5776424, -0.0000000, 1.2349725]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0,0.0,0.85932966,0.0,0.2409602],[0.0,0.0,0.0,0.0,0.0,0.57764244,0.0,1.23497248]]]
+
+Actual:   [[[-0, -0, -0, -0, -0, -0, -0, -0], [-0, -0, -0, -0, -0, 0.8594, -0, 0.241], [-0, -0, -0, -0, -0, 0.5777, -0, 1.235]]]
+
+Expected: [[[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0.8594, 0, 0.241], [0, 0, 0, 0, 0, 0.5777, 0, 1.235]]]

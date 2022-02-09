@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min18383 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min18383 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Min31192 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Min31192 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Add70678 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add70678 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con78685 = tf.keras.layers.Input(shape=([2, 2]))
+
+Min18383 = keras.layers.Minimum(name = 'Min18383', )([in0Min18383,in1Min18383])
+Res48158 = keras.layers.Reshape((1, 4), name = 'Res48158', )(Min18383)
+Up_9151 = keras.layers.UpSampling1D(size=(2), name = 'Up_9151', )(Res48158)
+Min31192 = keras.layers.Minimum(name = 'Min31192', )([in0Min31192,in1Min31192])
+Res13265 = keras.layers.Reshape((2, 2), name = 'Res13265', )(Min31192)
+Add70678 = keras.layers.Add(name = 'Add70678', )([in0Add70678,in1Add70678])
+Lay91154 = keras.layers.LayerNormalization(axis=1, epsilon=2.790762078524347, name = 'Lay91154', )(Add70678)
+Zer65067 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer65067', )(Lay91154)
+Add20734 = keras.layers.Add(name = 'Add20734', )([Res13265,Zer65067])
+Con78685 = keras.layers.Concatenate(axis=2, name = 'Con78685', )([Add20734,in0Con78685])
+Mul21159 = keras.layers.Multiply(name = 'Mul21159', )([Up_9151,Con78685])
+model = tf.keras.models.Model(inputs=[in0Min18383,in1Min18383,in0Min31192,in1Min31192,in0Add70678,in1Add70678,in0Con78685], outputs=Mul21159)
+in0Min18383 = tf.constant([[[[0.2734, 0.4995], [0.4517, 0.6827]]]])
+in1Min18383 = tf.constant([[[[0.1742, 0.6402], [0.0337, 0.3102]]]])
+in0Min31192 = tf.constant([[[[0.9641, 0.2402]], [[0.2071, 0.3421]]]])
+in1Min31192 = tf.constant([[[[0.4474, 0.905]], [[0.5573, 0.9961]]]])
+in0Add70678 = tf.constant([[[0.6859, 0.7329]]])
+in1Add70678 = tf.constant([[[0.981, 0.8656]]])
+in0Con78685 = tf.constant([[[0.299, 0.7646], [0.2416, 0.0553]]])
+print (np.array2string(model.predict([in0Min18383,in1Min18383,in0Min31192,in1Min31192,in0Add70678,in1Add70678,in0Con78685],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul21159.png')
+
+LMin18383 = minimum_layer([[[[[0.2734, 0.4995], [0.4517, 0.6827]]]], [[[[0.1742, 0.6402], [0.0337, 0.3102]]]]], Min18383), 
+LRes48158 = reshape_layer(Min18383, [1, 4], Res48158), 
+LUp_9151 = up_sampling1D_layer(Res48158, 2, Up_9151), 
+LMin31192 = minimum_layer([[[[[0.9641, 0.2402]], [[0.2071, 0.3421]]]], [[[[0.4474, 0.905]], [[0.5573, 0.9961]]]]], Min31192), 
+LRes13265 = reshape_layer(Min31192, [2, 2], Res13265), 
+LAdd70678 = add_layer([[[[0.6859, 0.7329]]], [[[0.981, 0.8656]]]], Add70678), 
+LLay91154 = layer_normalization_layer(Add70678, 1, 2.790762078524347, Lay91154), 
+LZer65067 = zero_padding1D_layer(Lay91154, 1, 0, Zer65067), 
+LAdd20734 = add_layer([Res13265,Zer65067], Add20734), 
+LCon78685 = concatenate_layer([Add20734,[[[0.299, 0.7646], [0.2416, 0.0553]]]], 2, Con78685), 
+LMul21159 = multiply_layer([Up_9151,Con78685], Mul21159), 
+exec_layers([LMin18383,LRes48158,LUp_9151,LMin31192,LRes13265,LAdd70678,LLay91154,LZer65067,LAdd20734,LCon78685,LMul21159],["Min18383","Res48158","Up_9151","Min31192","Res13265","Add70678","Lay91154","Zer65067","Add20734","Con78685","Mul21159"],Mul21159,"Mul21159")
+
+Actual (Unparsed): [[[0.0779371, 0.1199799, 0.0100763, 0.2371789], [0.0360768, 0.1708789, 0.0081419, 0.0171541]]]
+
+Expected (Unparsed): [[[0.07793708,0.1199799,0.0100763,0.23717891999999996],[0.03607682,0.17087895,0.00814192,0.01715406]]]
+
+Actual:   [[[0.078, 0.12, 0.0101, 0.2372], [0.0361, 0.1709, 0.0082, 0.0172]]]
+
+Expected: [[[0.078, 0.12, 0.0101, 0.2372], [0.0361, 0.1709, 0.0082, 0.0172]]]

@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave19185 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave19185 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Sim51220 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con75742 = tf.keras.layers.Input(shape=([1]))
+
+Ave19185 = keras.layers.Average(name = 'Ave19185', )([in0Ave19185,in1Ave19185])
+ELU55450 = keras.layers.ELU(alpha=-8.644958090170276, name = 'ELU55450', )(Ave19185)
+Res31310 = keras.layers.Reshape((1, 4), name = 'Res31310', )(ELU55450)
+Fla52565 = keras.layers.Flatten(name = 'Fla52565', )(Res31310)
+Sim51220 = keras.layers.SimpleRNN(3,name = 'Sim51220', )(in0Sim51220)
+Con75742 = keras.layers.Concatenate(axis=1, name = 'Con75742', )([Sim51220,in0Con75742])
+Ave57116 = keras.layers.Average(name = 'Ave57116', )([Fla52565,Con75742])
+model = tf.keras.models.Model(inputs=[in0Ave19185,in1Ave19185,in0Sim51220,in0Con75742], outputs=Ave57116)
+w = model.get_layer('Sim51220').get_weights() 
+w[0] = np.array([[2, 1, 10], [10, 5, 2], [2, 2, 1]])
+w[1] = np.array([[5, 1, 9], [6, 8, 10], [10, 2, 1]])
+w[2] = np.array([10, 9, 4])
+model.get_layer('Sim51220').set_weights(w) 
+in0Ave19185 = tf.constant([[[[0.5174, 0.8926], [0.4067, 0.2842]]]])
+in1Ave19185 = tf.constant([[[[0.3664, 0.6849], [0.9216, 0.6309]]]])
+in0Sim51220 = tf.constant([[[8, 9, 10], [5, 3, 8]]])
+in0Con75742 = tf.constant([[0.9627]])
+print (np.array2string(model.predict([in0Ave19185,in1Ave19185,in0Sim51220,in0Con75742],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave57116.png')
+
+LAve19185 = average_layer([[[[[0.5174, 0.8926], [0.4067, 0.2842]]]], [[[[0.3664, 0.6849], [0.9216, 0.6309]]]]], Ave19185), 
+LELU55450 = elu_layer(Ave19185, -8.644958090170276, ELU55450), 
+LRes31310 = reshape_layer(ELU55450, [1, 4], Res31310), 
+LFla52565 = flatten_layer(Res31310, Fla52565), 
+LSim51220 = simple_rnn_layer([[[8, 9, 10], [5, 3, 8]]],[[2, 1, 10], [10, 5, 2], [2, 2, 1]],[[5, 1, 9], [6, 8, 10], [10, 2, 1]],[10, 9, 4], Sim51220), 
+LCon75742 = concatenate_layer([Sim51220,[[0.9627]]], 1, Con75742), 
+LAve57116 = average_layer([Fla52565,Con75742], Ave57116), 
+exec_layers([LAve19185,LELU55450,LRes31310,LFla52565,LSim51220,LCon75742,LAve57116],["Ave19185","ELU55450","Res31310","Fla52565","Sim51220","Con75742","Ave57116"],Ave57116,"Ave57116")
+
+Actual (Unparsed): [[0.7209500, 0.8943750, 0.8320750, 0.7101250]]
+
+Expected (Unparsed): [[0.72095,0.8943749999999999,0.832075,0.710125]]
+
+Actual:   [[0.721, 0.8944, 0.8321, 0.7102]]
+
+Expected: [[0.721, 0.8944, 0.8321, 0.7102]]

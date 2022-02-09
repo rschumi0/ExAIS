@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot51030 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot51030 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con92448 = tf.keras.layers.Input(shape=([3, 3, 1]))
+in0Max90030 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Max90030 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Dot51030 = keras.layers.Dot(axes=(2, 1), name = 'Dot51030', )([in0Dot51030,in1Dot51030])
+Lay80976 = keras.layers.LayerNormalization(axis=2, epsilon=1.4293445738318145, name = 'Lay80976', )(Dot51030)
+Res93649 = keras.layers.Reshape((3, 3, 1), name = 'Res93649', )(Lay80976)
+Con92448 = keras.layers.Concatenate(axis=3, name = 'Con92448', )([Res93649,in0Con92448])
+Max90030 = keras.layers.Maximum(name = 'Max90030', )([in0Max90030,in1Max90030])
+Res3554 = keras.layers.Reshape((2, 2, 2), name = 'Res3554', )(Max90030)
+Dep61155 = keras.layers.DepthwiseConv2D((2, 2),strides=(2, 2), padding='same', name = 'Dep61155', )(Res3554)
+Zer42563 = keras.layers.ZeroPadding2D(padding=((2, 0), (2, 0)), name = 'Zer42563', )(Dep61155)
+Add51637 = keras.layers.Add(name = 'Add51637', )([Con92448,Zer42563])
+Res58834 = keras.layers.Reshape((3, 6), name = 'Res58834', )(Add51637)
+Glo96319 = keras.layers.GlobalMaxPool1D(name = 'Glo96319', )(Res58834)
+model = tf.keras.models.Model(inputs=[in0Dot51030,in1Dot51030,in0Con92448,in0Max90030,in1Max90030], outputs=Glo96319)
+w = model.get_layer('Dep61155').get_weights() 
+w[0] = np.array([[[[0.5089], [0.6058]], [[0.906], [0.9229]]], [[[0.83], [0.8904]], [[0.6698], [0.3961]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep61155').set_weights(w) 
+in0Dot51030 = tf.constant([[[0.8441, 0.0381, 0.9076], [0.4571, 0.2068, 0.014], [0.1043, 0.3284, 0.9034]]])
+in1Dot51030 = tf.constant([[[0.7042, 0.766, 0.0184], [0.5175, 0.3456, 0.5858], [0.4201, 0.4339, 0.0526]]])
+in0Con92448 = tf.constant([[[[0.7163], [0.2628], [0.7032]], [[0.1807], [0.0718], [0.6937]], [[0.506], [0.9377], [0.1674]]]])
+in0Max90030 = tf.constant([[[[[0.9441], [0.096]], [[0.8552], [0.6803]]], [[[0.4569], [0.4406]], [[0.8896], [0.8258]]]]])
+in1Max90030 = tf.constant([[[[[0.0397], [0.2988]], [[0.7676], [0.095]]], [[[0.0415], [0.9656]], [[0.1245], [0.0554]]]]])
+print (np.array2string(model.predict([in0Dot51030,in1Dot51030,in0Con92448,in0Max90030,in1Max90030],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo96319.png')
+
+LDot51030 = dot_layer([[[0.8441, 0.0381, 0.9076], [0.4571, 0.2068, 0.014], [0.1043, 0.3284, 0.9034]]], [[[0.7042, 0.766, 0.0184], [0.5175, 0.3456, 0.5858], [0.4201, 0.4339, 0.0526]]], 2, 1, Dot51030), 
+LLay80976 = layer_normalization_layer(Dot51030, 2, 1.4293445738318145, Lay80976), 
+LRes93649 = reshape_layer(Lay80976, [3, 3, 1], Res93649), 
+LCon92448 = concatenate_layer([Res93649,[[[[0.7163], [0.2628], [0.7032]], [[0.1807], [0.0718], [0.6937]], [[0.506], [0.9377], [0.1674]]]]], 3, Con92448), 
+LMax90030 = maximum_layer([[[[[[0.9441], [0.096]], [[0.8552], [0.6803]]], [[[0.4569], [0.4406]], [[0.8896], [0.8258]]]]], [[[[[0.0397], [0.2988]], [[0.7676], [0.095]]], [[[0.0415], [0.9656]], [[0.1245], [0.0554]]]]]], Max90030), 
+LRes3554 = reshape_layer(Max90030, [2, 2, 2], Res3554), 
+LDep61155 = depthwise_conv2D_layer(Res3554, 2, 2,[[[[0.5089], [0.6058]], [[0.906], [0.9229]]], [[[0.83], [0.8904]], [[0.6698], [0.3961]]]],[0, 0], 2, 2, true, Dep61155), 
+LZer42563 = zero_padding2D_layer(Dep61155, 2, 0, 2, 0, Zer42563), 
+LAdd51637 = add_layer([Con92448,Zer42563], Add51637), 
+LRes58834 = reshape_layer(Add51637, [3, 6], Res58834), 
+LGlo96319 = global_max_pool1D_layer(Res58834, Glo96319), 
+exec_layers([LDot51030,LLay80976,LRes93649,LCon92448,LMax90030,LRes3554,LDep61155,LZer42563,LAdd51637,LRes58834,LGlo96319],["Dot51030","Lay80976","Res93649","Con92448","Max90030","Res3554","Dep61155","Zer42563","Add51637","Res58834","Glo96319"],Glo96319,"Glo96319")
+
+Actual (Unparsed): [[0.2226503, 0.7163000, 0.2682484, 0.9377000, 2.0303489, 2.1631315]]
+
+Expected (Unparsed): [[0.22265026929032283,0.7163,0.26824846730536633,0.9377,2.0303489149543164,2.1631315300000002]]
+
+Actual:   [[0.2227, 0.7163, 0.2683, 0.9377, 2.0304, 2.1632]]
+
+Expected: [[0.2227, 0.7163, 0.2683, 0.9377, 2.0304, 2.1632]]

@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min20187 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Min20187 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Min20187 = keras.layers.Minimum(name = 'Min20187', )([in0Min20187,in1Min20187])
+Res81857 = keras.layers.Reshape((2, 1, 2), name = 'Res81857', )(Min20187)
+Dep24001 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep24001', )(Res81857)
+Res594 = keras.layers.Reshape((1, 2), name = 'Res594', )(Dep24001)
+Cro10106 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro10106', )(Res594)
+model = tf.keras.models.Model(inputs=[in0Min20187,in1Min20187], outputs=Cro10106)
+w = model.get_layer('Dep24001').get_weights() 
+w[0] = np.array([[[[0.3377], [0.3782]]], [[[0.623], [0.4795]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep24001').set_weights(w) 
+in0Min20187 = tf.constant([[[[[0.9339], [0.8755]]], [[[0.504], [0.9239]]]]])
+in1Min20187 = tf.constant([[[[[0.3114], [0.267]]], [[[0.6858], [0.7829]]]]])
+print (np.array2string(model.predict([in0Min20187,in1Min20187],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro10106.png')
+
+LMin20187 = minimum_layer([[[[[[0.9339], [0.8755]]], [[[0.504], [0.9239]]]]], [[[[[0.3114], [0.267]]], [[[0.6858], [0.7829]]]]]], Min20187), 
+LRes81857 = reshape_layer(Min20187, [2, 1, 2], Res81857), 
+LDep24001 = depthwise_conv2D_layer(Res81857, 2, 1,[[[[0.3377], [0.3782]]], [[[0.623], [0.4795]]]],[0, 0], 2, 2, false, Dep24001), 
+LRes594 = reshape_layer(Dep24001, [1, 2], Res594), 
+LCro10106 = cropping1D_layer(Res594, 0, 0, Cro10106), 
+exec_layers([LMin20187,LRes81857,LDep24001,LRes594,LCro10106],["Min20187","Res81857","Dep24001","Res594","Cro10106"],Cro10106,"Cro10106")
+
+Actual (Unparsed): [[[0.4191518, 0.4763799]]]
+
+Expected (Unparsed): [[[0.41915178,0.47637995]]]
+
+Actual:   [[[0.4192, 0.4764]]]
+
+Expected: [[[0.4192, 0.4764]]]

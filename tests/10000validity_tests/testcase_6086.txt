@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo66335 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Glo66335 = keras.layers.GlobalMaxPool2D(name = 'Glo66335', )(in0Glo66335)
+Res50427 = keras.layers.Reshape((2, 1), name = 'Res50427', )(Glo66335)
+Loc69030 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc69030', )(Res50427)
+Lay83723 = keras.layers.LayerNormalization(axis=1, epsilon=1.975710530368932, name = 'Lay83723', )(Loc69030)
+Mas12246 = keras.layers.Masking(mask_value=1, name = 'Mas12246', )(Lay83723)
+Res84949 = keras.layers.Reshape((2, 2, 1), name = 'Res84949', )(Mas12246)
+Max50291 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Max50291', )(Res84949)
+model = tf.keras.models.Model(inputs=[in0Glo66335], outputs=Max50291)
+w = model.get_layer('Loc69030').get_weights() 
+w[0] = np.array([[[0.4733, 0.6645]], [[0.4719, 0.0725]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc69030').set_weights(w) 
+in0Glo66335 = tf.constant([[[[1.9626, 1.0085], [1.5949, 1.2553]], [[1.2627, 1.8408], [1.4041, 1.7391]]]])
+print (np.array2string(model.predict([in0Glo66335],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max50291.png')
+
+LGlo66335 = global_max_pool2D_layer([[[[1.9626, 1.0085], [1.5949, 1.2553]], [[1.2627, 1.8408], [1.4041, 1.7391]]]], Glo66335), 
+LRes50427 = reshape_layer(Glo66335, [2, 1], Res50427), 
+LLoc69030 = locally_connected1D_layer(Res50427, 1,[[[0.4733, 0.6645]], [[0.4719, 0.0725]]],[[0, 0], [0, 0]], 1, Loc69030), 
+LLay83723 = layer_normalization_layer(Loc69030, 1, 1.975710530368932, Lay83723), 
+LMas12246 = masking_layer(Lay83723, 1, Mas12246), 
+LRes84949 = reshape_layer(Mas12246, [2, 2, 1], Res84949), 
+LMax50291 = max_pool2D_layer(Res84949, 1, 1, 1, 1, true, Max50291), 
+exec_layers([LGlo66335,LRes50427,LLoc69030,LLay83723,LMas12246,LRes84949,LMax50291],["Glo66335","Res50427","Loc69030","Lay83723","Mas12246","Res84949","Max50291"],Max50291,"Max50291")
+
+Actual (Unparsed): [[[[0.0214183], [0.3844354]], [[-0.0214183], [-0.3844354]]]]
+
+Expected (Unparsed): [[[[0.02141834699306025],[0.38443535352644886]],[[-0.02141834699306033],[-0.384435353526449]]]]
+
+Actual:   [[[[0.0215], [0.3845]], [[-0.0214], [-0.3844]]]]
+
+Expected: [[[[0.0215], [0.3845]], [[-0.0214], [-0.3844]]]]

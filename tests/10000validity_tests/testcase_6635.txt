@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot12444 = tf.keras.layers.Input(shape=([3]))
+in1Dot12444 = tf.keras.layers.Input(shape=([3]))
+in0Con58455 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max12453 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max12453 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Dot12444 = keras.layers.Dot(axes=(1, 1), name = 'Dot12444', )([in0Dot12444,in1Dot12444])
+Res83097 = keras.layers.Reshape((1, 1), name = 'Res83097', )(Dot12444)
+Glo23026 = keras.layers.GlobalMaxPool1D(name = 'Glo23026', )(Res83097)
+Res32333 = keras.layers.Reshape((1, 1), name = 'Res32333', )(Glo23026)
+Res77961 = keras.layers.Reshape((1, 1, 1), name = 'Res77961', )(Res32333)
+Con58455 = keras.layers.Concatenate(axis=3, name = 'Con58455', )([Res77961,in0Con58455])
+Max12453 = keras.layers.Maximum(name = 'Max12453', )([in0Max12453,in1Max12453])
+Mul26129 = keras.layers.Multiply(name = 'Mul26129', )([Con58455,Max12453])
+model = tf.keras.models.Model(inputs=[in0Dot12444,in1Dot12444,in0Con58455,in0Max12453,in1Max12453], outputs=Mul26129)
+in0Dot12444 = tf.constant([[0.1201, 0.5405, 0.1086]])
+in1Dot12444 = tf.constant([[0.4418, 0.9547, 0.2178]])
+in0Con58455 = tf.constant([[[[0.1323]]]])
+in0Max12453 = tf.constant([[[[0.8493, 0.5296]]]])
+in1Max12453 = tf.constant([[[[0.3505, 0.2417]]]])
+print (np.array2string(model.predict([in0Dot12444,in1Dot12444,in0Con58455,in0Max12453,in1Max12453],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul26129.png')
+
+LDot12444 = dot_layer([[0.1201, 0.5405, 0.1086]], [[0.4418, 0.9547, 0.2178]], 1, 1, Dot12444), 
+LRes83097 = reshape_layer(Dot12444, [1, 1], Res83097), 
+LGlo23026 = global_max_pool1D_layer(Res83097, Glo23026), 
+LRes32333 = reshape_layer(Glo23026, [1, 1], Res32333), 
+LRes77961 = reshape_layer(Res32333, [1, 1, 1], Res77961), 
+LCon58455 = concatenate_layer([Res77961,[[[[0.1323]]]]], 3, Con58455), 
+LMax12453 = maximum_layer([[[[[0.8493, 0.5296]]]], [[[[0.3505, 0.2417]]]]], Max12453), 
+LMul26129 = multiply_layer([Con58455,Max12453], Mul26129), 
+exec_layers([LDot12444,LRes83097,LGlo23026,LRes32333,LRes77961,LCon58455,LMax12453,LMul26129],["Dot12444","Res83097","Glo23026","Res32333","Res77961","Con58455","Max12453","Mul26129"],Mul26129,"Mul26129")
+
+Actual (Unparsed): [[[[0.5034044, 0.0700661]]]]
+
+Expected (Unparsed): [[[[0.503404408473,0.07006607999999999]]]]
+
+Actual:   [[[[0.5035, 0.0701]]]]
+
+Expected: [[[[0.5035, 0.0701]]]]

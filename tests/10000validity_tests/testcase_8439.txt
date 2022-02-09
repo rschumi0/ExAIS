@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot90790 = tf.keras.layers.Input(shape=([2]))
+in1Dot90790 = tf.keras.layers.Input(shape=([2]))
+in0Con11127 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Loc87479 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Dot90790 = keras.layers.Dot(axes=(1, 1), name = 'Dot90790', )([in0Dot90790,in1Dot90790])
+Res86386 = keras.layers.Reshape((1, 1), name = 'Res86386', )(Dot90790)
+Res23402 = keras.layers.Reshape((1, 1, 1), name = 'Res23402', )(Res86386)
+Con11127 = keras.layers.Concatenate(axis=3, name = 'Con11127', )([Res23402,in0Con11127])
+Loc87479 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 12), name = 'Loc87479', )(in0Loc87479)
+Sub91773 = keras.layers.Subtract(name = 'Sub91773', )([Con11127,Loc87479])
+model = tf.keras.models.Model(inputs=[in0Dot90790,in1Dot90790,in0Con11127,in0Loc87479], outputs=Sub91773)
+w = model.get_layer('Loc87479').get_weights() 
+w[0] = np.array([[[0.445, 0.6646]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc87479').set_weights(w) 
+in0Dot90790 = tf.constant([[0.5692, 0.9708]])
+in1Dot90790 = tf.constant([[0.6787, 0.578]])
+in0Con11127 = tf.constant([[[[0.6585]]]])
+in0Loc87479 = tf.constant([[[[0.5298]]]])
+print (np.array2string(model.predict([in0Dot90790,in1Dot90790,in0Con11127,in0Loc87479],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub91773.png')
+
+LDot90790 = dot_layer([[0.5692, 0.9708]], [[0.6787, 0.578]], 1, 1, Dot90790), 
+LRes86386 = reshape_layer(Dot90790, [1, 1], Res86386), 
+LRes23402 = reshape_layer(Res86386, [1, 1, 1], Res23402), 
+LCon11127 = concatenate_layer([Res23402,[[[[0.6585]]]]], 3, Con11127), 
+LLoc87479 = locally_connected2D_layer([[[[0.5298]]]], 1, 1,[[[0.445, 0.6646]]],[[[0, 0]]], 1, 12, Loc87479), 
+LSub91773 = subtract_layer(Con11127,Loc87479, Sub91773), 
+exec_layers([LDot90790,LRes86386,LRes23402,LCon11127,LLoc87479,LSub91773],["Dot90790","Res86386","Res23402","Con11127","Loc87479","Sub91773"],Sub91773,"Sub91773")
+
+Actual (Unparsed): [[[[0.7116774, 0.3063949]]]]
+
+Expected (Unparsed): [[[[0.71167744,0.30639491999999996]]]]
+
+Actual:   [[[[0.7117, 0.3064]]]]
+
+Expected: [[[[0.7117, 0.3064]]]]

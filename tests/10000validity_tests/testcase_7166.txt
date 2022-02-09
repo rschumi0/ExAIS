@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim34689 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con91622 = tf.keras.layers.Input(shape=([3, 1]))
+in0Dot40024 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot40024 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sim34689 = keras.layers.SimpleRNN(3,name = 'Sim34689', )(in0Sim34689)
+Res91153 = keras.layers.Reshape((3, 1), name = 'Res91153', )(Sim34689)
+Con91622 = keras.layers.Concatenate(axis=2, name = 'Con91622', )([Res91153,in0Con91622])
+Dot40024 = keras.layers.Dot(axes=(2, 1), name = 'Dot40024', )([in0Dot40024,in1Dot40024])
+Zer29479 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer29479', )(Dot40024)
+Ave48594 = keras.layers.Average(name = 'Ave48594', )([Con91622,Zer29479])
+Res66498 = keras.layers.Reshape((3, 2, 1), name = 'Res66498', )(Ave48594)
+Res11309 = keras.layers.Reshape((3, 2, 1, 1), name = 'Res11309', )(Res66498)
+Cro46565 = keras.layers.Cropping3D(cropping=((2, 0), (1, 0), (0, 0)), name = 'Cro46565', )(Res11309)
+model = tf.keras.models.Model(inputs=[in0Sim34689,in0Con91622,in0Dot40024,in1Dot40024], outputs=Cro46565)
+w = model.get_layer('Sim34689').get_weights() 
+w[0] = np.array([[1, 2, 3], [8, 2, 10]])
+w[1] = np.array([[3, 5, 3], [4, 6, 3], [9, 2, 9]])
+w[2] = np.array([1, 5, 3])
+model.get_layer('Sim34689').set_weights(w) 
+in0Sim34689 = tf.constant([[[3, 1], [6, 5]]])
+in0Con91622 = tf.constant([[[0.1755], [0.9556], [0.5646]]])
+in0Dot40024 = tf.constant([[[0.8361, 0.8672], [0.8352, 0.2516]]])
+in1Dot40024 = tf.constant([[[0.086, 0.2581], [0.2782, 0.3854]]])
+print (np.array2string(model.predict([in0Sim34689,in0Con91622,in0Dot40024,in1Dot40024],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro46565.png')
+
+LSim34689 = simple_rnn_layer([[[3, 1], [6, 5]]],[[1, 2, 3], [8, 2, 10]],[[3, 5, 3], [4, 6, 3], [9, 2, 9]],[1, 5, 3], Sim34689), 
+LRes91153 = reshape_layer(Sim34689, [3, 1], Res91153), 
+LCon91622 = concatenate_layer([Res91153,[[[0.1755], [0.9556], [0.5646]]]], 2, Con91622), 
+LDot40024 = dot_layer([[[0.8361, 0.8672], [0.8352, 0.2516]]], [[[0.086, 0.2581], [0.2782, 0.3854]]], 2, 1, Dot40024), 
+LZer29479 = zero_padding1D_layer(Dot40024, 1, 0, Zer29479), 
+LAve48594 = average_layer([Con91622,Zer29479], Ave48594), 
+LRes66498 = reshape_layer(Ave48594, [3, 2, 1], Res66498), 
+LRes11309 = reshape_layer(Res66498, [3, 2, 1, 1], Res11309), 
+LCro46565 = cropping3D_layer(Res11309, 2, 0, 1, 0, 0, 0, Cro46565), 
+exec_layers([LSim34689,LRes91153,LCon91622,LDot40024,LZer29479,LAve48594,LRes66498,LRes11309,LCro46565],["Sim34689","Res91153","Con91622","Dot40024","Zer29479","Ave48594","Res66498","Res11309","Cro46565"],Cro46565,"Cro46565")
+
+Actual (Unparsed): [[[[[0.4385659]]]]]
+
+Expected (Unparsed): [[[[[0.43856587999999996]]]]]
+
+Actual:   [[[[[0.4386]]]]]
+
+Expected: [[[[[0.4386]]]]]

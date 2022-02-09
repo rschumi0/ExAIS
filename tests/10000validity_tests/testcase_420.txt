@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo53062 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo53062 = keras.layers.GlobalAveragePooling1D(name = 'Glo53062', )(in0Glo53062)
+Res41615 = keras.layers.Reshape((2, 1), name = 'Res41615', )(Glo53062)
+Res52021 = keras.layers.Reshape((2, 1, 1), name = 'Res52021', )(Res41615)
+Res42948 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res42948', )(Res52021)
+Glo16174 = keras.layers.GlobalMaxPool3D(name = 'Glo16174', )(Res42948)
+Mas22310 = keras.layers.Masking(mask_value=1, name = 'Mas22310', )(Glo16174)
+Res23554 = keras.layers.Reshape((1, 1), name = 'Res23554', )(Mas22310)
+Loc68524 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc68524', )(Res23554)
+model = tf.keras.models.Model(inputs=[in0Glo53062], outputs=Loc68524)
+w = model.get_layer('Loc68524').get_weights() 
+w[0] = np.array([[[0.5121, 0.8375, 0.9141, 0.2904]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc68524').set_weights(w) 
+in0Glo53062 = tf.constant([[[1.9641, 1.9071], [1.8262, 1.1436]]])
+print (np.array2string(model.predict([in0Glo53062],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc68524.png')
+
+LGlo53062 = global_average_pooling1D_layer([[[1.9641, 1.9071], [1.8262, 1.1436]]], Glo53062), 
+LRes41615 = reshape_layer(Glo53062, [2, 1], Res41615), 
+LRes52021 = reshape_layer(Res41615, [2, 1, 1], Res52021), 
+LRes42948 = reshape_layer(Res52021, [2, 1, 1, 1], Res42948), 
+LGlo16174 = global_max_pool3D_layer(Res42948, Glo16174), 
+LMas22310 = masking_layer(Glo16174, 1, Mas22310), 
+LRes23554 = reshape_layer(Mas22310, [1, 1], Res23554), 
+LLoc68524 = locally_connected1D_layer(Res23554, 1,[[[0.5121, 0.8375, 0.9141, 0.2904]]],[[0, 0, 0, 0]], 1, Loc68524), 
+exec_layers([LGlo53062,LRes41615,LRes52021,LRes42948,LGlo16174,LMas22310,LRes23554,LLoc68524],["Glo53062","Res41615","Res52021","Res42948","Glo16174","Mas22310","Res23554","Loc68524"],Loc68524,"Loc68524")
+
+Actual (Unparsed): [[[0.9705063, 1.5871881, 1.7323566, 0.5503516]]]
+
+Expected (Unparsed): [[[0.9705063150000001,1.5871881250000002,1.732356615,0.55035156]]]
+
+Actual:   [[[0.9706, 1.5872, 1.7324, 0.5504]]]
+
+Expected: [[[0.9706, 1.5872, 1.7324, 0.5504]]]

@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add19123 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Add19123 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Dot53895 = tf.keras.layers.Input(shape=([2]))
+in1Dot53895 = tf.keras.layers.Input(shape=([2]))
+
+Add19123 = keras.layers.Add(name = 'Add19123', )([in0Add19123,in1Add19123])
+Res33847 = keras.layers.Reshape((2, 1, 2), name = 'Res33847', )(Add19123)
+Dot53895 = keras.layers.Dot(axes=(1, 1), name = 'Dot53895', )([in0Dot53895,in1Dot53895])
+Res21480 = keras.layers.Reshape((1, 1), name = 'Res21480', )(Dot53895)
+Res62351 = keras.layers.Reshape((1, 1, 1), name = 'Res62351', )(Res21480)
+Loc25374 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc25374', )(Res62351)
+Zer94113 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer94113', )(Loc25374)
+Mul57330 = keras.layers.Multiply(name = 'Mul57330', )([Res33847,Zer94113])
+model = tf.keras.models.Model(inputs=[in0Add19123,in1Add19123,in0Dot53895,in1Dot53895], outputs=Mul57330)
+w = model.get_layer('Loc25374').get_weights() 
+w[0] = np.array([[[0.1941, 0.1611]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc25374').set_weights(w) 
+in0Add19123 = tf.constant([[[[[0.9136], [0.6337]]], [[[0.5587], [0.9313]]]]])
+in1Add19123 = tf.constant([[[[[0.1112], [0.4753]]], [[[0.6186], [0.255]]]]])
+in0Dot53895 = tf.constant([[0.7503, 0.2604]])
+in1Dot53895 = tf.constant([[0.5942, 0.9367]])
+print (np.array2string(model.predict([in0Add19123,in1Add19123,in0Dot53895,in1Dot53895],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul57330.png')
+
+LAdd19123 = add_layer([[[[[[0.9136], [0.6337]]], [[[0.5587], [0.9313]]]]], [[[[[0.1112], [0.4753]]], [[[0.6186], [0.255]]]]]], Add19123), 
+LRes33847 = reshape_layer(Add19123, [2, 1, 2], Res33847), 
+LDot53895 = dot_layer([[0.7503, 0.2604]], [[0.5942, 0.9367]], 1, 1, Dot53895), 
+LRes21480 = reshape_layer(Dot53895, [1, 1], Res21480), 
+LRes62351 = reshape_layer(Res21480, [1, 1, 1], Res62351), 
+LLoc25374 = locally_connected2D_layer(Res62351, 1, 1,[[[0.1941, 0.1611]]],[[[0, 0]]], 1, 1, Loc25374), 
+LZer94113 = zero_padding2D_layer(Loc25374, 1, 0, 0, 0, Zer94113), 
+LMul57330 = multiply_layer([Res33847,Zer94113], Mul57330), 
+exec_layers([LAdd19123,LRes33847,LDot53895,LRes21480,LRes62351,LLoc25374,LZer94113,LMul57330],["Add19123","Res33847","Dot53895","Res21480","Res62351","Loc25374","Zer94113","Mul57330"],Mul57330,"Mul57330")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000]], [[0.1576163, 0.1318192]]]]
+
+Expected (Unparsed): [[[[0.0,0.0]],[[0.1576163269370142,0.13181917643607421]]]]
+
+Actual:   [[[[0, 0]], [[0.1577, 0.1319]]]]
+
+Expected: [[[[0, 0]], [[0.1577, 0.1319]]]]

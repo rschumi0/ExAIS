@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min56099 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min56099 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Sep40431 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con87398 = tf.keras.layers.Input(shape=([2, 2]))
+
+Min56099 = keras.layers.Minimum(name = 'Min56099', )([in0Min56099,in1Min56099])
+Res59225 = keras.layers.Reshape((2, 4), name = 'Res59225', )(Min56099)
+Sep40431 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep40431', )(in0Sep40431)
+Zer45934 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer45934', )(Sep40431)
+Con87398 = keras.layers.Concatenate(axis=2, name = 'Con87398', )([Zer45934,in0Con87398])
+Mul26215 = keras.layers.Multiply(name = 'Mul26215', )([Res59225,Con87398])
+model = tf.keras.models.Model(inputs=[in0Min56099,in1Min56099,in0Sep40431,in0Con87398], outputs=Mul26215)
+w = model.get_layer('Sep40431').get_weights() 
+w[0] = np.array([[[0.8338], [0.2754]]])
+w[1] = np.array([[[0.0399, 0.2352], [0.2614, 0.3237]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep40431').set_weights(w) 
+in0Min56099 = tf.constant([[[[0.7618, 0.7422], [0.2522, 0.1201]], [[0.4729, 0.0116], [0.426, 0.3048]]]])
+in1Min56099 = tf.constant([[[[0.7941, 0.8417], [0.9632, 0.6767]], [[0.5286, 0.4302], [0.58, 0.9843]]]])
+in0Sep40431 = tf.constant([[[0.8962, 0.7717]]])
+in0Con87398 = tf.constant([[[0.9613, 0.6561], [0.9108, 0.9835]]])
+print (np.array2string(model.predict([in0Min56099,in1Min56099,in0Sep40431,in0Con87398],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul26215.png')
+
+LMin56099 = minimum_layer([[[[[0.7618, 0.7422], [0.2522, 0.1201]], [[0.4729, 0.0116], [0.426, 0.3048]]]], [[[[0.7941, 0.8417], [0.9632, 0.6767]], [[0.5286, 0.4302], [0.58, 0.9843]]]]], Min56099), 
+LRes59225 = reshape_layer(Min56099, [2, 4], Res59225), 
+LSep40431 = separable_conv1D_layer([[[0.8962, 0.7717]]], 1,[[[[0.8338], [0.2754]]],[[[0.0399, 0.2352], [0.2614, 0.3237]]]],[0, 0], 1, false, Sep40431), 
+LZer45934 = zero_padding1D_layer(Sep40431, 1, 0, Zer45934), 
+LCon87398 = concatenate_layer([Zer45934,[[[0.9613, 0.6561], [0.9108, 0.9835]]]], 2, Con87398), 
+LMul26215 = multiply_layer([Res59225,Con87398], Mul26215), 
+exec_layers([LMin56099,LRes59225,LSep40431,LZer45934,LCon87398,LMul26215],["Min56099","Res59225","Sep40431","Zer45934","Con87398","Mul26215"],Mul26215,"Mul26215")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.2424399, 0.0787976], [0.0403713, 0.0028368, 0.3880008, 0.2997708]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.24243985999999998,0.07879761],[0.0403713220011384,0.0028367601799848,0.38800080000000003,0.2997708]]]
+
+Actual:   [[[0, 0, 0.2425, 0.0788], [0.0404, 0.0029, 0.3881, 0.2998]]]
+
+Expected: [[[0, 0, 0.2425, 0.0788], [0.0404, 0.0029, 0.3881, 0.2998]]]

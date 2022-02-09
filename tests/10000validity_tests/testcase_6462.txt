@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min40802 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min40802 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con71446 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave6365 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave6365 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Max1246 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con35650 = tf.keras.layers.Input(shape=([1, 3]))
+
+Min40802 = keras.layers.Minimum(name = 'Min40802', )([in0Min40802,in1Min40802])
+Res17984 = keras.layers.Reshape((1, 1, 2), name = 'Res17984', )(Min40802)
+Res2991 = keras.layers.Reshape((1, 2), name = 'Res2991', )(Res17984)
+Con71446 = keras.layers.Concatenate(axis=2, name = 'Con71446', )([Res2991,in0Con71446])
+Ave6365 = keras.layers.Average(name = 'Ave6365', )([in0Ave6365,in1Ave6365])
+Res43241 = keras.layers.Reshape((1, 4), name = 'Res43241', )(Ave6365)
+Max1246 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max1246', )(in0Max1246)
+Con35650 = keras.layers.Concatenate(axis=2, name = 'Con35650', )([Max1246,in0Con35650])
+Max30109 = keras.layers.Maximum(name = 'Max30109', )([Res43241,Con35650])
+Mul76288 = keras.layers.Multiply(name = 'Mul76288', )([Con71446,Max30109])
+Fla46495 = keras.layers.Flatten(name = 'Fla46495', )(Mul76288)
+model = tf.keras.models.Model(inputs=[in0Min40802,in1Min40802,in0Con71446,in0Ave6365,in1Ave6365,in0Max1246,in0Con35650], outputs=Fla46495)
+in0Min40802 = tf.constant([[[[[0.7176, 0.0453]]]]])
+in1Min40802 = tf.constant([[[[[0.1176, 0.2276]]]]])
+in0Con71446 = tf.constant([[[0.4381, 0.5096]]])
+in0Ave6365 = tf.constant([[[[0.4572, 0.0324], [0.9455, 0.2058]]]])
+in1Ave6365 = tf.constant([[[[0.7804, 0.2026], [0.3988, 0.6879]]]])
+in0Max1246 = tf.constant([[[1.5526]]])
+in0Con35650 = tf.constant([[[0.7124, 0.8404, 0.5281]]])
+print (np.array2string(model.predict([in0Min40802,in1Min40802,in0Con71446,in0Ave6365,in1Ave6365,in0Max1246,in0Con35650],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla46495.png')
+
+LMin40802 = minimum_layer([[[[[[0.7176, 0.0453]]]]], [[[[[0.1176, 0.2276]]]]]], Min40802), 
+LRes17984 = reshape_layer(Min40802, [1, 1, 2], Res17984), 
+LRes2991 = reshape_layer(Res17984, [1, 2], Res2991), 
+LCon71446 = concatenate_layer([Res2991,[[[0.4381, 0.5096]]]], 2, Con71446), 
+LAve6365 = average_layer([[[[[0.4572, 0.0324], [0.9455, 0.2058]]]], [[[[0.7804, 0.2026], [0.3988, 0.6879]]]]], Ave6365), 
+LRes43241 = reshape_layer(Ave6365, [1, 4], Res43241), 
+LMax1246 = max_pool1D_layer([[[1.5526]]], 1, 1, true, Max1246), 
+LCon35650 = concatenate_layer([Max1246,[[[0.7124, 0.8404, 0.5281]]]], 2, Con35650), 
+LMax30109 = maximum_layer([Res43241,Con35650], Max30109), 
+LMul76288 = multiply_layer([Con71446,Max30109], Mul76288), 
+LFla46495 = flatten_layer(Mul76288, Fla46495), 
+exec_layers([LMin40802,LRes17984,LRes2991,LCon71446,LAve6365,LRes43241,LMax1246,LCon35650,LMax30109,LMul76288,LFla46495],["Min40802","Res17984","Res2991","Con71446","Ave6365","Res43241","Max1246","Con35650","Max30109","Mul76288","Fla46495"],Fla46495,"Fla46495")
+
+Actual (Unparsed): [[0.1825858, 0.0322717, 0.3681792, 0.2691198]]
+
+Expected (Unparsed): [[0.18258575999999999,0.032271720000000004,0.36817924,0.26911976000000004]]
+
+Actual:   [[0.1826, 0.0323, 0.3682, 0.2692]]
+
+Expected: [[0.1826, 0.0323, 0.3682, 0.2692]]

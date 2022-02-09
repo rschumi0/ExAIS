@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_53886 = tf.keras.layers.Input(shape=([2, 1, 4, 2]))
+in0Sim52975 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con43367 = tf.keras.layers.Input(shape=([30]))
+
+Up_53886 = keras.layers.UpSampling3D(size=(1, 2, 1), name = 'Up_53886', )(in0Up_53886)
+Res92035 = keras.layers.Reshape((2, 2, 8), name = 'Res92035', )(Up_53886)
+Res48787 = keras.layers.Reshape((2, 16), name = 'Res48787', )(Res92035)
+Fla13551 = keras.layers.Flatten(name = 'Fla13551', )(Res48787)
+Sim52975 = keras.layers.SimpleRNN(2,name = 'Sim52975', )(in0Sim52975)
+Con43367 = keras.layers.Concatenate(axis=1, name = 'Con43367', )([Sim52975,in0Con43367])
+Sub92822 = keras.layers.Subtract(name = 'Sub92822', )([Fla13551,Con43367])
+Res97362 = keras.layers.Reshape((32, 1), name = 'Res97362', )(Sub92822)
+Cro15939 = keras.layers.Cropping1D(cropping=((13, 5)), name = 'Cro15939', )(Res97362)
+Max19752 = keras.layers.MaxPool1D(pool_size=(2), strides=(1), padding='same', name = 'Max19752', )(Cro15939)
+model = tf.keras.models.Model(inputs=[in0Up_53886,in0Sim52975,in0Con43367], outputs=Max19752)
+w = model.get_layer('Sim52975').get_weights() 
+w[0] = np.array([[10, 7], [1, 9]])
+w[1] = np.array([[1, 10], [4, 1]])
+w[2] = np.array([6, 2])
+model.get_layer('Sim52975').set_weights(w) 
+in0Up_53886 = tf.constant([[[[[1.5478, 1.2899], [1.3639, 1.2646], [1.6437, 1.9117], [1.3682, 1.1165]]], [[[1.2549, 1.5002], [1.9618, 1.7373], [1.6741, 1.3883], [1.2914, 1.6248]]]]])
+in0Sim52975 = tf.constant([[[2, 8]]])
+in0Con43367 = tf.constant([[0.2802, 0.0134, 0.2119, 0.6485, 0.8435, 0.9498, 0.3098, 0.5249, 0.5138, 0.7567, 0.8352, 0.024, 0.3106, 0.5907, 0.6394, 0.8326, 0.0374, 0.7655, 0.2877, 0.5048, 0.1888, 0.9758, 0.4854, 0.8394, 0.6855, 0.6279, 0.4587, 0.7093, 0.5059, 0.1365]])
+print (np.array2string(model.predict([in0Up_53886,in0Sim52975,in0Con43367],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max19752.png')
+
+LUp_53886 = up_sampling3D_layer([[[[[1.5478, 1.2899], [1.3639, 1.2646], [1.6437, 1.9117], [1.3682, 1.1165]]], [[[1.2549, 1.5002], [1.9618, 1.7373], [1.6741, 1.3883], [1.2914, 1.6248]]]]], 1, 2, 1, Up_53886), 
+LRes92035 = reshape_layer(Up_53886, [2, 2, 8], Res92035), 
+LRes48787 = reshape_layer(Res92035, [2, 16], Res48787), 
+LFla13551 = flatten_layer(Res48787, Fla13551), 
+LSim52975 = simple_rnn_layer([[[2, 8]]],[[10, 7], [1, 9]],[[1, 10], [4, 1]],[6, 2], Sim52975), 
+LCon43367 = concatenate_layer([Sim52975,[[0.2802, 0.0134, 0.2119, 0.6485, 0.8435, 0.9498, 0.3098, 0.5249, 0.5138, 0.7567, 0.8352, 0.024, 0.3106, 0.5907, 0.6394, 0.8326, 0.0374, 0.7655, 0.2877, 0.5048, 0.1888, 0.9758, 0.4854, 0.8394, 0.6855, 0.6279, 0.4587, 0.7093, 0.5059, 0.1365]]], 1, Con43367), 
+LSub92822 = subtract_layer(Fla13551,Con43367, Sub92822), 
+LRes97362 = reshape_layer(Sub92822, [32, 1], Res97362), 
+LCro15939 = cropping1D_layer(Res97362, 13, 5, Cro15939), 
+LMax19752 = max_pool1D_layer(Cro15939, 2, 1, true, Max19752), 
+exec_layers([LUp_53886,LRes92035,LRes48787,LFla13551,LSim52975,LCon43367,LSub92822,LRes97362,LCro15939,LMax19752],["Up_53886","Res92035","Res48787","Fla13551","Sim52975","Con43367","Sub92822","Res97362","Cro15939","Max19752"],Max19752,"Max19752")
+
+Actual (Unparsed): [[[1.8877000], [1.0575999], [0.6155000], [0.6676000], [1.9244000], [1.9244000], [1.3864000], [1.3864000], [1.1025999], [1.1025999], [0.7695000], [0.7695000], [1.2763000], [1.2763000]]]
+
+Expected (Unparsed): [[[1.8877],[1.0576],[0.6154999999999999],[0.6676],[1.9243999999999999],[1.9243999999999999],[1.3863999999999999],[1.3863999999999999],[1.1026],[1.1026],[0.7694999999999999],[0.7694999999999999],[1.2763],[1.2763]]]
+
+Actual:   [[[1.8877], [1.0576], [0.6155], [0.6676], [1.9244], [1.9244], [1.3864], [1.3864], [1.1026], [1.1026], [0.7695], [0.7695], [1.2763], [1.2763]]]
+
+Expected: [[[1.8877], [1.0576], [0.6155], [0.6676], [1.9244], [1.9244], [1.3864], [1.3864], [1.1026], [1.1026], [0.7695], [0.7695], [1.2763], [1.2763]]]

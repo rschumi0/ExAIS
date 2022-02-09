@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave90495 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Ave90495 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Max45076 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max45076 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Ave90495 = keras.layers.Average(name = 'Ave90495', )([in0Ave90495,in1Ave90495])
+Res37178 = keras.layers.Reshape((1, 2, 1), name = 'Res37178', )(Ave90495)
+Res85147 = keras.layers.Reshape((1, 2), name = 'Res85147', )(Res37178)
+Sim24020 = keras.layers.SimpleRNN(2,name = 'Sim24020', )(Res85147)
+Res39309 = keras.layers.Reshape((2, 1), name = 'Res39309', )(Sim24020)
+Max45076 = keras.layers.Maximum(name = 'Max45076', )([in0Max45076,in1Max45076])
+Res56080 = keras.layers.Reshape((2, 1), name = 'Res56080', )(Max45076)
+Mul91783 = keras.layers.Multiply(name = 'Mul91783', )([Res39309,Res56080])
+model = tf.keras.models.Model(inputs=[in0Ave90495,in1Ave90495,in0Max45076,in1Max45076], outputs=Mul91783)
+w = model.get_layer('Sim24020').get_weights() 
+w[0] = np.array([[10, 5], [6, 3]])
+w[1] = np.array([[8, 1], [10, 7]])
+w[2] = np.array([1, 1])
+model.get_layer('Sim24020').set_weights(w) 
+in0Ave90495 = tf.constant([[[[[0.043]], [[0.1782]]]]])
+in1Ave90495 = tf.constant([[[[[0.8465]], [[0.9734]]]]])
+in0Max45076 = tf.constant([[[[0.1313]], [[0.3631]]]])
+in1Max45076 = tf.constant([[[[0.6966]], [[0.7158]]]])
+print (np.array2string(model.predict([in0Ave90495,in1Ave90495,in0Max45076,in1Max45076],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul91783.png')
+
+LAve90495 = average_layer([[[[[[0.043]], [[0.1782]]]]], [[[[[0.8465]], [[0.9734]]]]]], Ave90495), 
+LRes37178 = reshape_layer(Ave90495, [1, 2, 1], Res37178), 
+LRes85147 = reshape_layer(Res37178, [1, 2], Res85147), 
+LSim24020 = simple_rnn_layer(Res85147,[[10, 5], [6, 3]],[[8, 1], [10, 7]],[1, 1], Sim24020), 
+LRes39309 = reshape_layer(Sim24020, [2, 1], Res39309), 
+LMax45076 = maximum_layer([[[[[0.1313]], [[0.3631]]]], [[[[0.6966]], [[0.7158]]]]], Max45076), 
+LRes56080 = reshape_layer(Max45076, [2, 1], Res56080), 
+LMul91783 = multiply_layer([Res39309,Res56080], Mul91783), 
+exec_layers([LAve90495,LRes37178,LRes85147,LSim24020,LRes39309,LMax45076,LRes56080,LMul91783],["Ave90495","Res37178","Res85147","Sim24020","Res39309","Max45076","Res56080","Mul91783"],Mul91783,"Mul91783")
+
+Actual (Unparsed): [[[0.6966000], [0.7157283]]]
+
+Expected (Unparsed): [[[0.6965999742027196],[0.7157283385318265]]]
+
+Actual:   [[[0.6966], [0.7158]]]
+
+Expected: [[[0.6966], [0.7158]]]

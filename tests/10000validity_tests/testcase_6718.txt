@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave95962 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave95962 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0PRe47267 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min97428 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Min97428 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Ave95962 = keras.layers.Average(name = 'Ave95962', )([in0Ave95962,in1Ave95962])
+Res83894 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res83894', )(Ave95962)
+Zer60816 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer60816', )(Res83894)
+PRe47267 = keras.layers.PReLU(name = 'PRe47267', input_shape=(2, 2, 1))(in0PRe47267)
+Res24255 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res24255', )(PRe47267)
+Min97428 = keras.layers.Minimum(name = 'Min97428', )([in0Min97428,in1Min97428])
+Zer96220 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer96220', )(Min97428)
+Max91038 = keras.layers.Maximum(name = 'Max91038', )([Res24255,Zer96220])
+Add43036 = keras.layers.Add(name = 'Add43036', )([Zer60816,Max91038])
+Res91838 = keras.layers.Reshape((2, 2, 1), name = 'Res91838', )(Add43036)
+Res58876 = keras.layers.Reshape((2, 2), name = 'Res58876', )(Res91838)
+Up_35385 = keras.layers.UpSampling1D(size=(1), name = 'Up_35385', )(Res58876)
+Ave50488 = keras.layers.AveragePooling1D(pool_size=(2), strides=(1), padding='valid', name = 'Ave50488', )(Up_35385)
+model = tf.keras.models.Model(inputs=[in0Ave95962,in1Ave95962,in0PRe47267,in0Min97428,in1Min97428], outputs=Ave50488)
+w = model.get_layer('PRe47267').get_weights() 
+w[0] = np.array([[[0.3916], [0.7309]], [[0.2549], [0.5673]]])
+model.get_layer('PRe47267').set_weights(w) 
+in0Ave95962 = tf.constant([[[[0.7249]]]])
+in1Ave95962 = tf.constant([[[[0.5415]]]])
+in0PRe47267 = tf.constant([[[[0.4333], [0.8803]], [[0.5688], [0.4246]]]])
+in0Min97428 = tf.constant([[[[[0.9314]], [[0.8858]]]]])
+in1Min97428 = tf.constant([[[[[0.7107]], [[0.903]]]]])
+print (np.array2string(model.predict([in0Ave95962,in1Ave95962,in0PRe47267,in0Min97428,in1Min97428],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave50488.png')
+
+LAve95962 = average_layer([[[[[0.7249]]]], [[[[0.5415]]]]], Ave95962), 
+LRes83894 = reshape_layer(Ave95962, [1, 1, 1, 1], Res83894), 
+LZer60816 = zero_padding3D_layer(Res83894, 1, 0, 1, 0, 0, 0, Zer60816), 
+LPRe47267 = prelu_layer([[[[0.4333], [0.8803]], [[0.5688], [0.4246]]]], [[[0.3916], [0.7309]], [[0.2549], [0.5673]]], PRe47267), 
+LRes24255 = reshape_layer(PRe47267, [2, 2, 1, 1], Res24255), 
+LMin97428 = minimum_layer([[[[[[0.9314]], [[0.8858]]]]], [[[[[0.7107]], [[0.903]]]]]], Min97428), 
+LZer96220 = zero_padding3D_layer(Min97428, 1, 0, 0, 0, 0, 0, Zer96220), 
+LMax91038 = maximum_layer([Res24255,Zer96220], Max91038), 
+LAdd43036 = add_layer([Zer60816,Max91038], Add43036), 
+LRes91838 = reshape_layer(Add43036, [2, 2, 1], Res91838), 
+LRes58876 = reshape_layer(Res91838, [2, 2], Res58876), 
+LUp_35385 = up_sampling1D_layer(Res58876, 1, Up_35385), 
+LAve50488 = average_pooling1D_layer(Up_35385, 2, 1, false, Ave50488), 
+exec_layers([LAve95962,LRes83894,LZer60816,LPRe47267,LRes24255,LMin97428,LZer96220,LMax91038,LAdd43036,LRes91838,LRes58876,LUp_35385,LAve50488],["Ave95962","Res83894","Zer60816","PRe47267","Res24255","Min97428","Zer96220","Max91038","Add43036","Res91838","Res58876","Up_35385","Ave50488"],Ave50488,"Ave50488")
+
+Actual (Unparsed): [[[0.5720000, 1.1996500]]]
+
+Expected (Unparsed): [[[0.5720000000000001,1.19965]]]
+
+Actual:   [[[0.572, 1.1997]]]
+
+Expected: [[[0.5721, 1.1997]]]

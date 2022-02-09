@@ -1,0 +1,68 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave68328 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave68328 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Dot85002 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot85002 = tf.keras.layers.Input(shape=([3, 3]))
+
+Ave68328 = keras.layers.Average(name = 'Ave68328', )([in0Ave68328,in1Ave68328])
+Loc1607 = keras.layers.LocallyConnected2D(3, (2, 2),strides=(1, 1), name = 'Loc1607', )(Ave68328)
+Res94597 = keras.layers.Reshape((1, 3), name = 'Res94597', )(Loc1607)
+GRU4213 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU4213', )(Res94597)
+Res30539 = keras.layers.Reshape((2, 1), name = 'Res30539', )(GRU4213)
+Zer68459 = keras.layers.ZeroPadding1D(padding=((31, 0)), name = 'Zer68459', )(Res30539)
+Dot85002 = keras.layers.Dot(axes=(1, 1), name = 'Dot85002', )([in0Dot85002,in1Dot85002])
+Glo59291 = keras.layers.GlobalMaxPool1D(name = 'Glo59291', )(Dot85002)
+Res76570 = keras.layers.Reshape((3, 1), name = 'Res76570', )(Glo59291)
+Res90929 = keras.layers.Reshape((3, 1, 1), name = 'Res90929', )(Res76570)
+Con10519 = keras.layers.Conv2DTranspose(2, (3, 1),strides=(11, 1), padding='valid', name = 'Con10519', )(Res90929)
+Res99034 = keras.layers.Reshape((33, 2), name = 'Res99034', )(Con10519)
+Dot11839 = keras.layers.Dot(axes=(1, 1), name = 'Dot11839', )([Zer68459,Res99034])
+model = tf.keras.models.Model(inputs=[in0Ave68328,in1Ave68328,in0Dot85002,in1Dot85002], outputs=Dot11839)
+w = model.get_layer('Loc1607').get_weights() 
+w[0] = np.array([[[0.0132, 0.167, 0.5277], [0.682, 0.3093, 0.5501], [0.9831, 0.77, 0.2865], [0.2488, 0.5296, 0.4061]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc1607').set_weights(w) 
+w = model.get_layer('GRU4213').get_weights() 
+w[0] = np.array([[9, 1, 5, 8, 9, 3], [6, 10, 2, 3, 4, 8], [7, 8, 2, 2, 3, 4]])
+w[1] = np.array([[7, 5, 5, 10, 6, 5], [3, 1, 7, 4, 3, 10]])
+w[2] = np.array([[6, 2, 10, 10, 9, 10], [7, 7, 2, 6, 8, 8]])
+model.get_layer('GRU4213').set_weights(w) 
+w = model.get_layer('Con10519').get_weights() 
+w[0] = np.array([[[[0.2423], [0.7251]]], [[[0.578], [0.7954]]], [[[0.5925], [0.748]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con10519').set_weights(w) 
+in0Ave68328 = tf.constant([[[[0.4795], [0.8914]], [[0.3888], [0.5488]]]])
+in1Ave68328 = tf.constant([[[[0.2773], [0.792]], [[0.0867], [0.98]]]])
+in0Dot85002 = tf.constant([[[0.8412, 0.1927, 0.2442], [0.4109, 0.4483, 0.9715], [0.9444, 0.2418, 0.7448]]])
+in1Dot85002 = tf.constant([[[0.18, 0.2667, 0.0813], [0.334, 0.5745, 0.4756], [0.3845, 0.666, 0.6432]]])
+print (np.array2string(model.predict([in0Ave68328,in1Ave68328,in0Dot85002,in1Dot85002],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot11839.png')
+
+LAve68328 = average_layer([[[[[0.4795], [0.8914]], [[0.3888], [0.5488]]]], [[[[0.2773], [0.792]], [[0.0867], [0.98]]]]], Ave68328), 
+LLoc1607 = locally_connected2D_layer(Ave68328, 2, 2,[[[0.0132, 0.167, 0.5277], [0.682, 0.3093, 0.5501], [0.9831, 0.77, 0.2865], [0.2488, 0.5296, 0.4061]]],[[[0, 0, 0]]], 1, 1, Loc1607), 
+LRes94597 = reshape_layer(Loc1607, [1, 3], Res94597), 
+LGRU4213 = gru_layer(Res94597,[[9, 1, 5, 8, 9, 3], [6, 10, 2, 3, 4, 8], [7, 8, 2, 2, 3, 4]],[[7, 5, 5, 10, 6, 5], [3, 1, 7, 4, 3, 10]],[[6, 2, 10, 10, 9, 10], [7, 7, 2, 6, 8, 8]], true, GRU4213), 
+LRes30539 = reshape_layer(GRU4213, [2, 1], Res30539), 
+LZer68459 = zero_padding1D_layer(Res30539, 31, 0, Zer68459), 
+LDot85002 = dot_layer([[[0.8412, 0.1927, 0.2442], [0.4109, 0.4483, 0.9715], [0.9444, 0.2418, 0.7448]]], [[[0.18, 0.2667, 0.0813], [0.334, 0.5745, 0.4756], [0.3845, 0.666, 0.6432]]], 1, 1, Dot85002), 
+LGlo59291 = global_max_pool1D_layer(Dot85002, Glo59291), 
+LRes76570 = reshape_layer(Glo59291, [3, 1], Res76570), 
+LRes90929 = reshape_layer(Res76570, [3, 1, 1], Res90929), 
+LCon10519 = conv2D_transpose_layer(Res90929, 3, 1,[[[[0.2423], [0.7251]]], [[[0.578], [0.7954]]], [[[0.5925], [0.748]]]],[0, 0], 11, 1, false, Con10519), 
+LRes99034 = reshape_layer(Con10519, [33, 2], Res99034), 
+LDot11839 = dot_layer(Zer68459,Res99034, 1, 1, Dot11839), 
+exec_layers([LAve68328,LLoc1607,LRes94597,LGRU4213,LRes30539,LZer68459,LDot85002,LGlo59291,LRes76570,LRes90929,LCon10519,LRes99034,LDot11839],["Ave68328","Loc1607","Res94597","GRU4213","Res30539","Zer68459","Dot85002","Glo59291","Res76570","Res90929","Con10519","Res99034","Dot11839"],Dot11839,"Dot11839")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0]]]
+
+Actual:   [[[0, 0]]]
+
+Expected: [[[0, 0]]]

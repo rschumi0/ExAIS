@@ -1,0 +1,48 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep81798 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max71081 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max71081 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Dep81798 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep81798', )(in0Dep81798)
+Zer57503 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer57503', )(Dep81798)
+Max71081 = keras.layers.Maximum(name = 'Max71081', )([in0Max71081,in1Max71081])
+Ave31261 = keras.layers.Average(name = 'Ave31261', )([Zer57503,Max71081])
+Res98485 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res98485', )(Ave31261)
+Glo26695 = keras.layers.GlobalMaxPool3D(name = 'Glo26695', )(Res98485)
+Per60310 = keras.layers.Permute((2,1), name = 'Per60310',)(Glo26695)
+model = tf.keras.models.Model(inputs=[in0Dep81798,in0Max71081,in1Max71081], outputs=Per60310)
+w = model.get_layer('Dep81798').get_weights() 
+w[0] = np.array([[[[0.9115]]]])
+w[1] = np.array([0])
+model.get_layer('Dep81798').set_weights(w) 
+in0Dep81798 = tf.constant([[[[0.6211]]]])
+in0Max71081 = tf.constant([[[[0.6081]], [[0.1097]]]])
+in1Max71081 = tf.constant([[[[0.4561]], [[0.7002]]]])
+print (np.array2string(model.predict([in0Dep81798,in0Max71081,in1Max71081],steps=1), separator=', '))
+
+
+LDep81798 = depthwise_conv2D_layer([[[[0.6211]]]], 1, 1,[[[[0.9115]]]],[0], 1, 1, false, Dep81798), 
+LZer57503 = zero_padding2D_layer(Dep81798, 1, 0, 0, 0, Zer57503), 
+LMax71081 = maximum_layer([[[[[0.6081]], [[0.1097]]]], [[[[0.4561]], [[0.7002]]]]], Max71081), 
+LAve31261 = average_layer([Zer57503,Max71081], Ave31261), 
+LRes98485 = reshape_layer(Ave31261, [2, 1, 1, 1], Res98485), 
+LGlo26695 = global_max_pool3D_layer(Res98485, Glo26695), 
+LPer60310 = permute_layer(Glo26695, 2,1, Per60310), 
+exec_layers([LDep81798,LZer57503,LMax71081,LAve31261,LRes98485,LGlo26695,LPer60310],["Dep81798","Zer57503","Max71081","Ave31261","Res98485","Glo26695","Per60310"],Per60310,"Per60310")
+
+Actual (Unparsed): 
+ ValueError('Input ' + str(input_index) + ' of layer ' +ValueError: Input 0 of layer Per60310 is incompatible with the layer: expected ndim=3, found ndim=2. Full shape received: (None, 1)
+
+Expected (Unparsed): 
+Per60310: Dimension error, Input Shape [1,1]
+
+Actual:   
+
+Expected: 

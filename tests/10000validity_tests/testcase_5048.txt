@@ -1,0 +1,42 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul14561 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul14561 = tf.keras.layers.Input(shape=([2, 2]))
+
+Mul14561 = keras.layers.Multiply(name = 'Mul14561', )([in0Mul14561,in1Mul14561])
+Cro87390 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro87390', )(Mul14561)
+Fla37184 = keras.layers.Flatten(name = 'Fla37184', )(Cro87390)
+Res42915 = keras.layers.Reshape((4, 1), name = 'Res42915', )(Fla37184)
+Sep52189 = keras.layers.SeparableConv1D(2, (1),strides=(2), padding='valid', name = 'Sep52189', )(Res42915)
+Up_61926 = keras.layers.UpSampling1D(size=(2), name = 'Up_61926', )(Sep52189)
+model = tf.keras.models.Model(inputs=[in0Mul14561,in1Mul14561], outputs=Up_61926)
+w = model.get_layer('Sep52189').get_weights() 
+w[0] = np.array([[[0.8809]]])
+w[1] = np.array([[[0.3578, 0.8065]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep52189').set_weights(w) 
+in0Mul14561 = tf.constant([[[0.4479, 0.3806], [0.7576, 0.2296]]])
+in1Mul14561 = tf.constant([[[0.9197, 0.9593], [0.8456, 0.3292]]])
+print (np.array2string(model.predict([in0Mul14561,in1Mul14561],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_61926.png')
+
+LMul14561 = multiply_layer([[[[0.4479, 0.3806], [0.7576, 0.2296]]], [[[0.9197, 0.9593], [0.8456, 0.3292]]]], Mul14561), 
+LCro87390 = cropping1D_layer(Mul14561, 0, 0, Cro87390), 
+LFla37184 = flatten_layer(Cro87390, Fla37184), 
+LRes42915 = reshape_layer(Fla37184, [4, 1], Res42915), 
+LSep52189 = separable_conv1D_layer(Res42915, 1,[[[[0.8809]]],[[[0.3578, 0.8065]]]],[0, 0], 2, false, Sep52189), 
+LUp_61926 = up_sampling1D_layer(Sep52189, 2, Up_61926), 
+exec_layers([LMul14561,LCro87390,LFla37184,LRes42915,LSep52189,LUp_61926],["Mul14561","Cro87390","Fla37184","Res42915","Sep52189","Up_61926"],Up_61926,"Up_61926")
+
+Actual (Unparsed): [[[0.1298357, 0.2926565], [0.1298357, 0.2926565], [0.2019165, 0.4551305], [0.2019165, 0.4551305]]]
+
+Expected (Unparsed): [[[0.1298357213438526,0.29265653790893553],[0.1298357213438526,0.29265653790893553],[0.20191653575269122,0.45513048095177605],[0.20191653575269122,0.45513048095177605]]]
+
+Actual:   [[[0.1299, 0.2927], [0.1299, 0.2927], [0.202, 0.4552], [0.202, 0.4552]]]
+
+Expected: [[[0.1299, 0.2927], [0.1299, 0.2927], [0.202, 0.4552], [0.202, 0.4552]]]

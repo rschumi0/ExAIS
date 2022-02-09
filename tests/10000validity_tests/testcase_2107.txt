@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min38321 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Min38321 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Min38409 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Min38409 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Loc92816 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con74601 = tf.keras.layers.Input(shape=([1, 1]))
+
+Min38321 = keras.layers.Minimum(name = 'Min38321', )([in0Min38321,in1Min38321])
+Zer81481 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer81481', )(Min38321)
+Min38409 = keras.layers.Minimum(name = 'Min38409', )([in0Min38409,in1Min38409])
+Zer89423 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer89423', )(Min38409)
+Sub74766 = keras.layers.Subtract(name = 'Sub74766', )([Zer81481,Zer89423])
+Res50840 = keras.layers.Reshape((2, 2, 3), name = 'Res50840', )(Sub74766)
+Cro43679 = keras.layers.Cropping2D(cropping=((1, 0), (0, 1)), name = 'Cro43679', )(Res50840)
+Res65078 = keras.layers.Reshape((1, 3), name = 'Res65078', )(Cro43679)
+Loc92816 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc92816', )(in0Loc92816)
+Con74601 = keras.layers.Concatenate(axis=2, name = 'Con74601', )([Loc92816,in0Con74601])
+Sub13374 = keras.layers.Subtract(name = 'Sub13374', )([Res65078,Con74601])
+model = tf.keras.models.Model(inputs=[in0Min38321,in1Min38321,in0Min38409,in1Min38409,in0Loc92816,in0Con74601], outputs=Sub13374)
+w = model.get_layer('Loc92816').get_weights() 
+w[0] = np.array([[[0.8766, 0.6371]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc92816').set_weights(w) 
+in0Min38321 = tf.constant([[[[[0.1234]], [[0.4148]]], [[[0.2704]], [[0.0843]]]]])
+in1Min38321 = tf.constant([[[[[0.4303]], [[0.7486]]], [[[0.168]], [[0.3344]]]]])
+in0Min38409 = tf.constant([[[[[0.0727], [0.0182]]]]])
+in1Min38409 = tf.constant([[[[[0.0566], [0.4486]]]]])
+in0Loc92816 = tf.constant([[[0.0922]]])
+in0Con74601 = tf.constant([[[0.3686]]])
+print (np.array2string(model.predict([in0Min38321,in1Min38321,in0Min38409,in1Min38409,in0Loc92816,in0Con74601],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub13374.png')
+
+LMin38321 = minimum_layer([[[[[[0.1234]], [[0.4148]]], [[[0.2704]], [[0.0843]]]]], [[[[[0.4303]], [[0.7486]]], [[[0.168]], [[0.3344]]]]]], Min38321), 
+LZer81481 = zero_padding3D_layer(Min38321, 0, 0, 0, 0, 2, 0, Zer81481), 
+LMin38409 = minimum_layer([[[[[[0.0727], [0.0182]]]]], [[[[[0.0566], [0.4486]]]]]], Min38409), 
+LZer89423 = zero_padding3D_layer(Min38409, 1, 0, 1, 0, 1, 0, Zer89423), 
+LSub74766 = subtract_layer(Zer81481,Zer89423, Sub74766), 
+LRes50840 = reshape_layer(Sub74766, [2, 2, 3], Res50840), 
+LCro43679 = cropping2D_layer(Res50840, 1, 0, 0, 1, Cro43679), 
+LRes65078 = reshape_layer(Cro43679, [1, 3], Res65078), 
+LLoc92816 = locally_connected1D_layer([[[0.0922]]], 1,[[[0.8766, 0.6371]]],[[0, 0]], 1, Loc92816), 
+LCon74601 = concatenate_layer([Loc92816,[[[0.3686]]]], 2, Con74601), 
+LSub13374 = subtract_layer(Res65078,Con74601, Sub13374), 
+exec_layers([LMin38321,LZer81481,LMin38409,LZer89423,LSub74766,LRes50840,LCro43679,LRes65078,LLoc92816,LCon74601,LSub13374],["Min38321","Zer81481","Min38409","Zer89423","Sub74766","Res50840","Cro43679","Res65078","Loc92816","Con74601","Sub13374"],Sub13374,"Sub13374")
+
+Actual (Unparsed): [[[-0.0808225, -0.0587406, -0.2006000]]]
+
+Expected (Unparsed): [[[-0.08082252000000001,-0.05874062,-0.20059999999999997]]]
+
+Actual:   [[[-0.0808, -0.0587, -0.2006]]]
+
+Expected: [[[-0.0808, -0.0587, -0.2005]]]

@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add90080 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Add90080 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Sep5612 = tf.keras.layers.Input(shape=([2, 2]))
+
+Add90080 = keras.layers.Add(name = 'Add90080', )([in0Add90080,in1Add90080])
+Res33869 = keras.layers.Reshape((1, 4), name = 'Res33869', )(Add90080)
+Zer17193 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer17193', )(Res33869)
+Sep5612 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='valid', name = 'Sep5612', )(in0Sep5612)
+Max65975 = keras.layers.Maximum(name = 'Max65975', )([Zer17193,Sep5612])
+Res32434 = keras.layers.Reshape((2, 4, 1), name = 'Res32434', )(Max65975)
+Cro2146 = keras.layers.Cropping2D(cropping=((0, 1), (2, 1)), name = 'Cro2146', )(Res32434)
+model = tf.keras.models.Model(inputs=[in0Add90080,in1Add90080,in0Sep5612], outputs=Cro2146)
+w = model.get_layer('Sep5612').get_weights() 
+w[0] = np.array([[[0.5011], [0.584]]])
+w[1] = np.array([[[0.3408, 0.5836, 0.3145, 0.7484], [0.5381, 0.4055, 0.7582, 0.4321]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep5612').set_weights(w) 
+in0Add90080 = tf.constant([[[[0.593, 0.2623], [0.0107, 0.464]]]])
+in1Add90080 = tf.constant([[[[0.3451, 0.9422], [0.2497, 0.0054]]]])
+in0Sep5612 = tf.constant([[[0.5089, 0.5049], [0.7629, 0.4567]]])
+print (np.array2string(model.predict([in0Add90080,in1Add90080,in0Sep5612],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro2146.png')
+
+LAdd90080 = add_layer([[[[[0.593, 0.2623], [0.0107, 0.464]]]], [[[[0.3451, 0.9422], [0.2497, 0.0054]]]]], Add90080), 
+LRes33869 = reshape_layer(Add90080, [1, 4], Res33869), 
+LZer17193 = zero_padding1D_layer(Res33869, 1, 0, Zer17193), 
+LSep5612 = separable_conv1D_layer([[[0.5089, 0.5049], [0.7629, 0.4567]]], 1,[[[[0.5011], [0.584]]],[[[0.3408, 0.5836, 0.3145, 0.7484], [0.5381, 0.4055, 0.7582, 0.4321]]]],[0, 0, 0, 0], 1, false, Sep5612), 
+LMax65975 = maximum_layer([Zer17193,Sep5612], Max65975), 
+LRes32434 = reshape_layer(Max65975, [2, 4, 1], Res32434), 
+LCro2146 = cropping2D_layer(Res32434, 0, 1, 2, 1, Cro2146), 
+exec_layers([LAdd90080,LRes33869,LZer17193,LSep5612,LMax65975,LRes32434,LCro2146],["Add90080","Res33869","Zer17193","Sep5612","Max65975","Res32434","Cro2146"],Cro2146,"Cro2146")
+
+Actual (Unparsed): [[[[0.3037646]]]]
+
+Expected (Unparsed): [[[[0.303764644075]]]]
+
+Actual:   [[[[0.3038]]]]
+
+Expected: [[[[0.3038]]]]

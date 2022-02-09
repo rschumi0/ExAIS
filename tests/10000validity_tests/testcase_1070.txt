@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot93404 = tf.keras.layers.Input(shape=([2]))
+in1Dot93404 = tf.keras.layers.Input(shape=([2]))
+in0Con34805 = tf.keras.layers.Input(shape=([1, 2, 3, 1]))
+in0Mul3330 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Mul3330 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+Dot93404 = keras.layers.Dot(axes=(1, 1), name = 'Dot93404', )([in0Dot93404,in1Dot93404])
+Res48960 = keras.layers.Reshape((1, 1), name = 'Res48960', )(Dot93404)
+Res32970 = keras.layers.Reshape((1, 1, 1), name = 'Res32970', )(Res48960)
+Sep49384 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep49384', )(Res32970)
+Res40193 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res40193', )(Sep49384)
+Zer2819 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer2819', )(Res40193)
+Con34805 = keras.layers.Concatenate(axis=4, name = 'Con34805', )([Zer2819,in0Con34805])
+Mul3330 = keras.layers.Multiply(name = 'Mul3330', )([in0Mul3330,in1Mul3330])
+Zer48864 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer48864', )(Mul3330)
+Mul33149 = keras.layers.Multiply(name = 'Mul33149', )([Con34805,Zer48864])
+Cro80758 = keras.layers.Cropping3D(cropping=((0, 0), (0, 0), (2, 0)), name = 'Cro80758', )(Mul33149)
+model = tf.keras.models.Model(inputs=[in0Dot93404,in1Dot93404,in0Con34805,in0Mul3330,in1Mul3330], outputs=Cro80758)
+w = model.get_layer('Sep49384').get_weights() 
+w[0] = np.array([[[[0.4172]]]])
+w[1] = np.array([[[[0.7977, 0.7054]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep49384').set_weights(w) 
+in0Dot93404 = tf.constant([[0.2036, 0.2323]])
+in1Dot93404 = tf.constant([[0.8838, 0.5775]])
+in0Con34805 = tf.constant([[[[[0.6632], [0.8172], [0.3889]], [[0.3875], [0.1914], [0.5145]]]]])
+in0Mul3330 = tf.constant([[[[[0.3824, 0.1843]], [[0.3091, 0.4339]]]]])
+in1Mul3330 = tf.constant([[[[[0.406, 0.473]], [[0.5961, 0.363]]]]])
+print (np.array2string(model.predict([in0Dot93404,in1Dot93404,in0Con34805,in0Mul3330,in1Mul3330],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro80758.png')
+
+LDot93404 = dot_layer([[0.2036, 0.2323]], [[0.8838, 0.5775]], 1, 1, Dot93404), 
+LRes48960 = reshape_layer(Dot93404, [1, 1], Res48960), 
+LRes32970 = reshape_layer(Res48960, [1, 1, 1], Res32970), 
+LSep49384 = separable_conv2D_layer(Res32970, 1, 1,[[[[[0.4172]]]],[[[[0.7977, 0.7054]]]]],[0, 0], 1, 1, true, Sep49384), 
+LRes40193 = reshape_layer(Sep49384, [1, 1, 2, 1], Res40193), 
+LZer2819 = zero_padding3D_layer(Res40193, 0, 0, 1, 0, 1, 0, Zer2819), 
+LCon34805 = concatenate_layer([Zer2819,[[[[[0.6632], [0.8172], [0.3889]], [[0.3875], [0.1914], [0.5145]]]]]], 4, Con34805), 
+LMul3330 = multiply_layer([[[[[[0.3824, 0.1843]], [[0.3091, 0.4339]]]]], [[[[[0.406, 0.473]], [[0.5961, 0.363]]]]]], Mul3330), 
+LZer48864 = zero_padding3D_layer(Mul3330, 0, 0, 0, 0, 2, 0, Zer48864), 
+LMul33149 = multiply_layer([Con34805,Zer48864], Mul33149), 
+LCro80758 = cropping3D_layer(Mul33149, 0, 0, 0, 0, 2, 0, Cro80758), 
+exec_layers([LDot93404,LRes48960,LRes32970,LSep49384,LRes40193,LZer2819,LCon34805,LMul3330,LZer48864,LMul33149,LCro80758],["Dot93404","Res48960","Res32970","Sep49384","Res40193","Zer2819","Con34805","Mul3330","Zer48864","Mul33149","Cro80758"],Cro80758,"Cro80758")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0339019]], [[0.0170317, 0.0810367]]]]]
+
+Expected (Unparsed): [[[[[0.0,0.033901929709999994]],[[0.01703173174523184,0.08103668265]]]]]
+
+Actual:   [[[[[0, 0.034]], [[0.0171, 0.0811]]]]]
+
+Expected: [[[[[0, 0.034]], [[0.0171, 0.0811]]]]]

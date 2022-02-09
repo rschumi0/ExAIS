@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim90557 = tf.keras.layers.Input(shape=([3, 3]))
+in0Add93902 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Add93902 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Sim90557 = keras.layers.SimpleRNN(3,name = 'Sim90557', )(in0Sim90557)
+Res44578 = keras.layers.Reshape((3, 1), name = 'Res44578', )(Sim90557)
+Glo81125 = keras.layers.GlobalMaxPool1D(name = 'Glo81125', )(Res44578)
+Sof41656 = keras.layers.Softmax(axis=1, name = 'Sof41656', )(Glo81125)
+Res87179 = keras.layers.Reshape((1, 1), name = 'Res87179', )(Sof41656)
+Add93902 = keras.layers.Add(name = 'Add93902', )([in0Add93902,in1Add93902])
+Res47738 = keras.layers.Reshape((1, 2, 1), name = 'Res47738', )(Add93902)
+Res84123 = keras.layers.Reshape((1, 2), name = 'Res84123', )(Res47738)
+Dot29192 = keras.layers.Dot(axes=(2, 1), name = 'Dot29192', )([Res87179,Res84123])
+model = tf.keras.models.Model(inputs=[in0Sim90557,in0Add93902,in1Add93902], outputs=Dot29192)
+w = model.get_layer('Sim90557').get_weights() 
+w[0] = np.array([[7, 4, 3], [3, 7, 2], [4, 5, 4]])
+w[1] = np.array([[10, 8, 7], [4, 2, 1], [2, 7, 6]])
+w[2] = np.array([3, 6, 1])
+model.get_layer('Sim90557').set_weights(w) 
+in0Sim90557 = tf.constant([[[2, 4, 8], [6, 1, 4], [5, 8, 5]]])
+in0Add93902 = tf.constant([[[[[0.493]], [[0.4321]]]]])
+in1Add93902 = tf.constant([[[[[0.2025]], [[0.2252]]]]])
+print (np.array2string(model.predict([in0Sim90557,in0Add93902,in1Add93902],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot29192.png')
+
+LSim90557 = simple_rnn_layer([[[2, 4, 8], [6, 1, 4], [5, 8, 5]]],[[7, 4, 3], [3, 7, 2], [4, 5, 4]],[[10, 8, 7], [4, 2, 1], [2, 7, 6]],[3, 6, 1], Sim90557), 
+LRes44578 = reshape_layer(Sim90557, [3, 1], Res44578), 
+LGlo81125 = global_max_pool1D_layer(Res44578, Glo81125), 
+LSof41656 = softmax_layer(Glo81125, 1, Sof41656), 
+LRes87179 = reshape_layer(Sof41656, [1, 1], Res87179), 
+LAdd93902 = add_layer([[[[[[0.493]], [[0.4321]]]]], [[[[[0.2025]], [[0.2252]]]]]], Add93902), 
+LRes47738 = reshape_layer(Add93902, [1, 2, 1], Res47738), 
+LRes84123 = reshape_layer(Res47738, [1, 2], Res84123), 
+LDot29192 = dot_layer(Res87179,Res84123, 2, 1, Dot29192), 
+exec_layers([LSim90557,LRes44578,LGlo81125,LSof41656,LRes87179,LAdd93902,LRes47738,LRes84123,LDot29192],["Sim90557","Res44578","Glo81125","Sof41656","Res87179","Add93902","Res47738","Res84123","Dot29192"],Dot29192,"Dot29192")
+
+Actual (Unparsed): [[[0.6955000, 0.6573000]]]
+
+Expected (Unparsed): [[[0.6955,0.6573]]]
+
+Actual:   [[[0.6955, 0.6573]]]
+
+Expected: [[[0.6955, 0.6573]]]

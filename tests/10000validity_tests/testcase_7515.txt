@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add1404 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add1404 = tf.keras.layers.Input(shape=([1, 2]))
+
+Add1404 = keras.layers.Add(name = 'Add1404', )([in0Add1404,in1Add1404])
+Res34344 = keras.layers.Reshape((1, 2, 1), name = 'Res34344', )(Add1404)
+Max15128 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max15128', )(Res34344)
+Loc9378 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 1), name = 'Loc9378', )(Max15128)
+Max58519 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Max58519', )(Loc9378)
+Sep88338 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='valid', name = 'Sep88338', )(Max58519)
+model = tf.keras.models.Model(inputs=[in0Add1404,in1Add1404], outputs=Sep88338)
+w = model.get_layer('Loc9378').get_weights() 
+w[0] = np.array([[[0.6272, 0.4145], [0.7953, 0.1165]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc9378').set_weights(w) 
+w = model.get_layer('Sep88338').get_weights() 
+w[0] = np.array([[[[0.0816], [0.3048]]]])
+w[1] = np.array([[[[0.2396, 0.69, 0.7939], [0.6354, 0.7202, 0.2536]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep88338').set_weights(w) 
+in0Add1404 = tf.constant([[[0.794, 0.0267]]])
+in1Add1404 = tf.constant([[[0.8963, 0.4695]]])
+print (np.array2string(model.predict([in0Add1404,in1Add1404],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep88338.png')
+
+LAdd1404 = add_layer([[[[0.794, 0.0267]]], [[[0.8963, 0.4695]]]], Add1404), 
+LRes34344 = reshape_layer(Add1404, [1, 2, 1], Res34344), 
+LMax15128 = max_pool2D_layer(Res34344, 1, 1, Max15128), 
+LLoc9378 = locally_connected2D_layer(Max15128, 1, 2,[[[0.6272, 0.4145], [0.7953, 0.1165]]],[[[0, 0]]], 1, 1, Loc9378), 
+LMax58519 = max_pool2D_layer(Loc9378, 1, 1, 1, 1, true, Max58519), 
+LSep88338 = separable_conv2D_layer(Max58519, 1, 1,[[[[[0.0816], [0.3048]]]],[[[[0.2396, 0.69, 0.7939], [0.6354, 0.7202, 0.2536]]]]],[0, 0, 0], 1, 1, false, Sep88338), 
+exec_layers([LAdd1404,LRes34344,LMax15128,LLoc9378,LMax58519,LSep88338],["Add1404","Res34344","Max15128","Loc9378","Max58519","Sep88338"],Sep88338,"Sep88338")
+
+Actual (Unparsed): [[[[0.1753294, 0.2483999, 0.1528693]]]]
+
+Expected (Unparsed): [[[[0.17532937142783522,0.248399867222664,0.15286925762911682]]]]
+
+Actual:   [[[[0.1754, 0.2484, 0.1529]]]]
+
+Expected: [[[[0.1754, 0.2484, 0.1529]]]]

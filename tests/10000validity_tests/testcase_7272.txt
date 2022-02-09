@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con70299 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con22510 = tf.keras.layers.Input(shape=([4, 1, 1]))
+in0Add77242 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add77242 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Con70299 = keras.layers.Conv3D(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con70299', )(in0Con70299)
+Res6786 = keras.layers.Reshape((2, 1, 2), name = 'Res6786', )(Con70299)
+Up_5996 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_5996', )(Res6786)
+Con22510 = keras.layers.Concatenate(axis=3, name = 'Con22510', )([Up_5996,in0Con22510])
+Add77242 = keras.layers.Add(name = 'Add77242', )([in0Add77242,in1Add77242])
+Con81309 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='same', name = 'Con81309', )(Add77242)
+Zer16030 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer16030', )(Con81309)
+Max74777 = keras.layers.Maximum(name = 'Max74777', )([Con22510,Zer16030])
+model = tf.keras.models.Model(inputs=[in0Con70299,in0Con22510,in0Add77242,in1Add77242], outputs=Max74777)
+w = model.get_layer('Con70299').get_weights() 
+w[0] = np.array([[[[[0.1394, 0.9047]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con70299').set_weights(w) 
+w = model.get_layer('Con81309').get_weights() 
+w[0] = np.array([[[[0.2598, 0.5823], [0.8739, 0.091], [0.6484, 0.2147]]], [[[0.8537, 0.6957], [0.3657, 0.9442], [0.9756, 0.6068]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con81309').set_weights(w) 
+in0Con70299 = tf.constant([[[[[0.5175]]], [[[0.0123]]]]])
+in0Con22510 = tf.constant([[[[0.1493]], [[0.7561]], [[0.5546]], [[0.9359]]]])
+in0Add77242 = tf.constant([[[[0.7159, 0.2635]], [[0.5623, 0.3328]]]])
+in1Add77242 = tf.constant([[[[0.7159, 0.9035]], [[0.5273, 0.8172]]]])
+print (np.array2string(model.predict([in0Con70299,in0Con22510,in0Add77242,in1Add77242],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max74777.png')
+
+LCon70299 = conv3D_layer([[[[[0.5175]]], [[[0.0123]]]]], 1, 1, 1,[[[[[0.1394, 0.9047]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con70299), 
+LRes6786 = reshape_layer(Con70299, [2, 1, 2], Res6786), 
+LUp_5996 = up_sampling2D_layer(Res6786, 2, 1, Up_5996), 
+LCon22510 = concatenate_layer([Up_5996,[[[[0.1493]], [[0.7561]], [[0.5546]], [[0.9359]]]]], 3, Con22510), 
+LAdd77242 = add_layer([[[[[0.7159, 0.2635]], [[0.5623, 0.3328]]]], [[[[0.7159, 0.9035]], [[0.5273, 0.8172]]]]], Add77242), 
+LCon81309 = conv2D_transpose_layer(Add77242, 2, 1,[[[[0.2598, 0.5823], [0.8739, 0.091], [0.6484, 0.2147]]], [[[0.8537, 0.6957], [0.3657, 0.9442], [0.9756, 0.6068]]]],[0, 0, 0], 1, 1, true, Con81309), 
+LZer16030 = zero_padding2D_layer(Con81309, 2, 0, 0, 0, Zer16030), 
+LMax74777 = maximum_layer([Con22510,Zer16030], Max74777), 
+exec_layers([LCon70299,LRes6786,LUp_5996,LCon22510,LAdd77242,LCon81309,LZer16030,LMax74777],["Con70299","Res6786","Up_5996","Con22510","Add77242","Con81309","Zer16030","Max74777"],Max74777,"Max74777")
+
+Actual (Unparsed): [[[[0.0721395, 0.4681822, 0.1493000]], [[0.0721395, 0.4681822, 0.7561000]], [[1.0515258, 1.3574470, 1.1789340]], [[2.9869327, 2.6823422, 3.0584014]]]]
+
+Expected (Unparsed): [[[[0.0721395,0.4681822499999999,0.1493]],[[0.0721395,0.4681822499999999,0.7561]],[[1.05152574,1.3574470200000002,1.1789340199999998]],[[2.98693264,2.6823421,3.0584013199999998]]]]
+
+Actual:   [[[[0.0722, 0.4682, 0.1493]], [[0.0722, 0.4682, 0.7561]], [[1.0516, 1.3575, 1.179]], [[2.987, 2.6824, 3.0585]]]]
+
+Expected: [[[[0.0722, 0.4682, 0.1493]], [[0.0722, 0.4682, 0.7561]], [[1.0516, 1.3575, 1.179]], [[2.987, 2.6824, 3.0585]]]]

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU33143 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Min84274 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min84274 = tf.keras.layers.Input(shape=([2, 2]))
+
+ELU33143 = keras.layers.ELU(alpha=7.73285942372943, name = 'ELU33143', input_shape=(2, 1, 1))(in0ELU33143)
+Res89524 = keras.layers.Reshape((2, 1), name = 'Res89524', )(ELU33143)
+Up_42492 = keras.layers.UpSampling1D(size=(1), name = 'Up_42492', )(Res89524)
+Res43489 = keras.layers.Reshape((2, 1, 1), name = 'Res43489', )(Up_42492)
+Min84274 = keras.layers.Minimum(name = 'Min84274', )([in0Min84274,in1Min84274])
+Sim73855 = keras.layers.SimpleRNN(2,name = 'Sim73855', )(Min84274)
+Res80080 = keras.layers.Reshape((2, 1), name = 'Res80080', )(Sim73855)
+Res15338 = keras.layers.Reshape((2, 1, 1), name = 'Res15338', )(Res80080)
+Max47765 = keras.layers.MaxPool2D(pool_size=(2, 1), strides=(7, 1), padding='same', name = 'Max47765', )(Res15338)
+Zer80420 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer80420', )(Max47765)
+Ave23906 = keras.layers.Average(name = 'Ave23906', )([Res43489,Zer80420])
+model = tf.keras.models.Model(inputs=[in0ELU33143,in0Min84274,in1Min84274], outputs=Ave23906)
+w = model.get_layer('Sim73855').get_weights() 
+w[0] = np.array([[4, 4], [1, 1]])
+w[1] = np.array([[8, 5], [3, 4]])
+w[2] = np.array([9, 1])
+model.get_layer('Sim73855').set_weights(w) 
+in0ELU33143 = tf.constant([[[[0.4817]], [[0.8129]]]])
+in0Min84274 = tf.constant([[[0.0524, 0.5319], [0.0704, 0.0357]]])
+in1Min84274 = tf.constant([[[0.5103, 0.4297], [0.08, 0.5084]]])
+print (np.array2string(model.predict([in0ELU33143,in0Min84274,in1Min84274],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave23906.png')
+
+LELU33143 = elu_layer([[[[0.4817]], [[0.8129]]]], 7.73285942372943, ELU33143), 
+LRes89524 = reshape_layer(ELU33143, [2, 1], Res89524), 
+LUp_42492 = up_sampling1D_layer(Res89524, 1, Up_42492), 
+LRes43489 = reshape_layer(Up_42492, [2, 1, 1], Res43489), 
+LMin84274 = minimum_layer([[[[0.0524, 0.5319], [0.0704, 0.0357]]], [[[0.5103, 0.4297], [0.08, 0.5084]]]], Min84274), 
+LSim73855 = simple_rnn_layer(Min84274,[[4, 4], [1, 1]],[[8, 5], [3, 4]],[9, 1], Sim73855), 
+LRes80080 = reshape_layer(Sim73855, [2, 1], Res80080), 
+LRes15338 = reshape_layer(Res80080, [2, 1, 1], Res15338), 
+LMax47765 = max_pool2D_layer(Res15338, 2, 1, 7, 1, true, Max47765), 
+LZer80420 = zero_padding2D_layer(Max47765, 1, 0, 0, 0, Zer80420), 
+LAve23906 = average_layer([Res43489,Zer80420], Ave23906), 
+exec_layers([LELU33143,LRes89524,LUp_42492,LRes43489,LMin84274,LSim73855,LRes80080,LRes15338,LMax47765,LZer80420,LAve23906],["ELU33143","Res89524","Up_42492","Res43489","Min84274","Sim73855","Res80080","Res15338","Max47765","Zer80420","Ave23906"],Ave23906,"Ave23906")
+
+Actual (Unparsed): [[[[0.2408500]], [[0.9064500]]]]
+
+Expected (Unparsed): [[[[0.24085]],[[0.90645]]]]
+
+Actual:   [[[[0.2409]], [[0.9065]]]]
+
+Expected: [[[[0.2409]], [[0.9065]]]]

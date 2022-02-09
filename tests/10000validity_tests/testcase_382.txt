@@ -1,0 +1,40 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul15754 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul15754 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Sep38069 = tf.keras.layers.Input(shape=([2, 2]))
+
+Mul15754 = keras.layers.Multiply(name = 'Mul15754', )([in0Mul15754,in1Mul15754])
+Res61585 = keras.layers.Reshape((1, 4), name = 'Res61585', )(Mul15754)
+Sep38069 = keras.layers.SeparableConv1D(4, (2),strides=(2), padding='valid', name = 'Sep38069', )(in0Sep38069)
+Max64985 = keras.layers.Maximum(name = 'Max64985', )([Res61585,Sep38069])
+model = tf.keras.models.Model(inputs=[in0Mul15754,in1Mul15754,in0Sep38069], outputs=Max64985)
+w = model.get_layer('Sep38069').get_weights() 
+w[0] = np.array([[[0.0065], [0.7799]], [[0.8802], [0.9649]]])
+w[1] = np.array([[[0.3871, 0.8854, 0.8468, 0.0265], [0.8868, 0.1823, 0.6668, 0.8568]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep38069').set_weights(w) 
+in0Mul15754 = tf.constant([[[[0.5135, 0.9316], [0.1126, 0.5505]]]])
+in1Mul15754 = tf.constant([[[[0.7376, 0.966], [0.2386, 0.8923]]]])
+in0Sep38069 = tf.constant([[[0.5762, 0.8464], [0.9745, 0.3582]]])
+print (np.array2string(model.predict([in0Mul15754,in1Mul15754,in0Sep38069],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max64985.png')
+
+LMul15754 = multiply_layer([[[[[0.5135, 0.9316], [0.1126, 0.5505]]]], [[[[0.7376, 0.966], [0.2386, 0.8923]]]]], Mul15754), 
+LRes61585 = reshape_layer(Mul15754, [1, 4], Res61585), 
+LSep38069 = separable_conv1D_layer([[[0.5762, 0.8464], [0.9745, 0.3582]]], 2,[[[[0.0065], [0.7799]], [[0.8802], [0.9649]]],[[[0.3871, 0.8854, 0.8468, 0.0265], [0.8868, 0.1823, 0.6668, 0.8568]]]],[0, 0, 0, 0], 2, false, Sep38069), 
+LMax64985 = maximum_layer([Res61585,Sep38069], Max64985), 
+exec_layers([LMul15754,LRes61585,LSep38069,LMax64985],["Mul15754","Res61585","Sep38069","Max64985"],Max64985,"Max64985")
+
+Actual (Unparsed): [[[1.2253721, 0.9461177, 1.4001422, 0.8845431]]]
+
+Expected (Unparsed): [[[1.225372117492,0.9461176837219999,1.400142160632,0.8845431091720001]]]
+
+Actual:   [[[1.2254, 0.9462, 1.4002, 0.8846]]]
+
+Expected: [[[1.2254, 0.9462, 1.4002, 0.8846]]]

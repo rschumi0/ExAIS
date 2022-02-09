@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Fla37683 = tf.keras.layers.Input(shape=([3]))
+in0Con21878 = tf.keras.layers.Input(shape=([2, 2]))
+
+Fla37683 = keras.layers.Flatten(name = 'Fla37683', )(in0Fla37683)
+Res9327 = keras.layers.Reshape((3, 1), name = 'Res9327', )(Fla37683)
+Res54377 = keras.layers.Reshape((3, 1, 1), name = 'Res54377', )(Res9327)
+Res19 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res19', )(Res54377)
+Up_93155 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_93155', )(Res19)
+Res76543 = keras.layers.Reshape((6, 1, 1), name = 'Res76543', )(Up_93155)
+Con21878 = keras.layers.Conv1D(3, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con21878', )(in0Con21878)
+Res36658 = keras.layers.Reshape((6, 1, 1), name = 'Res36658', )(Con21878)
+Sub94716 = keras.layers.Subtract(name = 'Sub94716', )([Res76543,Res36658])
+Res78582 = keras.layers.Reshape((6, 1, 1, 1), name = 'Res78582', )(Sub94716)
+Cro23562 = keras.layers.Cropping3D(cropping=((1, 2), (0, 0), (0, 0)), name = 'Cro23562', )(Res78582)
+model = tf.keras.models.Model(inputs=[in0Fla37683,in0Con21878], outputs=Cro23562)
+w = model.get_layer('Con21878').get_weights() 
+w[0] = np.array([[[0.4493, 0.3886, 0.2018], [0.6902, 0.4619, 0.6755]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con21878').set_weights(w) 
+in0Fla37683 = tf.constant([[1.0432, 1.3863, 1.9944]])
+in0Con21878 = tf.constant([[[0.1631, 0.665], [0.99, 0.8693]]])
+print (np.array2string(model.predict([in0Fla37683,in0Con21878],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro23562.png')
+
+LFla37683 = flatten_layer([[1.0432, 1.3863, 1.9944]], Fla37683), 
+LRes9327 = reshape_layer(Fla37683, [3, 1], Res9327), 
+LRes54377 = reshape_layer(Res9327, [3, 1, 1], Res54377), 
+LRes19 = reshape_layer(Res54377, [3, 1, 1, 1], Res19), 
+LUp_93155 = up_sampling3D_layer(Res19, 2, 1, 1, Up_93155), 
+LRes76543 = reshape_layer(Up_93155, [6, 1, 1], Res76543), 
+LCon21878 = conv1D_layer([[[0.1631, 0.665], [0.99, 0.8693]]], 1,[[[0.4493, 0.3886, 0.2018], [0.6902, 0.4619, 0.6755]]],[0, 0, 0], 1, true, 1, Con21878), 
+LRes36658 = reshape_layer(Con21878, [6, 1, 1], Res36658), 
+LSub94716 = subtract_layer(Res76543,Res36658, Sub94716), 
+LRes78582 = reshape_layer(Sub94716, [6, 1, 1, 1], Res78582), 
+LCro23562 = cropping3D_layer(Res78582, 1, 2, 0, 0, 0, 0, Cro23562), 
+exec_layers([LFla37683,LRes9327,LRes54377,LRes19,LUp_93155,LRes76543,LCon21878,LRes36658,LSub94716,LRes78582,LCro23562],["Fla37683","Res9327","Res54377","Res19","Up_93155","Res76543","Con21878","Res36658","Sub94716","Res78582","Cro23562"],Cro23562,"Cro23562")
+
+Actual (Unparsed): [[[[[0.6726558]]], [[[0.9041789]]], [[[0.3415021]]]]]
+
+Expected (Unparsed): [[[[[0.67265584]]],[[[0.9041789200000001]]],[[[0.34150214]]]]]
+
+Actual:   [[[[[0.6727]]], [[[0.9042]]], [[[0.3416]]]]]
+
+Expected: [[[[[0.6727]]], [[[0.9042]]], [[[0.3416]]]]]

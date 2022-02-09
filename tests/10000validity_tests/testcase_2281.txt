@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul73500 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul73500 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con50368 = tf.keras.layers.Input(shape=([4, 1]))
+in0Up_5292 = tf.keras.layers.Input(shape=([4, 2]))
+in0Glo9818 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con87447 = tf.keras.layers.Input(shape=([10]))
+
+Mul73500 = keras.layers.Multiply(name = 'Mul73500', )([in0Mul73500,in1Mul73500])
+Zer52063 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer52063', )(Mul73500)
+Con50368 = keras.layers.Concatenate(axis=2, name = 'Con50368', )([Zer52063,in0Con50368])
+Up_5292 = keras.layers.UpSampling1D(size=(1), name = 'Up_5292', )(in0Up_5292)
+Mul23744 = keras.layers.Multiply(name = 'Mul23744', )([Con50368,Up_5292])
+Con89156 = keras.layers.Conv1D(3, (3),strides=(1), padding='same', dilation_rate=(1), name = 'Con89156', )(Mul23744)
+Fla98064 = keras.layers.Flatten(name = 'Fla98064', )(Con89156)
+Glo9818 = keras.layers.GlobalAveragePooling1D(name = 'Glo9818', )(in0Glo9818)
+Con87447 = keras.layers.Concatenate(axis=1, name = 'Con87447', )([Glo9818,in0Con87447])
+Max32999 = keras.layers.Maximum(name = 'Max32999', )([Fla98064,Con87447])
+model = tf.keras.models.Model(inputs=[in0Mul73500,in1Mul73500,in0Con50368,in0Up_5292,in0Glo9818,in0Con87447], outputs=Max32999)
+w = model.get_layer('Con89156').get_weights() 
+w[0] = np.array([[[0.6951, 0.7268, 0.1657], [0.3666, 0.4979, 0.4364]], [[0.1155, 0.4679, 0.9191], [0.49, 0.6832, 0.1555]], [[0.0766, 0.854, 0.7764], [0.2293, 0.9702, 0.9362]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con89156').set_weights(w) 
+in0Mul73500 = tf.constant([[[0.9894], [0.7008]]])
+in1Mul73500 = tf.constant([[[0.1856], [0.829]]])
+in0Con50368 = tf.constant([[[0.2539], [0.0867], [0.5007], [0.6605]]])
+in0Up_5292 = tf.constant([[[1.1583, 1.9179], [1.4708, 1.8774], [1.5349, 1.7835], [1.406, 1.2379]]])
+in0Glo9818 = tf.constant([[[1.1535, 1.5419]]])
+in0Con87447 = tf.constant([[0.9768, 0.4206, 0.4032, 0.1507, 0.9365, 0.3742, 0.6575, 0.4574, 0.9407, 0.7274]])
+print (np.array2string(model.predict([in0Mul73500,in1Mul73500,in0Con50368,in0Up_5292,in0Glo9818,in0Con87447],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max32999.png')
+
+LMul73500 = multiply_layer([[[[0.9894], [0.7008]]], [[[0.1856], [0.829]]]], Mul73500), 
+LZer52063 = zero_padding1D_layer(Mul73500, 2, 0, Zer52063), 
+LCon50368 = concatenate_layer([Zer52063,[[[0.2539], [0.0867], [0.5007], [0.6605]]]], 2, Con50368), 
+LUp_5292 = up_sampling1D_layer([[[1.1583, 1.9179], [1.4708, 1.8774], [1.5349, 1.7835], [1.406, 1.2379]]], 1, Up_5292), 
+LMul23744 = multiply_layer([Con50368,Up_5292], Mul23744), 
+LCon89156 = conv1D_layer(Mul23744, 3,[[[0.6951, 0.7268, 0.1657], [0.3666, 0.4979, 0.4364]], [[0.1155, 0.4679, 0.9191], [0.49, 0.6832, 0.1555]], [[0.0766, 0.854, 0.7764], [0.2293, 0.9702, 0.9362]]],[0, 0, 0], 1, true, 1, Con89156), 
+LFla98064 = flatten_layer(Con89156, Fla98064), 
+LGlo9818 = global_average_pooling1D_layer([[[1.1535, 1.5419]]], Glo9818), 
+LCon87447 = concatenate_layer([Glo9818,[[0.9768, 0.4206, 0.4032, 0.1507, 0.9365, 0.3742, 0.6575, 0.4574, 0.9407, 0.7274]]], 1, Con87447), 
+LMax32999 = maximum_layer([Fla98064,Con87447], Max32999), 
+exec_layers([LMul73500,LZer52063,LCon50368,LUp_5292,LMul23744,LCon89156,LFla98064,LGlo9818,LCon87447,LMax32999],["Mul73500","Zer52063","Con50368","Up_5292","Mul23744","Con89156","Fla98064","Glo9818","Con87447","Max32999"],Max32999,"Max32999")
+
+Actual (Unparsed): [[1.1535000, 1.5419000, 0.9768000, 0.4846301, 1.4607532, 1.2926774, 0.9365000, 2.3138652, 1.8686079, 1.0182770, 1.5902817, 1.3143026]]
+
+Expected (Unparsed): [[1.1535,1.5419,0.9768,0.4846300649488176,1.460753265567144,1.2926774018291904,0.9365,2.3138651944105346,1.8686078747597776,1.0182770486810335,1.5902817143787247,1.314302642310555]]
+
+Actual:   [[1.1535, 1.5419, 0.9768, 0.4847, 1.4608, 1.2927, 0.9365, 2.3139, 1.8687, 1.0183, 1.5903, 1.3144]]
+
+Expected: [[1.1535, 1.5419, 0.9768, 0.4847, 1.4608, 1.2927, 0.9365, 2.3139, 1.8687, 1.0183, 1.5903, 1.3144]]

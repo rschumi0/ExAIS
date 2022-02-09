@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot21680 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot21680 = tf.keras.layers.Input(shape=([3, 3]))
+in0Add11228 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Add11228 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Con16784 = tf.keras.layers.Input(shape=([3, 1]))
+
+Dot21680 = keras.layers.Dot(axes=(2, 1), name = 'Dot21680', )([in0Dot21680,in1Dot21680])
+Res50311 = keras.layers.Reshape((3, 3, 1), name = 'Res50311', )(Dot21680)
+Up_74456 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_74456', )(Res50311)
+Res33351 = keras.layers.Reshape((3, 3), name = 'Res33351', )(Up_74456)
+Add11228 = keras.layers.Add(name = 'Add11228', )([in0Add11228,in1Add11228])
+Res43708 = keras.layers.Reshape((2, 2, 1), name = 'Res43708', )(Add11228)
+Res1676 = keras.layers.Reshape((2, 2), name = 'Res1676', )(Res43708)
+Cro27870 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro27870', )(Res1676)
+Zer40839 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer40839', )(Cro27870)
+Con16784 = keras.layers.Concatenate(axis=2, name = 'Con16784', )([Zer40839,in0Con16784])
+Add51599 = keras.layers.Add(name = 'Add51599', )([Res33351,Con16784])
+model = tf.keras.models.Model(inputs=[in0Dot21680,in1Dot21680,in0Add11228,in1Add11228,in0Con16784], outputs=Add51599)
+in0Dot21680 = tf.constant([[[0.8469, 0.1912, 0.4094], [0.0342, 0.5046, 0.7054], [0.5111, 0.7694, 0.8925]]])
+in1Dot21680 = tf.constant([[[0.8726, 0.8533, 0.3237], [0.0295, 0.0342, 0.9455], [0.1675, 0.4506, 0.1806]]])
+in0Add11228 = tf.constant([[[[[0.0459]], [[0.5861]]], [[[0.7804]], [[0.5541]]]]])
+in1Add11228 = tf.constant([[[[[0.6076]], [[0.3922]]], [[[0.8994]], [[0.3552]]]]])
+in0Con16784 = tf.constant([[[0.4133], [0.0856], [0.6406]]])
+print (np.array2string(model.predict([in0Dot21680,in1Dot21680,in0Add11228,in1Add11228,in0Con16784],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add51599.png')
+
+LDot21680 = dot_layer([[[0.8469, 0.1912, 0.4094], [0.0342, 0.5046, 0.7054], [0.5111, 0.7694, 0.8925]]], [[[0.8726, 0.8533, 0.3237], [0.0295, 0.0342, 0.9455], [0.1675, 0.4506, 0.1806]]], 2, 1, Dot21680), 
+LRes50311 = reshape_layer(Dot21680, [3, 3, 1], Res50311), 
+LUp_74456 = up_sampling2D_layer(Res50311, 1, 1, Up_74456), 
+LRes33351 = reshape_layer(Up_74456, [3, 3], Res33351), 
+LAdd11228 = add_layer([[[[[[0.0459]], [[0.5861]]], [[[0.7804]], [[0.5541]]]]], [[[[[0.6076]], [[0.3922]]], [[[0.8994]], [[0.3552]]]]]], Add11228), 
+LRes43708 = reshape_layer(Add11228, [2, 2, 1], Res43708), 
+LRes1676 = reshape_layer(Res43708, [2, 2], Res1676), 
+LCro27870 = cropping1D_layer(Res1676, 1, 0, Cro27870), 
+LZer40839 = zero_padding1D_layer(Cro27870, 2, 0, Zer40839), 
+LCon16784 = concatenate_layer([Zer40839,[[[0.4133], [0.0856], [0.6406]]]], 2, Con16784), 
+LAdd51599 = add_layer([Res33351,Con16784], Add51599), 
+exec_layers([LDot21680,LRes50311,LUp_74456,LRes33351,LAdd11228,LRes43708,LRes1676,LCro27870,LZer40839,LCon16784,LAdd51599],["Dot21680","Res50311","Up_74456","Res33351","Add11228","Res43708","Res1676","Cro27870","Zer40839","Con16784","Add51599"],Add51599,"Add51599")
+
+Actual (Unparsed): [[[0.8132198, 0.9136744, 0.9421588], [0.1628831, 0.3642934, 0.7011651], [2.2979769, 1.7738956, 1.6946963]]]
+
+Expected (Unparsed): [[[0.81321984,0.91367445,0.94215877],[0.16288312000000002,0.36429342000000003,0.7011650800000001],[2.29797691,1.7738956099999998,1.6946962700000001]]]
+
+Actual:   [[[0.8133, 0.9137, 0.9422], [0.1629, 0.3643, 0.7012], [2.298, 1.7739, 1.6947]]]
+
+Expected: [[[0.8133, 0.9137, 0.9422], [0.1629, 0.3643, 0.7012], [2.298, 1.7739, 1.6947]]]

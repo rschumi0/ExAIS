@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add38869 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add38869 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con3614 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Loc40727 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Add38869 = keras.layers.Add(name = 'Add38869', )([in0Add38869,in1Add38869])
+Res18257 = keras.layers.Reshape((2, 1, 1), name = 'Res18257', )(Add38869)
+Con3614 = keras.layers.Concatenate(axis=3, name = 'Con3614', )([Res18257,in0Con3614])
+Loc40727 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(2, 2), name = 'Loc40727', )(in0Loc40727)
+Con74492 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con74492', )(Loc40727)
+Zer98940 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer98940', )(Con74492)
+Sub8250 = keras.layers.Subtract(name = 'Sub8250', )([Con3614,Zer98940])
+model = tf.keras.models.Model(inputs=[in0Add38869,in1Add38869,in0Con3614,in0Loc40727], outputs=Sub8250)
+w = model.get_layer('Loc40727').get_weights() 
+w[0] = np.array([[[0.4212, 0.512], [0.4456, 0.8849]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc40727').set_weights(w) 
+w = model.get_layer('Con74492').get_weights() 
+w[0] = np.array([[[[0.6848, 0.5718, 0.1712], [0.0218, 0.7633, 0.6774]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con74492').set_weights(w) 
+in0Add38869 = tf.constant([[[0.8696], [0.9661]]])
+in1Add38869 = tf.constant([[[0.3034], [0.5853]]])
+in0Con3614 = tf.constant([[[[0.583, 0.1649]], [[0.4879, 0.4489]]]])
+in0Loc40727 = tf.constant([[[[0.0176], [0.1607]], [[0.4024], [0.1275]]]])
+print (np.array2string(model.predict([in0Add38869,in1Add38869,in0Con3614,in0Loc40727],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub8250.png')
+
+LAdd38869 = add_layer([[[[0.8696], [0.9661]]], [[[0.3034], [0.5853]]]], Add38869), 
+LRes18257 = reshape_layer(Add38869, [2, 1, 1], Res18257), 
+LCon3614 = concatenate_layer([Res18257,[[[[0.583, 0.1649]], [[0.4879, 0.4489]]]]], 3, Con3614), 
+LLoc40727 = locally_connected2D_layer([[[[0.0176], [0.1607]], [[0.4024], [0.1275]]]], 2, 1,[[[0.4212, 0.512], [0.4456, 0.8849]]],[[[0, 0]]], 2, 2, Loc40727), 
+LCon74492 = conv2D_layer(Loc40727, 1, 1,[[[[0.6848, 0.5718, 0.1712], [0.0218, 0.7633, 0.6774]]]],[0, 0, 0], 1, 1, true, 1, 1, Con74492), 
+LZer98940 = zero_padding2D_layer(Con74492, 1, 0, 0, 0, Zer98940), 
+LSub8250 = subtract_layer(Con3614,Zer98940, Sub8250), 
+exec_layers([LAdd38869,LRes18257,LCon3614,LLoc40727,LCon74492,LZer98940,LSub8250],["Add38869","Res18257","Con3614","Loc40727","Con74492","Zer98940","Sub8250"],Sub8250,"Sub8250")
+
+Actual (Unparsed): [[[[1.1730000, 0.5830000, 0.1649000]], [[1.4155733, 0.1024551, 0.1696178]]]]
+
+Expected (Unparsed): [[[[1.173,0.583,0.1649]],[[1.415573320784,0.10245505722400006,0.169617771824]]]]
+
+Actual:   [[[[1.173, 0.583, 0.1649]], [[1.4156, 0.1025, 0.1697]]]]
+
+Expected: [[[[1.173, 0.583, 0.1649]], [[1.4156, 0.1025, 0.1697]]]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro87811 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con79227 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min12487 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min12487 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0ELU68516 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Cro87811 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro87811', )(in0Cro87811)
+Up_33440 = keras.layers.UpSampling1D(size=(2), name = 'Up_33440', )(Cro87811)
+Res57307 = keras.layers.Reshape((2, 2, 1), name = 'Res57307', )(Up_33440)
+Con79227 = keras.layers.Concatenate(axis=3, name = 'Con79227', )([Res57307,in0Con79227])
+Min12487 = keras.layers.Minimum(name = 'Min12487', )([in0Min12487,in1Min12487])
+Zer44686 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer44686', )(Min12487)
+Mul69040 = keras.layers.Multiply(name = 'Mul69040', )([Con79227,Zer44686])
+Res67280 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res67280', )(Mul69040)
+ELU68516 = keras.layers.ELU(alpha=-3.302534255574958, name = 'ELU68516', input_shape=(1, 1, 2, 1))(in0ELU68516)
+Zer11992 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer11992', )(ELU68516)
+Sub28968 = keras.layers.Subtract(name = 'Sub28968', )([Res67280,Zer11992])
+model = tf.keras.models.Model(inputs=[in0Cro87811,in0Con79227,in0Min12487,in1Min12487,in0ELU68516], outputs=Sub28968)
+in0Cro87811 = tf.constant([[[1.3679, 1.2928], [1.4967, 1.8267]]])
+in0Con79227 = tf.constant([[[[0.4106], [0.3375]], [[0.3685], [0.7549]]]])
+in0Min12487 = tf.constant([[[[0.7169, 0.6986], [0.5604, 0.1335]]]])
+in1Min12487 = tf.constant([[[[0.8392, 0.528], [0.2337, 0.2783]]]])
+in0ELU68516 = tf.constant([[[[[0.6696], [0.1086]]]]])
+print (np.array2string(model.predict([in0Cro87811,in0Con79227,in0Min12487,in1Min12487,in0ELU68516],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub28968.png')
+
+LCro87811 = cropping1D_layer([[[1.3679, 1.2928], [1.4967, 1.8267]]], 1, 0, Cro87811), 
+LUp_33440 = up_sampling1D_layer(Cro87811, 2, Up_33440), 
+LRes57307 = reshape_layer(Up_33440, [2, 2, 1], Res57307), 
+LCon79227 = concatenate_layer([Res57307,[[[[0.4106], [0.3375]], [[0.3685], [0.7549]]]]], 3, Con79227), 
+LMin12487 = minimum_layer([[[[[0.7169, 0.6986], [0.5604, 0.1335]]]], [[[[0.8392, 0.528], [0.2337, 0.2783]]]]], Min12487), 
+LZer44686 = zero_padding2D_layer(Min12487, 1, 0, 0, 0, Zer44686), 
+LMul69040 = multiply_layer([Con79227,Zer44686], Mul69040), 
+LRes67280 = reshape_layer(Mul69040, [2, 2, 2, 1], Res67280), 
+LELU68516 = elu_layer([[[[[0.6696], [0.1086]]]]], -3.302534255574958, ELU68516), 
+LZer11992 = zero_padding3D_layer(ELU68516, 1, 0, 1, 0, 0, 0, Zer11992), 
+LSub28968 = subtract_layer(Res67280,Zer11992, Sub28968), 
+exec_layers([LCro87811,LUp_33440,LRes57307,LCon79227,LMin12487,LZer44686,LMul69040,LRes67280,LELU68516,LZer11992,LSub28968],["Cro87811","Up_33440","Res57307","Con79227","Min12487","Zer44686","Mul69040","Res67280","ELU68516","Zer11992","Sub28968"],Sub28968,"Sub28968")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000]], [[0.0000000], [0.0000000]]], [[[1.0729843], [0.1945680]], [[-0.2427002], [-0.0078209]]]]]
+
+Expected (Unparsed): [[[[[0.0],[0.0]],[[0.0],[0.0]]],[[[1.0729842299999999],[0.19456800000000002]],[[-0.24270020999999997],[-0.00782084999999999]]]]]
+
+Actual:   [[[[[0], [0]], [[0], [0]]], [[[1.073], [0.1946]], [[-0.2427], [-0.0078]]]]]
+
+Expected: [[[[[0], [0]], [[0], [0]]], [[[1.073], [0.1946]], [[-0.2427], [-0.0078]]]]]

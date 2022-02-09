@@ -1,0 +1,79 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot75379 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot75379 = tf.keras.layers.Input(shape=([3, 3]))
+in0Min41660 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Min41660 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave4680 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con62040 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dot75379 = keras.layers.Dot(axes=(1, 2), name = 'Dot75379', )([in0Dot75379,in1Dot75379])
+Sep34616 = keras.layers.SeparableConv1D(2, (2),strides=(2), padding='same', name = 'Sep34616', )(Dot75379)
+Min41660 = keras.layers.Minimum(name = 'Min41660', )([in0Min41660,in1Min41660])
+Res96992 = keras.layers.Reshape((1, 2), name = 'Res96992', )(Min41660)
+Fla33700 = keras.layers.Flatten(name = 'Fla33700', )(Res96992)
+Ave4680 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='valid', name = 'Ave4680', )(in0Ave4680)
+Sim70020 = keras.layers.SimpleRNN(1,name = 'Sim70020', )(Ave4680)
+Res23971 = keras.layers.Reshape((1, 1), name = 'Res23971', )(Sim70020)
+GRU77679 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU77679', )(Res23971)
+Sub93875 = keras.layers.Subtract(name = 'Sub93875', )([Fla33700,GRU77679])
+Res76159 = keras.layers.Reshape((2, 1), name = 'Res76159', )(Sub93875)
+PRe98271 = keras.layers.PReLU(name = 'PRe98271', )(Res76159)
+Con62040 = keras.layers.Concatenate(axis=2, name = 'Con62040', )([PRe98271,in0Con62040])
+Sub42568 = keras.layers.Subtract(name = 'Sub42568', )([Sep34616,Con62040])
+model = tf.keras.models.Model(inputs=[in0Dot75379,in1Dot75379,in0Min41660,in1Min41660,in0Ave4680,in0Con62040], outputs=Sub42568)
+w = model.get_layer('Sep34616').get_weights() 
+w[0] = np.array([[[0.5017], [0.7093], [0.5056]], [[0.0476], [0.1806], [0.1163]]])
+w[1] = np.array([[[0.3797, 0.3697], [0.442, 0.6444], [0.4758, 0.5295]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep34616').set_weights(w) 
+w = model.get_layer('Sim70020').get_weights() 
+w[0] = np.array([[6]])
+w[1] = np.array([[7]])
+w[2] = np.array([10])
+model.get_layer('Sim70020').set_weights(w) 
+w = model.get_layer('GRU77679').get_weights() 
+w[0] = np.array([[1, 9, 8, 9, 6, 10]])
+w[1] = np.array([[6, 10, 7, 1, 4, 10], [4, 8, 6, 4, 9, 5]])
+w[2] = np.array([10, 4, 6, 3, 7, 5])
+model.get_layer('GRU77679').set_weights(w) 
+w = model.get_layer('PRe98271').get_weights() 
+w[0] = np.array([[0.0482], [0.46]])
+model.get_layer('PRe98271').set_weights(w) 
+in0Dot75379 = tf.constant([[[0.0823, 0.8569, 0.5928], [0.9137, 0.2084, 0.4201], [0.8801, 0.2191, 0.5718]]])
+in1Dot75379 = tf.constant([[[0.1579, 0.4752, 0.1699], [0.6764, 0.1676, 0.6645], [0.6028, 0.1434, 0.9415]]])
+in0Min41660 = tf.constant([[[[0.2162, 0.5195]]]])
+in1Min41660 = tf.constant([[[[0.2865, 0.7806]]]])
+in0Ave4680 = tf.constant([[[1.633], [1.9602]]])
+in0Con62040 = tf.constant([[[0.6416], [0.6321]]])
+print (np.array2string(model.predict([in0Dot75379,in1Dot75379,in0Min41660,in1Min41660,in0Ave4680,in0Con62040],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub42568.png')
+
+LDot75379 = dot_layer([[[0.0823, 0.8569, 0.5928], [0.9137, 0.2084, 0.4201], [0.8801, 0.2191, 0.5718]]], [[[0.1579, 0.4752, 0.1699], [0.6764, 0.1676, 0.6645], [0.6028, 0.1434, 0.9415]]], 1, 2, Dot75379), 
+LSep34616 = separable_conv1D_layer(Dot75379, 2,[[[[0.5017], [0.7093], [0.5056]], [[0.0476], [0.1806], [0.1163]]],[[[0.3797, 0.3697], [0.442, 0.6444], [0.4758, 0.5295]]]],[0, 0], 2, true, Sep34616), 
+LMin41660 = minimum_layer([[[[[0.2162, 0.5195]]]], [[[[0.2865, 0.7806]]]]], Min41660), 
+LRes96992 = reshape_layer(Min41660, [1, 2], Res96992), 
+LFla33700 = flatten_layer(Res96992, Fla33700), 
+LAve4680 = average_pooling1D_layer([[[1.633], [1.9602]]], 1, 1, false, Ave4680), 
+LSim70020 = simple_rnn_layer(Ave4680,[[6]],[[7]],[10], Sim70020), 
+LRes23971 = reshape_layer(Sim70020, [1, 1], Res23971), 
+LGRU77679 = gru_layer(Res23971,[[1, 9, 8, 9, 6, 10]],[[6, 10, 7, 1, 4, 10], [4, 8, 6, 4, 9, 5]],[10, 4, 6, 3, 7, 5], false, GRU77679), 
+LSub93875 = subtract_layer(Fla33700,GRU77679, Sub93875), 
+LRes76159 = reshape_layer(Sub93875, [2, 1], Res76159), 
+LPRe98271 = prelu_layer(Res76159, [[0.0482], [0.46]], PRe98271), 
+LCon62040 = concatenate_layer([PRe98271,[[[0.6416], [0.6321]]]], 2, Con62040), 
+LSub42568 = subtract_layer(Sep34616,Con62040, Sub42568), 
+exec_layers([LDot75379,LSep34616,LMin41660,LRes96992,LFla33700,LAve4680,LSim70020,LRes23971,LGRU77679,LSub93875,LRes76159,LPRe98271,LCon62040,LSub42568],["Dot75379","Sep34616","Min41660","Res96992","Fla33700","Ave4680","Sim70020","Res23971","GRU77679","Sub93875","Res76159","PRe98271","Con62040","Sub42568"],Sub42568,"Sub42568")
+
+Actual (Unparsed): [[[0.4963260, 0.2416096], [0.0517358, 0.0853496]]]
+
+Expected (Unparsed): [[[0.4963259442532372,0.24160965127496692],[0.05173584968418388,0.08534958827910899]]]
+
+Actual:   [[[0.4964, 0.2417], [0.0518, 0.0854]]]
+
+Expected: [[[0.4964, 0.2417], [0.0518, 0.0854]]]

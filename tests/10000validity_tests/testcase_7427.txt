@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave8955 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Glo58229 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Up_10518 = tf.keras.layers.Input(shape=([2, 1, 1, 4]))
+
+Ave8955 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 1), padding='same', name = 'Ave8955', )(in0Ave8955)
+Res35385 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res35385', )(Ave8955)
+Up_53628 = keras.layers.UpSampling3D(size=(2, 1, 2), name = 'Up_53628', )(Res35385)
+Res16553 = keras.layers.Reshape((2, 1, 4), name = 'Res16553', )(Up_53628)
+Res71033 = keras.layers.Reshape((2, 4), name = 'Res71033', )(Res16553)
+Glo58229 = keras.layers.GlobalAveragePooling2D(name = 'Glo58229', )(in0Glo58229)
+Res68617 = keras.layers.Reshape((2, 1), name = 'Res68617', )(Glo58229)
+Zer39755 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer39755', )(Res68617)
+Up_10518 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_10518', )(in0Up_10518)
+Res62634 = keras.layers.Reshape((4, 1, 4), name = 'Res62634', )(Up_10518)
+Res34310 = keras.layers.Reshape((4, 4), name = 'Res34310', )(Res62634)
+Dot13598 = keras.layers.Dot(axes=(1, 1), name = 'Dot13598', )([Zer39755,Res34310])
+Zer1282 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer1282', )(Dot13598)
+Min75854 = keras.layers.Minimum(name = 'Min75854', )([Res71033,Zer1282])
+model = tf.keras.models.Model(inputs=[in0Ave8955,in0Glo58229,in0Up_10518], outputs=Min75854)
+in0Ave8955 = tf.constant([[[[1.3603, 1.8782]]]])
+in0Glo58229 = tf.constant([[[[1.1073, 1.4492]], [[1.1606, 1.5077]]]])
+in0Up_10518 = tf.constant([[[[[1.6282, 1.6989, 1.3363, 1.1949]]], [[[1.4832, 1.1569, 1.7325, 1.4894]]]]])
+print (np.array2string(model.predict([in0Ave8955,in0Glo58229,in0Up_10518],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min75854.png')
+
+LAve8955 = average_pooling2D_layer([[[[1.3603, 1.8782]]]], 1, 1, 1, 1, true, Ave8955), 
+LRes35385 = reshape_layer(Ave8955, [1, 1, 2, 1], Res35385), 
+LUp_53628 = up_sampling3D_layer(Res35385, 2, 1, 2, Up_53628), 
+LRes16553 = reshape_layer(Up_53628, [2, 1, 4], Res16553), 
+LRes71033 = reshape_layer(Res16553, [2, 4], Res71033), 
+LGlo58229 = global_average_pooling2D_layer([[[[1.1073, 1.4492]], [[1.1606, 1.5077]]]], Glo58229), 
+LRes68617 = reshape_layer(Glo58229, [2, 1], Res68617), 
+LZer39755 = zero_padding1D_layer(Res68617, 1, 1, Zer39755), 
+LUp_10518 = up_sampling3D_layer([[[[[1.6282, 1.6989, 1.3363, 1.1949]]], [[[1.4832, 1.1569, 1.7325, 1.4894]]]]], 2, 1, 1, Up_10518), 
+LRes62634 = reshape_layer(Up_10518, [4, 1, 4], Res62634), 
+LRes34310 = reshape_layer(Res62634, [4, 4], Res34310), 
+LDot13598 = dot_layer(Zer39755,Res34310, 1, 1, Dot13598), 
+LZer1282 = zero_padding1D_layer(Dot13598, 1, 0, Zer1282), 
+LMin75854 = minimum_layer([Res71033,Zer1282], Min75854), 
+exec_layers([LAve8955,LRes35385,LUp_53628,LRes16553,LRes71033,LGlo58229,LRes68617,LZer39755,LUp_10518,LRes62634,LRes34310,LDot13598,LZer1282,LMin75854],["Ave8955","Res35385","Up_53628","Res16553","Res71033","Glo58229","Res68617","Zer39755","Up_10518","Res62634","Res34310","Dot13598","Zer1282","Min75854"],Min75854,"Min75854")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [1.3602999, 1.3602999, 1.8782001, 1.8782001]]]
+
+Expected (Unparsed): [[[0,0,0,0],[1.3603,1.3603,1.8782,1.8782]]]
+
+Actual:   [[[0, 0, 0, 0], [1.3603, 1.3603, 1.8783, 1.8783]]]
+
+Expected: [[[0, 0, 0, 0], [1.3603, 1.3603, 1.8782, 1.8782]]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max2235 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max2235 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con26273 = tf.keras.layers.Input(shape=([3, 1]))
+in0Den41320 = tf.keras.layers.Input(shape=([3, 4]))
+
+Max2235 = keras.layers.Maximum(name = 'Max2235', )([in0Max2235,in1Max2235])
+Res50179 = keras.layers.Reshape((2, 1), name = 'Res50179', )(Max2235)
+Zer64695 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer64695', )(Res50179)
+Con26273 = keras.layers.Concatenate(axis=2, name = 'Con26273', )([Zer64695,in0Con26273])
+Den41320 = keras.layers.Dense(2,name = 'Den41320', )(in0Den41320)
+Min24670 = keras.layers.Minimum(name = 'Min24670', )([Con26273,Den41320])
+Res40342 = keras.layers.Reshape((3, 2, 1), name = 'Res40342', )(Min24670)
+Dep25616 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep25616', )(Res40342)
+model = tf.keras.models.Model(inputs=[in0Max2235,in1Max2235,in0Con26273,in0Den41320], outputs=Dep25616)
+w = model.get_layer('Den41320').get_weights() 
+w[0] = np.array([[0.9983, 0.0726], [0.9289, 0.1175], [0.3088, 0.0746], [0.0758, 0.4106]])
+w[1] = np.array([0.7623, 0.5434])
+model.get_layer('Den41320').set_weights(w) 
+w = model.get_layer('Dep25616').get_weights() 
+w[0] = np.array([[[[0.1218]]]])
+w[1] = np.array([0])
+model.get_layer('Dep25616').set_weights(w) 
+in0Max2235 = tf.constant([[[[0.2497]], [[0.9659]]]])
+in1Max2235 = tf.constant([[[[0.436]], [[0.2531]]]])
+in0Con26273 = tf.constant([[[0.9834], [0.1117], [0.9696]]])
+in0Den41320 = tf.constant([[[0.1412, 0.1914, 0.8274, 0.1456], [0.1522, 0.2806, 0.5136, 0.8532], [0.1258, 0.2113, 0.3763, 0.4908]]])
+print (np.array2string(model.predict([in0Max2235,in1Max2235,in0Con26273,in0Den41320],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep25616.png')
+
+LMax2235 = maximum_layer([[[[[0.2497]], [[0.9659]]]], [[[[0.436]], [[0.2531]]]]], Max2235), 
+LRes50179 = reshape_layer(Max2235, [2, 1], Res50179), 
+LZer64695 = zero_padding1D_layer(Res50179, 1, 0, Zer64695), 
+LCon26273 = concatenate_layer([Zer64695,[[[0.9834], [0.1117], [0.9696]]]], 2, Con26273), 
+LDen41320 = dense_layer([[[0.1412, 0.1914, 0.8274, 0.1456], [0.1522, 0.2806, 0.5136, 0.8532], [0.1258, 0.2113, 0.3763, 0.4908]]], [[0.9983, 0.0726], [0.9289, 0.1175], [0.3088, 0.0746], [0.0758, 0.4106]],[0.7623, 0.5434], Den41320), 
+LMin24670 = minimum_layer([Con26273,Den41320], Min24670), 
+LRes40342 = reshape_layer(Min24670, [3, 2, 1], Res40342), 
+LDep25616 = depthwise_conv2D_layer(Res40342, 1, 1,[[[[0.1218]]]],[0], 1, 1, false, Dep25616), 
+exec_layers([LMax2235,LRes50179,LZer64695,LCon26273,LDen41320,LMin24670,LRes40342,LDep25616],["Max2235","Res50179","Zer64695","Con26273","Den41320","Min24670","Res40342","Dep25616"],Dep25616,"Dep25616")
+
+Actual (Unparsed): [[[[0.0000000], [0.0849735]], [[0.0531048], [0.0136051]], [[0.1176466], [0.0982872]]]]
+
+Expected (Unparsed): [[[[0.0],[0.084973528836]],[[0.0531048],[0.01360506]],[[0.11764662000000001],[0.09828715432200001]]]]
+
+Actual:   [[[[0], [0.085]], [[0.0532], [0.0137]], [[0.1177], [0.0983]]]]
+
+Expected: [[[[0], [0.085]], [[0.0532], [0.0137]], [[0.1177], [0.0983]]]]

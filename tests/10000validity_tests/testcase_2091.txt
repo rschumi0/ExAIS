@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub64850 = tf.keras.layers.Input(shape=([3]))
+in1Sub64850 = tf.keras.layers.Input(shape=([3]))
+in0Con94730 = tf.keras.layers.Input(shape=([3, 1]))
+in0Lea18233 = tf.keras.layers.Input(shape=([1, 2]))
+
+Sub64850 = keras.layers.Subtract(name = 'Sub64850', )([in0Sub64850,in1Sub64850])
+Res67091 = keras.layers.Reshape((3, 1), name = 'Res67091', )(Sub64850)
+Con94730 = keras.layers.Concatenate(axis=2, name = 'Con94730', )([Res67091,in0Con94730])
+Lea18233 = keras.layers.LeakyReLU(alpha=8.106509217878413, name = 'Lea18233', input_shape=(1, 2))(in0Lea18233)
+Zer62859 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer62859', )(Lea18233)
+Add26094 = keras.layers.Add(name = 'Add26094', )([Con94730,Zer62859])
+GRU45068 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU45068', )(Add26094)
+model = tf.keras.models.Model(inputs=[in0Sub64850,in1Sub64850,in0Con94730,in0Lea18233], outputs=GRU45068)
+w = model.get_layer('GRU45068').get_weights() 
+w[0] = np.array([[3, 3, 2, 3, 4, 7], [5, 8, 1, 3, 2, 4]])
+w[1] = np.array([[1, 3, 4, 4, 4, 5], [3, 1, 8, 10, 7, 3]])
+w[2] = np.array([[8, 8, 7, 2, 6, 2], [8, 4, 10, 1, 6, 7]])
+model.get_layer('GRU45068').set_weights(w) 
+in0Sub64850 = tf.constant([[0.5458, 0.8169, 0.6581]])
+in1Sub64850 = tf.constant([[0.4491, 0.6457, 0.1392]])
+in0Con94730 = tf.constant([[[0.0785], [0.5994], [0.463]]])
+in0Lea18233 = tf.constant([[[0.3965, 0.1229]]])
+print (np.array2string(model.predict([in0Sub64850,in1Sub64850,in0Con94730,in0Lea18233],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU45068.png')
+
+LSub64850 = subtract_layer([[0.5458, 0.8169, 0.6581]], [[0.4491, 0.6457, 0.1392]], Sub64850), 
+LRes67091 = reshape_layer(Sub64850, [3, 1], Res67091), 
+LCon94730 = concatenate_layer([Res67091,[[[0.0785], [0.5994], [0.463]]]], 2, Con94730), 
+LLea18233 = leaky_relu_layer([[[0.3965, 0.1229]]], 8.106509217878413, Lea18233), 
+LZer62859 = zero_padding1D_layer(Lea18233, 2, 0, Zer62859), 
+LAdd26094 = add_layer([Con94730,Zer62859], Add26094), 
+LGRU45068 = gru_layer(Add26094,[[3, 3, 2, 3, 4, 7], [5, 8, 1, 3, 2, 4]],[[1, 3, 4, 4, 4, 5], [3, 1, 8, 10, 7, 3]],[[8, 8, 7, 2, 6, 2], [8, 4, 10, 1, 6, 7]], true, GRU45068), 
+exec_layers([LSub64850,LRes67091,LCon94730,LLea18233,LZer62859,LAdd26094,LGRU45068],["Sub64850","Res67091","Con94730","Lea18233","Zer62859","Add26094","GRU45068"],GRU45068,"GRU45068")
+
+Actual (Unparsed): [[0.0000001, 0.0000025]]
+
+Expected (Unparsed): [[6.061239832882374e-8,2.487269153219421e-6]]
+
+Actual:   [[0, 0]]
+
+Expected: [[0, 0]]

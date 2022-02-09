@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max32460 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Max32460 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Ave59995 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave59995 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Max32460 = keras.layers.Maximum(name = 'Max32460', )([in0Max32460,in1Max32460])
+Res7949 = keras.layers.Reshape((2, 2, 2), name = 'Res7949', )(Max32460)
+Res90493 = keras.layers.Reshape((2, 4), name = 'Res90493', )(Res7949)
+Sep67863 = keras.layers.SeparableConv1D(4, (1),strides=(2), padding='valid', name = 'Sep67863', )(Res90493)
+Res88411 = keras.layers.Reshape((1, 4, 1), name = 'Res88411', )(Sep67863)
+Zer73123 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer73123', )(Res88411)
+Ave59995 = keras.layers.Average(name = 'Ave59995', )([in0Ave59995,in1Ave59995])
+Zer5035 = keras.layers.ZeroPadding2D(padding=((0, 0), (4, 0)), name = 'Zer5035', )(Ave59995)
+Max23361 = keras.layers.Maximum(name = 'Max23361', )([Zer73123,Zer5035])
+model = tf.keras.models.Model(inputs=[in0Max32460,in1Max32460,in0Ave59995,in1Ave59995], outputs=Max23361)
+w = model.get_layer('Sep67863').get_weights() 
+w[0] = np.array([[[0.609], [0.7627], [0.4357], [0.32]]])
+w[1] = np.array([[[0.4323, 0.1345, 0.4438, 0.8484], [0.5133, 0.5779, 0.5469, 0.0094], [0.3211, 0.4578, 0.8839, 0.2019], [0.7957, 0.2821, 0.0065, 0.0166]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep67863').set_weights(w) 
+in0Max32460 = tf.constant([[[[[0.9396, 0.0684]], [[0.3146, 0.6364]]], [[[0.2328, 0.8632]], [[0.0267, 0.9137]]]]])
+in1Max32460 = tf.constant([[[[[0.8746, 0.3443]], [[0.2522, 0.1021]]], [[[0.9556, 0.6495]], [[0.0243, 0.8499]]]]])
+in0Ave59995 = tf.constant([[[[0.9885], [0.3601]], [[0.9718], [0.3525]]]])
+in1Ave59995 = tf.constant([[[[0.2298], [0.0936]], [[0.6802], [0.5819]]]])
+print (np.array2string(model.predict([in0Max32460,in1Max32460,in0Ave59995,in1Ave59995],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max23361.png')
+
+LMax32460 = maximum_layer([[[[[[0.9396, 0.0684]], [[0.3146, 0.6364]]], [[[0.2328, 0.8632]], [[0.0267, 0.9137]]]]], [[[[[0.8746, 0.3443]], [[0.2522, 0.1021]]], [[[0.9556, 0.6495]], [[0.0243, 0.8499]]]]]], Max32460), 
+LRes7949 = reshape_layer(Max32460, [2, 2, 2], Res7949), 
+LRes90493 = reshape_layer(Res7949, [2, 4], Res90493), 
+LSep67863 = separable_conv1D_layer(Res90493, 1,[[[[0.609], [0.7627], [0.4357], [0.32]]],[[[0.4323, 0.1345, 0.4438, 0.8484], [0.5133, 0.5779, 0.5469, 0.0094], [0.3211, 0.4578, 0.8839, 0.2019], [0.7957, 0.2821, 0.0065, 0.0166]]]],[0, 0, 0, 0], 2, false, Sep67863), 
+LRes88411 = reshape_layer(Sep67863, [1, 4, 1], Res88411), 
+LZer73123 = zero_padding2D_layer(Res88411, 1, 0, 2, 0, Zer73123), 
+LAve59995 = average_layer([[[[[0.9885], [0.3601]], [[0.9718], [0.3525]]]], [[[[0.2298], [0.0936]], [[0.6802], [0.5819]]]]], Ave59995), 
+LZer5035 = zero_padding2D_layer(Ave59995, 0, 0, 4, 0, Zer5035), 
+LMax23361 = maximum_layer([Zer73123,Zer5035], Max23361), 
+exec_layers([LMax32460,LRes7949,LRes90493,LSep67863,LRes88411,LZer73123,LAve59995,LZer5035,LMax23361],["Max32460","Res7949","Res90493","Sep67863","Res88411","Zer73123","Ave59995","Zer5035","Max23361"],Max23361,"Max23361")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.6091500], [0.2268500]], [[0.0000000], [0.0000000], [0.5882168], [0.3489186], [0.8260000], [0.5189920]]]]
+
+Expected (Unparsed): [[[[0],[0],[0],[0],[0.6091500000000001],[0.22685]],[[0],[0],[0.588216785275],[0.34891856993500003],[0.8260000000000001],[0.5189920474120001]]]]
+
+Actual:   [[[[0], [0], [0], [0], [0.6092], [0.2269]], [[0], [0], [0.5883], [0.349], [0.826], [0.519]]]]
+
+Expected: [[[[0], [0], [0], [0], [0.6092], [0.2269]], [[0], [0], [0.5883], [0.349], [0.8261], [0.519]]]]

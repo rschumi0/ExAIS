@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per98844 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mul86843 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Mul86843 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Per98844 = keras.layers.Permute((1,2), name = 'Per98844',)(in0Per98844)
+Res67607 = keras.layers.Reshape((2, 2, 1), name = 'Res67607', )(Per98844)
+Con72065 = keras.layers.Conv2DTranspose(4, (2, 1),strides=(1, 1), padding='valid', name = 'Con72065', )(Res67607)
+Res43168 = keras.layers.Reshape((3, 2, 4, 1), name = 'Res43168', )(Con72065)
+Mul86843 = keras.layers.Multiply(name = 'Mul86843', )([in0Mul86843,in1Mul86843])
+Zer75101 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (3, 0)), name = 'Zer75101', )(Mul86843)
+Min20934 = keras.layers.Minimum(name = 'Min20934', )([Res43168,Zer75101])
+Res594 = keras.layers.Reshape((3, 2, 4), name = 'Res594', )(Min20934)
+Sep87655 = keras.layers.SeparableConv2D(2, (2, 1),strides=(2, 2), padding='same', name = 'Sep87655', )(Res594)
+model = tf.keras.models.Model(inputs=[in0Per98844,in0Mul86843,in1Mul86843], outputs=Sep87655)
+w = model.get_layer('Con72065').get_weights() 
+w[0] = np.array([[[[0.6376], [0.5728], [0.8961], [0.1449]]], [[[0.6624], [0.474], [0.8816], [0.7407]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con72065').set_weights(w) 
+w = model.get_layer('Sep87655').get_weights() 
+w[0] = np.array([[[[0.8381], [0.8223], [0.2663], [0.0181]]], [[[0.2193], [0.3996], [0.9122], [0.0074]]]])
+w[1] = np.array([[[[0.8664, 0.7318], [0.011, 0.2175], [0.2166, 0.3653], [0.6072, 0.6562]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep87655').set_weights(w) 
+in0Per98844 = tf.constant([[[1.2828, 1.1327], [1.1624, 1.9925]]])
+in0Mul86843 = tf.constant([[[[[0.4069]], [[0.0095]]], [[[0.2191]], [[0.8118]]]]])
+in1Mul86843 = tf.constant([[[[[0.4975]], [[0.3982]]], [[[0.5839]], [[0.9079]]]]])
+print (np.array2string(model.predict([in0Per98844,in0Mul86843,in1Mul86843],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep87655.png')
+
+LPer98844 = permute_layer([[[1.2828, 1.1327], [1.1624, 1.9925]]], 1,2, Per98844), 
+LRes67607 = reshape_layer(Per98844, [2, 2, 1], Res67607), 
+LCon72065 = conv2D_transpose_layer(Res67607, 2, 1,[[[[0.6376], [0.5728], [0.8961], [0.1449]]], [[[0.6624], [0.474], [0.8816], [0.7407]]]],[0, 0, 0, 0], 1, 1, false, Con72065), 
+LRes43168 = reshape_layer(Con72065, [3, 2, 4, 1], Res43168), 
+LMul86843 = multiply_layer([[[[[[0.4069]], [[0.0095]]], [[[0.2191]], [[0.8118]]]]], [[[[[0.4975]], [[0.3982]]], [[[0.5839]], [[0.9079]]]]]], Mul86843), 
+LZer75101 = zero_padding3D_layer(Mul86843, 1, 0, 0, 0, 3, 0, Zer75101), 
+LMin20934 = minimum_layer([Res43168,Zer75101], Min20934), 
+LRes594 = reshape_layer(Min20934, [3, 2, 4], Res594), 
+LSep87655 = separable_conv2D_layer(Res594, 2, 1,[[[[[0.8381], [0.8223], [0.2663], [0.0181]]], [[[0.2193], [0.3996], [0.9122], [0.0074]]]],[[[[0.8664, 0.7318], [0.011, 0.2175], [0.2166, 0.3653], [0.6072, 0.6562]]]]],[0, 0], 2, 2, true, Sep87655), 
+exec_layers([LPer98844,LRes67607,LCon72065,LRes43168,LMul86843,LZer75101,LMin20934,LRes594,LSep87655],["Per98844","Res67607","Con72065","Res43168","Mul86843","Zer75101","Min20934","Res594","Sep87655"],Sep87655,"Sep87655")
+
+Actual (Unparsed): [[[[0.0009096, 0.0009830]], [[0.0014060, 0.0015195]]]]
+
+Expected (Unparsed): [[[[0.00090958702692,0.0009829891420700002]],[[0.0014060190034967997,0.0015194823288777997]]]]
+
+Actual:   [[[[0.001, 0.001]], [[0.0015, 0.0016]]]]
+
+Expected: [[[[0.001, 0.001]], [[0.0015, 0.0016]]]]

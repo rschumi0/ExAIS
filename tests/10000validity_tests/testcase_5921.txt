@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo16464 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Glo16464 = keras.layers.GlobalAveragePooling2D(name = 'Glo16464', )(in0Glo16464)
+Res96728 = keras.layers.Reshape((2, 1), name = 'Res96728', )(Glo16464)
+Res35639 = keras.layers.Reshape((2, 1, 1), name = 'Res35639', )(Res96728)
+Res46232 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res46232', )(Res35639)
+Up_5211 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_5211', )(Res46232)
+Res69330 = keras.layers.Reshape((4, 1, 1), name = 'Res69330', )(Up_5211)
+Con50185 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='valid', name = 'Con50185', )(Res69330)
+ELU14467 = keras.layers.ELU(alpha=8.096301917262917, name = 'ELU14467', )(Con50185)
+model = tf.keras.models.Model(inputs=[in0Glo16464], outputs=ELU14467)
+w = model.get_layer('Con50185').get_weights() 
+w[0] = np.array([[[[0.4184], [0.872], [0.7996]]], [[[0.2716], [0.2064], [0.2727]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con50185').set_weights(w) 
+in0Glo16464 = tf.constant([[[[1.6922, 1.7822], [1.6451, 1.3636]]]])
+print (np.array2string(model.predict([in0Glo16464],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU14467.png')
+
+LGlo16464 = global_average_pooling2D_layer([[[[1.6922, 1.7822], [1.6451, 1.3636]]]], Glo16464), 
+LRes96728 = reshape_layer(Glo16464, [2, 1], Res96728), 
+LRes35639 = reshape_layer(Res96728, [2, 1, 1], Res35639), 
+LRes46232 = reshape_layer(Res35639, [2, 1, 1, 1], Res46232), 
+LUp_5211 = up_sampling3D_layer(Res46232, 2, 1, 1, Up_5211), 
+LRes69330 = reshape_layer(Up_5211, [4, 1, 1], Res69330), 
+LCon50185 = conv2D_transpose_layer(Res69330, 2, 1,[[[[0.4184], [0.872], [0.7996]]], [[[0.2716], [0.2064], [0.2727]]]],[0, 0, 0], 1, 1, false, Con50185), 
+LELU14467 = elu_layer(Con50185, 8.096301917262917, ELU14467), 
+exec_layers([LGlo16464,LRes96728,LRes35639,LRes46232,LUp_5211,LRes69330,LCon50185,LELU14467],["Glo16464","Res96728","Res35639","Res46232","Up_5211","Res69330","Con50185","ELU14467"],ELU14467,"ELU14467")
+
+Actual (Unparsed): [[[[0.6981631, 1.4550628, 1.3342525]], [[1.1513685, 1.7994721, 1.7892934]], [[1.1113067, 1.7159782, 1.7127317]], [[1.0853010, 1.6962154, 1.6866207]], [[0.4271996, 0.3246466, 0.4289298]]]]
+
+Expected (Unparsed): [[[[0.69816316,1.4550627999999999,1.33425254]],[[1.1513685,1.7994721599999999,1.789293395]],[[1.1113067,1.71597816,1.712731695]],[[1.0853009999999998,1.6962153599999998,1.68662067]],[[0.42719964,0.32464656,0.42892983]]]]
+
+Actual:   [[[[0.6982, 1.4551, 1.3343]], [[1.1514, 1.7995, 1.7893]], [[1.1114, 1.716, 1.7128]], [[1.0854, 1.6963, 1.6867]], [[0.4272, 0.3247, 0.429]]]]
+
+Expected: [[[[0.6982, 1.4551, 1.3343]], [[1.1514, 1.7995, 1.7893]], [[1.1114, 1.716, 1.7128]], [[1.0854, 1.6963, 1.6867]], [[0.4272, 0.3247, 0.429]]]]

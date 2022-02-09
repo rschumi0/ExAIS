@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min42187 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min42187 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Max19311 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Max19311 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con38923 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Min42187 = keras.layers.Minimum(name = 'Min42187', )([in0Min42187,in1Min42187])
+Con66992 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='valid', name = 'Con66992', )(Min42187)
+Max19311 = keras.layers.Maximum(name = 'Max19311', )([in0Max19311,in1Max19311])
+Sep69640 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='valid', name = 'Sep69640', )(Max19311)
+Con38923 = keras.layers.Concatenate(axis=3, name = 'Con38923', )([Sep69640,in0Con38923])
+Max74114 = keras.layers.Maximum(name = 'Max74114', )([Con66992,Con38923])
+model = tf.keras.models.Model(inputs=[in0Min42187,in1Min42187,in0Max19311,in1Max19311,in0Con38923], outputs=Max74114)
+w = model.get_layer('Con66992').get_weights() 
+w[0] = np.array([[[[0.6664], [0.7175], [0.0613], [0.8951]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con66992').set_weights(w) 
+w = model.get_layer('Sep69640').get_weights() 
+w[0] = np.array([[[[0.8618], [0.756]]]])
+w[1] = np.array([[[[0.3216, 0.5193], [0.6659, 0.5063]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep69640').set_weights(w) 
+in0Min42187 = tf.constant([[[[0.9995], [0.4673]]]])
+in1Min42187 = tf.constant([[[[0.3568], [0.6318]]]])
+in0Max19311 = tf.constant([[[[0.747, 0.0082], [0.3801, 0.082]]]])
+in1Max19311 = tf.constant([[[[0.6746, 0.9528], [0.1846, 0.8195]]]])
+in0Con38923 = tf.constant([[[[0.2072, 0.3159], [0.6985, 0.3516]]]])
+print (np.array2string(model.predict([in0Min42187,in1Min42187,in0Max19311,in1Max19311,in0Con38923],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max74114.png')
+
+LMin42187 = minimum_layer([[[[[0.9995], [0.4673]]]], [[[[0.3568], [0.6318]]]]], Min42187), 
+LCon66992 = conv2D_transpose_layer(Min42187, 1, 1,[[[[0.6664], [0.7175], [0.0613], [0.8951]]]],[0, 0, 0, 0], 1, 1, false, Con66992), 
+LMax19311 = maximum_layer([[[[[0.747, 0.0082], [0.3801, 0.082]]]], [[[[0.6746, 0.9528], [0.1846, 0.8195]]]]], Max19311), 
+LSep69640 = separable_conv2D_layer(Max19311, 1, 1,[[[[[0.8618], [0.756]]]],[[[[0.3216, 0.5193], [0.6659, 0.5063]]]]],[0, 0], 1, 1, false, Sep69640), 
+LCon38923 = concatenate_layer([Sep69640,[[[[0.2072, 0.3159], [0.6985, 0.3516]]]]], 3, Con38923), 
+LMax74114 = maximum_layer([Con66992,Con38923], Max74114), 
+exec_layers([LMin42187,LCon66992,LMax19311,LSep69640,LCon38923,LMax74114],["Min42187","Con66992","Max19311","Sep69640","Con38923","Max74114"],Max74114,"Max74114")
+
+Actual (Unparsed): [[[[0.6866936, 0.6990033, 0.2072000, 0.3193717], [0.5178996, 0.4837813, 0.6985000, 0.4182802]]]]
+
+Expected (Unparsed): [[[[0.68669365248,0.6990033526199999,0.2072,0.31937168],[0.517899587688,0.48378130907399997,0.6985,0.41828023]]]]
+
+Actual:   [[[[0.6867, 0.6991, 0.2072, 0.3194], [0.5179, 0.4838, 0.6985, 0.4183]]]]
+
+Expected: [[[[0.6867, 0.6991, 0.2072, 0.3194], [0.5179, 0.4838, 0.6985, 0.4183]]]]

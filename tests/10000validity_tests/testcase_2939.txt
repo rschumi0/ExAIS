@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU30944 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con10074 = tf.keras.layers.Input(shape=([3, 3, 1, 1]))
+in0Max987 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Max987 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+
+GRU30944 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU30944', )(in0GRU30944)
+Res9054 = keras.layers.Reshape((3, 1), name = 'Res9054', )(GRU30944)
+Res17536 = keras.layers.Reshape((3, 1, 1), name = 'Res17536', )(Res9054)
+Res40637 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res40637', )(Res17536)
+Zer47685 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer47685', )(Res40637)
+Con10074 = keras.layers.Concatenate(axis=4, name = 'Con10074', )([Zer47685,in0Con10074])
+Max987 = keras.layers.Maximum(name = 'Max987', )([in0Max987,in1Max987])
+Zer43818 = keras.layers.ZeroPadding3D(padding=((2, 0), (1, 0), (0, 0)), name = 'Zer43818', )(Max987)
+Add62543 = keras.layers.Add(name = 'Add62543', )([Con10074,Zer43818])
+model = tf.keras.models.Model(inputs=[in0GRU30944,in0Con10074,in0Max987,in1Max987], outputs=Add62543)
+w = model.get_layer('GRU30944').get_weights() 
+w[0] = np.array([[8, 3, 7, 10, 2, 8, 7, 4, 6], [2, 3, 7, 7, 8, 2, 10, 1, 4]])
+w[1] = np.array([[9, 5, 3, 9, 9, 2, 1, 8, 1], [5, 9, 2, 9, 3, 2, 1, 2, 8], [9, 5, 2, 2, 2, 3, 4, 6, 10]])
+w[2] = np.array([3, 2, 7, 1, 8, 1, 3, 9, 1])
+model.get_layer('GRU30944').set_weights(w) 
+in0GRU30944 = tf.constant([[[3, 8]]])
+in0Con10074 = tf.constant([[[[[0.8696]], [[0.759]], [[0.4595]]], [[[0.9004]], [[0.6699]], [[0.4761]]], [[[0.5827]], [[0.396]], [[0.4648]]]]])
+in0Max987 = tf.constant([[[[[0.9483, 0.1353]], [[0.694, 0.6786]]]]])
+in1Max987 = tf.constant([[[[[0.588, 0.4619]], [[0.7878, 0.2568]]]]])
+print (np.array2string(model.predict([in0GRU30944,in0Con10074,in0Max987,in1Max987],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add62543.png')
+
+LGRU30944 = gru_layer([[[3, 8]]],[[8, 3, 7, 10, 2, 8, 7, 4, 6], [2, 3, 7, 7, 8, 2, 10, 1, 4]],[[9, 5, 3, 9, 9, 2, 1, 8, 1], [5, 9, 2, 9, 3, 2, 1, 2, 8], [9, 5, 2, 2, 2, 3, 4, 6, 10]],[3, 2, 7, 1, 8, 1, 3, 9, 1], false, GRU30944), 
+LRes9054 = reshape_layer(GRU30944, [3, 1], Res9054), 
+LRes17536 = reshape_layer(Res9054, [3, 1, 1], Res17536), 
+LRes40637 = reshape_layer(Res17536, [3, 1, 1, 1], Res40637), 
+LZer47685 = zero_padding3D_layer(Res40637, 0, 0, 2, 0, 0, 0, Zer47685), 
+LCon10074 = concatenate_layer([Zer47685,[[[[[0.8696]], [[0.759]], [[0.4595]]], [[[0.9004]], [[0.6699]], [[0.4761]]], [[[0.5827]], [[0.396]], [[0.4648]]]]]], 4, Con10074), 
+LMax987 = maximum_layer([[[[[[0.9483, 0.1353]], [[0.694, 0.6786]]]]], [[[[[0.588, 0.4619]], [[0.7878, 0.2568]]]]]], Max987), 
+LZer43818 = zero_padding3D_layer(Max987, 2, 0, 1, 0, 0, 0, Zer43818), 
+LAdd62543 = add_layer([Con10074,Zer43818], Add62543), 
+exec_layers([LGRU30944,LRes9054,LRes17536,LRes40637,LZer47685,LCon10074,LMax987,LZer43818,LAdd62543],["GRU30944","Res9054","Res17536","Res40637","Zer47685","Con10074","Max987","Zer43818","Add62543"],Add62543,"Add62543")
+
+Actual (Unparsed): [[[[[0.0000000, 0.8696000]], [[0.0000000, 0.7590000]], [[0.0000000, 0.4595000]]], [[[0.0000000, 0.9004000]], [[0.0000000, 0.6699000]], [[0.0000000, 0.4761000]]], [[[0.0000000, 0.5827000]], [[0.9483000, 0.8579000]], [[0.7878000, 1.1434000]]]]]
+
+Expected (Unparsed): [[[[[0,0.8696]],[[0,0.759]],[[0.0,0.4595]]],[[[0,0.9004]],[[0,0.6699]],[[6.661338147750939e-16,0.4761]]],[[[0,0.5827]],[[0.9483,0.8579]],[[0.7878,1.1434]]]]]
+
+Actual:   [[[[[0, 0.8696]], [[0, 0.759]], [[0, 0.4595]]], [[[0, 0.9004]], [[0, 0.6699]], [[0, 0.4761]]], [[[0, 0.5827]], [[0.9483, 0.8579]], [[0.7878, 1.1434]]]]]
+
+Expected: [[[[[0, 0.8696]], [[0, 0.759]], [[0, 0.4595]]], [[[0, 0.9004]], [[0, 0.6699]], [[0, 0.4761]]], [[[0, 0.5827]], [[0.9483, 0.8579]], [[0.7878, 1.1434]]]]]

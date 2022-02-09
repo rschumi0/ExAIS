@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max72385 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max72385 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Max188 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max188 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con38968 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max72385 = keras.layers.Maximum(name = 'Max72385', )([in0Max72385,in1Max72385])
+Sep20890 = keras.layers.SeparableConv2D(4, (1, 1),strides=(1, 1), padding='valid', name = 'Sep20890', )(Max72385)
+Res46522 = keras.layers.Reshape((1, 4), name = 'Res46522', )(Sep20890)
+Zer83295 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer83295', )(Res46522)
+Max188 = keras.layers.Maximum(name = 'Max188', )([in0Max188,in1Max188])
+Con38968 = keras.layers.Concatenate(axis=2, name = 'Con38968', )([Max188,in0Con38968])
+Min600 = keras.layers.Minimum(name = 'Min600', )([Zer83295,Con38968])
+model = tf.keras.models.Model(inputs=[in0Max72385,in1Max72385,in0Max188,in1Max188,in0Con38968], outputs=Min600)
+w = model.get_layer('Sep20890').get_weights() 
+w[0] = np.array([[[[0.2463], [0.2927]]]])
+w[1] = np.array([[[[0.5488, 0.2244, 0.3549, 0.1481], [0.0496, 0.4544, 0.6383, 0.1579]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep20890').set_weights(w) 
+in0Max72385 = tf.constant([[[[0.4428, 0.1386]]]])
+in1Max72385 = tf.constant([[[[0.0067, 0.5758]]]])
+in0Max188 = tf.constant([[[0.509, 0.0598], [0.8863, 0.3763]]])
+in1Max188 = tf.constant([[[0.009, 0.3955], [0.0953, 0.0326]]])
+in0Con38968 = tf.constant([[[0.6586, 0.7605], [0.963, 0.5692]]])
+print (np.array2string(model.predict([in0Max72385,in1Max72385,in0Max188,in1Max188,in0Con38968],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min600.png')
+
+LMax72385 = maximum_layer([[[[[0.4428, 0.1386]]]], [[[[0.0067, 0.5758]]]]], Max72385), 
+LSep20890 = separable_conv2D_layer(Max72385, 1, 1,[[[[[0.2463], [0.2927]]]],[[[[0.5488, 0.2244, 0.3549, 0.1481], [0.0496, 0.4544, 0.6383, 0.1579]]]]],[0, 0, 0, 0], 1, 1, false, Sep20890), 
+LRes46522 = reshape_layer(Sep20890, [1, 4], Res46522), 
+LZer83295 = zero_padding1D_layer(Res46522, 1, 0, Zer83295), 
+LMax188 = maximum_layer([[[[0.509, 0.0598], [0.8863, 0.3763]]], [[[0.009, 0.3955], [0.0953, 0.0326]]]], Max188), 
+LCon38968 = concatenate_layer([Max188,[[[0.6586, 0.7605], [0.963, 0.5692]]]], 2, Con38968), 
+LMin600 = minimum_layer([Zer83295,Con38968], Min600), 
+exec_layers([LMax72385,LSep20890,LRes46522,LZer83295,LMax188,LCon38968,LMin600],["Max72385","Sep20890","Res46522","Zer83295","Max188","Con38968","Min600"],Min600,"Min600")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0682124, 0.1010565, 0.1462829, 0.0427640]]]
+
+Expected (Unparsed): [[[0,0,0,0],[0.068212446368,0.10105649032,0.146282926114,0.042763967498]]]
+
+Actual:   [[[0, 0, 0, 0], [0.0683, 0.1011, 0.1463, 0.0428]]]
+
+Expected: [[[0, 0, 0, 0], [0.0683, 0.1011, 0.1463, 0.0428]]]

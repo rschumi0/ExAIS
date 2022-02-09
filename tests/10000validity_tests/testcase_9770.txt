@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max1022 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max1022 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave65426 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con33998 = tf.keras.layers.Input(shape=([2, 1]))
+
+Max1022 = keras.layers.Maximum(name = 'Max1022', )([in0Max1022,in1Max1022])
+Ave65426 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave65426', )(in0Ave65426)
+Zer78274 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer78274', )(Ave65426)
+Con33998 = keras.layers.Concatenate(axis=2, name = 'Con33998', )([Zer78274,in0Con33998])
+Ave18971 = keras.layers.Average(name = 'Ave18971', )([Max1022,Con33998])
+Sep30866 = keras.layers.SeparableConv1D(3, (2),strides=(1), padding='same', name = 'Sep30866', )(Ave18971)
+Fla87343 = keras.layers.Flatten(name = 'Fla87343', )(Sep30866)
+model = tf.keras.models.Model(inputs=[in0Max1022,in1Max1022,in0Ave65426,in0Con33998], outputs=Fla87343)
+w = model.get_layer('Sep30866').get_weights() 
+w[0] = np.array([[[0.581], [0.6743]], [[0.979], [0.6833]]])
+w[1] = np.array([[[0.1636, 0.9047, 0.0874], [0.5721, 0.6791, 0.2586]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep30866').set_weights(w) 
+in0Max1022 = tf.constant([[[0.0961, 0.6639], [0.6885, 0.883]]])
+in1Max1022 = tf.constant([[[0.3822, 0.5209], [0.2312, 0.3669]]])
+in0Ave65426 = tf.constant([[[1.3319]]])
+in0Con33998 = tf.constant([[[0.5066], [0.9896]]])
+print (np.array2string(model.predict([in0Max1022,in1Max1022,in0Ave65426,in0Con33998],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla87343.png')
+
+LMax1022 = maximum_layer([[[[0.0961, 0.6639], [0.6885, 0.883]]], [[[0.3822, 0.5209], [0.2312, 0.3669]]]], Max1022), 
+LAve65426 = average_pooling1D_layer([[[1.3319]]], 1, Ave65426), 
+LZer78274 = zero_padding1D_layer(Ave65426, 1, 0, Zer78274), 
+LCon33998 = concatenate_layer([Zer78274,[[[0.5066], [0.9896]]]], 2, Con33998), 
+LAve18971 = average_layer([Max1022,Con33998], Ave18971), 
+LSep30866 = separable_conv1D_layer(Ave18971, 2,[[[[0.581], [0.6743]], [[0.979], [0.6833]]],[[[0.1636, 0.9047, 0.0874], [0.5721, 0.6791, 0.2586]]]],[0, 0, 0], 1, true, Sep30866), 
+LFla87343 = flatten_layer(Sep30866, Fla87343), 
+exec_layers([LMax1022,LAve65426,LZer78274,LCon33998,LAve18971,LSep30866,LFla87343],["Max1022","Ave65426","Zer78274","Con33998","Ave18971","Sep30866","Fla87343"],Fla87343,"Fla87343")
+
+Actual (Unparsed): [[0.7717472, 1.6976499, 0.3636392, 0.4572148, 0.9597399, 0.2145637]]
+
+Expected (Unparsed): [[0.7717471772065001,1.6976498611515,0.363639176149,0.45721479650900004,0.959739941959,0.21456370735400002]]
+
+Actual:   [[0.7718, 1.6977, 0.3637, 0.4573, 0.9598, 0.2146]]
+
+Expected: [[0.7718, 1.6977, 0.3637, 0.4573, 0.9598, 0.2146]]

@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con59813 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con78826 = tf.keras.layers.Input(shape=([2, 5, 1, 1]))
+in0Ave88890 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Ave88890 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Con59813 = keras.layers.Conv1D(3, (2),strides=(5), padding='same', dilation_rate=(1), name = 'Con59813', )(in0Con59813)
+Res3336 = keras.layers.Reshape((1, 3, 1), name = 'Res3336', )(Con59813)
+Res21540 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res21540', )(Res3336)
+Zer66018 = keras.layers.ZeroPadding3D(padding=((1, 0), (2, 0), (0, 0)), name = 'Zer66018', )(Res21540)
+Con78826 = keras.layers.Concatenate(axis=4, name = 'Con78826', )([Zer66018,in0Con78826])
+Ave88890 = keras.layers.Average(name = 'Ave88890', )([in0Ave88890,in1Ave88890])
+Zer98222 = keras.layers.ZeroPadding3D(padding=((0, 0), (4, 0), (0, 0)), name = 'Zer98222', )(Ave88890)
+Add43603 = keras.layers.Add(name = 'Add43603', )([Con78826,Zer98222])
+Res45520 = keras.layers.Reshape((2, 5, 2), name = 'Res45520', )(Add43603)
+Res88548 = keras.layers.Reshape((2, 10), name = 'Res88548', )(Res45520)
+LST1753 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST1753', )(Res88548)
+model = tf.keras.models.Model(inputs=[in0Con59813,in0Con78826,in0Ave88890,in1Ave88890], outputs=LST1753)
+w = model.get_layer('Con59813').get_weights() 
+w[0] = np.array([[[0.8946, 0.3417, 0.751]], [[0.7633, 0.2621, 0.8294]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con59813').set_weights(w) 
+w = model.get_layer('LST1753').get_weights() 
+w[0] = np.array([[3, 10, 9, 6, 5, 3, 10, 9], [5, 4, 8, 1, 9, 7, 4, 5], [3, 3, 10, 2, 4, 2, 3, 2], [6, 1, 5, 10, 8, 9, 10, 7], [2, 6, 7, 1, 6, 2, 8, 9], [3, 5, 9, 7, 7, 6, 8, 4], [8, 3, 9, 5, 10, 2, 9, 2], [4, 6, 6, 5, 4, 5, 4, 8], [8, 5, 9, 10, 10, 9, 3, 7], [3, 10, 10, 6, 5, 4, 6, 4]])
+w[1] = np.array([[8, 8, 9, 4, 6, 9, 4, 3], [7, 8, 4, 5, 2, 10, 4, 2]])
+w[2] = np.array([5, 10, 1, 3, 10, 6, 10, 7])
+model.get_layer('LST1753').set_weights(w) 
+in0Con59813 = tf.constant([[[0.9571], [0.3255]]])
+in0Con78826 = tf.constant([[[[[0.5058]], [[0.1552]], [[0.8096]], [[0.0994]], [[0.1676]]], [[[0.4992]], [[0.9677]], [[0.4138]], [[0.2457]], [[0.9302]]]]])
+in0Ave88890 = tf.constant([[[[[0.5596, 0.395]]], [[[0.7289, 0.9018]]]]])
+in1Ave88890 = tf.constant([[[[[0.9612, 0.4076]]], [[[0.0733, 0.891]]]]])
+print (np.array2string(model.predict([in0Con59813,in0Con78826,in0Ave88890,in1Ave88890],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='LST1753.png')
+
+LCon59813 = conv1D_layer([[[0.9571], [0.3255]]], 2,[[[0.8946, 0.3417, 0.751]], [[0.7633, 0.2621, 0.8294]]],[0, 0, 0], 5, true, 1, Con59813), 
+LRes3336 = reshape_layer(Con59813, [1, 3, 1], Res3336), 
+LRes21540 = reshape_layer(Res3336, [1, 3, 1, 1], Res21540), 
+LZer66018 = zero_padding3D_layer(Res21540, 1, 0, 2, 0, 0, 0, Zer66018), 
+LCon78826 = concatenate_layer([Zer66018,[[[[[0.5058]], [[0.1552]], [[0.8096]], [[0.0994]], [[0.1676]]], [[[0.4992]], [[0.9677]], [[0.4138]], [[0.2457]], [[0.9302]]]]]], 4, Con78826), 
+LAve88890 = average_layer([[[[[[0.5596, 0.395]]], [[[0.7289, 0.9018]]]]], [[[[[0.9612, 0.4076]]], [[[0.0733, 0.891]]]]]], Ave88890), 
+LZer98222 = zero_padding3D_layer(Ave88890, 0, 0, 4, 0, 0, 0, Zer98222), 
+LAdd43603 = add_layer([Con78826,Zer98222], Add43603), 
+LRes45520 = reshape_layer(Add43603, [2, 5, 2], Res45520), 
+LRes88548 = reshape_layer(Res45520, [2, 10], Res88548), 
+LLST1753 = lstm_layer(Res88548,[[3, 10, 9, 6, 5, 3, 10, 9], [5, 4, 8, 1, 9, 7, 4, 5], [3, 3, 10, 2, 4, 2, 3, 2], [6, 1, 5, 10, 8, 9, 10, 7], [2, 6, 7, 1, 6, 2, 8, 9], [3, 5, 9, 7, 7, 6, 8, 4], [8, 3, 9, 5, 10, 2, 9, 2], [4, 6, 6, 5, 4, 5, 4, 8], [8, 5, 9, 10, 10, 9, 3, 7], [3, 10, 10, 6, 5, 4, 6, 4]],[[8, 8, 9, 4, 6, 9, 4, 3], [7, 8, 4, 5, 2, 10, 4, 2]],[5, 10, 1, 3, 10, 6, 10, 7], LST1753), 
+exec_layers([LCon59813,LRes3336,LRes21540,LZer66018,LCon78826,LAve88890,LZer98222,LAdd43603,LRes45520,LRes88548,LLST1753],["Con59813","Res3336","Res21540","Zer66018","Con78826","Ave88890","Zer98222","Add43603","Res45520","Res88548","LST1753"],LST1753,"LST1753")
+
+Actual (Unparsed): [[0.9640276, 0.9640276]]
+
+Expected (Unparsed): [[0.9640275797091273,0.9640275800755531]]
+
+Actual:   [[0.9641, 0.9641]]
+
+Expected: [[0.9641, 0.9641]]

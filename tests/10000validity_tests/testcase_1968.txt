@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub88916 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in1Sub88916 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Loc32915 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0LST27889 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con92949 = tf.keras.layers.Input(shape=([6]))
+in0Con99019 = tf.keras.layers.Input(shape=([4]))
+
+Sub88916 = keras.layers.Subtract(name = 'Sub88916', )([in0Sub88916,in1Sub88916])
+Cro66411 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro66411', )(Sub88916)
+Res6100 = keras.layers.Reshape((2, 6), name = 'Res6100', )(Cro66411)
+Fla38003 = keras.layers.Flatten(name = 'Fla38003', )(Res6100)
+Loc32915 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc32915', )(in0Loc32915)
+Res7277 = keras.layers.Reshape((2, 4), name = 'Res7277', )(Loc32915)
+Fla74069 = keras.layers.Flatten(name = 'Fla74069', )(Res7277)
+LST27889 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST27889', )(in0LST27889)
+Con92949 = keras.layers.Concatenate(axis=1, name = 'Con92949', )([LST27889,in0Con92949])
+Add88203 = keras.layers.Add(name = 'Add88203', )([Fla74069,Con92949])
+Con99019 = keras.layers.Concatenate(axis=1, name = 'Con99019', )([Add88203,in0Con99019])
+Mul18346 = keras.layers.Multiply(name = 'Mul18346', )([Fla38003,Con99019])
+model = tf.keras.models.Model(inputs=[in0Sub88916,in1Sub88916,in0Loc32915,in0LST27889,in0Con92949,in0Con99019], outputs=Mul18346)
+w = model.get_layer('Loc32915').get_weights() 
+w[0] = np.array([[[0.9759, 0.6541]], [[0.2984, 0.6666]], [[0.4308, 0.9492]], [[0.1099, 0.6238]]])
+w[1] = np.array([[[0, 0], [0, 0]], [[0, 0], [0, 0]]])
+model.get_layer('Loc32915').set_weights(w) 
+w = model.get_layer('LST27889').get_weights() 
+w[0] = np.array([[10, 6, 1, 8, 4, 4, 5, 9]])
+w[1] = np.array([[6, 5, 4, 5, 6, 3, 5, 9], [5, 2, 1, 2, 5, 8, 9, 6]])
+w[2] = np.array([7, 10, 3, 1, 8, 7, 3, 2])
+model.get_layer('LST27889').set_weights(w) 
+in0Sub88916 = tf.constant([[[[0.6326, 0.0576, 0.4339], [0.6287, 0.4713, 0.4882]], [[0.798, 0.2733, 0.655], [0.1264, 0.2574, 0.2936]]]])
+in1Sub88916 = tf.constant([[[[0.3775, 0.1517, 0.801], [0.6349, 0.0917, 0.4264]], [[0.3722, 0.8276, 0.1214], [0.977, 0.9368, 0.3163]]]])
+in0Loc32915 = tf.constant([[[[0.1988], [0.4891]], [[0.0089], [0.4813]]]])
+in0LST27889 = tf.constant([[[3], [9]]])
+in0Con92949 = tf.constant([[0.2665, 0.3578, 0.362, 0.2134, 0.4034, 0.0055]])
+in0Con99019 = tf.constant([[0.6555, 0.1202, 0.0267, 0.5783]])
+print (np.array2string(model.predict([in0Sub88916,in1Sub88916,in0Loc32915,in0LST27889,in0Con92949,in0Con99019],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul18346.png')
+
+LSub88916 = subtract_layer([[[[0.6326, 0.0576, 0.4339], [0.6287, 0.4713, 0.4882]], [[0.798, 0.2733, 0.655], [0.1264, 0.2574, 0.2936]]]], [[[[0.3775, 0.1517, 0.801], [0.6349, 0.0917, 0.4264]], [[0.3722, 0.8276, 0.1214], [0.977, 0.9368, 0.3163]]]], Sub88916), 
+LCro66411 = cropping2D_layer(Sub88916, 0, 0, 0, 0, Cro66411), 
+LRes6100 = reshape_layer(Cro66411, [2, 6], Res6100), 
+LFla38003 = flatten_layer(Res6100, Fla38003), 
+LLoc32915 = locally_connected2D_layer([[[[0.1988], [0.4891]], [[0.0089], [0.4813]]]], 1, 1,[[[0.9759, 0.6541]], [[0.2984, 0.6666]], [[0.4308, 0.9492]], [[0.1099, 0.6238]]],[[[0, 0], [0, 0]], [[0, 0], [0, 0]]], 1, 1, Loc32915), 
+LRes7277 = reshape_layer(Loc32915, [2, 4], Res7277), 
+LFla74069 = flatten_layer(Res7277, Fla74069), 
+LLST27889 = lstm_layer([[[3], [9]]],[[10, 6, 1, 8, 4, 4, 5, 9]],[[6, 5, 4, 5, 6, 3, 5, 9], [5, 2, 1, 2, 5, 8, 9, 6]],[7, 10, 3, 1, 8, 7, 3, 2], LST27889), 
+LCon92949 = concatenate_layer([LST27889,[[0.2665, 0.3578, 0.362, 0.2134, 0.4034, 0.0055]]], 1, Con92949), 
+LAdd88203 = add_layer([Fla74069,Con92949], Add88203), 
+LCon99019 = concatenate_layer([Add88203,[[0.6555, 0.1202, 0.0267, 0.5783]]], 1, Con99019), 
+LMul18346 = multiply_layer([Fla38003,Con99019], Mul18346), 
+exec_layers([LSub88916,LCro66411,LRes6100,LFla38003,LLoc32915,LRes7277,LFla74069,LLST27889,LCon92949,LAdd88203,LCon99019,LMul18346],["Sub88916","Cro66411","Res6100","Fla38003","Loc32915","Res7277","Fla74069","LST27889","Con92949","Add88203","Con99019","Mul18346"],Mul18346,"Mul18346")
+
+Actual (Unparsed): [[0.2954151, -0.1029513, -0.1514095, -0.0042397, 0.1388706, 0.0137102, 0.1942903, -0.1694689, 0.3497748, -0.1022421, -0.0181400, -0.0131274]]
+
+Expected (Unparsed): [[0.29541510871172943,-0.10295129631312978,-0.151409455224,-0.004239771171999988,0.138870631952,0.013710198984000005,0.194290355646,-0.16946887724200002,0.34977480000000005,-0.10224212,-0.01813998,-0.013127409999999999]]
+
+Actual:   [[0.2955, -0.1029, -0.1514, -0.0042, 0.1389, 0.0138, 0.1943, -0.1694, 0.3498, -0.1022, -0.0181, -0.0131]]
+
+Expected: [[0.2955, -0.1029, -0.1514, -0.0042, 0.1389, 0.0138, 0.1943, -0.1694, 0.3498, -0.1022, -0.0181, -0.0131]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot88937 = tf.keras.layers.Input(shape=([2]))
+in1Dot88937 = tf.keras.layers.Input(shape=([2]))
+in0Con80658 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sub99192 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub99192 = tf.keras.layers.Input(shape=([2, 2]))
+
+Dot88937 = keras.layers.Dot(axes=(1, 1), name = 'Dot88937', )([in0Dot88937,in1Dot88937])
+Res29260 = keras.layers.Reshape((1, 1), name = 'Res29260', )(Dot88937)
+Res48505 = keras.layers.Reshape((1, 1, 1), name = 'Res48505', )(Res29260)
+Dep13534 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep13534', )(Res48505)
+Res5778 = keras.layers.Reshape((1, 1), name = 'Res5778', )(Dep13534)
+Zer12029 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer12029', )(Res5778)
+Con80658 = keras.layers.Concatenate(axis=2, name = 'Con80658', )([Zer12029,in0Con80658])
+Sub99192 = keras.layers.Subtract(name = 'Sub99192', )([in0Sub99192,in1Sub99192])
+Ave81099 = keras.layers.Average(name = 'Ave81099', )([Con80658,Sub99192])
+model = tf.keras.models.Model(inputs=[in0Dot88937,in1Dot88937,in0Con80658,in0Sub99192,in1Sub99192], outputs=Ave81099)
+w = model.get_layer('Dep13534').get_weights() 
+w[0] = np.array([[[[0.4033]]]])
+w[1] = np.array([0])
+model.get_layer('Dep13534').set_weights(w) 
+in0Dot88937 = tf.constant([[0.3103, 0.2034]])
+in1Dot88937 = tf.constant([[0.2699, 0.7971]])
+in0Con80658 = tf.constant([[[0.1093], [0.6456]]])
+in0Sub99192 = tf.constant([[[0.4273, 0.9715], [0.9131, 0.0033]]])
+in1Sub99192 = tf.constant([[[0.5961, 0.2214], [0.0612, 0.545]]])
+print (np.array2string(model.predict([in0Dot88937,in1Dot88937,in0Con80658,in0Sub99192,in1Sub99192],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave81099.png')
+
+LDot88937 = dot_layer([[0.3103, 0.2034]], [[0.2699, 0.7971]], 1, 1, Dot88937), 
+LRes29260 = reshape_layer(Dot88937, [1, 1], Res29260), 
+LRes48505 = reshape_layer(Res29260, [1, 1, 1], Res48505), 
+LDep13534 = depthwise_conv2D_layer(Res48505, 1, 1,[[[[0.4033]]]],[0], 1, 1, true, Dep13534), 
+LRes5778 = reshape_layer(Dep13534, [1, 1], Res5778), 
+LZer12029 = zero_padding1D_layer(Res5778, 1, 0, Zer12029), 
+LCon80658 = concatenate_layer([Zer12029,[[[0.1093], [0.6456]]]], 2, Con80658), 
+LSub99192 = subtract_layer([[[0.4273, 0.9715], [0.9131, 0.0033]]], [[[0.5961, 0.2214], [0.0612, 0.545]]], Sub99192), 
+LAve81099 = average_layer([Con80658,Sub99192], Ave81099), 
+exec_layers([LDot88937,LRes29260,LRes48505,LDep13534,LRes5778,LZer12029,LCon80658,LSub99192,LAve81099],["Dot88937","Res29260","Res48505","Dep13534","Res5778","Zer12029","Con80658","Sub99192","Ave81099"],Ave81099,"Ave81099")
+
+Actual (Unparsed): [[[-0.0844000, 0.4297000], [0.4755317, 0.0519500]]]
+
+Expected (Unparsed): [[[-0.08439999999999998,0.42969999999999997],[0.47553172418149997,0.05194999999999994]]]
+
+Actual:   [[[-0.0844, 0.4297], [0.4756, 0.052]]]
+
+Expected: [[[-0.0843, 0.4297], [0.4756, 0.052]]]

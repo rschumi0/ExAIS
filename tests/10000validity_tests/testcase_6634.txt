@@ -1,0 +1,78 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min52686 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min52686 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con79686 = tf.keras.layers.Input(shape=([2, 5]))
+in0Con11098 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mas56417 = tf.keras.layers.Input(shape=([2, 4]))
+
+Min52686 = keras.layers.Minimum(name = 'Min52686', )([in0Min52686,in1Min52686])
+Res16985 = keras.layers.Reshape((1, 2), name = 'Res16985', )(Min52686)
+Sim44053 = keras.layers.SimpleRNN(2,name = 'Sim44053', )(Res16985)
+Res55620 = keras.layers.Reshape((2, 1), name = 'Res55620', )(Sim44053)
+Con79686 = keras.layers.Concatenate(axis=2, name = 'Con79686', )([Res55620,in0Con79686])
+Con11098 = keras.layers.Conv1D(2, (2),strides=(1), padding='same', dilation_rate=(1), name = 'Con11098', )(in0Con11098)
+Res23519 = keras.layers.Reshape((2, 2, 1), name = 'Res23519', )(Con11098)
+Zer84325 = keras.layers.ZeroPadding2D(padding=((2, 0), (4, 0)), name = 'Zer84325', )(Res23519)
+Mas56417 = keras.layers.Masking(mask_value=2, name = 'Mas56417', )(in0Mas56417)
+Bat97941 = keras.layers.BatchNormalization(axis=2, epsilon=0.8401408273156733,  name = 'Bat97941', )(Mas56417)
+Res69995 = keras.layers.Reshape((2, 4, 1), name = 'Res69995', )(Bat97941)
+Zer55703 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer55703', )(Res69995)
+Lea36578 = keras.layers.LeakyReLU(alpha=8.672486684145223, name = 'Lea36578', )(Zer55703)
+Mul98611 = keras.layers.Multiply(name = 'Mul98611', )([Zer84325,Lea36578])
+Res41145 = keras.layers.Reshape((4, 6), name = 'Res41145', )(Mul98611)
+Dot35917 = keras.layers.Dot(axes=(2, 2), name = 'Dot35917', )([Con79686,Res41145])
+model = tf.keras.models.Model(inputs=[in0Min52686,in1Min52686,in0Con79686,in0Con11098,in0Mas56417], outputs=Dot35917)
+w = model.get_layer('Sim44053').get_weights() 
+w[0] = np.array([[2, 8], [4, 9]])
+w[1] = np.array([[3, 9], [5, 2]])
+w[2] = np.array([1, 7])
+model.get_layer('Sim44053').set_weights(w) 
+w = model.get_layer('Con11098').get_weights() 
+w[0] = np.array([[[0.6095, 0.4885], [0.7199, 0.4281]], [[0.3083, 0.3016], [0.0774, 0.2321]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con11098').set_weights(w) 
+w = model.get_layer('Bat97941').get_weights() 
+w[0] = np.array([0.5531, 0.0887, 0.3598, 0.9422])
+w[1] = np.array([0.5431, 0.6089, 0.5522, 0.0421])
+w[2] = np.array([0.1553, 0.2876, 0.535, 0.2646])
+w[3] = np.array([0.3849, 0.8406, 0.4072, 0.3073])
+model.get_layer('Bat97941').set_weights(w) 
+in0Min52686 = tf.constant([[[[0.604], [0.007]]]])
+in1Min52686 = tf.constant([[[[0.9976], [0.9163]]]])
+in0Con79686 = tf.constant([[[0.6169, 0.8811, 0.5552, 0.3153, 0.3159], [0.0838, 0.3248, 0.3555, 0.7784, 0.4666]]])
+in0Con11098 = tf.constant([[[0.1196, 0.9267], [0.7367, 0.308]]])
+in0Mas56417 = tf.constant([[[1.6086, 1.76, 1.7987, 1.3206], [1.3956, 1.4474, 1.2861, 1.2932]]])
+print (np.array2string(model.predict([in0Min52686,in1Min52686,in0Con79686,in0Con11098,in0Mas56417],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot35917.png')
+
+LMin52686 = minimum_layer([[[[[0.604], [0.007]]]], [[[[0.9976], [0.9163]]]]], Min52686), 
+LRes16985 = reshape_layer(Min52686, [1, 2], Res16985), 
+LSim44053 = simple_rnn_layer(Res16985,[[2, 8], [4, 9]],[[3, 9], [5, 2]],[1, 7], Sim44053), 
+LRes55620 = reshape_layer(Sim44053, [2, 1], Res55620), 
+LCon79686 = concatenate_layer([Res55620,[[[0.6169, 0.8811, 0.5552, 0.3153, 0.3159], [0.0838, 0.3248, 0.3555, 0.7784, 0.4666]]]], 2, Con79686), 
+LCon11098 = conv1D_layer([[[0.1196, 0.9267], [0.7367, 0.308]]], 2,[[[0.6095, 0.4885], [0.7199, 0.4281]], [[0.3083, 0.3016], [0.0774, 0.2321]]],[0, 0], 1, true, 1, Con11098), 
+LRes23519 = reshape_layer(Con11098, [2, 2, 1], Res23519), 
+LZer84325 = zero_padding2D_layer(Res23519, 2, 0, 4, 0, Zer84325), 
+LMas56417 = masking_layer([[[1.6086, 1.76, 1.7987, 1.3206], [1.3956, 1.4474, 1.2861, 1.2932]]], 2, Mas56417), 
+LBat97941 = batch_normalization_layer(Mas56417, 2, 0.8401408273156733, [0.5531, 0.0887, 0.3598, 0.9422], [0.5431, 0.6089, 0.5522, 0.0421], [0.1553, 0.2876, 0.535, 0.2646], [0.3849, 0.8406, 0.4072, 0.3073], Bat97941), 
+LRes69995 = reshape_layer(Bat97941, [2, 4, 1], Res69995), 
+LZer55703 = zero_padding2D_layer(Res69995, 1, 1, 1, 1, Zer55703), 
+LLea36578 = leaky_relu_layer(Zer55703, 8.672486684145223, Lea36578), 
+LMul98611 = multiply_layer([Zer84325,Lea36578], Mul98611), 
+LRes41145 = reshape_layer(Mul98611, [4, 6], Res41145), 
+LDot35917 = dot_layer(Con79686,Res41145, 2, 2, Dot35917), 
+exec_layers([LMin52686,LRes16985,LSim44053,LRes55620,LCon79686,LCon11098,LRes23519,LZer84325,LMas56417,LBat97941,LRes69995,LZer55703,LLea36578,LMul98611,LRes41145,LDot35917],["Min52686","Res16985","Sim44053","Res55620","Con79686","Con11098","Res23519","Zer84325","Mas56417","Bat97941","Res69995","Zer55703","Lea36578","Mul98611","Res41145","Dot35917"],Dot35917,"Dot35917")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.2958497, 0.0000000], [0.0000000, 0.0000000, 0.7303818, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.2958496607841572,0.0],[0.0,0.0,0.7303817822847699,0.0]]]
+
+Actual:   [[[0, 0, 0.2959, 0], [0, 0, 0.7304, 0]]]
+
+Expected: [[[0, 0, 0.2959, 0], [0, 0, 0.7304, 0]]]

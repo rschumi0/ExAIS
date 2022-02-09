@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc1255 = tf.keras.layers.Input(shape=([1, 1]))
+
+Loc1255 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc1255', )(in0Loc1255)
+Fla83032 = keras.layers.Flatten(name = 'Fla83032', )(Loc1255)
+Res20864 = keras.layers.Reshape((3, 1), name = 'Res20864', )(Fla83032)
+Res29134 = keras.layers.Reshape((3, 1, 1), name = 'Res29134', )(Res20864)
+Up_37807 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_37807', )(Res29134)
+Res23367 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res23367', )(Up_37807)
+Glo87273 = keras.layers.GlobalMaxPool3D(name = 'Glo87273', )(Res23367)
+model = tf.keras.models.Model(inputs=[in0Loc1255], outputs=Glo87273)
+w = model.get_layer('Loc1255').get_weights() 
+w[0] = np.array([[[0.8206, 0.0933, 0.091]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc1255').set_weights(w) 
+in0Loc1255 = tf.constant([[[0.2494]]])
+print (np.array2string(model.predict([in0Loc1255],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo87273.png')
+
+LLoc1255 = locally_connected1D_layer([[[0.2494]]], 1,[[[0.8206, 0.0933, 0.091]]],[[0, 0, 0]], 1, Loc1255), 
+LFla83032 = flatten_layer(Loc1255, Fla83032), 
+LRes20864 = reshape_layer(Fla83032, [3, 1], Res20864), 
+LRes29134 = reshape_layer(Res20864, [3, 1, 1], Res29134), 
+LUp_37807 = up_sampling2D_layer(Res29134, 1, 1, Up_37807), 
+LRes23367 = reshape_layer(Up_37807, [3, 1, 1, 1], Res23367), 
+LGlo87273 = global_max_pool3D_layer(Res23367, Glo87273), 
+exec_layers([LLoc1255,LFla83032,LRes20864,LRes29134,LUp_37807,LRes23367,LGlo87273],["Loc1255","Fla83032","Res20864","Res29134","Up_37807","Res23367","Glo87273"],Glo87273,"Glo87273")
+
+Actual (Unparsed): [[0.2046576]]
+
+Expected (Unparsed): [[0.20465764]]
+
+Actual:   [[0.2047]]
+
+Expected: [[0.2047]]

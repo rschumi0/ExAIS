@@ -1,0 +1,63 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot27492 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot27492 = tf.keras.layers.Input(shape=([3, 3]))
+in0Glo34633 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con3754 = tf.keras.layers.Input(shape=([2]))
+in0Con63328 = tf.keras.layers.Input(shape=([3, 2]))
+
+Dot27492 = keras.layers.Dot(axes=(2, 2), name = 'Dot27492', )([in0Dot27492,in1Dot27492])
+Res75202 = keras.layers.Reshape((3, 3, 1), name = 'Res75202', )(Dot27492)
+Ave2499 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(3, 1), padding='same', name = 'Ave2499', )(Res75202)
+Res64829 = keras.layers.Reshape((1, 3), name = 'Res64829', )(Ave2499)
+Per50937 = keras.layers.Permute((2,1), name = 'Per50937',)(Res64829)
+Fla58193 = keras.layers.Flatten(name = 'Fla58193', )(Per50937)
+Glo34633 = keras.layers.GlobalMaxPool3D(name = 'Glo34633', )(in0Glo34633)
+Con3754 = keras.layers.Concatenate(axis=1, name = 'Con3754', )([Glo34633,in0Con3754])
+Add10492 = keras.layers.Add(name = 'Add10492', )([Fla58193,Con3754])
+Res68159 = keras.layers.Reshape((3, 1), name = 'Res68159', )(Add10492)
+Con63328 = keras.layers.Concatenate(axis=2, name = 'Con63328', )([Res68159,in0Con63328])
+Sim53970 = keras.layers.RNN(keras.layers.SimpleRNNCell(3,), name = 'Sim53970',)(Con63328)
+model = tf.keras.models.Model(inputs=[in0Dot27492,in1Dot27492,in0Glo34633,in0Con3754,in0Con63328], outputs=Sim53970)
+w = model.get_layer('Sim53970').get_weights() 
+w[0] = np.array([[8, 4, 8]])
+w[1] = np.array([[10, 4, 5], [3, 8, 7], [7, 4, 4]])
+w[2] = np.array([7, 4, 10])
+model.get_layer('Sim53970').set_weights(w) 
+in0Dot27492 = tf.constant([[[0.4445, 0.9806, 0.5553], [0.4047, 0.6404, 0.013], [0.7842, 0.3757, 0.9453]]])
+in1Dot27492 = tf.constant([[[0.0756, 0.8705, 0.8322], [0.2577, 0.1376, 0.3328], [0.1321, 0.9995, 0.428]]])
+in0Glo34633 = tf.constant([[[[[1.0214]]], [[[1.9286]]]]])
+in0Con3754 = tf.constant([[0.6086, 0.3083]])
+in0Con63328 = tf.constant([[[0.7855, 0.6374], [0.7124, 0.4119], [0.2993, 0.7684]]])
+print (np.array2string(model.predict([in0Dot27492,in1Dot27492,in0Glo34633,in0Con3754,in0Con63328],steps=1), separator=', '))
+
+
+LDot27492 = dot_layer([[[0.4445, 0.9806, 0.5553], [0.4047, 0.6404, 0.013], [0.7842, 0.3757, 0.9453]]], [[[0.0756, 0.8705, 0.8322], [0.2577, 0.1376, 0.3328], [0.1321, 0.9995, 0.428]]], 2, 2, Dot27492), 
+LRes75202 = reshape_layer(Dot27492, [3, 3, 1], Res75202), 
+LAve2499 = average_pooling2D_layer(Res75202, 1, 1, 3, 1, true, Ave2499), 
+LRes64829 = reshape_layer(Ave2499, [1, 3], Res64829), 
+LPer50937 = permute_layer(Res64829, 2,1, Per50937), 
+LFla58193 = flatten_layer(Per50937, Fla58193), 
+LGlo34633 = global_max_pool3D_layer([[[[[1.0214]]], [[[1.9286]]]]], Glo34633), 
+LCon3754 = concatenate_layer([Glo34633,[[0.6086, 0.3083]]], 1, Con3754), 
+LAdd10492 = add_layer([Fla58193,Con3754], Add10492), 
+LRes68159 = reshape_layer(Add10492, [3, 1], Res68159), 
+LCon63328 = concatenate_layer([Res68159,[[[0.7855, 0.6374], [0.7124, 0.4119], [0.2993, 0.7684]]]], 2, Con63328), 
+LSim53970 = simple_rnncell_layer(Con63328,[[8, 4, 8]],[[10, 4, 5], [3, 8, 7], [7, 4, 4]],[7, 4, 10], Sim53970), 
+exec_layers([LDot27492,LRes75202,LAve2499,LRes64829,LPer50937,LFla58193,LGlo34633,LCon3754,LAdd10492,LRes68159,LCon63328,LSim53970],["Dot27492","Res75202","Ave2499","Res64829","Per50937","Fla58193","Glo34633","Con3754","Add10492","Res68159","Con63328","Sim53970"],Sim53970,"Sim53970")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Layer weight shape (3, 3) not compatible with provided weight shape (1, 3)
+
+Expected (Unparsed): 
+Sim53970: Argument Error, Input Shape [1,3,3]
+
+Actual:   
+
+Expected: 

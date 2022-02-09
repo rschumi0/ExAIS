@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min17110 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min17110 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con93735 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0PRe6412 = tf.keras.layers.Input(shape=([2, 1]))
+
+Min17110 = keras.layers.Minimum(name = 'Min17110', )([in0Min17110,in1Min17110])
+Res30768 = keras.layers.Reshape((2, 1, 1), name = 'Res30768', )(Min17110)
+Zer14685 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer14685', )(Res30768)
+Con93735 = keras.layers.Concatenate(axis=3, name = 'Con93735', )([Zer14685,in0Con93735])
+PRe6412 = keras.layers.PReLU(name = 'PRe6412', input_shape=(2, 1))(in0PRe6412)
+Res18027 = keras.layers.Reshape((2, 1, 1), name = 'Res18027', )(PRe6412)
+Con10469 = keras.layers.Conv2D(4, (2, 1),strides=(2, 1), padding='valid', dilation_rate=(1, 1), name = 'Con10469', )(Res18027)
+Up_84102 = keras.layers.UpSampling2D(size=(2, 2), name = 'Up_84102', )(Con10469)
+Lea85364 = keras.layers.LeakyReLU(alpha=1.8224649571715705, name = 'Lea85364', )(Up_84102)
+Max16132 = keras.layers.Maximum(name = 'Max16132', )([Con93735,Lea85364])
+model = tf.keras.models.Model(inputs=[in0Min17110,in1Min17110,in0Con93735,in0PRe6412], outputs=Max16132)
+w = model.get_layer('PRe6412').get_weights() 
+w[0] = np.array([[0.1763], [0.0823]])
+model.get_layer('PRe6412').set_weights(w) 
+w = model.get_layer('Con10469').get_weights() 
+w[0] = np.array([[[[0.318, 0.9212, 0.2368, 0.0898]]], [[[0.6679, 0.663, 0.7294, 0.8754]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con10469').set_weights(w) 
+in0Min17110 = tf.constant([[[0.2637], [0.8018]]])
+in1Min17110 = tf.constant([[[0.8472], [0.5421]]])
+in0Con93735 = tf.constant([[[[0.6759, 0.9353, 0.152], [0.3109, 0.0081, 0.6713]], [[0.8237, 0.6958, 0.5598], [0.7961, 0.9536, 0.6052]]]])
+in0PRe6412 = tf.constant([[[0.6799], [0.6224]]])
+print (np.array2string(model.predict([in0Min17110,in1Min17110,in0Con93735,in0PRe6412],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max16132.png')
+
+LMin17110 = minimum_layer([[[[0.2637], [0.8018]]], [[[0.8472], [0.5421]]]], Min17110), 
+LRes30768 = reshape_layer(Min17110, [2, 1, 1], Res30768), 
+LZer14685 = zero_padding2D_layer(Res30768, 0, 0, 1, 0, Zer14685), 
+LCon93735 = concatenate_layer([Zer14685,[[[[0.6759, 0.9353, 0.152], [0.3109, 0.0081, 0.6713]], [[0.8237, 0.6958, 0.5598], [0.7961, 0.9536, 0.6052]]]]], 3, Con93735), 
+LPRe6412 = prelu_layer([[[0.6799], [0.6224]]], [[0.1763], [0.0823]], PRe6412), 
+LRes18027 = reshape_layer(PRe6412, [2, 1, 1], Res18027), 
+LCon10469 = conv2D_layer(Res18027, 2, 1,[[[[0.318, 0.9212, 0.2368, 0.0898]]], [[[0.6679, 0.663, 0.7294, 0.8754]]]],[0, 0, 0, 0], 2, 1, false, 1, 1, Con10469), 
+LUp_84102 = up_sampling2D_layer(Con10469, 2, 2, Up_84102), 
+LLea85364 = leaky_relu_layer(Up_84102, 1.8224649571715705, Lea85364), 
+LMax16132 = maximum_layer([Con93735,Lea85364], Max16132), 
+exec_layers([LMin17110,LRes30768,LZer14685,LCon93735,LPRe6412,LRes18027,LCon10469,LUp_84102,LLea85364,LMax16132],["Min17110","Res30768","Zer14685","Con93735","PRe6412","Res18027","Con10469","Up_84102","Lea85364","Max16132"],Max16132,"Max16132")
+
+Actual (Unparsed): [[[[0.6319091, 1.0389751, 0.9353000, 0.6059040], [0.6319091, 1.0389751, 0.6149789, 0.6713000]], [[0.6319091, 1.0389751, 0.6958000, 0.6059040], [0.6319091, 1.0389751, 0.9536000, 0.6059040]]]]
+
+Expected (Unparsed): [[[[0.63190916,1.03897508,0.9353,0.6059039799999999],[0.63190916,1.03897508,0.61497888,0.6713]],[[0.63190916,1.03897508,0.6958,0.6059039799999999],[0.63190916,1.03897508,0.9536,0.6059039799999999]]]]
+
+Actual:   [[[[0.632, 1.039, 0.9353, 0.606], [0.632, 1.039, 0.615, 0.6713]], [[0.632, 1.039, 0.6958, 0.606], [0.632, 1.039, 0.9536, 0.606]]]]
+
+Expected: [[[[0.632, 1.039, 0.9353, 0.606], [0.632, 1.039, 0.615, 0.6713]], [[0.632, 1.039, 0.6958, 0.606], [0.632, 1.039, 0.9536, 0.606]]]]

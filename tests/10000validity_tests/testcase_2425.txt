@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min32211 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min32211 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sof71227 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con72341 = tf.keras.layers.Input(shape=([2, 1]))
+
+Min32211 = keras.layers.Minimum(name = 'Min32211', )([in0Min32211,in1Min32211])
+Sof7415 = keras.layers.Softmax(axis=1, name = 'Sof7415', )(Min32211)
+Sof71227 = keras.layers.Softmax(axis=1, name = 'Sof71227', input_shape=(2, 1))(in0Sof71227)
+Con72341 = keras.layers.Concatenate(axis=2, name = 'Con72341', )([Sof71227,in0Con72341])
+Min52503 = keras.layers.Minimum(name = 'Min52503', )([Sof7415,Con72341])
+model = tf.keras.models.Model(inputs=[in0Min32211,in1Min32211,in0Sof71227,in0Con72341], outputs=Min52503)
+in0Min32211 = tf.constant([[[0.7622, 0.7527], [0.7053, 0.2825]]])
+in1Min32211 = tf.constant([[[0.598, 0.7686], [0.6622, 0.0563]]])
+in0Sof71227 = tf.constant([[[0.2387], [0.9199]]])
+in0Con72341 = tf.constant([[[0.6714], [0.7933]]])
+print (np.array2string(model.predict([in0Min32211,in1Min32211,in0Sof71227,in0Con72341],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min52503.png')
+
+LMin32211 = minimum_layer([[[[0.7622, 0.7527], [0.7053, 0.2825]]], [[[0.598, 0.7686], [0.6622, 0.0563]]]], Min32211), 
+LSof7415 = softmax_layer(Min32211, 1, Sof7415), 
+LSof71227 = softmax_layer([[[0.2387], [0.9199]]], 1, Sof71227), 
+LCon72341 = concatenate_layer([Sof71227,[[[0.6714], [0.7933]]]], 2, Con72341), 
+LMin52503 = minimum_layer([Sof7415,Con72341], Min52503), 
+exec_layers([LMin32211,LSof7415,LSof71227,LCon72341,LMin52503],["Min32211","Sof7415","Sof71227","Con72341","Min52503"],Min52503,"Min52503")
+
+Actual (Unparsed): [[[0.3359935, 0.6673891], [0.5160445, 0.3326109]]]
+
+Expected (Unparsed): [[[0.3359935276751535,0.6673891231240392],[0.5160444895776866,0.33261087687596075]]]
+
+Actual:   [[[0.336, 0.6674], [0.5161, 0.3327]]]
+
+Expected: [[[0.336, 0.6674], [0.5161, 0.3327]]]

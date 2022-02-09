@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc10338 = tf.keras.layers.Input(shape=([1, 1]))
+in0Min28513 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min28513 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con81738 = tf.keras.layers.Input(shape=([1]))
+
+Loc10338 = keras.layers.LocallyConnected1D(2, (1),strides=(4), name = 'Loc10338', )(in0Loc10338)
+Res58518 = keras.layers.Reshape((1, 2, 1), name = 'Res58518', )(Loc10338)
+Res68744 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res68744', )(Res58518)
+Up_91947 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_91947', )(Res68744)
+Res59226 = keras.layers.Reshape((2, 2, 1), name = 'Res59226', )(Up_91947)
+Res7925 = keras.layers.Reshape((2, 2), name = 'Res7925', )(Res59226)
+Fla39261 = keras.layers.Flatten(name = 'Fla39261', )(Res7925)
+Min28513 = keras.layers.Minimum(name = 'Min28513', )([in0Min28513,in1Min28513])
+Res25176 = keras.layers.Reshape((2, 2), name = 'Res25176', )(Min28513)
+GRU80303 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU80303', )(Res25176)
+Con81738 = keras.layers.Concatenate(axis=1, name = 'Con81738', )([GRU80303,in0Con81738])
+Mul57325 = keras.layers.Multiply(name = 'Mul57325', )([Fla39261,Con81738])
+model = tf.keras.models.Model(inputs=[in0Loc10338,in0Min28513,in1Min28513,in0Con81738], outputs=Mul57325)
+w = model.get_layer('Loc10338').get_weights() 
+w[0] = np.array([[[0.2784, 0.9742]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc10338').set_weights(w) 
+w = model.get_layer('GRU80303').get_weights() 
+w[0] = np.array([[5, 1, 1, 1, 2, 3, 3, 9, 7], [8, 3, 5, 10, 1, 6, 5, 5, 10]])
+w[1] = np.array([[5, 2, 6, 5, 2, 1, 7, 6, 8], [10, 5, 2, 7, 3, 3, 10, 2, 6], [10, 10, 6, 10, 7, 2, 6, 10, 9]])
+w[2] = np.array([3, 4, 9, 5, 7, 2, 3, 2, 1])
+model.get_layer('GRU80303').set_weights(w) 
+in0Loc10338 = tf.constant([[[0.3203]]])
+in0Min28513 = tf.constant([[[[0.2092], [0.4553]], [[0.6591], [0.8921]]]])
+in1Min28513 = tf.constant([[[[0.0552], [0.8813]], [[0.3768], [0.7192]]]])
+in0Con81738 = tf.constant([[0.3258]])
+print (np.array2string(model.predict([in0Loc10338,in0Min28513,in1Min28513,in0Con81738],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul57325.png')
+
+LLoc10338 = locally_connected1D_layer([[[0.3203]]], 1,[[[0.2784, 0.9742]]],[[0, 0]], 4, Loc10338), 
+LRes58518 = reshape_layer(Loc10338, [1, 2, 1], Res58518), 
+LRes68744 = reshape_layer(Res58518, [1, 2, 1, 1], Res68744), 
+LUp_91947 = up_sampling3D_layer(Res68744, 2, 1, 1, Up_91947), 
+LRes59226 = reshape_layer(Up_91947, [2, 2, 1], Res59226), 
+LRes7925 = reshape_layer(Res59226, [2, 2], Res7925), 
+LFla39261 = flatten_layer(Res7925, Fla39261), 
+LMin28513 = minimum_layer([[[[[0.2092], [0.4553]], [[0.6591], [0.8921]]]], [[[[0.0552], [0.8813]], [[0.3768], [0.7192]]]]], Min28513), 
+LRes25176 = reshape_layer(Min28513, [2, 2], Res25176), 
+LGRU80303 = gru_layer(Res25176,[[5, 1, 1, 1, 2, 3, 3, 9, 7], [8, 3, 5, 10, 1, 6, 5, 5, 10]],[[5, 2, 6, 5, 2, 1, 7, 6, 8], [10, 5, 2, 7, 3, 3, 10, 2, 6], [10, 10, 6, 10, 7, 2, 6, 10, 9]],[3, 4, 9, 5, 7, 2, 3, 2, 1], false, GRU80303), 
+LCon81738 = concatenate_layer([GRU80303,[[0.3258]]], 1, Con81738), 
+LMul57325 = multiply_layer([Fla39261,Con81738], Mul57325), 
+exec_layers([LLoc10338,LRes58518,LRes68744,LUp_91947,LRes59226,LRes7925,LFla39261,LMin28513,LRes25176,LGRU80303,LCon81738,LMul57325],["Loc10338","Res58518","Res68744","Up_91947","Res59226","Res7925","Fla39261","Min28513","Res25176","GRU80303","Con81738","Mul57325"],Mul57325,"Mul57325")
+
+Actual (Unparsed): [[0.0000902, 0.0018135, 0.0000013, 0.1016614]]
+
+Expected (Unparsed): [[9.017209098923544e-5,0.0018135357058253814,1.2729259644915377e-6,0.10166141350799998]]
+
+Actual:   [[0.0001, 0.0019, 0, 0.1017]]
+
+Expected: [[0.0001, 0.0019, 0, 0.1017]]

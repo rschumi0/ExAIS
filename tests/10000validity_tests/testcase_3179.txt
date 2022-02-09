@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot96741 = tf.keras.layers.Input(shape=([2]))
+in1Dot96741 = tf.keras.layers.Input(shape=([2]))
+in0Con79754 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Add25317 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Add25317 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+
+Dot96741 = keras.layers.Dot(axes=(1, 1), name = 'Dot96741', )([in0Dot96741,in1Dot96741])
+Lay69938 = keras.layers.LayerNormalization(axis=1, epsilon=1.0955447773300593, name = 'Lay69938', )(Dot96741)
+Res42746 = keras.layers.Reshape((1, 1), name = 'Res42746', )(Lay69938)
+Res17465 = keras.layers.Reshape((1, 1, 1), name = 'Res17465', )(Res42746)
+Res6266 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res6266', )(Res17465)
+Zer42730 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer42730', )(Res6266)
+Con79754 = keras.layers.Concatenate(axis=4, name = 'Con79754', )([Zer42730,in0Con79754])
+Add25317 = keras.layers.Add(name = 'Add25317', )([in0Add25317,in1Add25317])
+Mul47287 = keras.layers.Multiply(name = 'Mul47287', )([Con79754,Add25317])
+model = tf.keras.models.Model(inputs=[in0Dot96741,in1Dot96741,in0Con79754,in0Add25317,in1Add25317], outputs=Mul47287)
+in0Dot96741 = tf.constant([[0.2304, 0.3874]])
+in1Dot96741 = tf.constant([[0.604, 0.8732]])
+in0Con79754 = tf.constant([[[[[0.7628], [0.2531]]], [[[0.0329], [0.8239]]]]])
+in0Add25317 = tf.constant([[[[[0.6052, 0.9558], [0.6873, 0.1298]]], [[[0.0775, 0.9413], [0.5642, 0.5691]]]]])
+in1Add25317 = tf.constant([[[[[0.9631, 0.7404], [0.5037, 0.1946]]], [[[0.29, 0.1027], [0.9268, 0.5807]]]]])
+print (np.array2string(model.predict([in0Dot96741,in1Dot96741,in0Con79754,in0Add25317,in1Add25317],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul47287.png')
+
+LDot96741 = dot_layer([[0.2304, 0.3874]], [[0.604, 0.8732]], 1, 1, Dot96741), 
+LLay69938 = layer_normalization_layer(Dot96741, 1, 1.0955447773300593, Lay69938), 
+LRes42746 = reshape_layer(Lay69938, [1, 1], Res42746), 
+LRes17465 = reshape_layer(Res42746, [1, 1, 1], Res17465), 
+LRes6266 = reshape_layer(Res17465, [1, 1, 1, 1], Res6266), 
+LZer42730 = zero_padding3D_layer(Res6266, 1, 0, 0, 0, 1, 0, Zer42730), 
+LCon79754 = concatenate_layer([Zer42730,[[[[[0.7628], [0.2531]]], [[[0.0329], [0.8239]]]]]], 4, Con79754), 
+LAdd25317 = add_layer([[[[[[0.6052, 0.9558], [0.6873, 0.1298]]], [[[0.0775, 0.9413], [0.5642, 0.5691]]]]], [[[[[0.9631, 0.7404], [0.5037, 0.1946]]], [[[0.29, 0.1027], [0.9268, 0.5807]]]]]], Add25317), 
+LMul47287 = multiply_layer([Con79754,Add25317], Mul47287), 
+exec_layers([LDot96741,LLay69938,LRes42746,LRes17465,LRes6266,LZer42730,LCon79754,LAdd25317,LMul47287],["Dot96741","Lay69938","Res42746","Res17465","Res6266","Zer42730","Con79754","Add25317","Mul47287"],Mul47287,"Mul47287")
+
+Actual (Unparsed): [[[[[0.0000000, 1.2938613], [0.0000000, 0.0821056]]], [[[0.0000000, 0.0343476], [0.0000000, 0.9473202]]]]]
+
+Expected (Unparsed): [[[[[0.0,1.29386136],[0.0,0.08210564000000001]]],[[[0.0,0.0343476],[0.0,0.9473202199999999]]]]]
+
+Actual:   [[[[[0, 1.2939], [0, 0.0822]]], [[[0, 0.0344], [0, 0.9474]]]]]
+
+Expected: [[[[[0, 1.2939], [0, 0.0822]]], [[[0, 0.0344], [0, 0.9474]]]]]

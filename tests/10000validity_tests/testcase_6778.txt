@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas96063 = tf.keras.layers.Input(shape=([4, 2, 2]))
+in0Add74630 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add74630 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con10141 = tf.keras.layers.Input(shape=([1, 2]))
+
+Mas96063 = keras.layers.Masking(mask_value=1, name = 'Mas96063', )(in0Mas96063)
+Thr8140 = keras.layers.ThresholdedReLU(theta=2.126300749216571, name = 'Thr8140', )(Mas96063)
+Sep93036 = keras.layers.SeparableConv2D(4, (2, 1),strides=(2, 2), padding='valid', name = 'Sep93036', )(Thr8140)
+Dep698 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep698', )(Sep93036)
+Res42476 = keras.layers.Reshape((1, 4), name = 'Res42476', )(Dep698)
+Add74630 = keras.layers.Add(name = 'Add74630', )([in0Add74630,in1Add74630])
+Con10141 = keras.layers.Concatenate(axis=2, name = 'Con10141', )([Add74630,in0Con10141])
+Max87861 = keras.layers.Maximum(name = 'Max87861', )([Res42476,Con10141])
+model = tf.keras.models.Model(inputs=[in0Mas96063,in0Add74630,in1Add74630,in0Con10141], outputs=Max87861)
+w = model.get_layer('Sep93036').get_weights() 
+w[0] = np.array([[[[0.0913], [0.3649]]], [[[0.2532], [0.3424]]]])
+w[1] = np.array([[[[0.5188, 0.6497, 0.0445, 0.2214], [0.4857, 0.577, 0.5744, 0.7129]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep93036').set_weights(w) 
+w = model.get_layer('Dep698').get_weights() 
+w[0] = np.array([[[[0.9953], [0.8461], [0.7996], [0.6431]]], [[[0.7626], [0.3686], [0.1636], [0.9236]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Dep698').set_weights(w) 
+in0Mas96063 = tf.constant([[[[1.4162, 1.3829], [1.5469, 1.3489]], [[1.4733, 1.7693], [1.3627, 1.3103]], [[1.1487, 1.1721], [1.8357, 1.9282]], [[1.1175, 1.2683], [1.5029, 1.8458]]]])
+in0Add74630 = tf.constant([[[0.7567, 0.9323]]])
+in1Add74630 = tf.constant([[[0.2383, 0.687]]])
+in0Con10141 = tf.constant([[[0.6534, 0.0729]]])
+print (np.array2string(model.predict([in0Mas96063,in0Add74630,in1Add74630,in0Con10141],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max87861.png')
+
+LMas96063 = masking_layer([[[[1.4162, 1.3829], [1.5469, 1.3489]], [[1.4733, 1.7693], [1.3627, 1.3103]], [[1.1487, 1.1721], [1.8357, 1.9282]], [[1.1175, 1.2683], [1.5029, 1.8458]]]], 1, Mas96063), 
+LThr8140 = thresholded_relu_layer(Mas96063, 2.126300749216571, Thr8140), 
+LSep93036 = separable_conv2D_layer(Thr8140, 2, 1,[[[[[0.0913], [0.3649]]], [[[0.2532], [0.3424]]]],[[[[0.5188, 0.6497, 0.0445, 0.2214], [0.4857, 0.577, 0.5744, 0.7129]]]]],[0, 0, 0, 0], 2, 2, false, Sep93036), 
+LDep698 = depthwise_conv2D_layer(Sep93036, 2, 1,[[[[0.9953], [0.8461], [0.7996], [0.6431]]], [[[0.7626], [0.3686], [0.1636], [0.9236]]]],[0, 0, 0, 0], 2, 2, false, Dep698), 
+LRes42476 = reshape_layer(Dep698, [1, 4], Res42476), 
+LAdd74630 = add_layer([[[[0.7567, 0.9323]]], [[[0.2383, 0.687]]]], Add74630), 
+LCon10141 = concatenate_layer([Add74630,[[[0.6534, 0.0729]]]], 2, Con10141), 
+LMax87861 = maximum_layer([Res42476,Con10141], Max87861), 
+exec_layers([LMas96063,LThr8140,LSep93036,LDep698,LRes42476,LAdd74630,LCon10141,LMax87861],["Mas96063","Thr8140","Sep93036","Dep698","Res42476","Add74630","Con10141","Max87861"],Max87861,"Max87861")
+
+Actual (Unparsed): [[[0.9950000, 1.6192999, 0.6534000, 0.0729000]]]
+
+Expected (Unparsed): [[[0.9950000000000001,1.6193,0.6534,0.0729]]]
+
+Actual:   [[[0.995, 1.6193, 0.6534, 0.0729]]]
+
+Expected: [[[0.9951, 1.6193, 0.6534, 0.0729]]]

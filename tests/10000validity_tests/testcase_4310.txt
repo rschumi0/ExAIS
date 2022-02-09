@@ -1,0 +1,84 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min62630 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in1Min62630 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Con96476 = tf.keras.layers.Input(shape=([3, 3]))
+in0Max42681 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Max42681 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Dot38329 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot38329 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con64630 = tf.keras.layers.Input(shape=([3, 1]))
+
+Min62630 = keras.layers.Minimum(name = 'Min62630', )([in0Min62630,in1Min62630])
+Res21205 = keras.layers.Reshape((2, 2, 4), name = 'Res21205', )(Min62630)
+Res63243 = keras.layers.Reshape((2, 8), name = 'Res63243', )(Res21205)
+LST77985 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST77985', )(Res63243)
+Res62610 = keras.layers.Reshape((3, 1), name = 'Res62610', )(LST77985)
+Res42282 = keras.layers.Reshape((3, 1, 1), name = 'Res42282', )(Res62610)
+Cro61442 = keras.layers.Cropping2D(cropping=((1, 1), (0, 0)), name = 'Cro61442', )(Res42282)
+Res58148 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res58148', )(Cro61442)
+Cro99681 = keras.layers.Cropping3D(cropping=((0, 0), (0, 0), (0, 0)), name = 'Cro99681', )(Res58148)
+Res75777 = keras.layers.Reshape((1, 1, 1), name = 'Res75777', )(Cro99681)
+Res93854 = keras.layers.Reshape((1, 1), name = 'Res93854', )(Res75777)
+Zer37768 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer37768', )(Res93854)
+Con96476 = keras.layers.Concatenate(axis=2, name = 'Con96476', )([Zer37768,in0Con96476])
+Max42681 = keras.layers.Maximum(name = 'Max42681', )([in0Max42681,in1Max42681])
+Res53855 = keras.layers.Reshape((2, 1, 4), name = 'Res53855', )(Max42681)
+Res4606 = keras.layers.Reshape((2, 4), name = 'Res4606', )(Res53855)
+Zer82384 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer82384', )(Res4606)
+Dot38329 = keras.layers.Dot(axes=(2, 2), name = 'Dot38329', )([in0Dot38329,in1Dot38329])
+Con64630 = keras.layers.Concatenate(axis=2, name = 'Con64630', )([Dot38329,in0Con64630])
+Max80839 = keras.layers.Maximum(name = 'Max80839', )([Zer82384,Con64630])
+Max4977 = keras.layers.Maximum(name = 'Max4977', )([Con96476,Max80839])
+model = tf.keras.models.Model(inputs=[in0Min62630,in1Min62630,in0Con96476,in0Max42681,in1Max42681,in0Dot38329,in1Dot38329,in0Con64630], outputs=Max4977)
+w = model.get_layer('LST77985').get_weights() 
+w[0] = np.array([[1, 10, 3, 8, 2, 7, 4, 5, 8, 9, 6, 6], [5, 1, 6, 6, 6, 5, 5, 6, 3, 9, 7, 1], [3, 5, 10, 4, 10, 5, 9, 2, 8, 7, 1, 1], [9, 7, 2, 3, 2, 8, 4, 5, 3, 10, 7, 7], [10, 2, 3, 1, 8, 4, 9, 1, 1, 3, 8, 9], [4, 4, 7, 3, 10, 1, 8, 8, 7, 9, 3, 3], [2, 5, 1, 9, 4, 10, 9, 9, 9, 1, 6, 5], [8, 6, 3, 3, 5, 4, 4, 7, 5, 7, 4, 2]])
+w[1] = np.array([[2, 1, 7, 3, 8, 3, 9, 3, 9, 9, 5, 4], [7, 4, 5, 9, 10, 7, 7, 5, 1, 4, 8, 2], [7, 7, 2, 4, 6, 5, 7, 6, 8, 6, 2, 2]])
+w[2] = np.array([6, 8, 6, 4, 2, 5, 5, 3, 4, 5, 5, 4])
+model.get_layer('LST77985').set_weights(w) 
+in0Min62630 = tf.constant([[[[[0.0022, 0.4867], [0.8828, 0.2193]], [[0.7707, 0.3845], [0.1353, 0.0679]]], [[[0.7049, 0.0022], [0.4993, 0.4914]], [[0.6609, 0.1208], [0.968, 0.7326]]]]])
+in1Min62630 = tf.constant([[[[[0.5904, 0.5509], [0.8316, 0.685]], [[0.1493, 0.1368], [0.8255, 0.9382]]], [[[0.0336, 0.915], [0.2948, 0.5331]], [[0.1017, 0.2418], [0.7926, 0.0709]]]]])
+in0Con96476 = tf.constant([[[0.9465, 0.3931, 0.9963], [0.1364, 0.8512, 0.4834], [0.3929, 0.5387, 0.4255]]])
+in0Max42681 = tf.constant([[[[[0.1616, 0.0254], [0.176, 0.0958]]], [[[0.0226, 0.6821], [0.314, 0.6088]]]]])
+in1Max42681 = tf.constant([[[[[0.0435, 0.0736], [0.9808, 0.1565]]], [[[0.9434, 0.4748], [0.3733, 0.1917]]]]])
+in0Dot38329 = tf.constant([[[0.0856, 0.5734], [0.9578, 0.299], [0.7912, 0.6081]]])
+in1Dot38329 = tf.constant([[[0.0337, 0.4447], [0.4967, 0.0157], [0.4798, 0.6219]]])
+in0Con64630 = tf.constant([[[0.7015], [0.4097], [0.4106]]])
+print (np.array2string(model.predict([in0Min62630,in1Min62630,in0Con96476,in0Max42681,in1Max42681,in0Dot38329,in1Dot38329,in0Con64630],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max4977.png')
+
+LMin62630 = minimum_layer([[[[[[0.0022, 0.4867], [0.8828, 0.2193]], [[0.7707, 0.3845], [0.1353, 0.0679]]], [[[0.7049, 0.0022], [0.4993, 0.4914]], [[0.6609, 0.1208], [0.968, 0.7326]]]]], [[[[[0.5904, 0.5509], [0.8316, 0.685]], [[0.1493, 0.1368], [0.8255, 0.9382]]], [[[0.0336, 0.915], [0.2948, 0.5331]], [[0.1017, 0.2418], [0.7926, 0.0709]]]]]], Min62630), 
+LRes21205 = reshape_layer(Min62630, [2, 2, 4], Res21205), 
+LRes63243 = reshape_layer(Res21205, [2, 8], Res63243), 
+LLST77985 = lstm_layer(Res63243,[[1, 10, 3, 8, 2, 7, 4, 5, 8, 9, 6, 6], [5, 1, 6, 6, 6, 5, 5, 6, 3, 9, 7, 1], [3, 5, 10, 4, 10, 5, 9, 2, 8, 7, 1, 1], [9, 7, 2, 3, 2, 8, 4, 5, 3, 10, 7, 7], [10, 2, 3, 1, 8, 4, 9, 1, 1, 3, 8, 9], [4, 4, 7, 3, 10, 1, 8, 8, 7, 9, 3, 3], [2, 5, 1, 9, 4, 10, 9, 9, 9, 1, 6, 5], [8, 6, 3, 3, 5, 4, 4, 7, 5, 7, 4, 2]],[[2, 1, 7, 3, 8, 3, 9, 3, 9, 9, 5, 4], [7, 4, 5, 9, 10, 7, 7, 5, 1, 4, 8, 2], [7, 7, 2, 4, 6, 5, 7, 6, 8, 6, 2, 2]],[6, 8, 6, 4, 2, 5, 5, 3, 4, 5, 5, 4], LST77985), 
+LRes62610 = reshape_layer(LST77985, [3, 1], Res62610), 
+LRes42282 = reshape_layer(Res62610, [3, 1, 1], Res42282), 
+LCro61442 = cropping2D_layer(Res42282, 1, 1, 0, 0, Cro61442), 
+LRes58148 = reshape_layer(Cro61442, [1, 1, 1, 1], Res58148), 
+LCro99681 = cropping3D_layer(Res58148, 0, 0, 0, 0, 0, 0, Cro99681), 
+LRes75777 = reshape_layer(Cro99681, [1, 1, 1], Res75777), 
+LRes93854 = reshape_layer(Res75777, [1, 1], Res93854), 
+LZer37768 = zero_padding1D_layer(Res93854, 2, 0, Zer37768), 
+LCon96476 = concatenate_layer([Zer37768,[[[0.9465, 0.3931, 0.9963], [0.1364, 0.8512, 0.4834], [0.3929, 0.5387, 0.4255]]]], 2, Con96476), 
+LMax42681 = maximum_layer([[[[[[0.1616, 0.0254], [0.176, 0.0958]]], [[[0.0226, 0.6821], [0.314, 0.6088]]]]], [[[[[0.0435, 0.0736], [0.9808, 0.1565]]], [[[0.9434, 0.4748], [0.3733, 0.1917]]]]]], Max42681), 
+LRes53855 = reshape_layer(Max42681, [2, 1, 4], Res53855), 
+LRes4606 = reshape_layer(Res53855, [2, 4], Res4606), 
+LZer82384 = zero_padding1D_layer(Res4606, 1, 0, Zer82384), 
+LDot38329 = dot_layer([[[0.0856, 0.5734], [0.9578, 0.299], [0.7912, 0.6081]]], [[[0.0337, 0.4447], [0.4967, 0.0157], [0.4798, 0.6219]]], 2, 2, Dot38329), 
+LCon64630 = concatenate_layer([Dot38329,[[[0.7015], [0.4097], [0.4106]]]], 2, Con64630), 
+LMax80839 = maximum_layer([Zer82384,Con64630], Max80839), 
+LMax4977 = maximum_layer([Con96476,Max80839], Max4977), 
+exec_layers([LMin62630,LRes21205,LRes63243,LLST77985,LRes62610,LRes42282,LCro61442,LRes58148,LCro99681,LRes75777,LRes93854,LZer37768,LCon96476,LMax42681,LRes53855,LRes4606,LZer82384,LDot38329,LCon64630,LMax80839,LMax4977],["Min62630","Res21205","Res63243","LST77985","Res62610","Res42282","Cro61442","Res58148","Cro99681","Res75777","Res93854","Zer37768","Con96476","Max42681","Res53855","Res4606","Zer82384","Dot38329","Con64630","Max80839","Max4977"],Max4977,"Max4977")
+
+Actual (Unparsed): [[[0.2578757, 0.9465000, 0.3976684, 0.9963000], [0.1652432, 0.4804335, 0.9808000, 0.4834000], [0.9640276, 0.6821000, 0.7577951, 0.6088000]]]
+
+Expected (Unparsed): [[[0.2578757,0.9465,0.39766834,0.9963],[0.16524315999999997,0.4804335599999999,0.9808,0.4834],[0.9640275730907514,0.6821,0.75779515,0.6088]]]
+
+Actual:   [[[0.2579, 0.9465, 0.3977, 0.9963], [0.1653, 0.4805, 0.9808, 0.4834], [0.9641, 0.6821, 0.7578, 0.6088]]]
+
+Expected: [[[0.2579, 0.9465, 0.3977, 0.9963], [0.1653, 0.4805, 0.9808, 0.4834], [0.9641, 0.6821, 0.7578, 0.6088]]]

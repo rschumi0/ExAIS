@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU75431 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con45848 = tf.keras.layers.Input(shape=([2, 5]))
+in0Loc57781 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+ELU75431 = keras.layers.ELU(alpha=2.778634663199666, name = 'ELU75431', input_shape=(1, 1, 2))(in0ELU75431)
+Glo28773 = keras.layers.GlobalAveragePooling2D(name = 'Glo28773', )(ELU75431)
+Res82554 = keras.layers.Reshape((2, 1), name = 'Res82554', )(Glo28773)
+Con45848 = keras.layers.Concatenate(axis=2, name = 'Con45848', )([Res82554,in0Con45848])
+Loc57781 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc57781', )(in0Loc57781)
+Sep75283 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='valid', name = 'Sep75283', )(Loc57781)
+Res28246 = keras.layers.Reshape((1, 6), name = 'Res28246', )(Sep75283)
+Dot49329 = keras.layers.Dot(axes=(2, 2), name = 'Dot49329', )([Con45848,Res28246])
+model = tf.keras.models.Model(inputs=[in0ELU75431,in0Con45848,in0Loc57781], outputs=Dot49329)
+w = model.get_layer('Loc57781').get_weights() 
+w[0] = np.array([[[0.8323, 0.8673, 0.6867, 0.3807]], [[0.2318, 0.7046, 0.8058, 0.3427]]])
+w[1] = np.array([[[0, 0, 0, 0], [0, 0, 0, 0]]])
+model.get_layer('Loc57781').set_weights(w) 
+w = model.get_layer('Sep75283').get_weights() 
+w[0] = np.array([[[[0.3714], [0.2012], [0.4973], [0.8991]]]])
+w[1] = np.array([[[[0.893, 0.6734, 0.3083], [0.1556, 0.1326, 0.9133], [0.8694, 0.9192, 0.425], [0.1507, 0.1698, 0.4366]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep75283').set_weights(w) 
+in0ELU75431 = tf.constant([[[[0.2244, 0.0104]]]])
+in0Con45848 = tf.constant([[[0.3282, 0.2289, 0.5284, 0.2087, 0.2923], [0.889, 0.0369, 0.6721, 0.9429, 0.9839]]])
+in0Loc57781 = tf.constant([[[[0.5417], [0.32]]]])
+print (np.array2string(model.predict([in0ELU75431,in0Con45848,in0Loc57781],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot49329.png')
+
+LELU75431 = elu_layer([[[[0.2244, 0.0104]]]], 2.778634663199666, ELU75431), 
+LGlo28773 = global_average_pooling2D_layer(ELU75431, Glo28773), 
+LRes82554 = reshape_layer(Glo28773, [2, 1], Res82554), 
+LCon45848 = concatenate_layer([Res82554,[[[0.3282, 0.2289, 0.5284, 0.2087, 0.2923], [0.889, 0.0369, 0.6721, 0.9429, 0.9839]]]], 2, Con45848), 
+LLoc57781 = locally_connected2D_layer([[[[0.5417], [0.32]]]], 1, 1,[[[0.8323, 0.8673, 0.6867, 0.3807]], [[0.2318, 0.7046, 0.8058, 0.3427]]],[[[0, 0, 0, 0], [0, 0, 0, 0]]], 1, 1, Loc57781), 
+LSep75283 = separable_conv2D_layer(Loc57781, 1, 1,[[[[[0.3714], [0.2012], [0.4973], [0.8991]]]],[[[[0.893, 0.6734, 0.3083], [0.1556, 0.1326, 0.9133], [0.8694, 0.9192, 0.425], [0.1507, 0.1698, 0.4366]]]]],[0, 0, 0], 1, 1, false, Sep75283), 
+LRes28246 = reshape_layer(Sep75283, [1, 6], Res28246), 
+LDot49329 = dot_layer(Con45848,Res28246, 2, 2, Dot49329), 
+exec_layers([LELU75431,LGlo28773,LRes82554,LCon45848,LLoc57781,LSep75283,LRes28246,LDot49329],["ELU75431","Glo28773","Res82554","Con45848","Loc57781","Sep75283","Res28246","Dot49329"],Dot49329,"Dot49329")
+
+Actual (Unparsed): [[[0.4143980], [0.7065746]]]
+
+Expected (Unparsed): [[[0.4143979823613186],[0.7065745993306257]]]
+
+Actual:   [[[0.4144], [0.7066]]]
+
+Expected: [[[0.4144], [0.7066]]]

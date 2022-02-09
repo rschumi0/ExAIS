@@ -1,0 +1,42 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave64251 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave64251 = tf.keras.layers.Input(shape=([1, 1]))
+in0Ave98512 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave98512 = tf.keras.layers.Input(shape=([1, 1]))
+
+Ave64251 = keras.layers.Average(name = 'Ave64251', )([in0Ave64251,in1Ave64251])
+Ave98512 = keras.layers.Average(name = 'Ave98512', )([in0Ave98512,in1Ave98512])
+Add57576 = keras.layers.Add(name = 'Add57576', )([Ave64251,Ave98512])
+Res12297 = keras.layers.Reshape((1, 1, 1), name = 'Res12297', )(Add57576)
+PRe4879 = keras.layers.PReLU(name = 'PRe4879', )(Res12297)
+model = tf.keras.models.Model(inputs=[in0Ave64251,in1Ave64251,in0Ave98512,in1Ave98512], outputs=PRe4879)
+w = model.get_layer('PRe4879').get_weights() 
+w[0] = np.array([[[0.3698]]])
+model.get_layer('PRe4879').set_weights(w) 
+in0Ave64251 = tf.constant([[[0.5574]]])
+in1Ave64251 = tf.constant([[[0.8221]]])
+in0Ave98512 = tf.constant([[[0.3762]]])
+in1Ave98512 = tf.constant([[[0.1858]]])
+print (np.array2string(model.predict([in0Ave64251,in1Ave64251,in0Ave98512,in1Ave98512],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe4879.png')
+
+LAve64251 = average_layer([[[[0.5574]]], [[[0.8221]]]], Ave64251), 
+LAve98512 = average_layer([[[[0.3762]]], [[[0.1858]]]], Ave98512), 
+LAdd57576 = add_layer([Ave64251,Ave98512], Add57576), 
+LRes12297 = reshape_layer(Add57576, [1, 1, 1], Res12297), 
+LPRe4879 = prelu_layer(Res12297, [[[0.3698]]], PRe4879), 
+exec_layers([LAve64251,LAve98512,LAdd57576,LRes12297,LPRe4879],["Ave64251","Ave98512","Add57576","Res12297","PRe4879"],PRe4879,"PRe4879")
+
+Actual (Unparsed): [[[[0.9707500]]]]
+
+Expected (Unparsed): [[[[0.97075]]]]
+
+Actual:   [[[[0.9708]]]]
+
+Expected: [[[[0.9708]]]]

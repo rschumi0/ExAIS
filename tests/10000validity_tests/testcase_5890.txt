@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot14391 = tf.keras.layers.Input(shape=([3]))
+in1Dot14391 = tf.keras.layers.Input(shape=([3]))
+in0Con46235 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min32821 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min32821 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot14391 = keras.layers.Dot(axes=(1, 1), name = 'Dot14391', )([in0Dot14391,in1Dot14391])
+Res31245 = keras.layers.Reshape((1, 1), name = 'Res31245', )(Dot14391)
+Res21320 = keras.layers.Reshape((1, 1, 1), name = 'Res21320', )(Res31245)
+Con46235 = keras.layers.Concatenate(axis=3, name = 'Con46235', )([Res21320,in0Con46235])
+Min32821 = keras.layers.Minimum(name = 'Min32821', )([in0Min32821,in1Min32821])
+Res9421 = keras.layers.Reshape((1, 1, 1), name = 'Res9421', )(Min32821)
+Res71742 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res71742', )(Res9421)
+Glo13975 = keras.layers.GlobalAveragePooling3D(name = 'Glo13975', )(Res71742)
+Res97697 = keras.layers.Reshape((1, 1), name = 'Res97697', )(Glo13975)
+Res51541 = keras.layers.Reshape((1, 1, 1), name = 'Res51541', )(Res97697)
+Loc15243 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 6), name = 'Loc15243', )(Res51541)
+Max30522 = keras.layers.Maximum(name = 'Max30522', )([Con46235,Loc15243])
+ELU46352 = keras.layers.ELU(alpha=-2.7454190012735014, name = 'ELU46352', )(Max30522)
+model = tf.keras.models.Model(inputs=[in0Dot14391,in1Dot14391,in0Con46235,in0Min32821,in1Min32821], outputs=ELU46352)
+w = model.get_layer('Loc15243').get_weights() 
+w[0] = np.array([[[0.299, 0.6673, 0.3377]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc15243').set_weights(w) 
+in0Dot14391 = tf.constant([[0.8207, 0.7777, 0.1296]])
+in1Dot14391 = tf.constant([[0.7504, 0.5828, 0.5954]])
+in0Con46235 = tf.constant([[[[0.3422, 0.1164]]]])
+in0Min32821 = tf.constant([[[0.4998]]])
+in1Min32821 = tf.constant([[[0.6672]]])
+print (np.array2string(model.predict([in0Dot14391,in1Dot14391,in0Con46235,in0Min32821,in1Min32821],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU46352.png')
+
+LDot14391 = dot_layer([[0.8207, 0.7777, 0.1296]], [[0.7504, 0.5828, 0.5954]], 1, 1, Dot14391), 
+LRes31245 = reshape_layer(Dot14391, [1, 1], Res31245), 
+LRes21320 = reshape_layer(Res31245, [1, 1, 1], Res21320), 
+LCon46235 = concatenate_layer([Res21320,[[[[0.3422, 0.1164]]]]], 3, Con46235), 
+LMin32821 = minimum_layer([[[[0.4998]]], [[[0.6672]]]], Min32821), 
+LRes9421 = reshape_layer(Min32821, [1, 1, 1], Res9421), 
+LRes71742 = reshape_layer(Res9421, [1, 1, 1, 1], Res71742), 
+LGlo13975 = global_average_pooling3D_layer(Res71742, Glo13975), 
+LRes97697 = reshape_layer(Glo13975, [1, 1], Res97697), 
+LRes51541 = reshape_layer(Res97697, [1, 1, 1], Res51541), 
+LLoc15243 = locally_connected2D_layer(Res51541, 1, 1,[[[0.299, 0.6673, 0.3377]]],[[[0, 0, 0]]], 1, 6, Loc15243), 
+LMax30522 = maximum_layer([Con46235,Loc15243], Max30522), 
+LELU46352 = elu_layer(Max30522, -2.7454190012735014, ELU46352), 
+exec_layers([LDot14391,LRes31245,LRes21320,LCon46235,LMin32821,LRes9421,LRes71742,LGlo13975,LRes97697,LRes51541,LLoc15243,LMax30522,LELU46352],["Dot14391","Res31245","Res21320","Con46235","Min32821","Res9421","Res71742","Glo13975","Res97697","Res51541","Loc15243","Max30522","ELU46352"],ELU46352,"ELU46352")
+
+Actual (Unparsed): [[[[1.1462607, 0.3422000, 0.1687825]]]]
+
+Expected (Unparsed): [[[[1.14626068,0.3422,0.16878246]]]]
+
+Actual:   [[[[1.1463, 0.3422, 0.1688]]]]
+
+Expected: [[[[1.1463, 0.3422, 0.1688]]]]

@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave25788 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave25788 = tf.keras.layers.Input(shape=([1, 1]))
+in0Min61252 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Min61252 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+Ave25788 = keras.layers.Average(name = 'Ave25788', )([in0Ave25788,in1Ave25788])
+Res82374 = keras.layers.Reshape((1, 1, 1), name = 'Res82374', )(Ave25788)
+PRe56265 = keras.layers.PReLU(name = 'PRe56265', )(Res82374)
+Res77420 = keras.layers.Reshape((1, 1), name = 'Res77420', )(PRe56265)
+GRU99005 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU99005', )(Res77420)
+Res45205 = keras.layers.Reshape((1, 1), name = 'Res45205', )(GRU99005)
+Res3556 = keras.layers.Reshape((1, 1, 1), name = 'Res3556', )(Res45205)
+Res61388 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res61388', )(Res3556)
+Zer75527 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer75527', )(Res61388)
+Min61252 = keras.layers.Minimum(name = 'Min61252', )([in0Min61252,in1Min61252])
+Lay77079 = keras.layers.LayerNormalization(axis=3, epsilon=2.9709991051541147, name = 'Lay77079', )(Min61252)
+Sub46335 = keras.layers.Subtract(name = 'Sub46335', )([Zer75527,Lay77079])
+model = tf.keras.models.Model(inputs=[in0Ave25788,in1Ave25788,in0Min61252,in1Min61252], outputs=Sub46335)
+w = model.get_layer('PRe56265').get_weights() 
+w[0] = np.array([[[0.547]]])
+model.get_layer('PRe56265').set_weights(w) 
+w = model.get_layer('GRU99005').get_weights() 
+w[0] = np.array([[7, 9, 6]])
+w[1] = np.array([[10, 1, 8]])
+w[2] = np.array([[2, 4, 3], [7, 2, 1]])
+model.get_layer('GRU99005').set_weights(w) 
+in0Ave25788 = tf.constant([[[0.8809]]])
+in1Ave25788 = tf.constant([[[0.7988]]])
+in0Min61252 = tf.constant([[[[[0.6779], [0.1222]], [[0.4745], [0.4248]]]]])
+in1Min61252 = tf.constant([[[[[0.5669], [0.7838]], [[0.1434], [0.7539]]]]])
+print (np.array2string(model.predict([in0Ave25788,in1Ave25788,in0Min61252,in1Min61252],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub46335.png')
+
+LAve25788 = average_layer([[[[0.8809]]], [[[0.7988]]]], Ave25788), 
+LRes82374 = reshape_layer(Ave25788, [1, 1, 1], Res82374), 
+LPRe56265 = prelu_layer(Res82374, [[[0.547]]], PRe56265), 
+LRes77420 = reshape_layer(PRe56265, [1, 1], Res77420), 
+LGRU99005 = gru_layer(Res77420,[[7, 9, 6]],[[10, 1, 8]],[[2, 4, 3], [7, 2, 1]], true, GRU99005), 
+LRes45205 = reshape_layer(GRU99005, [1, 1], Res45205), 
+LRes3556 = reshape_layer(Res45205, [1, 1, 1], Res3556), 
+LRes61388 = reshape_layer(Res3556, [1, 1, 1, 1], Res61388), 
+LZer75527 = zero_padding3D_layer(Res61388, 0, 0, 1, 0, 1, 0, Zer75527), 
+LMin61252 = minimum_layer([[[[[[0.6779], [0.1222]], [[0.4745], [0.4248]]]]], [[[[[0.5669], [0.7838]], [[0.1434], [0.7539]]]]]], Min61252), 
+LLay77079 = layer_normalization_layer(Min61252, 3, 2.9709991051541147, Lay77079), 
+LSub46335 = subtract_layer(Zer75527,Lay77079, Sub46335), 
+exec_layers([LAve25788,LRes82374,LPRe56265,LRes77420,LGRU99005,LRes45205,LRes3556,LRes61388,LZer75527,LMin61252,LLay77079,LSub46335],["Ave25788","Res82374","PRe56265","Res77420","GRU99005","Res45205","Res3556","Res61388","Zer75527","Min61252","Lay77079","Sub46335"],Sub46335,"Sub46335")
+
+Actual (Unparsed): [[[[[-0.1279388], [0.1279388]], [[0.0813581], [-0.0813577]]]]]
+
+Expected (Unparsed): [[[[[-0.12793875669049617],[0.12793875669049617]],[[0.08135808755056365],[-0.08135774228445011]]]]]
+
+Actual:   [[[[[-0.1279], [0.128]], [[0.0814], [-0.0813]]]]]
+
+Expected: [[[[[-0.1279], [0.128]], [[0.0814], [-0.0813]]]]]

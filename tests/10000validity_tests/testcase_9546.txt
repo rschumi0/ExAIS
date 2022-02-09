@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro55341 = tf.keras.layers.Input(shape=([1, 2, 4]))
+in0Lea57842 = tf.keras.layers.Input(shape=([1, 1]))
+
+Cro55341 = keras.layers.Cropping2D(cropping=((0, 0), (0, 1)), name = 'Cro55341', )(in0Cro55341)
+Res69050 = keras.layers.Reshape((1, 4), name = 'Res69050', )(Cro55341)
+Sep21893 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep21893', )(Res69050)
+Glo20153 = keras.layers.GlobalMaxPool1D(name = 'Glo20153', )(Sep21893)
+Res46282 = keras.layers.Reshape((3, 1), name = 'Res46282', )(Glo20153)
+Res34900 = keras.layers.Reshape((3, 1, 1), name = 'Res34900', )(Res46282)
+Zer96340 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer96340', )(Res34900)
+Lea57842 = keras.layers.LeakyReLU(alpha=1.7465215491121489, name = 'Lea57842', input_shape=(1, 1))(in0Lea57842)
+Res96180 = keras.layers.Reshape((1, 1, 1), name = 'Res96180', )(Lea57842)
+Up_27665 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_27665', )(Res96180)
+Zer25098 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer25098', )(Up_27665)
+Ave79531 = keras.layers.Average(name = 'Ave79531', )([Zer96340,Zer25098])
+model = tf.keras.models.Model(inputs=[in0Cro55341,in0Lea57842], outputs=Ave79531)
+w = model.get_layer('Sep21893').get_weights() 
+w[0] = np.array([[[0.5191], [0.2014], [0.0828], [0.785]]])
+w[1] = np.array([[[0.3188, 0.1645, 0.7474], [0.8574, 0.4375, 0.9584], [0.596, 0.9856, 0.4513], [0.7804, 0.347, 0.729]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep21893').set_weights(w) 
+in0Cro55341 = tf.constant([[[[1.8081, 1.4431, 1.4544, 1.2128], [1.3818, 1.9782, 1.6472, 1.7036]]]])
+in0Lea57842 = tf.constant([[[0.0082]]])
+print (np.array2string(model.predict([in0Cro55341,in0Lea57842],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave79531.png')
+
+LCro55341 = cropping2D_layer([[[[1.8081, 1.4431, 1.4544, 1.2128], [1.3818, 1.9782, 1.6472, 1.7036]]]], 0, 0, 0, 1, Cro55341), 
+LRes69050 = reshape_layer(Cro55341, [1, 4], Res69050), 
+LSep21893 = separable_conv1D_layer(Res69050, 1,[[[[0.5191], [0.2014], [0.0828], [0.785]]],[[[0.3188, 0.1645, 0.7474], [0.8574, 0.4375, 0.9584], [0.596, 0.9856, 0.4513], [0.7804, 0.347, 0.729]]]],[0, 0, 0], 1, true, Sep21893), 
+LGlo20153 = global_max_pool1D_layer(Sep21893, Glo20153), 
+LRes46282 = reshape_layer(Glo20153, [3, 1], Res46282), 
+LRes34900 = reshape_layer(Res46282, [3, 1, 1], Res34900), 
+LZer96340 = zero_padding2D_layer(Res34900, 0, 0, 2, 0, Zer96340), 
+LLea57842 = leaky_relu_layer([[[0.0082]]], 1.7465215491121489, Lea57842), 
+LRes96180 = reshape_layer(Lea57842, [1, 1, 1], Res96180), 
+LUp_27665 = up_sampling2D_layer(Res96180, 1, 2, Up_27665), 
+LZer25098 = zero_padding2D_layer(Up_27665, 2, 0, 1, 0, Zer25098), 
+LAve79531 = average_layer([Zer96340,Zer25098], Ave79531), 
+exec_layers([LCro55341,LRes69050,LSep21893,LGlo20153,LRes46282,LRes34900,LZer96340,LLea57842,LRes96180,LUp_27665,LZer25098,LAve79531],["Cro55341","Res69050","Sep21893","Glo20153","Res46282","Res34900","Zer96340","Lea57842","Res96180","Up_27665","Zer25098","Ave79531"],Ave79531,"Ave79531")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.6815835]], [[0.0000000], [0.0000000], [0.3653016]], [[0.0000000], [0.0041000], [0.8683192]]]]
+
+Expected (Unparsed): [[[[0],[0],[0.681583493492]],[[0],[0],[0.3653015996685]],[[0],[0.0041],[0.8683192008630001]]]]
+
+Actual:   [[[[0], [0], [0.6816]], [[0], [0], [0.3654]], [[0], [0.0041], [0.8684]]]]
+
+Expected: [[[[0], [0], [0.6816]], [[0], [0], [0.3654]], [[0], [0.0041], [0.8684]]]]

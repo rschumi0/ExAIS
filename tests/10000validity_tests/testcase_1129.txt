@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro98544 = tf.keras.layers.Input(shape=([2, 2, 4]))
+in0Dot12372 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot12372 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con33839 = tf.keras.layers.Input(shape=([2, 2]))
+in0Dot27383 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot27383 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con346 = tf.keras.layers.Input(shape=([2, 2]))
+
+Cro98544 = keras.layers.Cropping2D(cropping=((0, 0), (1, 0)), name = 'Cro98544', )(in0Cro98544)
+Res83909 = keras.layers.Reshape((2, 4), name = 'Res83909', )(Cro98544)
+Dot12372 = keras.layers.Dot(axes=(1, 2), name = 'Dot12372', )([in0Dot12372,in1Dot12372])
+Sep30487 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep30487', )(Dot12372)
+Con33839 = keras.layers.Concatenate(axis=2, name = 'Con33839', )([Sep30487,in0Con33839])
+Min46219 = keras.layers.Minimum(name = 'Min46219', )([Res83909,Con33839])
+Dot27383 = keras.layers.Dot(axes=(1, 1), name = 'Dot27383', )([in0Dot27383,in1Dot27383])
+Con346 = keras.layers.Concatenate(axis=2, name = 'Con346', )([Dot27383,in0Con346])
+Max35242 = keras.layers.Maximum(name = 'Max35242', )([Min46219,Con346])
+model = tf.keras.models.Model(inputs=[in0Cro98544,in0Dot12372,in1Dot12372,in0Con33839,in0Dot27383,in1Dot27383,in0Con346], outputs=Max35242)
+w = model.get_layer('Sep30487').get_weights() 
+w[0] = np.array([[[0.9788], [0.4747]]])
+w[1] = np.array([[[0.6371, 0.5459], [0.4719, 0.103]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep30487').set_weights(w) 
+in0Cro98544 = tf.constant([[[[1.8705, 1.6404, 1.606, 1.8893], [1.494, 1.5187, 1.1843, 1.1259]], [[1.4166, 1.1576, 1.9461, 1.8987], [1.1664, 1.602, 1.8944, 1.8555]]]])
+in0Dot12372 = tf.constant([[[0.6738, 0.8218], [0.1479, 0.2768]]])
+in1Dot12372 = tf.constant([[[0.845, 0.1814], [0.9231, 0.7628]]])
+in0Con33839 = tf.constant([[[0.2511, 0.3111], [0.2026, 0.7227]]])
+in0Dot27383 = tf.constant([[[0.6193, 0.0621], [0.9269, 0.5759]]])
+in1Dot27383 = tf.constant([[[0.2556, 0.8073], [0.8782, 0.2361]]])
+in0Con346 = tf.constant([[[0.0622, 0.1652], [0.1306, 0.693]]])
+print (np.array2string(model.predict([in0Cro98544,in0Dot12372,in1Dot12372,in0Con33839,in0Dot27383,in1Dot27383,in0Con346],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max35242.png')
+
+LCro98544 = cropping2D_layer([[[[1.8705, 1.6404, 1.606, 1.8893], [1.494, 1.5187, 1.1843, 1.1259]], [[1.4166, 1.1576, 1.9461, 1.8987], [1.1664, 1.602, 1.8944, 1.8555]]]], 0, 0, 1, 0, Cro98544), 
+LRes83909 = reshape_layer(Cro98544, [2, 4], Res83909), 
+LDot12372 = dot_layer([[[0.6738, 0.8218], [0.1479, 0.2768]]], [[[0.845, 0.1814], [0.9231, 0.7628]]], 1, 2, Dot12372), 
+LSep30487 = separable_conv1D_layer(Dot12372, 1,[[[[0.9788], [0.4747]]],[[[0.6371, 0.5459], [0.4719, 0.103]]]],[0, 0], 1, false, Sep30487), 
+LCon33839 = concatenate_layer([Sep30487,[[[0.2511, 0.3111], [0.2026, 0.7227]]]], 2, Con33839), 
+LMin46219 = minimum_layer([Res83909,Con33839], Min46219), 
+LDot27383 = dot_layer([[[0.6193, 0.0621], [0.9269, 0.5759]]], [[[0.2556, 0.8073], [0.8782, 0.2361]]], 1, 1, Dot27383), 
+LCon346 = concatenate_layer([Dot27383,[[[0.0622, 0.1652], [0.1306, 0.693]]]], 2, Con346), 
+LMax35242 = maximum_layer([Min46219,Con346], Max35242), 
+exec_layers([LCro98544,LRes83909,LDot12372,LSep30487,LCon33839,LMin46219,LDot27383,LCon346,LMax35242],["Cro98544","Res83909","Dot12372","Sep30487","Con33839","Min46219","Dot27383","Con346","Max35242"],Max35242,"Max35242")
+
+Actual (Unparsed): [[[0.9722967, 0.7188020, 0.2511000, 0.3111000], [0.6815818, 0.4452921, 0.2026000, 0.7227000]]]
+
+Expected (Unparsed): [[[0.9722966599999999,0.71880198,0.2511,0.3111],[0.6815818266785261,0.44529208915638036,0.2026,0.7227]]]
+
+Actual:   [[[0.9723, 0.7189, 0.2511, 0.3111], [0.6816, 0.4453, 0.2026, 0.7227]]]
+
+Expected: [[[0.9723, 0.7189, 0.2511, 0.3111], [0.6816, 0.4453, 0.2026, 0.7227]]]

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo16065 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max61141 = tf.keras.layers.Input(shape=([1, 1]))
+
+Glo16065 = keras.layers.GlobalAveragePooling1D(name = 'Glo16065', )(in0Glo16065)
+Res94803 = keras.layers.Reshape((2, 1), name = 'Res94803', )(Glo16065)
+Res29988 = keras.layers.Reshape((2, 1, 1), name = 'Res29988', )(Res94803)
+Max61141 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max61141', )(in0Max61141)
+LST42118 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST42118', )(Max61141)
+Res91425 = keras.layers.Reshape((3, 1), name = 'Res91425', )(LST42118)
+Res50824 = keras.layers.Reshape((3, 1, 1), name = 'Res50824', )(Res91425)
+Dep11863 = keras.layers.DepthwiseConv2D((2, 1),strides=(3, 3), padding='valid', name = 'Dep11863', )(Res50824)
+Zer56958 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer56958', )(Dep11863)
+Min91999 = keras.layers.Minimum(name = 'Min91999', )([Res29988,Zer56958])
+model = tf.keras.models.Model(inputs=[in0Glo16065,in0Max61141], outputs=Min91999)
+w = model.get_layer('LST42118').get_weights() 
+w[0] = np.array([[6, 5, 1, 2, 8, 4, 10, 6, 5, 6, 9, 7]])
+w[1] = np.array([[6, 6, 2, 7, 3, 2, 3, 10, 8, 9, 9, 5], [6, 3, 4, 4, 4, 2, 7, 3, 2, 7, 2, 3], [6, 6, 5, 7, 2, 8, 2, 5, 10, 1, 3, 4]])
+w[2] = np.array([5, 2, 7, 5, 7, 4, 3, 9, 2, 4, 2, 2])
+model.get_layer('LST42118').set_weights(w) 
+w = model.get_layer('Dep11863').get_weights() 
+w[0] = np.array([[[[0.6718]]], [[[0.5074]]]])
+w[1] = np.array([0])
+model.get_layer('Dep11863').set_weights(w) 
+in0Glo16065 = tf.constant([[[1.7106, 1.5313], [1.0753, 1.934]]])
+in0Max61141 = tf.constant([[[1.1461]]])
+print (np.array2string(model.predict([in0Glo16065,in0Max61141],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min91999.png')
+
+LGlo16065 = global_average_pooling1D_layer([[[1.7106, 1.5313], [1.0753, 1.934]]], Glo16065), 
+LRes94803 = reshape_layer(Glo16065, [2, 1], Res94803), 
+LRes29988 = reshape_layer(Res94803, [2, 1, 1], Res29988), 
+LMax61141 = max_pool1D_layer([[[1.1461]]], 1, Max61141), 
+LLST42118 = lstm_layer(Max61141,[[6, 5, 1, 2, 8, 4, 10, 6, 5, 6, 9, 7]],[[6, 6, 2, 7, 3, 2, 3, 10, 8, 9, 9, 5], [6, 3, 4, 4, 4, 2, 7, 3, 2, 7, 2, 3], [6, 6, 5, 7, 2, 8, 2, 5, 10, 1, 3, 4]],[5, 2, 7, 5, 7, 4, 3, 9, 2, 4, 2, 2], LST42118), 
+LRes91425 = reshape_layer(LST42118, [3, 1], Res91425), 
+LRes50824 = reshape_layer(Res91425, [3, 1, 1], Res50824), 
+LDep11863 = depthwise_conv2D_layer(Res50824, 2, 1,[[[[0.6718]]], [[[0.5074]]]],[0], 3, 3, false, Dep11863), 
+LZer56958 = zero_padding2D_layer(Dep11863, 1, 0, 0, 0, Zer56958), 
+LMin91999 = minimum_layer([Res29988,Zer56958], Min91999), 
+exec_layers([LGlo16065,LRes94803,LRes29988,LMax61141,LLST42118,LRes91425,LRes50824,LDep11863,LZer56958,LMin91999],["Glo16065","Res94803","Res29988","Max61141","LST42118","Res91425","Res50824","Dep11863","Zer56958","Min91999"],Min91999,"Min91999")
+
+Actual (Unparsed): [[[[0.0000000]], [[0.8979649]]]]
+
+Expected (Unparsed): [[[[0]],[[0.8979648809621469]]]]
+
+Actual:   [[[[0]], [[0.898]]]]
+
+Expected: [[[[0]], [[0.898]]]]

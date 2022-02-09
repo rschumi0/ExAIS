@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave65058 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave65058 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Min19467 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Min19467 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Fla37908 = tf.keras.layers.Input(shape=([1]))
+in0Con57568 = tf.keras.layers.Input(shape=([1]))
+
+Ave65058 = keras.layers.Average(name = 'Ave65058', )([in0Ave65058,in1Ave65058])
+Min19467 = keras.layers.Minimum(name = 'Min19467', )([in0Min19467,in1Min19467])
+Zer26928 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer26928', )(Min19467)
+Ave63605 = keras.layers.Average(name = 'Ave63605', )([Ave65058,Zer26928])
+Res67378 = keras.layers.Reshape((2, 1, 2), name = 'Res67378', )(Ave63605)
+Res75999 = keras.layers.Reshape((2, 2), name = 'Res75999', )(Res67378)
+Fla6746 = keras.layers.Flatten(name = 'Fla6746', )(Res75999)
+Fla37908 = keras.layers.Flatten(name = 'Fla37908', )(in0Fla37908)
+Res34983 = keras.layers.Reshape((1, 1), name = 'Res34983', )(Fla37908)
+LST8167 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST8167', )(Res34983)
+Con57568 = keras.layers.Concatenate(axis=1, name = 'Con57568', )([LST8167,in0Con57568])
+Add77679 = keras.layers.Add(name = 'Add77679', )([Fla6746,Con57568])
+Lay7199 = keras.layers.LayerNormalization(axis=1, epsilon=1.6358417750656586, name = 'Lay7199', )(Add77679)
+Res69645 = keras.layers.Reshape((4, 1), name = 'Res69645', )(Lay7199)
+Res45243 = keras.layers.Reshape((4, 1, 1), name = 'Res45243', )(Res69645)
+Cro50240 = keras.layers.Cropping2D(cropping=((1, 2), (0, 0)), name = 'Cro50240', )(Res45243)
+model = tf.keras.models.Model(inputs=[in0Ave65058,in1Ave65058,in0Min19467,in1Min19467,in0Fla37908,in0Con57568], outputs=Cro50240)
+w = model.get_layer('LST8167').get_weights() 
+w[0] = np.array([[1, 7, 1, 3, 1, 1, 7, 6, 8, 10, 7, 7]])
+w[1] = np.array([[1, 7, 3, 5, 2, 7, 6, 8, 10, 5, 5, 8], [1, 10, 8, 10, 8, 9, 8, 2, 9, 7, 10, 9], [9, 10, 9, 8, 4, 8, 1, 8, 3, 9, 9, 4]])
+w[2] = np.array([4, 3, 7, 4, 6, 6, 4, 8, 6, 6, 1, 6])
+model.get_layer('LST8167').set_weights(w) 
+in0Ave65058 = tf.constant([[[[[0.1543], [0.4842]]], [[[0.3014], [0.9782]]]]])
+in1Ave65058 = tf.constant([[[[[0.521], [0.5368]]], [[[0.9718], [0.8962]]]]])
+in0Min19467 = tf.constant([[[[[0.7377], [0.7079]]]]])
+in1Min19467 = tf.constant([[[[[0.2336], [0.9916]]]]])
+in0Fla37908 = tf.constant([[1.5487]])
+in0Con57568 = tf.constant([[0.2222]])
+print (np.array2string(model.predict([in0Ave65058,in1Ave65058,in0Min19467,in1Min19467,in0Fla37908,in0Con57568],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro50240.png')
+
+LAve65058 = average_layer([[[[[[0.1543], [0.4842]]], [[[0.3014], [0.9782]]]]], [[[[[0.521], [0.5368]]], [[[0.9718], [0.8962]]]]]], Ave65058), 
+LMin19467 = minimum_layer([[[[[[0.7377], [0.7079]]]]], [[[[[0.2336], [0.9916]]]]]], Min19467), 
+LZer26928 = zero_padding3D_layer(Min19467, 1, 0, 0, 0, 0, 0, Zer26928), 
+LAve63605 = average_layer([Ave65058,Zer26928], Ave63605), 
+LRes67378 = reshape_layer(Ave63605, [2, 1, 2], Res67378), 
+LRes75999 = reshape_layer(Res67378, [2, 2], Res75999), 
+LFla6746 = flatten_layer(Res75999, Fla6746), 
+LFla37908 = flatten_layer([[1.5487]], Fla37908), 
+LRes34983 = reshape_layer(Fla37908, [1, 1], Res34983), 
+LLST8167 = lstm_layer(Res34983,[[1, 7, 1, 3, 1, 1, 7, 6, 8, 10, 7, 7]],[[1, 7, 3, 5, 2, 7, 6, 8, 10, 5, 5, 8], [1, 10, 8, 10, 8, 9, 8, 2, 9, 7, 10, 9], [9, 10, 9, 8, 4, 8, 1, 8, 3, 9, 9, 4]],[4, 3, 7, 4, 6, 6, 4, 8, 6, 6, 1, 6], LST8167), 
+LCon57568 = concatenate_layer([LST8167,[[0.2222]]], 1, Con57568), 
+LAdd77679 = add_layer([Fla6746,Con57568], Add77679), 
+LLay7199 = layer_normalization_layer(Add77679, 1, 1.6358417750656586, Lay7199), 
+LRes69645 = reshape_layer(Lay7199, [4, 1], Res69645), 
+LRes45243 = reshape_layer(Res69645, [4, 1, 1], Res45243), 
+LCro50240 = cropping2D_layer(Res45243, 1, 2, 0, 0, Cro50240), 
+exec_layers([LAve65058,LMin19467,LZer26928,LAve63605,LRes67378,LRes75999,LFla6746,LFla37908,LRes34983,LLST8167,LCon57568,LAdd77679,LLay7199,LRes69645,LRes45243,LCro50240],["Ave65058","Min19467","Zer26928","Ave63605","Res67378","Res75999","Fla6746","Fla37908","Res34983","LST8167","Con57568","Add77679","Lay7199","Res69645","Res45243","Cro50240"],Cro50240,"Cro50240")
+
+Actual (Unparsed): [[[[-0.0233179]]]]
+
+Expected (Unparsed): [[[[-0.02331793596297143]]]]
+
+Actual:   [[[[-0.0233]]]]
+
+Expected: [[[[-0.0233]]]]

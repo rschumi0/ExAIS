@@ -1,0 +1,42 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max30772 = tf.keras.layers.Input(shape=([2, 1]))
+
+Max30772 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='valid', name = 'Max30772', )(in0Max30772)
+Res59508 = keras.layers.Reshape((2, 1, 1), name = 'Res59508', )(Max30772)
+Loc62078 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc62078', )(Res59508)
+Res59868 = keras.layers.Reshape((2, 4), name = 'Res59868', )(Loc62078)
+Sep90953 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep90953', )(Res59868)
+model = tf.keras.models.Model(inputs=[in0Max30772], outputs=Sep90953)
+w = model.get_layer('Loc62078').get_weights() 
+w[0] = np.array([[[0.9494, 0.4651, 0.0672, 0.1108]], [[0.7521, 0.6991, 0.967, 0.5137]]])
+w[1] = np.array([[[0, 0, 0, 0]], [[0, 0, 0, 0]]])
+model.get_layer('Loc62078').set_weights(w) 
+w = model.get_layer('Sep90953').get_weights() 
+w[0] = np.array([[[0.7642], [0.7423], [0.7107], [0.8657]]])
+w[1] = np.array([[[0.4204, 0.5723, 0.9827], [0.4307, 0.4059, 0.9173], [0.1144, 0.518, 0.3938], [0.9028, 0.3814, 0.7451]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep90953').set_weights(w) 
+in0Max30772 = tf.constant([[[1.9186], [1.4935]]])
+print (np.array2string(model.predict([in0Max30772],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep90953.png')
+
+LMax30772 = max_pool1D_layer([[[1.9186], [1.4935]]], 1, 1, false, Max30772), 
+LRes59508 = reshape_layer(Max30772, [2, 1, 1], Res59508), 
+LLoc62078 = locally_connected2D_layer(Res59508, 1, 1,[[[0.9494, 0.4651, 0.0672, 0.1108]], [[0.7521, 0.6991, 0.967, 0.5137]]],[[[0, 0, 0, 0]], [[0, 0, 0, 0]]], 1, 1, Loc62078), 
+LRes59868 = reshape_layer(Loc62078, [2, 4], Res59868), 
+LSep90953 = separable_conv1D_layer(Res59868, 1,[[[[0.7642], [0.7423], [0.7107], [0.8657]]],[[[0.4204, 0.5723, 0.9827], [0.4307, 0.4059, 0.9173], [0.1144, 0.518, 0.3938], [0.9028, 0.3814, 0.7451]]]],[0, 0, 0], 1, false, Sep90953), 
+exec_layers([LMax30772,LRes59508,LLoc62078,LRes59868,LSep90953],["Max30772","Res59508","Loc62078","Res59868","Sep90953"],Sep90953,"Sep90953")
+
+Actual (Unparsed): [[[1.0471138, 1.1831603, 2.1487342], [1.4117167, 1.5908419, 2.4535641]]]
+
+Expected (Unparsed): [[[1.0471137879519343,1.183160327318319,2.1487342147771136],[1.4117167318402588,1.5908419023684064,2.4535640828996668]]]
+
+Actual:   [[[1.0472, 1.1832, 2.1488], [1.4118, 1.5909, 2.4536]]]
+
+Expected: [[[1.0472, 1.1832, 2.1488], [1.4118, 1.5909, 2.4536]]]

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot45426 = tf.keras.layers.Input(shape=([3]))
+in1Dot45426 = tf.keras.layers.Input(shape=([3]))
+in0Con22539 = tf.keras.layers.Input(shape=([1, 1]))
+in0Min93149 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min93149 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dot45426 = keras.layers.Dot(axes=(1, 1), name = 'Dot45426', )([in0Dot45426,in1Dot45426])
+Res5151 = keras.layers.Reshape((1, 1), name = 'Res5151', )(Dot45426)
+Con22539 = keras.layers.Concatenate(axis=2, name = 'Con22539', )([Res5151,in0Con22539])
+Min93149 = keras.layers.Minimum(name = 'Min93149', )([in0Min93149,in1Min93149])
+Mul24353 = keras.layers.Multiply(name = 'Mul24353', )([Con22539,Min93149])
+Res28731 = keras.layers.Reshape((1, 2, 1), name = 'Res28731', )(Mul24353)
+Glo19028 = keras.layers.GlobalMaxPool2D(name = 'Glo19028', )(Res28731)
+Res17165 = keras.layers.Reshape((1, 1), name = 'Res17165', )(Glo19028)
+Sim20791 = keras.layers.SimpleRNN(2,name = 'Sim20791', )(Res17165)
+model = tf.keras.models.Model(inputs=[in0Dot45426,in1Dot45426,in0Con22539,in0Min93149,in1Min93149], outputs=Sim20791)
+w = model.get_layer('Sim20791').get_weights() 
+w[0] = np.array([[10, 1]])
+w[1] = np.array([[9, 7], [10, 1]])
+w[2] = np.array([5, 7])
+model.get_layer('Sim20791').set_weights(w) 
+in0Dot45426 = tf.constant([[0.6783, 0.5457, 0.3222]])
+in1Dot45426 = tf.constant([[0.4779, 0.1375, 0.6671]])
+in0Con22539 = tf.constant([[[0.7366]]])
+in0Min93149 = tf.constant([[[0.0313, 0.5197]]])
+in1Min93149 = tf.constant([[[0.906, 0.5024]]])
+print (np.array2string(model.predict([in0Dot45426,in1Dot45426,in0Con22539,in0Min93149,in1Min93149],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim20791.png')
+
+LDot45426 = dot_layer([[0.6783, 0.5457, 0.3222]], [[0.4779, 0.1375, 0.6671]], 1, 1, Dot45426), 
+LRes5151 = reshape_layer(Dot45426, [1, 1], Res5151), 
+LCon22539 = concatenate_layer([Res5151,[[[0.7366]]]], 2, Con22539), 
+LMin93149 = minimum_layer([[[[0.0313, 0.5197]]], [[[0.906, 0.5024]]]], Min93149), 
+LMul24353 = multiply_layer([Con22539,Min93149], Mul24353), 
+LRes28731 = reshape_layer(Mul24353, [1, 2, 1], Res28731), 
+LGlo19028 = global_max_pool2D_layer(Res28731, Glo19028), 
+LRes17165 = reshape_layer(Glo19028, [1, 1], Res17165), 
+LSim20791 = simple_rnn_layer(Res17165,[[10, 1]],[[9, 7], [10, 1]],[5, 7], Sim20791), 
+exec_layers([LDot45426,LRes5151,LCon22539,LMin93149,LMul24353,LRes28731,LGlo19028,LRes17165,LSim20791],["Dot45426","Res5151","Con22539","Min93149","Mul24353","Res28731","Glo19028","Res17165","Sim20791"],Sim20791,"Sim20791")
+
+Actual (Unparsed): [[0.9999999, 0.9999992]]
+
+Expected (Unparsed): [[0.9999999445735903,0.9999992066401191]]
+
+Actual:   [[1, 1]]
+
+Expected: [[1, 1]]

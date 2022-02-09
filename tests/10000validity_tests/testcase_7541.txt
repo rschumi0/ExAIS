@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo1456 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con34125 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Ave1546 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Ave1546 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+
+Glo1456 = keras.layers.GlobalAveragePooling3D(name = 'Glo1456', )(in0Glo1456)
+Res4801 = keras.layers.Reshape((1, 1), name = 'Res4801', )(Glo1456)
+Res17461 = keras.layers.Reshape((1, 1, 1), name = 'Res17461', )(Res4801)
+Res44231 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res44231', )(Res17461)
+Glo5342 = keras.layers.GlobalMaxPool3D(name = 'Glo5342', )(Res44231)
+Res13209 = keras.layers.Reshape((1, 1), name = 'Res13209', )(Glo5342)
+Res82342 = keras.layers.Reshape((1, 1, 1), name = 'Res82342', )(Res13209)
+Res44763 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res44763', )(Res82342)
+Zer89887 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer89887', )(Res44763)
+Con34125 = keras.layers.Concatenate(axis=4, name = 'Con34125', )([Zer89887,in0Con34125])
+Ave1546 = keras.layers.Average(name = 'Ave1546', )([in0Ave1546,in1Ave1546])
+Sub27947 = keras.layers.Subtract(name = 'Sub27947', )([Con34125,Ave1546])
+model = tf.keras.models.Model(inputs=[in0Glo1456,in0Con34125,in0Ave1546,in1Ave1546], outputs=Sub27947)
+in0Glo1456 = tf.constant([[[[[1.718], [1.0091]], [[1.2793], [1.3871]]]]])
+in0Con34125 = tf.constant([[[[[0.8013]], [[0.3441]]], [[[0.2114]], [[0.5639]]]]])
+in0Ave1546 = tf.constant([[[[[0.3049, 0.0071]], [[0.4688, 0.6922]]], [[[0.3675, 0.1641]], [[0.5688, 0.5682]]]]])
+in1Ave1546 = tf.constant([[[[[0.6975, 0.5798]], [[0.0921, 0.1177]]], [[[0.3386, 0.8493]], [[0.7706, 0.7616]]]]])
+print (np.array2string(model.predict([in0Glo1456,in0Con34125,in0Ave1546,in1Ave1546],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub27947.png')
+
+LGlo1456 = global_average_pooling3D_layer([[[[[1.718], [1.0091]], [[1.2793], [1.3871]]]]], Glo1456), 
+LRes4801 = reshape_layer(Glo1456, [1, 1], Res4801), 
+LRes17461 = reshape_layer(Res4801, [1, 1, 1], Res17461), 
+LRes44231 = reshape_layer(Res17461, [1, 1, 1, 1], Res44231), 
+LGlo5342 = global_max_pool3D_layer(Res44231, Glo5342), 
+LRes13209 = reshape_layer(Glo5342, [1, 1], Res13209), 
+LRes82342 = reshape_layer(Res13209, [1, 1, 1], Res82342), 
+LRes44763 = reshape_layer(Res82342, [1, 1, 1, 1], Res44763), 
+LZer89887 = zero_padding3D_layer(Res44763, 1, 0, 1, 0, 0, 0, Zer89887), 
+LCon34125 = concatenate_layer([Zer89887,[[[[[0.8013]], [[0.3441]]], [[[0.2114]], [[0.5639]]]]]], 4, Con34125), 
+LAve1546 = average_layer([[[[[[0.3049, 0.0071]], [[0.4688, 0.6922]]], [[[0.3675, 0.1641]], [[0.5688, 0.5682]]]]], [[[[[0.6975, 0.5798]], [[0.0921, 0.1177]]], [[[0.3386, 0.8493]], [[0.7706, 0.7616]]]]]], Ave1546), 
+LSub27947 = subtract_layer(Con34125,Ave1546, Sub27947), 
+exec_layers([LGlo1456,LRes4801,LRes17461,LRes44231,LGlo5342,LRes13209,LRes82342,LRes44763,LZer89887,LCon34125,LAve1546,LSub27947],["Glo1456","Res4801","Res17461","Res44231","Glo5342","Res13209","Res82342","Res44763","Zer89887","Con34125","Ave1546","Sub27947"],Sub27947,"Sub27947")
+
+Actual (Unparsed): [[[[[-0.5012000, 0.5078500]], [[-0.2804500, -0.0608500]]], [[[-0.3530500, -0.2953000]], [[0.6786750, -0.1010000]]]]]
+
+Expected (Unparsed): [[[[[-0.5012,0.50785]],[[-0.28045,-0.060850000000000015]]],[[[-0.35305,-0.2953]],[[0.6786750000000001,-0.10100000000000009]]]]]
+
+Actual:   [[[[[-0.5012, 0.5079]], [[-0.2804, -0.0608]]], [[[-0.353, -0.2953]], [[0.6787, -0.101]]]]]
+
+Expected: [[[[[-0.5012, 0.5079]], [[-0.2804, -0.0608]]], [[[-0.353, -0.2953]], [[0.6787, -0.101]]]]]

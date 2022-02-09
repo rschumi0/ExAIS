@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc94210 = tf.keras.layers.Input(shape=([1, 1]))
+in0Ave97219 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Ave97219 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Zer29224 = tf.keras.layers.Input(shape=([3, 2, 1]))
+
+Loc94210 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc94210', )(in0Loc94210)
+Res24446 = keras.layers.Reshape((1, 2, 1), name = 'Res24446', )(Loc94210)
+Ave97219 = keras.layers.Average(name = 'Ave97219', )([in0Ave97219,in1Ave97219])
+Lay16995 = keras.layers.LayerNormalization(axis=1, epsilon=1.3340619987313884, name = 'Lay16995', )(Ave97219)
+Res52315 = keras.layers.Reshape((1, 2, 1), name = 'Res52315', )(Lay16995)
+Ave56045 = keras.layers.Average(name = 'Ave56045', )([Res24446,Res52315])
+Zer34272 = keras.layers.ZeroPadding2D(padding=((4, 0), (2, 0)), name = 'Zer34272', )(Ave56045)
+Zer29224 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer29224', )(in0Zer29224)
+Max13432 = keras.layers.Maximum(name = 'Max13432', )([Zer34272,Zer29224])
+model = tf.keras.models.Model(inputs=[in0Loc94210,in0Ave97219,in1Ave97219,in0Zer29224], outputs=Max13432)
+w = model.get_layer('Loc94210').get_weights() 
+w[0] = np.array([[[0.574, 0.529]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc94210').set_weights(w) 
+in0Loc94210 = tf.constant([[[0.2413]]])
+in0Ave97219 = tf.constant([[[[[0.7246, 0.6229]]]]])
+in1Ave97219 = tf.constant([[[[[0.4581, 0.7757]]]]])
+in0Zer29224 = tf.constant([[[[1.1338], [1.0792]], [[1.9253], [1.4286]], [[1.681], [1.4909]]]])
+print (np.array2string(model.predict([in0Loc94210,in0Ave97219,in1Ave97219,in0Zer29224],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max13432.png')
+
+LLoc94210 = locally_connected1D_layer([[[0.2413]]], 1,[[[0.574, 0.529]]],[[0, 0]], 1, Loc94210), 
+LRes24446 = reshape_layer(Loc94210, [1, 2, 1], Res24446), 
+LAve97219 = average_layer([[[[[[0.7246, 0.6229]]]]], [[[[[0.4581, 0.7757]]]]]], Ave97219), 
+LLay16995 = layer_normalization_layer(Ave97219, 1, 1.3340619987313884, Lay16995), 
+LRes52315 = reshape_layer(Lay16995, [1, 2, 1], Res52315), 
+LAve56045 = average_layer([Res24446,Res52315], Ave56045), 
+LZer34272 = zero_padding2D_layer(Ave56045, 4, 0, 2, 0, Zer34272), 
+LZer29224 = zero_padding2D_layer([[[[1.1338], [1.0792]], [[1.9253], [1.4286]], [[1.681], [1.4909]]]], 1, 1, 1, 1, Zer29224), 
+LMax13432 = maximum_layer([Zer34272,Zer29224], Max13432), 
+exec_layers([LLoc94210,LRes24446,LAve97219,LLay16995,LRes52315,LAve56045,LZer34272,LZer29224,LMax13432],["Loc94210","Res24446","Ave97219","Lay16995","Res52315","Ave56045","Zer34272","Zer29224","Max13432"],Max13432,"Max13432")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [1.1338000], [1.0792000], [0.0000000]], [[0.0000000], [1.9253000], [1.4286000], [0.0000000]], [[0.0000000], [1.6810000], [1.4909000], [0.0000000]], [[0.0000000], [0.0000000], [0.0692531], [0.0638239]]]]
+
+Expected (Unparsed): [[[[0],[0],[0],[0]],[[0],[1.1338],[1.0792],[0]],[[0],[1.9253],[1.4286],[0]],[[0],[1.681],[1.4909],[0]],[[0],[0],[0.06925309999999998],[0.06382385]]]]
+
+Actual:   [[[[0], [0], [0], [0]], [[0], [1.1338], [1.0792], [0]], [[0], [1.9253], [1.4286], [0]], [[0], [1.681], [1.4909], [0]], [[0], [0], [0.0693], [0.0639]]]]
+
+Expected: [[[[0], [0], [0], [0]], [[0], [1.1338], [1.0792], [0]], [[0], [1.9253], [1.4286], [0]], [[0], [1.681], [1.4909], [0]], [[0], [0], [0.0693], [0.0639]]]]

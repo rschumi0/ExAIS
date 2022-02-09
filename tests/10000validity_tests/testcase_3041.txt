@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo35154 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con76147 = tf.keras.layers.Input(shape=([2, 3, 1]))
+in0Mul66548 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in1Mul66548 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Glo35154 = keras.layers.GlobalAveragePooling1D(name = 'Glo35154', )(in0Glo35154)
+Res81293 = keras.layers.Reshape((2, 1), name = 'Res81293', )(Glo35154)
+Res4336 = keras.layers.Reshape((2, 1, 1), name = 'Res4336', )(Res81293)
+Zer92351 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer92351', )(Res4336)
+Con76147 = keras.layers.Concatenate(axis=3, name = 'Con76147', )([Zer92351,in0Con76147])
+Mul66548 = keras.layers.Multiply(name = 'Mul66548', )([in0Mul66548,in1Mul66548])
+ReL32254 = keras.layers.ReLU(max_value=5.1599086818987985, negative_slope=3.8190333182085174, threshold=1.1608326715579709, name = 'ReL32254', )(Mul66548)
+Res11589 = keras.layers.Reshape((2, 2, 1), name = 'Res11589', )(ReL32254)
+Con57259 = keras.layers.Conv2D(2, (2, 1),strides=(8, 1), padding='same', dilation_rate=(1, 1), name = 'Con57259', )(Res11589)
+Zer53176 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer53176', )(Con57259)
+Ave74964 = keras.layers.Average(name = 'Ave74964', )([Con76147,Zer53176])
+model = tf.keras.models.Model(inputs=[in0Glo35154,in0Con76147,in0Mul66548,in1Mul66548], outputs=Ave74964)
+w = model.get_layer('Con57259').get_weights() 
+w[0] = np.array([[[[0.0778, 0.8601]]], [[[0.4403, 0.3826]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con57259').set_weights(w) 
+in0Glo35154 = tf.constant([[[1.505, 1.4394], [1.1066, 1.2249]]])
+in0Con76147 = tf.constant([[[[0.5744], [0.9581], [0.2686]], [[0.0689], [0.0622], [0.1186]]]])
+in0Mul66548 = tf.constant([[[[[0.3981]], [[0.263]]], [[[0.2125]], [[0.3091]]]]])
+in1Mul66548 = tf.constant([[[[[0.5576]], [[0.0663]]], [[[0.5427]], [[0.8414]]]]])
+print (np.array2string(model.predict([in0Glo35154,in0Con76147,in0Mul66548,in1Mul66548],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave74964.png')
+
+LGlo35154 = global_average_pooling1D_layer([[[1.505, 1.4394], [1.1066, 1.2249]]], Glo35154), 
+LRes81293 = reshape_layer(Glo35154, [2, 1], Res81293), 
+LRes4336 = reshape_layer(Res81293, [2, 1, 1], Res4336), 
+LZer92351 = zero_padding2D_layer(Res4336, 0, 0, 2, 0, Zer92351), 
+LCon76147 = concatenate_layer([Zer92351,[[[[0.5744], [0.9581], [0.2686]], [[0.0689], [0.0622], [0.1186]]]]], 3, Con76147), 
+LMul66548 = multiply_layer([[[[[[0.3981]], [[0.263]]], [[[0.2125]], [[0.3091]]]]], [[[[[0.5576]], [[0.0663]]], [[[0.5427]], [[0.8414]]]]]], Mul66548), 
+LReL32254 = relu_layer(Mul66548, 5.1599086818987985, 3.8190333182085174, 1.1608326715579709, ReL32254), 
+LRes11589 = reshape_layer(ReL32254, [2, 2, 1], Res11589), 
+LCon57259 = conv2D_layer(Res11589, 2, 1,[[[[0.0778, 0.8601]]], [[[0.4403, 0.3826]]]],[0, 0], 8, 1, true, 1, 1, Con57259), 
+LZer53176 = zero_padding2D_layer(Con57259, 1, 0, 1, 0, Zer53176), 
+LAve74964 = average_layer([Con76147,Zer53176], Ave74964), 
+exec_layers([LGlo35154,LRes81293,LRes4336,LZer92351,LCon76147,LMul66548,LReL32254,LRes11589,LCon57259,LZer53176,LAve74964],["Glo35154","Res81293","Res4336","Zer92351","Con76147","Mul66548","ReL32254","Res11589","Con57259","Zer53176","Ave74964"],Ave74964,"Ave74964")
+
+Actual (Unparsed): [[[[0.0000000, 0.2872000], [0.0000000, 0.4790500], [0.6529000, 0.1343000]], [[0.0000000, 0.0344500], [-1.0184985, -2.2746765], [-0.2611081, -2.4766602]]]]
+
+Expected (Unparsed): [[[[0,0.2872],[0,0.47905],[0.6529,0.1343]],[[0,0.03445],[-1.0184985158640103,-2.2746765287375554],[-0.2611080523566929,-2.476660184428465]]]]
+
+Actual:   [[[[0, 0.2872], [0, 0.4791], [0.6529, 0.1343]], [[0, 0.0345], [-1.0184, -2.2746], [-0.2611, -2.4766]]]]
+
+Expected: [[[[0, 0.2872], [0, 0.4791], [0.6529, 0.1343]], [[0, 0.0345], [-1.0184, -2.2746], [-0.2611, -2.4766]]]]

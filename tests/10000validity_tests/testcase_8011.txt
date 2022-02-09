@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per47330 = tf.keras.layers.Input(shape=([1, 1]))
+in0Dot16019 = tf.keras.layers.Input(shape=([2]))
+in1Dot16019 = tf.keras.layers.Input(shape=([2]))
+in0Con66321 = tf.keras.layers.Input(shape=([1]))
+in0Loc27903 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Per47330 = keras.layers.Permute((1,2), name = 'Per47330',)(in0Per47330)
+Fla68447 = keras.layers.Flatten(name = 'Fla68447', )(Per47330)
+Dot16019 = keras.layers.Dot(axes=(1, 1), name = 'Dot16019', )([in0Dot16019,in1Dot16019])
+Min58762 = keras.layers.Minimum(name = 'Min58762', )([Fla68447,Dot16019])
+Con66321 = keras.layers.Concatenate(axis=1, name = 'Con66321', )([Min58762,in0Con66321])
+Loc27903 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(10, 3), name = 'Loc27903', )(in0Loc27903)
+Res4572 = keras.layers.Reshape((1, 4), name = 'Res4572', )(Loc27903)
+Sim6005 = keras.layers.SimpleRNN(2,name = 'Sim6005', )(Res4572)
+Max54727 = keras.layers.Maximum(name = 'Max54727', )([Con66321,Sim6005])
+model = tf.keras.models.Model(inputs=[in0Per47330,in0Dot16019,in1Dot16019,in0Con66321,in0Loc27903], outputs=Max54727)
+w = model.get_layer('Loc27903').get_weights() 
+w[0] = np.array([[[0.7662, 0.9222, 0.6207, 0.5535]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc27903').set_weights(w) 
+w = model.get_layer('Sim6005').get_weights() 
+w[0] = np.array([[9, 2], [2, 3], [1, 6], [6, 2]])
+w[1] = np.array([[1, 3], [3, 9]])
+w[2] = np.array([1, 3])
+model.get_layer('Sim6005').set_weights(w) 
+in0Per47330 = tf.constant([[[1.861]]])
+in0Dot16019 = tf.constant([[0.3729, 0.0327]])
+in1Dot16019 = tf.constant([[0.4679, 0.6592]])
+in0Con66321 = tf.constant([[0.5028]])
+in0Loc27903 = tf.constant([[[[0.4054]], [[0.8722]]]])
+print (np.array2string(model.predict([in0Per47330,in0Dot16019,in1Dot16019,in0Con66321,in0Loc27903],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max54727.png')
+
+LPer47330 = permute_layer([[[1.861]]], 1,2, Per47330), 
+LFla68447 = flatten_layer(Per47330, Fla68447), 
+LDot16019 = dot_layer([[0.3729, 0.0327]], [[0.4679, 0.6592]], 1, 1, Dot16019), 
+LMin58762 = minimum_layer([Fla68447,Dot16019], Min58762), 
+LCon66321 = concatenate_layer([Min58762,[[0.5028]]], 1, Con66321), 
+LLoc27903 = locally_connected2D_layer([[[[0.4054]], [[0.8722]]]], 1, 1,[[[0.7662, 0.9222, 0.6207, 0.5535]]],[[[0, 0, 0, 0]]], 10, 3, Loc27903), 
+LRes4572 = reshape_layer(Loc27903, [1, 4], Res4572), 
+LSim6005 = simple_rnn_layer(Res4572,[[9, 2], [2, 3], [1, 6], [6, 2]],[[1, 3], [3, 9]],[1, 3], Sim6005), 
+LMax54727 = maximum_layer([Con66321,Sim6005], Max54727), 
+exec_layers([LPer47330,LFla68447,LDot16019,LMin58762,LCon66321,LLoc27903,LRes4572,LSim6005,LMax54727],["Per47330","Fla68447","Dot16019","Min58762","Con66321","Loc27903","Res4572","Sim6005","Max54727"],Max54727,"Max54727")
+
+Actual (Unparsed): [[0.9999907, 0.9999970]]
+
+Expected (Unparsed): [[0.9999907356973816,0.9999969780870211]]
+
+Actual:   [[1, 1]]
+
+Expected: [[1, 1]]

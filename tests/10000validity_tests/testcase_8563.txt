@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr22521 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Max35110 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max35110 = tf.keras.layers.Input(shape=([2, 1]))
+
+Thr22521 = keras.layers.ThresholdedReLU(theta=0.4902522912145953, name = 'Thr22521', input_shape=(1, 1, 1))(in0Thr22521)
+Ave80304 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave80304', )(Thr22521)
+Res44304 = keras.layers.Reshape((1, 1), name = 'Res44304', )(Ave80304)
+Zer37521 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer37521', )(Res44304)
+Max35110 = keras.layers.Maximum(name = 'Max35110', )([in0Max35110,in1Max35110])
+Dot55168 = keras.layers.Dot(axes=(1, 1), name = 'Dot55168', )([Zer37521,Max35110])
+Bat51853 = keras.layers.BatchNormalization(axis=2, epsilon=0.6864399922934344,  name = 'Bat51853', )(Dot55168)
+Loc50391 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc50391', )(Bat51853)
+model = tf.keras.models.Model(inputs=[in0Thr22521,in0Max35110,in1Max35110], outputs=Loc50391)
+w = model.get_layer('Bat51853').get_weights() 
+w[0] = np.array([0.1529])
+w[1] = np.array([0.6365])
+w[2] = np.array([0.4416])
+w[3] = np.array([0.1117])
+model.get_layer('Bat51853').set_weights(w) 
+w = model.get_layer('Loc50391').get_weights() 
+w[0] = np.array([[[0.9317, 0.1589, 0.3198]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc50391').set_weights(w) 
+in0Thr22521 = tf.constant([[[[0.6008]]]])
+in0Max35110 = tf.constant([[[0.6686], [0.0487]]])
+in1Max35110 = tf.constant([[[0.848], [0.6003]]])
+print (np.array2string(model.predict([in0Thr22521,in0Max35110,in1Max35110],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc50391.png')
+
+LThr22521 = thresholded_relu_layer([[[[0.6008]]]], 0.4902522912145953, Thr22521), 
+LAve80304 = average_pooling2D_layer(Thr22521, 1, 1, Ave80304), 
+LRes44304 = reshape_layer(Ave80304, [1, 1], Res44304), 
+LZer37521 = zero_padding1D_layer(Res44304, 1, 0, Zer37521), 
+LMax35110 = maximum_layer([[[[0.6686], [0.0487]]], [[[0.848], [0.6003]]]], Max35110), 
+LDot55168 = dot_layer(Zer37521,Max35110, 1, 1, Dot55168), 
+LBat51853 = batch_normalization_layer(Dot55168, 2, 0.6864399922934344, [0.1529], [0.6365], [0.4416], [0.1117], Bat51853), 
+LLoc50391 = locally_connected1D_layer(Bat51853, 1,[[[0.9317, 0.1589, 0.3198]]],[[0, 0, 0]], 1, Loc50391), 
+exec_layers([LThr22521,LAve80304,LRes44304,LZer37521,LMax35110,LDot55168,LBat51853,LLoc50391],["Thr22521","Ave80304","Res44304","Zer37521","Max35110","Dot55168","Bat51853","Loc50391"],Loc50391,"Loc50391")
+
+Actual (Unparsed): [[[0.5801206, 0.0989387, 0.1991227]]]
+
+Expected (Unparsed): [[[0.5801206251508867,0.09893867912039916,0.19912265313218155]]]
+
+Actual:   [[[0.5802, 0.099, 0.1992]]]
+
+Expected: [[[0.5802, 0.099, 0.1992]]]

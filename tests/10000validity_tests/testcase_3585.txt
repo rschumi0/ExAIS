@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro53460 = tf.keras.layers.Input(shape=([1, 2]))
+in0Add74530 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Add74530 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Cro53460 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro53460', )(in0Cro53460)
+LST70862 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST70862', )(Cro53460)
+Res5709 = keras.layers.Reshape((2, 1), name = 'Res5709', )(LST70862)
+Add74530 = keras.layers.Add(name = 'Add74530', )([in0Add74530,in1Add74530])
+Res64495 = keras.layers.Reshape((1, 1, 2), name = 'Res64495', )(Add74530)
+PRe95165 = keras.layers.PReLU(name = 'PRe95165', )(Res64495)
+Res65049 = keras.layers.Reshape((2, 1), name = 'Res65049', )(PRe95165)
+Sub39762 = keras.layers.Subtract(name = 'Sub39762', )([Res5709,Res65049])
+model = tf.keras.models.Model(inputs=[in0Cro53460,in0Add74530,in1Add74530], outputs=Sub39762)
+w = model.get_layer('LST70862').get_weights() 
+w[0] = np.array([[8, 5, 9, 2, 4, 4, 6, 1], [6, 2, 3, 3, 4, 6, 6, 2]])
+w[1] = np.array([[10, 6, 3, 6, 9, 7, 7, 6], [3, 10, 4, 5, 5, 5, 8, 6]])
+w[2] = np.array([4, 9, 2, 9, 8, 1, 4, 5])
+model.get_layer('LST70862').set_weights(w) 
+w = model.get_layer('PRe95165').get_weights() 
+w[0] = np.array([[[0.8825, 0.9385]]])
+model.get_layer('PRe95165').set_weights(w) 
+in0Cro53460 = tf.constant([[[1.0653, 1.0999]]])
+in0Add74530 = tf.constant([[[[[0.6585, 0.1211]]]]])
+in1Add74530 = tf.constant([[[[[0.2827, 0.9483]]]]])
+print (np.array2string(model.predict([in0Cro53460,in0Add74530,in1Add74530],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub39762.png')
+
+LCro53460 = cropping1D_layer([[[1.0653, 1.0999]]], 0, 0, Cro53460), 
+LLST70862 = lstm_layer(Cro53460,[[8, 5, 9, 2, 4, 4, 6, 1], [6, 2, 3, 3, 4, 6, 6, 2]],[[10, 6, 3, 6, 9, 7, 7, 6], [3, 10, 4, 5, 5, 5, 8, 6]],[4, 9, 2, 9, 8, 1, 4, 5], LST70862), 
+LRes5709 = reshape_layer(LST70862, [2, 1], Res5709), 
+LAdd74530 = add_layer([[[[[[0.6585, 0.1211]]]]], [[[[[0.2827, 0.9483]]]]]], Add74530), 
+LRes64495 = reshape_layer(Add74530, [1, 1, 2], Res64495), 
+LPRe95165 = prelu_layer(Res64495, [[[0.8825, 0.9385]]], PRe95165), 
+LRes65049 = reshape_layer(PRe95165, [2, 1], Res65049), 
+LSub39762 = subtract_layer(Res5709,Res65049, Sub39762), 
+exec_layers([LCro53460,LLST70862,LRes5709,LAdd74530,LRes64495,LPRe95165,LRes65049,LSub39762],["Cro53460","LST70862","Res5709","Add74530","Res64495","PRe95165","Res65049","Sub39762"],Sub39762,"Sub39762")
+
+Actual (Unparsed): [[[-0.1796059], [-0.3080018]]]
+
+Expected (Unparsed): [[[-0.17960587793564253],[-0.3080018126451043]]]
+
+Actual:   [[[-0.1796], [-0.308]]]
+
+Expected: [[[-0.1796], [-0.308]]]

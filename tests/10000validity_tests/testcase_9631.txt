@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo45621 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sep63041 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min92199 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min92199 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con57095 = tf.keras.layers.Input(shape=([2, 1]))
+
+Glo45621 = keras.layers.GlobalMaxPool1D(name = 'Glo45621', )(in0Glo45621)
+Res82955 = keras.layers.Reshape((2, 1), name = 'Res82955', )(Glo45621)
+Res18906 = keras.layers.Reshape((2, 1, 1), name = 'Res18906', )(Res82955)
+Con60095 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con60095', )(Res18906)
+Sep63041 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep63041', )(in0Sep63041)
+Zer93348 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer93348', )(Sep63041)
+Sub35665 = keras.layers.Subtract(name = 'Sub35665', )([Con60095,Zer93348])
+Res82217 = keras.layers.Reshape((2, 2), name = 'Res82217', )(Sub35665)
+Min92199 = keras.layers.Minimum(name = 'Min92199', )([in0Min92199,in1Min92199])
+Zer34176 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer34176', )(Min92199)
+Con57095 = keras.layers.Concatenate(axis=2, name = 'Con57095', )([Zer34176,in0Con57095])
+Min82806 = keras.layers.Minimum(name = 'Min82806', )([Res82217,Con57095])
+model = tf.keras.models.Model(inputs=[in0Glo45621,in0Sep63041,in0Min92199,in1Min92199,in0Con57095], outputs=Min82806)
+w = model.get_layer('Con60095').get_weights() 
+w[0] = np.array([[[[0.8238, 0.2349]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con60095').set_weights(w) 
+w = model.get_layer('Sep63041').get_weights() 
+w[0] = np.array([[[[0.542], [0.5269]]]])
+w[1] = np.array([[[[0.7865, 0.9704], [0.9961, 0.3299]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep63041').set_weights(w) 
+in0Glo45621 = tf.constant([[[1.4172, 1.351], [1.4141, 1.1718]]])
+in0Sep63041 = tf.constant([[[[0.2225, 0.86]]]])
+in0Min92199 = tf.constant([[[0.5933]]])
+in1Min92199 = tf.constant([[[0.6826]]])
+in0Con57095 = tf.constant([[[0.7229], [0.9965]]])
+print (np.array2string(model.predict([in0Glo45621,in0Sep63041,in0Min92199,in1Min92199,in0Con57095],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min82806.png')
+
+LGlo45621 = global_max_pool1D_layer([[[1.4172, 1.351], [1.4141, 1.1718]]], Glo45621), 
+LRes82955 = reshape_layer(Glo45621, [2, 1], Res82955), 
+LRes18906 = reshape_layer(Res82955, [2, 1, 1], Res18906), 
+LCon60095 = conv2D_layer(Res18906, 1, 1,[[[[0.8238, 0.2349]]]],[0, 0], 1, 1, true, 1, 1, Con60095), 
+LSep63041 = separable_conv2D_layer([[[[0.2225, 0.86]]]], 1, 1,[[[[[0.542], [0.5269]]]],[[[[0.7865, 0.9704], [0.9961, 0.3299]]]]],[0, 0], 1, 1, true, Sep63041), 
+LZer93348 = zero_padding2D_layer(Sep63041, 1, 0, 0, 0, Zer93348), 
+LSub35665 = subtract_layer(Con60095,Zer93348, Sub35665), 
+LRes82217 = reshape_layer(Sub35665, [2, 2], Res82217), 
+LMin92199 = minimum_layer([[[[0.5933]]], [[[0.6826]]]], Min92199), 
+LZer34176 = zero_padding1D_layer(Min92199, 1, 0, Zer34176), 
+LCon57095 = concatenate_layer([Zer34176,[[[0.7229], [0.9965]]]], 2, Con57095), 
+LMin82806 = minimum_layer([Res82217,Con57095], Min82806), 
+exec_layers([LGlo45621,LRes82955,LRes18906,LCon60095,LSep63041,LZer93348,LSub35665,LRes82217,LMin92199,LZer34176,LCon57095,LMin82806],["Glo45621","Res82955","Res18906","Con60095","Sep63041","Zer93348","Sub35665","Res82217","Min92199","Zer34176","Con57095","Min82806"],Min82806,"Min82806")
+
+Actual (Unparsed): [[[0.0000000, 0.3329003], [0.5667390, 0.0508356]]]
+
+Expected (Unparsed): [[[0,0.33290028],[0.5667390550999999,0.050835605399999984]]]
+
+Actual:   [[[0, 0.333], [0.5668, 0.0509]]]
+
+Expected: [[[0, 0.333], [0.5668, 0.0509]]]

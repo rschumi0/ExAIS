@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con19843 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Dep28459 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con11357 = tf.keras.layers.Input(shape=([4, 1, 2]))
+
+Con19843 = keras.layers.Conv3D(4, (1, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con19843', )(in0Con19843)
+Res22519 = keras.layers.Reshape((2, 1, 4), name = 'Res22519', )(Con19843)
+Zer8872 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer8872', )(Res22519)
+Dep28459 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep28459', )(in0Dep28459)
+Up_13779 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_13779', )(Dep28459)
+Con11357 = keras.layers.Concatenate(axis=3, name = 'Con11357', )([Up_13779,in0Con11357])
+Min2658 = keras.layers.Minimum(name = 'Min2658', )([Zer8872,Con11357])
+model = tf.keras.models.Model(inputs=[in0Con19843,in0Dep28459,in0Con11357], outputs=Min2658)
+w = model.get_layer('Con19843').get_weights() 
+w[0] = np.array([[[[[0.9843, 0.6854, 0.8753, 0.2176]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con19843').set_weights(w) 
+w = model.get_layer('Dep28459').get_weights() 
+w[0] = np.array([[[[0.61], [0.1566]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep28459').set_weights(w) 
+in0Con19843 = tf.constant([[[[[0.9273]]], [[[0.464]]]]])
+in0Dep28459 = tf.constant([[[[0.1354, 0.8172]], [[0.8662, 0.6809]]]])
+in0Con11357 = tf.constant([[[[0.1239, 0.9546]], [[0.3797, 0.9067]], [[0.5346, 0.5715]], [[0.4503, 0.2173]]]])
+print (np.array2string(model.predict([in0Con19843,in0Dep28459,in0Con11357],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min2658.png')
+
+LCon19843 = conv3D_layer([[[[[0.9273]]], [[[0.464]]]]], 1, 1, 1,[[[[[0.9843, 0.6854, 0.8753, 0.2176]]]]],[0, 0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con19843), 
+LRes22519 = reshape_layer(Con19843, [2, 1, 4], Res22519), 
+LZer8872 = zero_padding2D_layer(Res22519, 2, 0, 0, 0, Zer8872), 
+LDep28459 = depthwise_conv2D_layer([[[[0.1354, 0.8172]], [[0.8662, 0.6809]]]], 1, 1,[[[[0.61], [0.1566]]]],[0, 0], 1, 1, true, Dep28459), 
+LUp_13779 = up_sampling2D_layer(Dep28459, 2, 1, Up_13779), 
+LCon11357 = concatenate_layer([Up_13779,[[[[0.1239, 0.9546]], [[0.3797, 0.9067]], [[0.5346, 0.5715]], [[0.4503, 0.2173]]]]], 3, Con11357), 
+LMin2658 = minimum_layer([Zer8872,Con11357], Min2658), 
+exec_layers([LCon19843,LRes22519,LZer8872,LDep28459,LUp_13779,LCon11357,LMin2658],["Con19843","Res22519","Zer8872","Dep28459","Up_13779","Con11357","Min2658"],Min2658,"Min2658")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.5283820, 0.1066289, 0.5346000, 0.2017805]], [[0.4567152, 0.1066289, 0.4061392, 0.1009664]]]]
+
+Expected (Unparsed): [[[[0,0,0,0]],[[0,0,0,0]],[[0.528382,0.10662893999999999,0.5346,0.20178047999999998]],[[0.4567152,0.10662893999999999,0.4061392,0.1009664]]]]
+
+Actual:   [[[[0, 0, 0, 0]], [[0, 0, 0, 0]], [[0.5284, 0.1067, 0.5346, 0.2018]], [[0.4568, 0.1067, 0.4062, 0.101]]]]
+
+Expected: [[[[0, 0, 0, 0]], [[0, 0, 0, 0]], [[0.5284, 0.1067, 0.5346, 0.2018]], [[0.4568, 0.1067, 0.4062, 0.101]]]]

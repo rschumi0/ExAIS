@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep39524 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con70541 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Lea98584 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Dep39524 = keras.layers.DepthwiseConv2D((1, 1),strides=(2, 2), padding='same', name = 'Dep39524', )(in0Dep39524)
+Con70541 = keras.layers.Concatenate(axis=3, name = 'Con70541', )([Dep39524,in0Con70541])
+Lea98584 = keras.layers.LeakyReLU(alpha=3.4224546445216917, name = 'Lea98584', input_shape=(1, 1, 2, 2))(in0Lea98584)
+Res58360 = keras.layers.Reshape((1, 1, 4), name = 'Res58360', )(Lea98584)
+Res4187 = keras.layers.Reshape((1, 4), name = 'Res4187', )(Res58360)
+Sim11507 = keras.layers.SimpleRNN(1,name = 'Sim11507', )(Res4187)
+Res54820 = keras.layers.Reshape((1, 1), name = 'Res54820', )(Sim11507)
+Res83624 = keras.layers.Reshape((1, 1, 1), name = 'Res83624', )(Res54820)
+Con11891 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con11891', )(Res83624)
+Sub47109 = keras.layers.Subtract(name = 'Sub47109', )([Con70541,Con11891])
+model = tf.keras.models.Model(inputs=[in0Dep39524,in0Con70541,in0Lea98584], outputs=Sub47109)
+w = model.get_layer('Dep39524').get_weights() 
+w[0] = np.array([[[[0.6861], [0.0521]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep39524').set_weights(w) 
+w = model.get_layer('Sim11507').get_weights() 
+w[0] = np.array([[8], [8], [10], [7]])
+w[1] = np.array([[6]])
+w[2] = np.array([3])
+model.get_layer('Sim11507').set_weights(w) 
+w = model.get_layer('Con11891').get_weights() 
+w[0] = np.array([[[[0.5894, 0.7781, 0.201]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con11891').set_weights(w) 
+in0Dep39524 = tf.constant([[[[0.4621, 0.1797]], [[0.3514, 0.4146]]]])
+in0Con70541 = tf.constant([[[[0.9693]]]])
+in0Lea98584 = tf.constant([[[[[0.4475, 0.2219], [0.759, 0.5381]]]]])
+print (np.array2string(model.predict([in0Dep39524,in0Con70541,in0Lea98584],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub47109.png')
+
+LDep39524 = depthwise_conv2D_layer([[[[0.4621, 0.1797]], [[0.3514, 0.4146]]]], 1, 1,[[[[0.6861], [0.0521]]]],[0, 0], 2, 2, true, Dep39524), 
+LCon70541 = concatenate_layer([Dep39524,[[[[0.9693]]]]], 3, Con70541), 
+LLea98584 = leaky_relu_layer([[[[[0.4475, 0.2219], [0.759, 0.5381]]]]], 3.4224546445216917, Lea98584), 
+LRes58360 = reshape_layer(Lea98584, [1, 1, 4], Res58360), 
+LRes4187 = reshape_layer(Res58360, [1, 4], Res4187), 
+LSim11507 = simple_rnn_layer(Res4187,[[8], [8], [10], [7]],[[6]],[3], Sim11507), 
+LRes54820 = reshape_layer(Sim11507, [1, 1], Res54820), 
+LRes83624 = reshape_layer(Res54820, [1, 1, 1], Res83624), 
+LCon11891 = conv2D_layer(Res83624, 1, 1,[[[[0.5894, 0.7781, 0.201]]]],[0, 0, 0], 1, 1, false, 1, 1, Con11891), 
+LSub47109 = subtract_layer(Con70541,Con11891, Sub47109), 
+exec_layers([LDep39524,LCon70541,LLea98584,LRes58360,LRes4187,LSim11507,LRes54820,LRes83624,LCon11891,LSub47109],["Dep39524","Con70541","Lea98584","Res58360","Res4187","Sim11507","Res54820","Res83624","Con11891","Sub47109"],Sub47109,"Sub47109")
+
+Actual (Unparsed): [[[[-0.2723532, -0.7687376, 0.7683000]]]]
+
+Expected (Unparsed): [[[[-0.27235319,-0.7687376300000001,0.7683]]]]
+
+Actual:   [[[[-0.2723, -0.7687, 0.7683]]]]
+
+Expected: [[[[-0.2723, -0.7687, 0.7683]]]]

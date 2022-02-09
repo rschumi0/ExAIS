@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave89401 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave89401 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con15586 = tf.keras.layers.Input(shape=([3, 1]))
+in0Add13887 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add13887 = tf.keras.layers.Input(shape=([2, 2]))
+
+Ave89401 = keras.layers.Average(name = 'Ave89401', )([in0Ave89401,in1Ave89401])
+Lea64173 = keras.layers.LeakyReLU(alpha=7.01424685829648, name = 'Lea64173', )(Ave89401)
+Sim79294 = keras.layers.SimpleRNN(3,name = 'Sim79294', )(Lea64173)
+Res72393 = keras.layers.Reshape((3, 1), name = 'Res72393', )(Sim79294)
+Con15586 = keras.layers.Concatenate(axis=2, name = 'Con15586', )([Res72393,in0Con15586])
+Add13887 = keras.layers.Add(name = 'Add13887', )([in0Add13887,in1Add13887])
+Lea2378 = keras.layers.LeakyReLU(alpha=5.844925996128744, name = 'Lea2378', )(Add13887)
+Zer90397 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer90397', )(Lea2378)
+Mul69139 = keras.layers.Multiply(name = 'Mul69139', )([Con15586,Zer90397])
+model = tf.keras.models.Model(inputs=[in0Ave89401,in1Ave89401,in0Con15586,in0Add13887,in1Add13887], outputs=Mul69139)
+w = model.get_layer('Sim79294').get_weights() 
+w[0] = np.array([[5, 6, 5], [1, 4, 2]])
+w[1] = np.array([[9, 6, 10], [7, 10, 1], [7, 5, 7]])
+w[2] = np.array([7, 5, 7])
+model.get_layer('Sim79294').set_weights(w) 
+in0Ave89401 = tf.constant([[[0.8336, 0.7371], [0.6338, 0.485]]])
+in1Ave89401 = tf.constant([[[0.9962, 0.9831], [0.1962, 0.6496]]])
+in0Con15586 = tf.constant([[[0.1542], [0.0028], [0.0792]]])
+in0Add13887 = tf.constant([[[0.4434, 0.1455], [0.7846, 0.1125]]])
+in1Add13887 = tf.constant([[[0.8731, 0.5426], [0.7163, 0.5709]]])
+print (np.array2string(model.predict([in0Ave89401,in1Ave89401,in0Con15586,in0Add13887,in1Add13887],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul69139.png')
+
+LAve89401 = average_layer([[[[0.8336, 0.7371], [0.6338, 0.485]]], [[[0.9962, 0.9831], [0.1962, 0.6496]]]], Ave89401), 
+LLea64173 = leaky_relu_layer(Ave89401, 7.01424685829648, Lea64173), 
+LSim79294 = simple_rnn_layer(Lea64173,[[5, 6, 5], [1, 4, 2]],[[9, 6, 10], [7, 10, 1], [7, 5, 7]],[7, 5, 7], Sim79294), 
+LRes72393 = reshape_layer(Sim79294, [3, 1], Res72393), 
+LCon15586 = concatenate_layer([Res72393,[[[0.1542], [0.0028], [0.0792]]]], 2, Con15586), 
+LAdd13887 = add_layer([[[[0.4434, 0.1455], [0.7846, 0.1125]]], [[[0.8731, 0.5426], [0.7163, 0.5709]]]], Add13887), 
+LLea2378 = leaky_relu_layer(Add13887, 5.844925996128744, Lea2378), 
+LZer90397 = zero_padding1D_layer(Lea2378, 1, 0, Zer90397), 
+LMul69139 = multiply_layer([Con15586,Zer90397], Mul69139), 
+exec_layers([LAve89401,LLea64173,LSim79294,LRes72393,LCon15586,LAdd13887,LLea2378,LZer90397,LMul69139],["Ave89401","Lea64173","Sim79294","Res72393","Con15586","Add13887","Lea2378","Zer90397","Mul69139"],Mul69139,"Mul69139")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [1.3165000, 0.0019267], [1.5009000, 0.0541253]]]
+
+Expected (Unparsed): [[[0.0,0.0],[1.3165,0.0019266799999999998],[1.5009000000000001,0.054125280000000005]]]
+
+Actual:   [[[0, 0], [1.3165, 0.002], [1.5009, 0.0542]]]
+
+Expected: [[[0, 0], [1.3165, 0.002], [1.501, 0.0542]]]

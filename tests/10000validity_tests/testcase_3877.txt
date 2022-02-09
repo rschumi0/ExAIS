@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con90057 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Con53420 = tf.keras.layers.Input(shape=([2, 4]))
+in0Ave32845 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave32845 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Con90057 = keras.layers.Conv3D(4, (2, 1, 2),strides=(1, 1, 4), padding='same', dilation_rate=(1, 1, 1), name = 'Con90057', )(in0Con90057)
+Res96066 = keras.layers.Reshape((2, 2, 4), name = 'Res96066', )(Con90057)
+Res89761 = keras.layers.Reshape((2, 8), name = 'Res89761', )(Res96066)
+Con53420 = keras.layers.Concatenate(axis=2, name = 'Con53420', )([Res89761,in0Con53420])
+Ave32845 = keras.layers.Average(name = 'Ave32845', )([in0Ave32845,in1Ave32845])
+Res85009 = keras.layers.Reshape((2, 1, 2), name = 'Res85009', )(Ave32845)
+Res38242 = keras.layers.Reshape((2, 2), name = 'Res38242', )(Res85009)
+Con20132 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con20132', )(Res38242)
+Dot34690 = keras.layers.Dot(axes=(1, 1), name = 'Dot34690', )([Con53420,Con20132])
+Glo45190 = keras.layers.GlobalAveragePooling1D(name = 'Glo45190', )(Dot34690)
+model = tf.keras.models.Model(inputs=[in0Con90057,in0Con53420,in0Ave32845,in1Ave32845], outputs=Glo45190)
+w = model.get_layer('Con90057').get_weights() 
+w[0] = np.array([[[[[0.6231, 0.5183, 0.4698, 0.6325]], [[0.5958, 0.9288, 0.9496, 0.7959]]]], [[[[0.7416, 0.8327, 0.9058, 0.9747]], [[0.9725, 0.7388, 0.8118, 0.6984]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con90057').set_weights(w) 
+w = model.get_layer('Con20132').get_weights() 
+w[0] = np.array([[[0.2396, 0.7327, 0.7251, 0.0037], [0.5466, 0.8529, 0.4386, 0.3884]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con20132').set_weights(w) 
+in0Con90057 = tf.constant([[[[[0.4026], [0.5637]], [[0.2073], [0.3899]]], [[[0.8107], [0.4938]], [[0.2145], [0.7137]]]]])
+in0Con53420 = tf.constant([[[0.674, 0.9013, 0.2289, 0.164], [0.7921, 0.6916, 0.5665, 0.4028]]])
+in0Ave32845 = tf.constant([[[[[0.0152], [0.3312]]], [[[0.2555], [0.3772]]]]])
+in1Ave32845 = tf.constant([[[[[0.4668], [0.5833]]], [[[0.4947], [0.902]]]]])
+print (np.array2string(model.predict([in0Con90057,in0Con53420,in0Ave32845,in1Ave32845],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo45190.png')
+
+LCon90057 = conv3D_layer([[[[[0.4026], [0.5637]], [[0.2073], [0.3899]]], [[[0.8107], [0.4938]], [[0.2145], [0.7137]]]]], 2, 1, 2,[[[[[0.6231, 0.5183, 0.4698, 0.6325]], [[0.5958, 0.9288, 0.9496, 0.7959]]]], [[[[0.7416, 0.8327, 0.9058, 0.9747]], [[0.9725, 0.7388, 0.8118, 0.6984]]]]],[0, 0, 0, 0], 1, 1, 4, true, 1, 1, 1, Con90057), 
+LRes96066 = reshape_layer(Con90057, [2, 2, 4], Res96066), 
+LRes89761 = reshape_layer(Res96066, [2, 8], Res89761), 
+LCon53420 = concatenate_layer([Res89761,[[[0.674, 0.9013, 0.2289, 0.164], [0.7921, 0.6916, 0.5665, 0.4028]]]], 2, Con53420), 
+LAve32845 = average_layer([[[[[[0.0152], [0.3312]]], [[[0.2555], [0.3772]]]]], [[[[[0.4668], [0.5833]]], [[[0.4947], [0.902]]]]]], Ave32845), 
+LRes85009 = reshape_layer(Ave32845, [2, 1, 2], Res85009), 
+LRes38242 = reshape_layer(Res85009, [2, 2], Res38242), 
+LCon20132 = conv1D_layer(Res38242, 1,[[[0.2396, 0.7327, 0.7251, 0.0037], [0.5466, 0.8529, 0.4386, 0.3884]]],[0, 0, 0, 0], 1, false, 1, Con20132), 
+LDot34690 = dot_layer(Con53420,Con20132, 1, 1, Dot34690), 
+LGlo45190 = global_average_pooling1D_layer(Dot34690, Glo45190), 
+exec_layers([LCon90057,LRes96066,LRes89761,LCon53420,LAve32845,LRes85009,LRes38242,LCon20132,LDot34690,LGlo45190],["Con90057","Res96066","Res89761","Con53420","Ave32845","Res85009","Res38242","Con20132","Dot34690","Glo45190"],Glo45190,"Glo45190")
+
+Actual (Unparsed): [[0.6747456, 1.2505370, 0.8349684, 0.3877026]]
+
+Expected (Unparsed): [[0.6747456277799363,1.2505370326636969,0.834968369756512,0.3877025824387504]]
+
+Actual:   [[0.6748, 1.2506, 0.835, 0.3878]]
+
+Expected: [[0.6748, 1.2506, 0.835, 0.3878]]

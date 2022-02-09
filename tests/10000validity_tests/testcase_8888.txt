@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU92544 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Con79839 = tf.keras.layers.Input(shape=([5, 1]))
+in0Den11684 = tf.keras.layers.Input(shape=([5, 3]))
+
+ELU92544 = keras.layers.ELU(alpha=5.255918974141146, name = 'ELU92544', input_shape=(2, 1, 2, 2))(in0ELU92544)
+Res94682 = keras.layers.Reshape((2, 1, 4), name = 'Res94682', )(ELU92544)
+Glo90572 = keras.layers.GlobalMaxPool2D(name = 'Glo90572', )(Res94682)
+Res99647 = keras.layers.Reshape((4, 1), name = 'Res99647', )(Glo90572)
+Res85472 = keras.layers.Reshape((4, 1, 1), name = 'Res85472', )(Res99647)
+Glo55067 = keras.layers.GlobalAveragePooling2D(name = 'Glo55067', )(Res85472)
+Res92665 = keras.layers.Reshape((1, 1), name = 'Res92665', )(Glo55067)
+Zer3864 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer3864', )(Res92665)
+Con79839 = keras.layers.Concatenate(axis=2, name = 'Con79839', )([Zer3864,in0Con79839])
+Den11684 = keras.layers.Dense(2,name = 'Den11684', )(in0Den11684)
+Ave78369 = keras.layers.Average(name = 'Ave78369', )([Con79839,Den11684])
+model = tf.keras.models.Model(inputs=[in0ELU92544,in0Con79839,in0Den11684], outputs=Ave78369)
+w = model.get_layer('Den11684').get_weights() 
+w[0] = np.array([[0.8263, 0.7979], [0.2705, 0.2212], [0.1024, 0.6406]])
+w[1] = np.array([0.7044, 0.3169])
+model.get_layer('Den11684').set_weights(w) 
+in0ELU92544 = tf.constant([[[[[0.2579, 0.4541], [0.6893, 0.6679]]], [[[0.9886, 0.8249], [0.3075, 0.1186]]]]])
+in0Con79839 = tf.constant([[[0.649], [0.3024], [0.6771], [0.0212], [0.545]]])
+in0Den11684 = tf.constant([[[0.6248, 0.1825, 0.997], [0.8596, 0.8745, 0.1922], [0.7072, 0.1582, 0.779], [0.8833, 0.4967, 0.4297], [0.8498, 0.207, 0.6973]]])
+print (np.array2string(model.predict([in0ELU92544,in0Con79839,in0Den11684],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave78369.png')
+
+LELU92544 = elu_layer([[[[[0.2579, 0.4541], [0.6893, 0.6679]]], [[[0.9886, 0.8249], [0.3075, 0.1186]]]]], 5.255918974141146, ELU92544), 
+LRes94682 = reshape_layer(ELU92544, [2, 1, 4], Res94682), 
+LGlo90572 = global_max_pool2D_layer(Res94682, Glo90572), 
+LRes99647 = reshape_layer(Glo90572, [4, 1], Res99647), 
+LRes85472 = reshape_layer(Res99647, [4, 1, 1], Res85472), 
+LGlo55067 = global_average_pooling2D_layer(Res85472, Glo55067), 
+LRes92665 = reshape_layer(Glo55067, [1, 1], Res92665), 
+LZer3864 = zero_padding1D_layer(Res92665, 4, 0, Zer3864), 
+LCon79839 = concatenate_layer([Zer3864,[[[0.649], [0.3024], [0.6771], [0.0212], [0.545]]]], 2, Con79839), 
+LDen11684 = dense_layer([[[0.6248, 0.1825, 0.997], [0.8596, 0.8745, 0.1922], [0.7072, 0.1582, 0.779], [0.8833, 0.4967, 0.4297], [0.8498, 0.207, 0.6973]]], [[0.8263, 0.7979], [0.2705, 0.2212], [0.1024, 0.6406]],[0.7044, 0.3169], Den11684), 
+LAve78369 = average_layer([Con79839,Den11684], Ave78369), 
+exec_layers([LELU92544,LRes94682,LGlo90572,LRes99647,LRes85472,LGlo55067,LRes92665,LZer3864,LCon79839,LDen11684,LAve78369],["ELU92544","Res94682","Glo90572","Res99647","Res85472","Glo55067","Res92665","Zer3864","Con79839","Den11684","Ave78369"],Ave78369,"Ave78369")
+
+Actual (Unparsed): [[[0.6860657, 1.0717376], [0.8354605, 0.8108688], [0.7056610, 1.0461481], [0.8063147, 0.7140105], [1.1633309, 1.0162171]]]
+
+Expected (Unparsed): [[[0.6860656450000001,1.07173756],[0.8354605049999999,0.81086878],[0.7056610300000001,1.0461480600000002],[0.80631471,0.714010465],[1.16333088,1.0162171]]]
+
+Actual:   [[[0.6861, 1.0718], [0.8355, 0.8109], [0.7057, 1.0462], [0.8064, 0.7141], [1.1634, 1.0163]]]
+
+Expected: [[[0.6861, 1.0718], [0.8355, 0.8109], [0.7057, 1.0462], [0.8064, 0.7141], [1.1634, 1.0163]]]

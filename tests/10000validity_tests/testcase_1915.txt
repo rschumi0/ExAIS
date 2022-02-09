@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con4270 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0GRU51943 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con95366 = tf.keras.layers.Input(shape=([3]))
+
+Con4270 = keras.layers.Conv2D(2, (2, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con4270', )(in0Con4270)
+Res88811 = keras.layers.Reshape((2, 2), name = 'Res88811', )(Con4270)
+Fla50981 = keras.layers.Flatten(name = 'Fla50981', )(Res88811)
+GRU51943 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU51943', )(in0GRU51943)
+Con95366 = keras.layers.Concatenate(axis=1, name = 'Con95366', )([GRU51943,in0Con95366])
+Ave83479 = keras.layers.Average(name = 'Ave83479', )([Fla50981,Con95366])
+Res36497 = keras.layers.Reshape((4, 1), name = 'Res36497', )(Ave83479)
+GRU62536 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU62536', )(Res36497)
+model = tf.keras.models.Model(inputs=[in0Con4270,in0GRU51943,in0Con95366], outputs=GRU62536)
+w = model.get_layer('Con4270').get_weights() 
+w[0] = np.array([[[[0.5183, 0.3695]]], [[[0.6262, 0.2368]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con4270').set_weights(w) 
+w = model.get_layer('GRU51943').get_weights() 
+w[0] = np.array([[1, 2, 6], [10, 3, 6]])
+w[1] = np.array([[9, 1, 3]])
+w[2] = np.array([[5, 8, 10], [9, 6, 10]])
+model.get_layer('GRU51943').set_weights(w) 
+w = model.get_layer('GRU62536').get_weights() 
+w[0] = np.array([[7, 9, 10, 5, 10, 2]])
+w[1] = np.array([[10, 2, 10, 7, 4, 3], [3, 6, 10, 7, 5, 1]])
+w[2] = np.array([[1, 10, 2, 7, 7, 3], [2, 8, 8, 2, 8, 7]])
+model.get_layer('GRU62536').set_weights(w) 
+in0Con4270 = tf.constant([[[[0.9868]], [[0.4586]]]])
+in0GRU51943 = tf.constant([[[6, 9]]])
+in0Con95366 = tf.constant([[0.9957, 0.8972, 0.9712]])
+print (np.array2string(model.predict([in0Con4270,in0GRU51943,in0Con95366],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU62536.png')
+
+LCon4270 = conv2D_layer([[[[0.9868]], [[0.4586]]]], 2, 1,[[[[0.5183, 0.3695]]], [[[0.6262, 0.2368]]]],[0, 0], 1, 1, true, 1, 1, Con4270), 
+LRes88811 = reshape_layer(Con4270, [2, 2], Res88811), 
+LFla50981 = flatten_layer(Res88811, Fla50981), 
+LGRU51943 = gru_layer([[[6, 9]]],[[1, 2, 6], [10, 3, 6]],[[9, 1, 3]],[[5, 8, 10], [9, 6, 10]], true, GRU51943), 
+LCon95366 = concatenate_layer([GRU51943,[[0.9957, 0.8972, 0.9712]]], 1, Con95366), 
+LAve83479 = average_layer([Fla50981,Con95366], Ave83479), 
+LRes36497 = reshape_layer(Ave83479, [4, 1], Res36497), 
+LGRU62536 = gru_layer(Res36497,[[7, 9, 10, 5, 10, 2]],[[10, 2, 10, 7, 4, 3], [3, 6, 10, 7, 5, 1]],[[1, 10, 2, 7, 7, 3], [2, 8, 8, 2, 8, 7]], true, GRU62536), 
+exec_layers([LCon4270,LRes88811,LFla50981,LGRU51943,LCon95366,LAve83479,LRes36497,LGRU62536],["Con4270","Res88811","Fla50981","GRU51943","Con95366","Ave83479","Res36497","GRU62536"],GRU62536,"GRU62536")
+
+Actual (Unparsed): [[0.0050943, 0.0000000]]
+
+Expected (Unparsed): [[0.005094253836321504,6.197766739018093e-10]]
+
+Actual:   [[0.0051, 0]]
+
+Expected: [[0.0051, 0]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo2655 = tf.keras.layers.Input(shape=([1, 2]))
+in0Dot71092 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot71092 = tf.keras.layers.Input(shape=([2, 3]))
+in0Cro50114 = tf.keras.layers.Input(shape=([3, 1, 1]))
+
+Glo2655 = keras.layers.GlobalMaxPool1D(name = 'Glo2655', )(in0Glo2655)
+Res42729 = keras.layers.Reshape((2, 1), name = 'Res42729', )(Glo2655)
+Zer46104 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer46104', )(Res42729)
+Dot71092 = keras.layers.Dot(axes=(1, 1), name = 'Dot71092', )([in0Dot71092,in1Dot71092])
+Con46937 = keras.layers.Conv1D(2, (1),strides=(1), padding='same', dilation_rate=(1), name = 'Con46937', )(Dot71092)
+Dot17694 = keras.layers.Dot(axes=(1, 1), name = 'Dot17694', )([Zer46104,Con46937])
+Res51007 = keras.layers.Reshape((1, 2, 1), name = 'Res51007', )(Dot17694)
+Cro50114 = keras.layers.Cropping2D(cropping=((1, 1), (0, 0)), name = 'Cro50114', )(in0Cro50114)
+Zer81115 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer81115', )(Cro50114)
+Sub75916 = keras.layers.Subtract(name = 'Sub75916', )([Res51007,Zer81115])
+model = tf.keras.models.Model(inputs=[in0Glo2655,in0Dot71092,in1Dot71092,in0Cro50114], outputs=Sub75916)
+w = model.get_layer('Con46937').get_weights() 
+w[0] = np.array([[[0.6203, 0.0502], [0.3904, 0.34], [0.945, 0.743]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con46937').set_weights(w) 
+in0Glo2655 = tf.constant([[[1.5287, 1.7311]]])
+in0Dot71092 = tf.constant([[[0.3611, 0.6443, 0.4532], [0.3161, 0.4207, 0.7381]]])
+in1Dot71092 = tf.constant([[[0.028, 0.9681, 0.0647], [0.8497, 0.4824, 0.8925]]])
+in0Cro50114 = tf.constant([[[[1.0689]], [[1.614]], [[1.4146]]]])
+print (np.array2string(model.predict([in0Glo2655,in0Dot71092,in1Dot71092,in0Cro50114],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub75916.png')
+
+LGlo2655 = global_max_pool1D_layer([[[1.5287, 1.7311]]], Glo2655), 
+LRes42729 = reshape_layer(Glo2655, [2, 1], Res42729), 
+LZer46104 = zero_padding1D_layer(Res42729, 1, 0, Zer46104), 
+LDot71092 = dot_layer([[[0.3611, 0.6443, 0.4532], [0.3161, 0.4207, 0.7381]]], [[[0.028, 0.9681, 0.0647], [0.8497, 0.4824, 0.8925]]], 1, 1, Dot71092), 
+LCon46937 = conv1D_layer(Dot71092, 1,[[[0.6203, 0.0502], [0.3904, 0.34], [0.945, 0.743]]],[0, 0], 1, true, 1, Con46937), 
+LDot17694 = dot_layer(Zer46104,Con46937, 1, 1, Dot17694), 
+LRes51007 = reshape_layer(Dot17694, [1, 2, 1], Res51007), 
+LCro50114 = cropping2D_layer([[[[1.0689]], [[1.614]], [[1.4146]]]], 1, 1, 0, 0, Cro50114), 
+LZer81115 = zero_padding2D_layer(Cro50114, 0, 0, 1, 0, Zer81115), 
+LSub75916 = subtract_layer(Res51007,Zer81115, Sub75916), 
+exec_layers([LGlo2655,LRes42729,LZer46104,LDot71092,LCon46937,LDot17694,LRes51007,LCro50114,LZer81115,LSub75916],["Glo2655","Res42729","Zer46104","Dot71092","Con46937","Dot17694","Res51007","Cro50114","Zer81115","Sub75916"],Sub75916,"Sub75916")
+
+Actual (Unparsed): [[[[3.8019274], [0.7267311]]]]
+
+Expected (Unparsed): [[[[3.8019274932348406],[0.726731143160541]]]]
+
+Actual:   [[[[3.802], [0.7268]]]]
+
+Expected: [[[[3.802], [0.7268]]]]

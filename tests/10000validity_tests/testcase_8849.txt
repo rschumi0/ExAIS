@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim2755 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add63644 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Add63644 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Ave81633 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave81633 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con58187 = tf.keras.layers.Input(shape=([2, 4]))
+
+Sim2755 = keras.layers.SimpleRNN(3,name = 'Sim2755', )(in0Sim2755)
+Res33911 = keras.layers.Reshape((3, 1), name = 'Res33911', )(Sim2755)
+Res73158 = keras.layers.Reshape((3, 1, 1), name = 'Res73158', )(Res33911)
+Con32359 = keras.layers.Conv2D(3, (2, 1),strides=(10, 1), padding='valid', dilation_rate=(1, 1), name = 'Con32359', )(Res73158)
+Res67610 = keras.layers.Reshape((1, 1, 3, 1), name = 'Res67610', )(Con32359)
+Zer88796 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (2, 0)), name = 'Zer88796', )(Res67610)
+Add63644 = keras.layers.Add(name = 'Add63644', )([in0Add63644,in1Add63644])
+Zer37128 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (4, 0)), name = 'Zer37128', )(Add63644)
+Ave81611 = keras.layers.Average(name = 'Ave81611', )([Zer88796,Zer37128])
+Res82383 = keras.layers.Reshape((2, 1, 5), name = 'Res82383', )(Ave81611)
+Res87286 = keras.layers.Reshape((2, 5), name = 'Res87286', )(Res82383)
+Ave81633 = keras.layers.Average(name = 'Ave81633', )([in0Ave81633,in1Ave81633])
+Con58187 = keras.layers.Concatenate(axis=2, name = 'Con58187', )([Ave81633,in0Con58187])
+Sub70002 = keras.layers.Subtract(name = 'Sub70002', )([Res87286,Con58187])
+model = tf.keras.models.Model(inputs=[in0Sim2755,in0Add63644,in1Add63644,in0Ave81633,in1Ave81633,in0Con58187], outputs=Sub70002)
+w = model.get_layer('Sim2755').get_weights() 
+w[0] = np.array([[7, 10, 7]])
+w[1] = np.array([[8, 2, 9], [3, 7, 8], [3, 8, 10]])
+w[2] = np.array([4, 7, 3])
+model.get_layer('Sim2755').set_weights(w) 
+w = model.get_layer('Con32359').get_weights() 
+w[0] = np.array([[[[0.0294, 0.952, 0.8896]]], [[[0.5904, 0.8311, 0.0656]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con32359').set_weights(w) 
+in0Sim2755 = tf.constant([[[6]]])
+in0Add63644 = tf.constant([[[[[0.0194]]], [[[0.1311]]]]])
+in1Add63644 = tf.constant([[[[[0.8738]]], [[[0.0601]]]]])
+in0Ave81633 = tf.constant([[[0.7566], [0.0296]]])
+in1Ave81633 = tf.constant([[[0.2513], [0.5816]]])
+in0Con58187 = tf.constant([[[0.7273, 0.04, 0.9673, 0.781], [0.4239, 0.0439, 0.896, 0.7495]]])
+print (np.array2string(model.predict([in0Sim2755,in0Add63644,in1Add63644,in0Ave81633,in1Ave81633,in0Con58187],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub70002.png')
+
+LSim2755 = simple_rnn_layer([[[6]]],[[7, 10, 7]],[[8, 2, 9], [3, 7, 8], [3, 8, 10]],[4, 7, 3], Sim2755), 
+LRes33911 = reshape_layer(Sim2755, [3, 1], Res33911), 
+LRes73158 = reshape_layer(Res33911, [3, 1, 1], Res73158), 
+LCon32359 = conv2D_layer(Res73158, 2, 1,[[[[0.0294, 0.952, 0.8896]]], [[[0.5904, 0.8311, 0.0656]]]],[0, 0, 0], 10, 1, false, 1, 1, Con32359), 
+LRes67610 = reshape_layer(Con32359, [1, 1, 3, 1], Res67610), 
+LZer88796 = zero_padding3D_layer(Res67610, 1, 0, 0, 0, 2, 0, Zer88796), 
+LAdd63644 = add_layer([[[[[[0.0194]]], [[[0.1311]]]]], [[[[[0.8738]]], [[[0.0601]]]]]], Add63644), 
+LZer37128 = zero_padding3D_layer(Add63644, 0, 0, 0, 0, 4, 0, Zer37128), 
+LAve81611 = average_layer([Zer88796,Zer37128], Ave81611), 
+LRes82383 = reshape_layer(Ave81611, [2, 1, 5], Res82383), 
+LRes87286 = reshape_layer(Res82383, [2, 5], Res87286), 
+LAve81633 = average_layer([[[[0.7566], [0.0296]]], [[[0.2513], [0.5816]]]], Ave81633), 
+LCon58187 = concatenate_layer([Ave81633,[[[0.7273, 0.04, 0.9673, 0.781], [0.4239, 0.0439, 0.896, 0.7495]]]], 2, Con58187), 
+LSub70002 = subtract_layer(Res87286,Con58187, Sub70002), 
+exec_layers([LSim2755,LRes33911,LRes73158,LCon32359,LRes67610,LZer88796,LAdd63644,LZer37128,LAve81611,LRes82383,LRes87286,LAve81633,LCon58187,LSub70002],["Sim2755","Res33911","Res73158","Con32359","Res67610","Zer88796","Add63644","Zer37128","Ave81611","Res82383","Res87286","Ave81633","Con58187","Sub70002"],Sub70002,"Sub70002")
+
+Actual (Unparsed): [[[-0.5039500, -0.7273000, -0.0400000, -0.9673000, -0.3344000], [-0.3056000, -0.4239000, 0.2660000, -0.0044500, -0.1763000]]]
+
+Expected (Unparsed): [[[-0.50395,-0.7273,-0.04,-0.9673,-0.33440000000000003],[-0.3056,-0.4239,0.266,-0.004450000000000065,-0.17630000000000012]]]
+
+Actual:   [[[-0.5039, -0.7273, -0.04, -0.9673, -0.3344], [-0.3056, -0.4239, 0.266, -0.0044, -0.1763]]]
+
+Expected: [[[-0.5039, -0.7273, -0.04, -0.9673, -0.3344], [-0.3056, -0.4239, 0.266, -0.0044, -0.1763]]]

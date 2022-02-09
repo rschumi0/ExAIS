@@ -1,0 +1,59 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min29817 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Min29817 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con7153 = tf.keras.layers.Input(shape=([2, 3, 1]))
+in0Thr79560 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Min29817 = keras.layers.Minimum(name = 'Min29817', )([in0Min29817,in1Min29817])
+Res66706 = keras.layers.Reshape((2, 1, 1), name = 'Res66706', )(Min29817)
+Zer87542 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer87542', )(Res66706)
+Con7153 = keras.layers.Concatenate(axis=3, name = 'Con7153', )([Zer87542,in0Con7153])
+Thr79560 = keras.layers.ThresholdedReLU(theta=4.458525598527015, name = 'Thr79560', input_shape=(1, 2, 2))(in0Thr79560)
+Sep57175 = keras.layers.SeparableConv2D(2, (1, 2),strides=(1, 1), padding='same', name = 'Sep57175', )(Thr79560)
+Zer17164 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer17164', )(Sep57175)
+Min94259 = keras.layers.Minimum(name = 'Min94259', )([Con7153,Zer17164])
+Con21100 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con21100', )(Min94259)
+model = tf.keras.models.Model(inputs=[in0Min29817,in1Min29817,in0Con7153,in0Thr79560], outputs=Con21100)
+w = model.get_layer('Sep57175').get_weights() 
+w[0] = np.array([[[[0.221], [0.7471]], [[0.4457], [0.0539]]]])
+w[1] = np.array([[[[0.7723, 0.576], [0.9207, 0.6019]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep57175').set_weights(w) 
+w = model.get_layer('Con21100').get_weights() 
+w[0] = np.array([[[[0.9885], [0.8958]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con21100').set_weights(w) 
+in0Min29817 = tf.constant([[[[[0.3966]]], [[[0.8923]]]]])
+in1Min29817 = tf.constant([[[[[0.7283]]], [[[0.9554]]]]])
+in0Con7153 = tf.constant([[[[0.3404], [0.9345], [0.2096]], [[0.867], [0.7043], [0.7989]]]])
+in0Thr79560 = tf.constant([[[[0.1038, 0.4033], [0.6009, 0.0828]]]])
+print (np.array2string(model.predict([in0Min29817,in1Min29817,in0Con7153,in0Thr79560],steps=1), separator=', '))
+
+
+LMin29817 = minimum_layer([[[[[[0.3966]]], [[[0.8923]]]]], [[[[[0.7283]]], [[[0.9554]]]]]], Min29817), 
+LRes66706 = reshape_layer(Min29817, [2, 1, 1], Res66706), 
+LZer87542 = zero_padding2D_layer(Res66706, 0, 0, 2, 0, Zer87542), 
+LCon7153 = concatenate_layer([Zer87542,[[[[0.3404], [0.9345], [0.2096]], [[0.867], [0.7043], [0.7989]]]]], 3, Con7153), 
+LThr79560 = thresholded_relu_layer([[[[0.1038, 0.4033], [0.6009, 0.0828]]]], 4.458525598527015, Thr79560), 
+LSep57175 = separable_conv2D_layer(Thr79560, 1, 2,[[[[[0.221], [0.7471]], [[0.4457], [0.0539]]]],[[[[0.7723, 0.576], [0.9207, 0.6019]]]]],[0, 0], 1, 1, true, Sep57175), 
+LZer17164 = zero_padding2D_layer(Sep57175, 1, 0, 1, 0, Zer17164), 
+LMin94259 = minimum_layer([Con7153,Zer17164], Min94259), 
+LCon21100 = conv2D_transpose_layer(Min94259, 1, 1,[[[[0.9885], [0.8958]]]],[0, 0], 1, 1, false, Con21100), 
+exec_layers([LMin29817,LRes66706,LZer87542,LCon7153,LThr79560,LSep57175,LZer17164,LMin94259,LCon21100],["Min29817","Res66706","Zer87542","Con7153","Thr79560","Sep57175","Zer17164","Min94259","Con21100"],Con21100,"Con21100")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Layer weight shape (1, 1, 2, 2) not compatible with provided weight shape (1, 1, 2, 1)
+
+Expected (Unparsed): 
+Con21100: Argument Error, Input Shape [1,2,3,2]
+
+Actual:   
+
+Expected: 

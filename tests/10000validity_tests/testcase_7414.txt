@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub99998 = tf.keras.layers.Input(shape=([2]))
+in1Sub99998 = tf.keras.layers.Input(shape=([2]))
+in0Con51146 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Ave69151 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Ave69151 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Sub99998 = keras.layers.Subtract(name = 'Sub99998', )([in0Sub99998,in1Sub99998])
+Res64542 = keras.layers.Reshape((2, 1), name = 'Res64542', )(Sub99998)
+Res27210 = keras.layers.Reshape((2, 1, 1), name = 'Res27210', )(Res64542)
+Res13889 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res13889', )(Res27210)
+Con51146 = keras.layers.Concatenate(axis=4, name = 'Con51146', )([Res13889,in0Con51146])
+Ave69151 = keras.layers.Average(name = 'Ave69151', )([in0Ave69151,in1Ave69151])
+Mul61122 = keras.layers.Multiply(name = 'Mul61122', )([Con51146,Ave69151])
+Up_17398 = keras.layers.UpSampling3D(size=(1, 2, 1), name = 'Up_17398', )(Mul61122)
+Lay10056 = keras.layers.LayerNormalization(axis=3, epsilon=2.672242472377503, name = 'Lay10056', )(Up_17398)
+model = tf.keras.models.Model(inputs=[in0Sub99998,in1Sub99998,in0Con51146,in0Ave69151,in1Ave69151], outputs=Lay10056)
+in0Sub99998 = tf.constant([[0.8545, 0.2258]])
+in1Sub99998 = tf.constant([[0.3793, 0.3404]])
+in0Con51146 = tf.constant([[[[[0.8782]]], [[[0.6557]]]]])
+in0Ave69151 = tf.constant([[[[[0.0176, 0.7722]]], [[[0.7236, 0.5663]]]]])
+in1Ave69151 = tf.constant([[[[[0.37, 0.5567]]], [[[0.2472, 0.6297]]]]])
+print (np.array2string(model.predict([in0Sub99998,in1Sub99998,in0Con51146,in0Ave69151,in1Ave69151],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay10056.png')
+
+LSub99998 = subtract_layer([[0.8545, 0.2258]], [[0.3793, 0.3404]], Sub99998), 
+LRes64542 = reshape_layer(Sub99998, [2, 1], Res64542), 
+LRes27210 = reshape_layer(Res64542, [2, 1, 1], Res27210), 
+LRes13889 = reshape_layer(Res27210, [2, 1, 1, 1], Res13889), 
+LCon51146 = concatenate_layer([Res13889,[[[[[0.8782]]], [[[0.6557]]]]]], 4, Con51146), 
+LAve69151 = average_layer([[[[[[0.0176, 0.7722]]], [[[0.7236, 0.5663]]]]], [[[[[0.37, 0.5567]]], [[[0.2472, 0.6297]]]]]], Ave69151), 
+LMul61122 = multiply_layer([Con51146,Ave69151], Mul61122), 
+LUp_17398 = up_sampling3D_layer(Mul61122, 1, 2, 1, Up_17398), 
+LLay10056 = layer_normalization_layer(Up_17398, 3, 2.672242472377503, Lay10056), 
+exec_layers([LSub99998,LRes64542,LRes27210,LRes13889,LCon51146,LAve69151,LMul61122,LUp_17398,LLay10056],["Sub99998","Res64542","Res27210","Res13889","Con51146","Ave69151","Mul61122","Up_17398","Lay10056"],Lay10056,"Lay10056")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000]], [[0.0000000, 0.0000000]]], [[[0.0000000, 0.0000000]], [[0.0000000, 0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0.0,0.0]],[[0.0,0.0]]],[[[0.0,0.0]],[[0.0,0.0]]]]]
+
+Actual:   [[[[[0, 0]], [[0, 0]]], [[[0, 0]], [[0, 0]]]]]
+
+Expected: [[[[[0, 0]], [[0, 0]]], [[[0, 0]], [[0, 0]]]]]

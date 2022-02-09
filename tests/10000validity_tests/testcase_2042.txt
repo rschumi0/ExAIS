@@ -1,0 +1,79 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min88045 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min88045 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con9901 = tf.keras.layers.Input(shape=([1, 2, 4, 1]))
+in0Max62243 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con15905 = tf.keras.layers.Input(shape=([1, 3]))
+in0Max46912 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max46912 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Min88045 = keras.layers.Minimum(name = 'Min88045', )([in0Min88045,in1Min88045])
+Den35228 = keras.layers.Dense(4,name = 'Den35228', )(Min88045)
+Den69473 = keras.layers.Dense(4,name = 'Den69473', )(Den35228)
+Res72453 = keras.layers.Reshape((1, 2, 4, 1), name = 'Res72453', )(Den69473)
+Con9901 = keras.layers.Concatenate(axis=4, name = 'Con9901', )([Res72453,in0Con9901])
+Max62243 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max62243', )(in0Max62243)
+Ave22288 = keras.layers.AveragePooling1D(pool_size=(1), strides=(2), padding='valid', name = 'Ave22288', )(Max62243)
+Con15905 = keras.layers.Concatenate(axis=2, name = 'Con15905', )([Ave22288,in0Con15905])
+Max46912 = keras.layers.Maximum(name = 'Max46912', )([in0Max46912,in1Max46912])
+Res99534 = keras.layers.Reshape((2, 4), name = 'Res99534', )(Max46912)
+Dot80077 = keras.layers.Dot(axes=(2, 2), name = 'Dot80077', )([Con15905,Res99534])
+Res40565 = keras.layers.Reshape((1, 2, 1), name = 'Res40565', )(Dot80077)
+Res75905 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res75905', )(Res40565)
+Con89174 = keras.layers.Conv3D(2, (1, 1, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con89174', )(Res75905)
+Zer20281 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (3, 0)), name = 'Zer20281', )(Con89174)
+Min6872 = keras.layers.Minimum(name = 'Min6872', )([Con9901,Zer20281])
+model = tf.keras.models.Model(inputs=[in0Min88045,in1Min88045,in0Con9901,in0Max62243,in0Con15905,in0Max46912,in1Max46912], outputs=Min6872)
+w = model.get_layer('Den35228').get_weights() 
+w[0] = np.array([[0.2534, 0.5662, 0.8578, 0.6514], [0.6353, 0.3033, 0.9725, 0.206]])
+w[1] = np.array([0.5072, 0.2855, 0.1375, 0.4417])
+model.get_layer('Den35228').set_weights(w) 
+w = model.get_layer('Den69473').get_weights() 
+w[0] = np.array([[0.8246, 0.8522, 0.5488, 0.4608], [0.9032, 0.2288, 0.0849, 0.338], [0.3859, 0.4359, 0.9978, 0.2476], [0.6742, 0.8531, 0.1027, 0.0325]])
+w[1] = np.array([0.8347, 0.4643, 0.7393, 0.5821])
+model.get_layer('Den69473').set_weights(w) 
+w = model.get_layer('Con89174').get_weights() 
+w[0] = np.array([[[[[0.414, 0.6836]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con89174').set_weights(w) 
+in0Min88045 = tf.constant([[[[0.9057, 0.1989], [0.8944, 0.3893]]]])
+in1Min88045 = tf.constant([[[[0.6127, 0.2079], [0.1276, 0.1167]]]])
+in0Con9901 = tf.constant([[[[[0.8247], [0.7758], [0.9824], [0.6595]], [[0.1647], [0.7753], [0.9364], [0.1804]]]]])
+in0Max62243 = tf.constant([[[1.5943], [1.226]]])
+in0Con15905 = tf.constant([[[0.6884, 0.8857, 0.0028]]])
+in0Max46912 = tf.constant([[[[0.5521, 0.7484], [0.0955, 0.3363]], [[0.5283, 0.434], [0.2392, 0.3894]]]])
+in1Max46912 = tf.constant([[[[0.6028, 0.7776], [0.6146, 0.1559]], [[0.7562, 0.9736], [0.6825, 0.3391]]]])
+print (np.array2string(model.predict([in0Min88045,in1Min88045,in0Con9901,in0Max62243,in0Con15905,in0Max46912,in1Max46912],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min6872.png')
+
+LMin88045 = minimum_layer([[[[[0.9057, 0.1989], [0.8944, 0.3893]]]], [[[[0.6127, 0.2079], [0.1276, 0.1167]]]]], Min88045), 
+LDen35228 = dense_layer(Min88045, [[0.2534, 0.5662, 0.8578, 0.6514], [0.6353, 0.3033, 0.9725, 0.206]],[0.5072, 0.2855, 0.1375, 0.4417], Den35228), 
+LDen69473 = dense_layer(Den35228, [[0.8246, 0.8522, 0.5488, 0.4608], [0.9032, 0.2288, 0.0849, 0.338], [0.3859, 0.4359, 0.9978, 0.2476], [0.6742, 0.8531, 0.1027, 0.0325]],[0.8347, 0.4643, 0.7393, 0.5821], Den69473), 
+LRes72453 = reshape_layer(Den69473, [1, 2, 4, 1], Res72453), 
+LCon9901 = concatenate_layer([Res72453,[[[[[0.8247], [0.7758], [0.9824], [0.6595]], [[0.1647], [0.7753], [0.9364], [0.1804]]]]]], 4, Con9901), 
+LMax62243 = max_pool1D_layer([[[1.5943], [1.226]]], 1, Max62243), 
+LAve22288 = average_pooling1D_layer(Max62243, 1, 2, false, Ave22288), 
+LCon15905 = concatenate_layer([Ave22288,[[[0.6884, 0.8857, 0.0028]]]], 2, Con15905), 
+LMax46912 = maximum_layer([[[[[0.5521, 0.7484], [0.0955, 0.3363]], [[0.5283, 0.434], [0.2392, 0.3894]]]], [[[[0.6028, 0.7776], [0.6146, 0.1559]], [[0.7562, 0.9736], [0.6825, 0.3391]]]]], Max46912), 
+LRes99534 = reshape_layer(Max46912, [2, 4], Res99534), 
+LDot80077 = dot_layer(Con15905,Res99534, 2, 2, Dot80077), 
+LRes40565 = reshape_layer(Dot80077, [1, 2, 1], Res40565), 
+LRes75905 = reshape_layer(Res40565, [1, 2, 1, 1], Res75905), 
+LCon89174 = conv3D_layer(Res75905, 1, 1, 1,[[[[[0.414, 0.6836]]]]],[0, 0], 1, 1, 1, true, 1, 1, 1, Con89174), 
+LZer20281 = zero_padding3D_layer(Con89174, 0, 0, 0, 0, 3, 0, Zer20281), 
+LMin6872 = minimum_layer([Con9901,Zer20281], Min6872), 
+exec_layers([LMin88045,LDen35228,LDen69473,LRes72453,LCon9901,LMax62243,LAve22288,LCon15905,LMax46912,LRes99534,LDot80077,LRes40565,LRes75905,LCon89174,LZer20281,LMin6872],["Min88045","Den35228","Den69473","Res72453","Con9901","Max62243","Ave22288","Con15905","Max46912","Res99534","Dot80077","Res40565","Res75905","Con89174","Zer20281","Min6872"],Min6872,"Min6872")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.8452376, 0.6595000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000], [1.0273064, 0.1804000]]]]]
+
+Expected (Unparsed): [[[[[0,0],[0,0],[0,0],[0.8452376103599999,0.6595]],[[0,0],[0,0],[0,0],[1.0273064185799998,0.1804]]]]]
+
+Actual:   [[[[[0, 0], [0, 0], [0, 0], [0.8453, 0.6595]], [[0, 0], [0, 0], [0, 0], [1.0274, 0.1804]]]]]
+
+Expected: [[[[[0, 0], [0, 0], [0, 0], [0.8453, 0.6595]], [[0, 0], [0, 0], [0, 0], [1.0274, 0.1804]]]]]

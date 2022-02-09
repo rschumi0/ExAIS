@@ -1,0 +1,67 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo14886 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Max22886 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max22886 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Dep69668 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min16487 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min16487 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Glo14886 = keras.layers.GlobalAveragePooling2D(name = 'Glo14886', )(in0Glo14886)
+Res30852 = keras.layers.Reshape((1, 1), name = 'Res30852', )(Glo14886)
+Glo41803 = keras.layers.GlobalAveragePooling1D(name = 'Glo41803', )(Res30852)
+Res50974 = keras.layers.Reshape((1, 1), name = 'Res50974', )(Glo41803)
+Max22886 = keras.layers.Maximum(name = 'Max22886', )([in0Max22886,in1Max22886])
+Res3823 = keras.layers.Reshape((2, 1), name = 'Res3823', )(Max22886)
+Dot96625 = keras.layers.Dot(axes=(1, 2), name = 'Dot96625', )([Res50974,Res3823])
+Zer10117 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer10117', )(Dot96625)
+Dep69668 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='same', name = 'Dep69668', )(in0Dep69668)
+Zer73639 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer73639', )(Dep69668)
+Min16487 = keras.layers.Minimum(name = 'Min16487', )([in0Min16487,in1Min16487])
+Min56951 = keras.layers.Minimum(name = 'Min56951', )([Zer73639,Min16487])
+Res89467 = keras.layers.Reshape((2, 2), name = 'Res89467', )(Min56951)
+Per26784 = keras.layers.Permute((2,1), name = 'Per26784',)(Res89467)
+Ave82005 = keras.layers.Average(name = 'Ave82005', )([Zer10117,Per26784])
+model = tf.keras.models.Model(inputs=[in0Glo14886,in0Max22886,in1Max22886,in0Dep69668,in0Min16487,in1Min16487], outputs=Ave82005)
+w = model.get_layer('Dep69668').get_weights() 
+w[0] = np.array([[[[0.5703]]], [[[0.8768]]]])
+w[1] = np.array([0])
+model.get_layer('Dep69668').set_weights(w) 
+in0Glo14886 = tf.constant([[[[1.4393], [1.8393]], [[1.5349], [1.4296]]]])
+in0Max22886 = tf.constant([[[[0.3586]], [[0.3778]]]])
+in1Max22886 = tf.constant([[[[0.3671]], [[0.2549]]]])
+in0Dep69668 = tf.constant([[[[0.3661], [0.6588]], [[0.0573], [0.2486]]]])
+in0Min16487 = tf.constant([[[[0.1881], [0.0365]], [[0.5952], [0.0202]]]])
+in1Min16487 = tf.constant([[[[0.5643], [0.19]], [[0.2473], [0.3109]]]])
+print (np.array2string(model.predict([in0Glo14886,in0Max22886,in1Max22886,in0Dep69668,in0Min16487,in1Min16487],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave82005.png')
+
+LGlo14886 = global_average_pooling2D_layer([[[[1.4393], [1.8393]], [[1.5349], [1.4296]]]], Glo14886), 
+LRes30852 = reshape_layer(Glo14886, [1, 1], Res30852), 
+LGlo41803 = global_average_pooling1D_layer(Res30852, Glo41803), 
+LRes50974 = reshape_layer(Glo41803, [1, 1], Res50974), 
+LMax22886 = maximum_layer([[[[[0.3586]], [[0.3778]]]], [[[[0.3671]], [[0.2549]]]]], Max22886), 
+LRes3823 = reshape_layer(Max22886, [2, 1], Res3823), 
+LDot96625 = dot_layer(Res50974,Res3823, 1, 2, Dot96625), 
+LZer10117 = zero_padding1D_layer(Dot96625, 1, 0, Zer10117), 
+LDep69668 = depthwise_conv2D_layer([[[[0.3661], [0.6588]], [[0.0573], [0.2486]]]], 2, 1,[[[[0.5703]]], [[[0.8768]]]],[0], 2, 2, true, Dep69668), 
+LZer73639 = zero_padding2D_layer(Dep69668, 1, 0, 1, 0, Zer73639), 
+LMin16487 = minimum_layer([[[[[0.1881], [0.0365]], [[0.5952], [0.0202]]]], [[[[0.5643], [0.19]], [[0.2473], [0.3109]]]]], Min16487), 
+LMin56951 = minimum_layer([Zer73639,Min16487], Min56951), 
+LRes89467 = reshape_layer(Min56951, [2, 2], Res89467), 
+LPer26784 = permute_layer(Res89467, 2,1, Per26784), 
+LAve82005 = average_layer([Zer10117,Per26784], Ave82005), 
+exec_layers([LGlo14886,LRes30852,LGlo41803,LRes50974,LMax22886,LRes3823,LDot96625,LZer10117,LDep69668,LZer73639,LMin16487,LMin56951,LRes89467,LPer26784,LAve82005],["Glo14886","Res30852","Glo41803","Res50974","Max22886","Res3823","Dot96625","Zer10117","Dep69668","Zer73639","Min16487","Min56951","Res89467","Per26784","Ave82005"],Ave82005,"Ave82005")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [0.2864802, 0.3049304]]]
+
+Expected (Unparsed): [[[0,0],[0.28648025124999993,0.3049303975]]]
+
+Actual:   [[[0, 0], [0.2865, 0.305]]]
+
+Expected: [[[0, 0], [0.2865, 0.305]]]

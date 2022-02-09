@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min92643 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min92643 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con87570 = tf.keras.layers.Input(shape=([1]))
+in0Sim15107 = tf.keras.layers.Input(shape=([2, 1]))
+
+Min92643 = keras.layers.Minimum(name = 'Min92643', )([in0Min92643,in1Min92643])
+Res89515 = keras.layers.Reshape((1, 1, 2), name = 'Res89515', )(Min92643)
+Res55595 = keras.layers.Reshape((1, 2), name = 'Res55595', )(Res89515)
+Fla85703 = keras.layers.Flatten(name = 'Fla85703', )(Res55595)
+Con87570 = keras.layers.Concatenate(axis=1, name = 'Con87570', )([Fla85703,in0Con87570])
+Sim15107 = keras.layers.SimpleRNN(3,name = 'Sim15107', )(in0Sim15107)
+Sub3454 = keras.layers.Subtract(name = 'Sub3454', )([Con87570,Sim15107])
+Bat98126 = keras.layers.BatchNormalization(axis=1, epsilon=0.19408550860923152,  name = 'Bat98126', )(Sub3454)
+model = tf.keras.models.Model(inputs=[in0Min92643,in1Min92643,in0Con87570,in0Sim15107], outputs=Bat98126)
+w = model.get_layer('Sim15107').get_weights() 
+w[0] = np.array([[5, 6, 6]])
+w[1] = np.array([[10, 5, 1], [7, 4, 5], [1, 9, 10]])
+w[2] = np.array([1, 2, 7])
+model.get_layer('Sim15107').set_weights(w) 
+w = model.get_layer('Bat98126').get_weights() 
+w[0] = np.array([0.8352, 0.831, 0.6375])
+w[1] = np.array([0.0323, 0.0683, 0.6259])
+w[2] = np.array([0.6499, 0.658, 0.2371])
+w[3] = np.array([0.2196, 0.6924, 0.7616])
+model.get_layer('Bat98126').set_weights(w) 
+in0Min92643 = tf.constant([[[[[0.3842, 0.317]]]]])
+in1Min92643 = tf.constant([[[[[0.6138, 0.018]]]]])
+in0Con87570 = tf.constant([[0.2566]])
+in0Sim15107 = tf.constant([[[9], [8]]])
+print (np.array2string(model.predict([in0Min92643,in1Min92643,in0Con87570,in0Sim15107],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat98126.png')
+
+LMin92643 = minimum_layer([[[[[[0.3842, 0.317]]]]], [[[[[0.6138, 0.018]]]]]], Min92643), 
+LRes89515 = reshape_layer(Min92643, [1, 1, 2], Res89515), 
+LRes55595 = reshape_layer(Res89515, [1, 2], Res55595), 
+LFla85703 = flatten_layer(Res55595, Fla85703), 
+LCon87570 = concatenate_layer([Fla85703,[[0.2566]]], 1, Con87570), 
+LSim15107 = simple_rnn_layer([[[9], [8]]],[[5, 6, 6]],[[10, 5, 1], [7, 4, 5], [1, 9, 10]],[1, 2, 7], Sim15107), 
+LSub3454 = subtract_layer(Con87570,Sim15107, Sub3454), 
+LBat98126 = batch_normalization_layer(Sub3454, 1, 0.19408550860923152, [0.8352, 0.831, 0.6375], [0.0323, 0.0683, 0.6259], [0.6499, 0.658, 0.2371], [0.2196, 0.6924, 0.7616], Bat98126), 
+exec_layers([LMin92643,LRes89515,LRes55595,LFla85703,LCon87570,LSim15107,LSub3454,LBat98126],["Min92643","Res89515","Res55595","Fla85703","Con87570","Sim15107","Sub3454","Bat98126"],Bat98126,"Bat98126")
+
+Actual (Unparsed): [[-1.6112621, -1.3791683, -0.0134966]]
+
+Expected (Unparsed): [[-1.6112620766205257,-1.3791682674109578,-0.01349654726978855]]
+
+Actual:   [[-1.6112, -1.3791, -0.0134]]
+
+Expected: [[-1.6112, -1.3791, -0.0134]]

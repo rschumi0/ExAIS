@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU27935 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Add59767 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add59767 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con5849 = tf.keras.layers.Input(shape=([1, 7]))
+
+ELU27935 = keras.layers.ELU(alpha=6.074411491553974, name = 'ELU27935', input_shape=(1, 2, 2, 2))(in0ELU27935)
+Res89395 = keras.layers.Reshape((1, 2, 4), name = 'Res89395', )(ELU27935)
+Res79952 = keras.layers.Reshape((1, 8), name = 'Res79952', )(Res89395)
+Add59767 = keras.layers.Add(name = 'Add59767', )([in0Add59767,in1Add59767])
+Con5849 = keras.layers.Concatenate(axis=2, name = 'Con5849', )([Add59767,in0Con5849])
+Ave78208 = keras.layers.Average(name = 'Ave78208', )([Res79952,Con5849])
+Sep27256 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep27256', )(Ave78208)
+model = tf.keras.models.Model(inputs=[in0ELU27935,in0Add59767,in1Add59767,in0Con5849], outputs=Sep27256)
+w = model.get_layer('Sep27256').get_weights() 
+w[0] = np.array([[[0.7781], [0.6813], [0.2033], [0.0487], [0.9362], [0.263], [0.0477], [0.4442]]])
+w[1] = np.array([[[0.8225, 0.2638], [0.6647, 0.6776], [0.981, 0.8527], [0.5465, 0.6529], [0.1116, 0.204], [0.3929, 0.532], [0.0027, 0.3941], [0.7722, 0.0208]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep27256').set_weights(w) 
+in0ELU27935 = tf.constant([[[[[0.8102, 0.3191], [0.2712, 0.5058]], [[0.0311, 0.0509], [0.9587, 0.3348]]]]])
+in0Add59767 = tf.constant([[[0.043]]])
+in1Add59767 = tf.constant([[[0.4688]]])
+in0Con5849 = tf.constant([[[0.1939, 0.481, 0.7613, 0.1042, 0.6855, 0.2432, 0.1914]]])
+print (np.array2string(model.predict([in0ELU27935,in0Add59767,in1Add59767,in0Con5849],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep27256.png')
+
+LELU27935 = elu_layer([[[[[0.8102, 0.3191], [0.2712, 0.5058]], [[0.0311, 0.0509], [0.9587, 0.3348]]]]], 6.074411491553974, ELU27935), 
+LRes89395 = reshape_layer(ELU27935, [1, 2, 4], Res89395), 
+LRes79952 = reshape_layer(Res89395, [1, 8], Res79952), 
+LAdd59767 = add_layer([[[[0.043]]], [[[0.4688]]]], Add59767), 
+LCon5849 = concatenate_layer([Add59767,[[[0.1939, 0.481, 0.7613, 0.1042, 0.6855, 0.2432, 0.1914]]]], 2, Con5849), 
+LAve78208 = average_layer([Res79952,Con5849], Ave78208), 
+LSep27256 = separable_conv1D_layer(Ave78208, 1,[[[[0.7781], [0.6813], [0.2033], [0.0487], [0.9362], [0.263], [0.0477], [0.4442]]],[[[0.8225, 0.2638], [0.6647, 0.6776], [0.981, 0.8527], [0.5465, 0.6529], [0.1116, 0.204], [0.3929, 0.532], [0.0027, 0.3941], [0.7722, 0.0208]]]],[0, 0], 1, true, Sep27256), 
+exec_layers([LELU27935,LRes89395,LRes79952,LAdd59767,LCon5849,LAve78208,LSep27256],["ELU27935","Res89395","Res79952","Add59767","Con5849","Ave78208","Sep27256"],Sep27256,"Sep27256")
+
+Actual (Unparsed): [[[0.7664990, 0.4175996]]]
+
+Expected (Unparsed): [[[0.7664990274700001,0.41759961154499997]]]
+
+Actual:   [[[0.7665, 0.4176]]]
+
+Expected: [[[0.7665, 0.4176]]]

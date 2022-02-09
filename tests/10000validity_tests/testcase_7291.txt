@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep2448 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Min72019 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min72019 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave5468 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Ave5468 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+Dep2448 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep2448', )(in0Dep2448)
+Min72019 = keras.layers.Minimum(name = 'Min72019', )([in0Min72019,in1Min72019])
+Add92479 = keras.layers.Add(name = 'Add92479', )([Dep2448,Min72019])
+Res53656 = keras.layers.Reshape((1, 2, 2, 1), name = 'Res53656', )(Add92479)
+Zer44409 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer44409', )(Res53656)
+Ave5468 = keras.layers.Average(name = 'Ave5468', )([in0Ave5468,in1Ave5468])
+Lea13436 = keras.layers.LeakyReLU(alpha=6.975275525761916, name = 'Lea13436', )(Ave5468)
+Zer41089 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (2, 0)), name = 'Zer41089', )(Lea13436)
+Add88781 = keras.layers.Add(name = 'Add88781', )([Zer44409,Zer41089])
+model = tf.keras.models.Model(inputs=[in0Dep2448,in0Min72019,in1Min72019,in0Ave5468,in1Ave5468], outputs=Add88781)
+w = model.get_layer('Dep2448').get_weights() 
+w[0] = np.array([[[[0.6826], [0.853]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep2448').set_weights(w) 
+in0Dep2448 = tf.constant([[[[0.1512, 0.9081], [0.4066, 0.5281]]]])
+in0Min72019 = tf.constant([[[[0.2921, 0.5378], [0.5013, 0.4803]]]])
+in1Min72019 = tf.constant([[[[0.6434, 0.5267], [0.0479, 0.3914]]]])
+in0Ave5468 = tf.constant([[[[[0.8242]]], [[[0.4525]]]]])
+in1Ave5468 = tf.constant([[[[[0.4207]]], [[[0.742]]]]])
+print (np.array2string(model.predict([in0Dep2448,in0Min72019,in1Min72019,in0Ave5468,in1Ave5468],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add88781.png')
+
+LDep2448 = depthwise_conv2D_layer([[[[0.1512, 0.9081], [0.4066, 0.5281]]]], 1, 1,[[[[0.6826], [0.853]]]],[0, 0], 1, 1, false, Dep2448), 
+LMin72019 = minimum_layer([[[[[0.2921, 0.5378], [0.5013, 0.4803]]]], [[[[0.6434, 0.5267], [0.0479, 0.3914]]]]], Min72019), 
+LAdd92479 = add_layer([Dep2448,Min72019], Add92479), 
+LRes53656 = reshape_layer(Add92479, [1, 2, 2, 1], Res53656), 
+LZer44409 = zero_padding3D_layer(Res53656, 1, 0, 1, 0, 1, 0, Zer44409), 
+LAve5468 = average_layer([[[[[[0.8242]]], [[[0.4525]]]]], [[[[[0.4207]]], [[[0.742]]]]]], Ave5468), 
+LLea13436 = leaky_relu_layer(Ave5468, 6.975275525761916, Lea13436), 
+LZer41089 = zero_padding3D_layer(Lea13436, 0, 0, 2, 0, 2, 0, Zer41089), 
+LAdd88781 = add_layer([Zer44409,Zer41089], Add88781), 
+exec_layers([LDep2448,LMin72019,LAdd92479,LRes53656,LZer44409,LAve5468,LLea13436,LZer41089,LAdd88781],["Dep2448","Min72019","Add92479","Res53656","Zer44409","Ave5468","Lea13436","Zer41089","Add88781"],Add88781,"Add88781")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.6224500]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.3953091], [1.3013093]], [[0.0000000], [0.3254452], [1.4391193]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0.6224500000000001]]],[[[0],[0],[0]],[[0],[0.39530912],[1.3013092999999998]],[[0],[0.32544516],[1.4391193000000002]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.6225]]], [[[0], [0], [0]], [[0], [0.3954], [1.3014]], [[0], [0.3255], [1.4392]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.6225]]], [[[0], [0], [0]], [[0], [0.3954], [1.3014]], [[0], [0.3255], [1.4392]]]]]

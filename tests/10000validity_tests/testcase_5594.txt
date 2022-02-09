@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep1668 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Sof19370 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dep1668 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep1668', )(in0Dep1668)
+Res68742 = keras.layers.Reshape((1, 2), name = 'Res68742', )(Dep1668)
+Zer19816 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer19816', )(Res68742)
+Sof19370 = keras.layers.Softmax(axis=1, name = 'Sof19370', input_shape=(1, 1))(in0Sof19370)
+ReL51266 = keras.layers.ReLU(max_value=7.643677145338918, negative_slope=2.753336014041206, threshold=4.490151514849242, name = 'ReL51266', )(Sof19370)
+Sep47864 = keras.layers.SeparableConv1D(2, (1),strides=(2), padding='valid', name = 'Sep47864', )(ReL51266)
+Zer14496 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer14496', )(Sep47864)
+Dot85516 = keras.layers.Dot(axes=(2, 2), name = 'Dot85516', )([Zer19816,Zer14496])
+model = tf.keras.models.Model(inputs=[in0Dep1668,in0Sof19370], outputs=Dot85516)
+w = model.get_layer('Dep1668').get_weights() 
+w[0] = np.array([[[[0.7192], [0.5904]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep1668').set_weights(w) 
+w = model.get_layer('Sep47864').get_weights() 
+w[0] = np.array([[[0.3256]]])
+w[1] = np.array([[[0.8414, 0.5112]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep47864').set_weights(w) 
+in0Dep1668 = tf.constant([[[[0.8462, 0.7417]]]])
+in0Sof19370 = tf.constant([[[0.4481]]])
+print (np.array2string(model.predict([in0Dep1668,in0Sof19370],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot85516.png')
+
+LDep1668 = depthwise_conv2D_layer([[[[0.8462, 0.7417]]]], 1, 1,[[[[0.7192], [0.5904]]]],[0, 0], 1, 1, false, Dep1668), 
+LRes68742 = reshape_layer(Dep1668, [1, 2], Res68742), 
+LZer19816 = zero_padding1D_layer(Res68742, 1, 1, Zer19816), 
+LSof19370 = softmax_layer([[[0.4481]]], 1, Sof19370), 
+LReL51266 = relu_layer(Sof19370, 7.643677145338918, 2.753336014041206, 4.490151514849242, ReL51266), 
+LSep47864 = separable_conv1D_layer(ReL51266, 1,[[[[0.3256]]],[[[0.8414, 0.5112]]]],[0, 0], 2, false, Sep47864), 
+LZer14496 = zero_padding1D_layer(Sep47864, 2, 0, Zer14496), 
+LDot85516 = dot_layer(Zer19816,Zer14496, 2, 2, Dot85516), 
+exec_layers([LDep1668,LRes68742,LZer19816,LSof19370,LReL51266,LSep47864,LZer14496,LDot85516],["Dep1668","Res68742","Zer19816","Sof19370","ReL51266","Sep47864","Zer14496","Dot85516"],Dot85516,"Dot85516")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, -2.3025982], [0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0,0,0.0],[0.0,0.0,-2.3025982753788727],[0,0,0.0]]]
+
+Actual:   [[[0, 0, 0], [0, 0, -2.3025], [0, 0, 0]]]
+
+Expected: [[[0, 0, 0], [0, 0, -2.3025], [0, 0, 0]]]

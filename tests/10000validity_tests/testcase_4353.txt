@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con15351 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con82423 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Loc44932 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Con15351 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con15351', )(in0Con15351)
+Res6155 = keras.layers.Reshape((1, 2, 1), name = 'Res6155', )(Con15351)
+Con82423 = keras.layers.Concatenate(axis=3, name = 'Con82423', )([Res6155,in0Con82423])
+Loc44932 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc44932', )(in0Loc44932)
+Zer89015 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer89015', )(Loc44932)
+Min63240 = keras.layers.Minimum(name = 'Min63240', )([Con82423,Zer89015])
+ReL50316 = keras.layers.ReLU(max_value=5.888597955563113, negative_slope=8.687639482094923, threshold=7.883951894350705, name = 'ReL50316', )(Min63240)
+model = tf.keras.models.Model(inputs=[in0Con15351,in0Con82423,in0Loc44932], outputs=ReL50316)
+w = model.get_layer('Con15351').get_weights() 
+w[0] = np.array([[[0.8615, 0.3405]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con15351').set_weights(w) 
+w = model.get_layer('Loc44932').get_weights() 
+w[0] = np.array([[[0.3407, 0.5736, 0.8342]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc44932').set_weights(w) 
+in0Con15351 = tf.constant([[[0.5616]]])
+in0Con82423 = tf.constant([[[[0.7163, 0.1828], [0.5493, 0.2589]]]])
+in0Loc44932 = tf.constant([[[[0.4225]]]])
+print (np.array2string(model.predict([in0Con15351,in0Con82423,in0Loc44932],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ReL50316.png')
+
+LCon15351 = conv1D_layer([[[0.5616]]], 1,[[[0.8615, 0.3405]]],[0, 0], 1, false, 1, Con15351), 
+LRes6155 = reshape_layer(Con15351, [1, 2, 1], Res6155), 
+LCon82423 = concatenate_layer([Res6155,[[[[0.7163, 0.1828], [0.5493, 0.2589]]]]], 3, Con82423), 
+LLoc44932 = locally_connected2D_layer([[[[0.4225]]]], 1, 1,[[[0.3407, 0.5736, 0.8342]]],[[[0, 0, 0]]], 1, 1, Loc44932), 
+LZer89015 = zero_padding2D_layer(Loc44932, 0, 0, 1, 0, Zer89015), 
+LMin63240 = minimum_layer([Con82423,Zer89015], Min63240), 
+LReL50316 = relu_layer(Min63240, 5.888597955563113, 8.687639482094923, 7.883951894350705, ReL50316), 
+exec_layers([LCon15351,LRes6155,LCon82423,LLoc44932,LZer89015,LMin63240,LReL50316],["Con15351","Res6155","Con82423","Loc44932","Zer89015","Min63240","ReL50316"],ReL50316,"ReL50316")
+
+Actual (Unparsed): [[[[-68.4929318, -68.4929318, -68.4929318], [-67.2423829, -66.3875170, -66.2437020]]]]
+
+Expected (Unparsed): [[[[-68.49293175229825,-68.49293175229825,-68.49293175229825],[-67.24238297131848,-66.38751707437046,-66.24370189038387]]]]
+
+Actual:   [[[[-68.4929, -68.4929, -68.4929], [-67.2423, -66.3875, -66.2437]]]]
+
+Expected: [[[[-68.4929, -68.4929, -68.4929], [-67.2423, -66.3875, -66.2437]]]]

@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot26730 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot26730 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con21476 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con83575 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dot26730 = keras.layers.Dot(axes=(1, 1), name = 'Dot26730', )([in0Dot26730,in1Dot26730])
+Sof35278 = keras.layers.Softmax(axis=1, name = 'Sof35278', )(Dot26730)
+Con21476 = keras.layers.Concatenate(axis=2, name = 'Con21476', )([Sof35278,in0Con21476])
+Con83575 = keras.layers.Conv1D(3, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con83575', )(in0Con83575)
+Sof73344 = keras.layers.Softmax(axis=1, name = 'Sof73344', )(Con83575)
+Zer20182 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer20182', )(Sof73344)
+Sub30709 = keras.layers.Subtract(name = 'Sub30709', )([Con21476,Zer20182])
+model = tf.keras.models.Model(inputs=[in0Dot26730,in1Dot26730,in0Con21476,in0Con83575], outputs=Sub30709)
+w = model.get_layer('Con83575').get_weights() 
+w[0] = np.array([[[0.2759, 0.6303, 0.2795], [0.4283, 0.4766, 0.6296]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con83575').set_weights(w) 
+in0Dot26730 = tf.constant([[[0.8954, 0.9741], [0.5154, 0.2406], [0.9354, 0.4151]]])
+in1Dot26730 = tf.constant([[[0.5872, 0.6145], [0.2517, 0.158], [0.079, 0.7686]]])
+in0Con21476 = tf.constant([[[0.8301], [0.1275]]])
+in0Con83575 = tf.constant([[[0.3991, 0.6631]]])
+print (np.array2string(model.predict([in0Dot26730,in1Dot26730,in0Con21476,in0Con83575],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub30709.png')
+
+LDot26730 = dot_layer([[[0.8954, 0.9741], [0.5154, 0.2406], [0.9354, 0.4151]]], [[[0.5872, 0.6145], [0.2517, 0.158], [0.079, 0.7686]]], 1, 1, Dot26730), 
+LSof35278 = softmax_layer(Dot26730, 1, Sof35278), 
+LCon21476 = concatenate_layer([Sof35278,[[[0.8301], [0.1275]]]], 2, Con21476), 
+LCon83575 = conv1D_layer([[[0.3991, 0.6631]]], 1,[[[0.2759, 0.6303, 0.2795], [0.4283, 0.4766, 0.6296]]],[0, 0, 0], 1, false, 1, Con83575), 
+LSof73344 = softmax_layer(Con83575, 1, Sof73344), 
+LZer20182 = zero_padding1D_layer(Sof73344, 1, 0, Zer20182), 
+LSub30709 = subtract_layer(Con21476,Zer20182, Sub30709), 
+exec_layers([LDot26730,LSof35278,LCon21476,LCon83575,LSof73344,LZer20182,LSub30709],["Dot26730","Sof35278","Con21476","Con83575","Sof73344","Zer20182","Sub30709"],Sub30709,"Sub30709")
+
+Actual (Unparsed): [[[0.5160091, 0.5974761, 0.8301000], [-0.5160091, -0.5974761, -0.8725000]]]
+
+Expected (Unparsed): [[[0.5160090809950069,0.5974761050437578,0.8301],[-0.516009080995007,-0.5974761050437578,-0.8725]]]
+
+Actual:   [[[0.5161, 0.5975, 0.8301], [-0.516, -0.5974, -0.8725]]]
+
+Expected: [[[0.5161, 0.5975, 0.8301], [-0.516, -0.5974, -0.8725]]]

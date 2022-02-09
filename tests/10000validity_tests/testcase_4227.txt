@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep82151 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con25681 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Min59297 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min59297 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Sep82151 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='same', name = 'Sep82151', )(in0Sep82151)
+Den48028 = keras.layers.Dense(1,name = 'Den48028', )(Sep82151)
+Res42999 = keras.layers.Reshape((1, 1, 1), name = 'Res42999', )(Den48028)
+Zer22102 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer22102', )(Res42999)
+Con25681 = keras.layers.Concatenate(axis=3, name = 'Con25681', )([Zer22102,in0Con25681])
+Min59297 = keras.layers.Minimum(name = 'Min59297', )([in0Min59297,in1Min59297])
+Sep57199 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='valid', name = 'Sep57199', )(Min59297)
+Min55124 = keras.layers.Minimum(name = 'Min55124', )([Con25681,Sep57199])
+model = tf.keras.models.Model(inputs=[in0Sep82151,in0Con25681,in0Min59297,in1Min59297], outputs=Min55124)
+w = model.get_layer('Sep82151').get_weights() 
+w[0] = np.array([[[0.0908], [0.3439]]])
+w[1] = np.array([[[0.6853, 0.4765, 0.9602, 0.0287], [0.8744, 0.4819, 0.3288, 0.6153]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep82151').set_weights(w) 
+w = model.get_layer('Den48028').get_weights() 
+w[0] = np.array([[0.8258], [0.5869], [0.2792], [0.3258]])
+w[1] = np.array([0.9323])
+model.get_layer('Den48028').set_weights(w) 
+w = model.get_layer('Sep57199').get_weights() 
+w[0] = np.array([[[[0.3333]]]])
+w[1] = np.array([[[[0.8361, 0.4577, 0.8442]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep57199').set_weights(w) 
+in0Sep82151 = tf.constant([[[0.2358, 0.6211]]])
+in0Con25681 = tf.constant([[[[0.4402, 0.5737], [0.2778, 0.0076]], [[0.8496, 0.5099], [0.0829, 0.9105]]]])
+in0Min59297 = tf.constant([[[[0.5639], [0.8775]], [[0.3512], [0.4817]]]])
+in1Min59297 = tf.constant([[[[0.5472], [0.9529]], [[0.552], [0.0077]]]])
+print (np.array2string(model.predict([in0Sep82151,in0Con25681,in0Min59297,in1Min59297],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min55124.png')
+
+LSep82151 = separable_conv1D_layer([[[0.2358, 0.6211]]], 1,[[[[0.0908], [0.3439]]],[[[0.6853, 0.4765, 0.9602, 0.0287], [0.8744, 0.4819, 0.3288, 0.6153]]]],[0, 0, 0, 0], 1, true, Sep82151), 
+LDen48028 = dense_layer(Sep82151, [[0.8258], [0.5869], [0.2792], [0.3258]],[0.9323], Den48028), 
+LRes42999 = reshape_layer(Den48028, [1, 1, 1], Res42999), 
+LZer22102 = zero_padding2D_layer(Res42999, 1, 0, 1, 0, Zer22102), 
+LCon25681 = concatenate_layer([Zer22102,[[[[0.4402, 0.5737], [0.2778, 0.0076]], [[0.8496, 0.5099], [0.0829, 0.9105]]]]], 3, Con25681), 
+LMin59297 = minimum_layer([[[[[0.5639], [0.8775]], [[0.3512], [0.4817]]]], [[[[0.5472], [0.9529]], [[0.552], [0.0077]]]]], Min59297), 
+LSep57199 = separable_conv2D_layer(Min59297, 1, 1,[[[[[0.3333]]]],[[[[0.8361, 0.4577, 0.8442]]]]],[0, 0, 0], 1, 1, false, Sep57199), 
+LMin55124 = minimum_layer([Con25681,Sep57199], Min55124), 
+exec_layers([LSep82151,LDen48028,LRes42999,LZer22102,LCon25681,LMin59297,LSep57199,LMin55124],["Sep82151","Den48028","Res42999","Zer22102","Con25681","Min59297","Sep57199","Min55124"],Min55124,"Min55124")
+
+Actual (Unparsed): [[[[0.0000000, 0.0834761, 0.1539667], [0.0000000, 0.1338639, 0.0076000]], [[0.0000000, 0.0535761, 0.0988178], [0.0021458, 0.0011746, 0.0021666]]]]
+
+Expected (Unparsed): [[[[0,0.083476131552,0.153966681792],[0,0.13386386227499997,0.0076]],[[0,0.053576055192,0.09881779723199999],[0.0021457754009999996,0.001174645857,0.002166563322]]]]
+
+Actual:   [[[[0, 0.0835, 0.154], [0, 0.1339, 0.0076]], [[0, 0.0536, 0.0989], [0.0022, 0.0012, 0.0022]]]]
+
+Expected: [[[[0, 0.0835, 0.154], [0, 0.1339, 0.0076]], [[0, 0.0536, 0.0989], [0.0022, 0.0012, 0.0022]]]]

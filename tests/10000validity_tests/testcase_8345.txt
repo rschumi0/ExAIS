@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_1625 = tf.keras.layers.Input(shape=([3, 1]))
+in0Max26423 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0ELU12530 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con60633 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con41381 = tf.keras.layers.Input(shape=([1, 4]))
+
+Up_1625 = keras.layers.UpSampling1D(size=(2), name = 'Up_1625', )(in0Up_1625)
+Per61933 = keras.layers.Permute((2,1), name = 'Per61933',)(Up_1625)
+Max26423 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max26423', )(in0Max26423)
+Res51725 = keras.layers.Reshape((1, 4), name = 'Res51725', )(Max26423)
+Sep16302 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep16302', )(Res51725)
+ELU12530 = keras.layers.ELU(alpha=-6.957423994493452, name = 'ELU12530', input_shape=(1, 1))(in0ELU12530)
+Con60633 = keras.layers.Concatenate(axis=2, name = 'Con60633', )([ELU12530,in0Con60633])
+Mul86518 = keras.layers.Multiply(name = 'Mul86518', )([Sep16302,Con60633])
+Con41381 = keras.layers.Concatenate(axis=2, name = 'Con41381', )([Mul86518,in0Con41381])
+Max44349 = keras.layers.Maximum(name = 'Max44349', )([Per61933,Con41381])
+model = tf.keras.models.Model(inputs=[in0Up_1625,in0Max26423,in0ELU12530,in0Con60633,in0Con41381], outputs=Max44349)
+w = model.get_layer('Sep16302').get_weights() 
+w[0] = np.array([[[0.394], [0.7038], [0.6136], [0.3056]]])
+w[1] = np.array([[[0.36, 0.105], [0.6593, 0.9649], [0.4613, 0.475], [0.7794, 0.4464]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep16302').set_weights(w) 
+in0Up_1625 = tf.constant([[[1.5071], [1.0116], [1.9085]]])
+in0Max26423 = tf.constant([[[[1.2572, 1.5148], [1.5792, 1.3599]]]])
+in0ELU12530 = tf.constant([[[0.5492]]])
+in0Con60633 = tf.constant([[[0.6267]]])
+in0Con41381 = tf.constant([[[0.9599, 0.8239, 0.8599, 0.387]]])
+print (np.array2string(model.predict([in0Up_1625,in0Max26423,in0ELU12530,in0Con60633,in0Con41381],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max44349.png')
+
+LUp_1625 = up_sampling1D_layer([[[1.5071], [1.0116], [1.9085]]], 2, Up_1625), 
+LPer61933 = permute_layer(Up_1625, 2,1, Per61933), 
+LMax26423 = max_pool2D_layer([[[[1.2572, 1.5148], [1.5792, 1.3599]]]], 1, 1, Max26423), 
+LRes51725 = reshape_layer(Max26423, [1, 4], Res51725), 
+LSep16302 = separable_conv1D_layer(Res51725, 1,[[[[0.394], [0.7038], [0.6136], [0.3056]]],[[[0.36, 0.105], [0.6593, 0.9649], [0.4613, 0.475], [0.7794, 0.4464]]]],[0, 0], 1, true, Sep16302), 
+LELU12530 = elu_layer([[[0.5492]]], -6.957423994493452, ELU12530), 
+LCon60633 = concatenate_layer([ELU12530,[[[0.6267]]]], 2, Con60633), 
+LMul86518 = multiply_layer([Sep16302,Con60633], Mul86518), 
+LCon41381 = concatenate_layer([Mul86518,[[[0.9599, 0.8239, 0.8599, 0.387]]]], 2, Con41381), 
+LMax44349 = maximum_layer([Per61933,Con41381], Max44349), 
+exec_layers([LUp_1625,LPer61933,LMax26423,LRes51725,LSep16302,LELU12530,LCon60633,LMul86518,LCon41381,LMax44349],["Up_1625","Per61933","Max26423","Res51725","Sep16302","ELU12530","Con60633","Mul86518","Con41381","Max44349"],Max44349,"Max44349")
+
+Actual (Unparsed): [[[1.5071000, 1.5071000, 1.0116000, 1.0116000, 1.9085000, 1.9085000]]]
+
+Expected (Unparsed): [[[1.5071,1.5071,1.0116,1.0116,1.9085,1.9085]]]
+
+Actual:   [[[1.5071, 1.5071, 1.0116, 1.0116, 1.9085, 1.9085]]]
+
+Expected: [[[1.5071, 1.5071, 1.0116, 1.0116, 1.9085, 1.9085]]]

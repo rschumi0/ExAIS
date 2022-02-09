@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc67915 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Sim76493 = tf.keras.layers.Input(shape=([2, 3]))
+
+Loc67915 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 4), name = 'Loc67915', )(in0Loc67915)
+Res44435 = keras.layers.Reshape((1, 3), name = 'Res44435', )(Loc67915)
+Sim76493 = keras.layers.SimpleRNN(3,name = 'Sim76493', )(in0Sim76493)
+Res10291 = keras.layers.Reshape((1, 3), name = 'Res10291', )(Sim76493)
+Mul17593 = keras.layers.Multiply(name = 'Mul17593', )([Res44435,Res10291])
+Res34161 = keras.layers.Reshape((1, 3, 1), name = 'Res34161', )(Mul17593)
+Dep27668 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep27668', )(Res34161)
+model = tf.keras.models.Model(inputs=[in0Loc67915,in0Sim76493], outputs=Dep27668)
+w = model.get_layer('Loc67915').get_weights() 
+w[0] = np.array([[[0.5769, 0.0406, 0.6782], [0.9513, 0.094, 0.0918]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc67915').set_weights(w) 
+w = model.get_layer('Sim76493').get_weights() 
+w[0] = np.array([[1, 4, 6], [5, 9, 2], [5, 2, 4]])
+w[1] = np.array([[1, 1, 1], [6, 6, 4], [1, 3, 3]])
+w[2] = np.array([8, 6, 5])
+model.get_layer('Sim76493').set_weights(w) 
+w = model.get_layer('Dep27668').get_weights() 
+w[0] = np.array([[[[0.9607]]]])
+w[1] = np.array([0])
+model.get_layer('Dep27668').set_weights(w) 
+in0Loc67915 = tf.constant([[[[0.3318, 0.4507]]]])
+in0Sim76493 = tf.constant([[[10, 6, 2], [9, 3, 7]]])
+print (np.array2string(model.predict([in0Loc67915,in0Sim76493],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep27668.png')
+
+LLoc67915 = locally_connected2D_layer([[[[0.3318, 0.4507]]]], 1, 1,[[[0.5769, 0.0406, 0.6782], [0.9513, 0.094, 0.0918]]],[[[0, 0, 0]]], 1, 4, Loc67915), 
+LRes44435 = reshape_layer(Loc67915, [1, 3], Res44435), 
+LSim76493 = simple_rnn_layer([[[10, 6, 2], [9, 3, 7]]],[[1, 4, 6], [5, 9, 2], [5, 2, 4]],[[1, 1, 1], [6, 6, 4], [1, 3, 3]],[8, 6, 5], Sim76493), 
+LRes10291 = reshape_layer(Sim76493, [1, 3], Res10291), 
+LMul17593 = multiply_layer([Res44435,Res10291], Mul17593), 
+LRes34161 = reshape_layer(Mul17593, [1, 3, 1], Res34161), 
+LDep27668 = depthwise_conv2D_layer(Res34161, 1, 1,[[[[0.9607]]]],[0], 1, 1, false, Dep27668), 
+exec_layers([LLoc67915,LRes44435,LSim76493,LRes10291,LMul17593,LRes34161,LDep27668],["Loc67915","Res44435","Sim76493","Res10291","Mul17593","Res34161","Dep27668"],Dep27668,"Dep27668")
+
+Actual (Unparsed): [[[[0.5957938], [0.0536425], [0.2559315]]]]
+
+Expected (Unparsed): [[[[0.595793793231],[0.053642490615999995],[0.255931459914]]]]
+
+Actual:   [[[[0.5958], [0.0537], [0.256]]]]
+
+Expected: [[[[0.5958], [0.0537], [0.256]]]]

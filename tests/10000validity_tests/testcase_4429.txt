@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con96941 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Max1469 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Max1469 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Min21731 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min21731 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con79372 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con61195 = tf.keras.layers.Input(shape=([2, 1]))
+
+Con96941 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con96941', )(in0Con96941)
+Res62533 = keras.layers.Reshape((1, 1, 3), name = 'Res62533', )(Con96941)
+Res10089 = keras.layers.Reshape((1, 3), name = 'Res10089', )(Res62533)
+Zer54297 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer54297', )(Res10089)
+Max1469 = keras.layers.Maximum(name = 'Max1469', )([in0Max1469,in1Max1469])
+Res24176 = keras.layers.Reshape((2, 2), name = 'Res24176', )(Max1469)
+Min21731 = keras.layers.Minimum(name = 'Min21731', )([in0Min21731,in1Min21731])
+Zer58822 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer58822', )(Min21731)
+Con79372 = keras.layers.Concatenate(axis=2, name = 'Con79372', )([Zer58822,in0Con79372])
+Max76749 = keras.layers.Maximum(name = 'Max76749', )([Res24176,Con79372])
+Con61195 = keras.layers.Concatenate(axis=2, name = 'Con61195', )([Max76749,in0Con61195])
+Mul79473 = keras.layers.Multiply(name = 'Mul79473', )([Zer54297,Con61195])
+model = tf.keras.models.Model(inputs=[in0Con96941,in0Max1469,in1Max1469,in0Min21731,in1Min21731,in0Con79372,in0Con61195], outputs=Mul79473)
+w = model.get_layer('Con96941').get_weights() 
+w[0] = np.array([[[[[0.2269, 0.1568], [0.0317, 0.5134], [0.8585, 0.5096]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con96941').set_weights(w) 
+in0Con96941 = tf.constant([[[[[0.5145, 0.4312]]]]])
+in0Max1469 = tf.constant([[[[0.6285, 0.8741]], [[0.318, 0.4145]]]])
+in1Max1469 = tf.constant([[[[0.3673, 0.4189]], [[0.7418, 0.0672]]]])
+in0Min21731 = tf.constant([[[0.5018]]])
+in1Min21731 = tf.constant([[[0.3557]]])
+in0Con79372 = tf.constant([[[0.1703], [0.6973]]])
+in0Con61195 = tf.constant([[[0.9212], [0.8432]]])
+print (np.array2string(model.predict([in0Con96941,in0Max1469,in1Max1469,in0Min21731,in1Min21731,in0Con79372,in0Con61195],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul79473.png')
+
+LCon96941 = conv3D_transpose_layer([[[[[0.5145, 0.4312]]]]], 1, 1, 1,[[[[[0.2269, 0.1568], [0.0317, 0.5134], [0.8585, 0.5096]]]]],[0, 0, 0], 1, 1, 1, false, Con96941), 
+LRes62533 = reshape_layer(Con96941, [1, 1, 3], Res62533), 
+LRes10089 = reshape_layer(Res62533, [1, 3], Res10089), 
+LZer54297 = zero_padding1D_layer(Res10089, 1, 0, Zer54297), 
+LMax1469 = maximum_layer([[[[[0.6285, 0.8741]], [[0.318, 0.4145]]]], [[[[0.3673, 0.4189]], [[0.7418, 0.0672]]]]], Max1469), 
+LRes24176 = reshape_layer(Max1469, [2, 2], Res24176), 
+LMin21731 = minimum_layer([[[[0.5018]]], [[[0.3557]]]], Min21731), 
+LZer58822 = zero_padding1D_layer(Min21731, 1, 0, Zer58822), 
+LCon79372 = concatenate_layer([Zer58822,[[[0.1703], [0.6973]]]], 2, Con79372), 
+LMax76749 = maximum_layer([Res24176,Con79372], Max76749), 
+LCon61195 = concatenate_layer([Max76749,[[[0.9212], [0.8432]]]], 2, Con61195), 
+LMul79473 = multiply_layer([Zer54297,Con61195], Mul79473), 
+exec_layers([LCon96941,LRes62533,LRes10089,LZer54297,LMax1469,LRes24176,LMin21731,LZer58822,LCon79372,LMax76749,LCon61195,LMul79473],["Con96941","Res62533","Res10089","Zer54297","Max1469","Res24176","Min21731","Zer58822","Con79372","Max76749","Con61195","Mul79473"],Mul79473,"Mul79473")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000], [0.1367525, 0.1657397, 0.5577244]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0],[0.136752469378,0.16573965412900002,0.557724327664]]]
+
+Actual:   [[[0, 0, 0], [0.1368, 0.1658, 0.5578]]]
+
+Expected: [[[0, 0, 0], [0.1368, 0.1658, 0.5578]]]

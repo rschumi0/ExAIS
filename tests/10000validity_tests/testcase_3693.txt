@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot27673 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot27673 = tf.keras.layers.Input(shape=([2, 2]))
+in0PRe70406 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Dot27673 = keras.layers.Dot(axes=(2, 2), name = 'Dot27673', )([in0Dot27673,in1Dot27673])
+Res89410 = keras.layers.Reshape((2, 2, 1), name = 'Res89410', )(Dot27673)
+Zer99359 = keras.layers.ZeroPadding2D(padding=((0, 0), (4, 0)), name = 'Zer99359', )(Res89410)
+PRe70406 = keras.layers.PReLU(name = 'PRe70406', input_shape=(1, 2, 2))(in0PRe70406)
+Res54651 = keras.layers.Reshape((1, 4), name = 'Res54651', )(PRe70406)
+Loc95700 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc95700', )(Res54651)
+Res87816 = keras.layers.Reshape((1, 2, 1), name = 'Res87816', )(Loc95700)
+Up_51874 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_51874', )(Res87816)
+Zer31193 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer31193', )(Up_51874)
+Min41601 = keras.layers.Minimum(name = 'Min41601', )([Zer99359,Zer31193])
+model = tf.keras.models.Model(inputs=[in0Dot27673,in1Dot27673,in0PRe70406], outputs=Min41601)
+w = model.get_layer('PRe70406').get_weights() 
+w[0] = np.array([[[0.7553, 0.8273], [0.4761, 0.9833]]])
+model.get_layer('PRe70406').set_weights(w) 
+w = model.get_layer('Loc95700').get_weights() 
+w[0] = np.array([[[0.6338, 0.4173], [0.3671, 0.8253], [0.5898, 0.9979], [0.4062, 0.0345]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc95700').set_weights(w) 
+in0Dot27673 = tf.constant([[[0.7894, 0.4226], [0.4802, 0.1231]]])
+in1Dot27673 = tf.constant([[[0.9692, 0.2414], [0.8311, 0.4286]]])
+in0PRe70406 = tf.constant([[[[0.175, 0.9893], [0.6301, 0.5627]]]])
+print (np.array2string(model.predict([in0Dot27673,in1Dot27673,in0PRe70406],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min41601.png')
+
+LDot27673 = dot_layer([[[0.7894, 0.4226], [0.4802, 0.1231]]], [[[0.9692, 0.2414], [0.8311, 0.4286]]], 2, 2, Dot27673), 
+LRes89410 = reshape_layer(Dot27673, [2, 2, 1], Res89410), 
+LZer99359 = zero_padding2D_layer(Res89410, 0, 0, 4, 0, Zer99359), 
+LPRe70406 = prelu_layer([[[[0.175, 0.9893], [0.6301, 0.5627]]]], [[[0.7553, 0.8273], [0.4761, 0.9833]]], PRe70406), 
+LRes54651 = reshape_layer(PRe70406, [1, 4], Res54651), 
+LLoc95700 = locally_connected1D_layer(Res54651, 1,[[[0.6338, 0.4173], [0.3671, 0.8253], [0.5898, 0.9979], [0.4062, 0.0345]]],[[0, 0]], 1, Loc95700), 
+LRes87816 = reshape_layer(Loc95700, [1, 2, 1], Res87816), 
+LUp_51874 = up_sampling2D_layer(Res87816, 1, 2, Up_51874), 
+LZer31193 = zero_padding2D_layer(Up_51874, 1, 0, 2, 0, Zer31193), 
+LMin41601 = minimum_layer([Zer99359,Zer31193], Min41601), 
+exec_layers([LDot27673,LRes89410,LZer99359,LPRe70406,LRes54651,LLoc95700,LRes87816,LUp_51874,LZer31193,LMin41601],["Dot27673","Res89410","Zer99359","PRe70406","Res54651","Loc95700","Res87816","Up_51874","Zer31193","Min41601"],Min41601,"Min41601")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.4951262], [0.4518549]]]]
+
+Expected (Unparsed): [[[[0],[0],[0],[0],[0],[0]],[[0],[0],[0],[0],[0.49512618],[0.45185488]]]]
+
+Actual:   [[[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0.4952], [0.4519]]]]
+
+Expected: [[[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0.4952], [0.4519]]]]

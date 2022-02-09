@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave50283 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave50283 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con65731 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Sep92727 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Ave50283 = keras.layers.Average(name = 'Ave50283', )([in0Ave50283,in1Ave50283])
+Res73580 = keras.layers.Reshape((1, 2, 1), name = 'Res73580', )(Ave50283)
+Dep73827 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='valid', name = 'Dep73827', )(Res73580)
+Con65731 = keras.layers.Concatenate(axis=3, name = 'Con65731', )([Dep73827,in0Con65731])
+Sep92727 = keras.layers.SeparableConv2D(3, (1, 1),strides=(2, 2), padding='same', name = 'Sep92727', )(in0Sep92727)
+Ave62149 = keras.layers.Average(name = 'Ave62149', )([Con65731,Sep92727])
+model = tf.keras.models.Model(inputs=[in0Ave50283,in1Ave50283,in0Con65731,in0Sep92727], outputs=Ave62149)
+w = model.get_layer('Dep73827').get_weights() 
+w[0] = np.array([[[[0.6949]], [[0.9331]]]])
+w[1] = np.array([0])
+model.get_layer('Dep73827').set_weights(w) 
+w = model.get_layer('Sep92727').get_weights() 
+w[0] = np.array([[[[0.9918]]]])
+w[1] = np.array([[[[0.4013, 0.6916, 0.6588]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep92727').set_weights(w) 
+in0Ave50283 = tf.constant([[[0.1842, 0.8703]]])
+in1Ave50283 = tf.constant([[[0.9395, 0.6401]]])
+in0Con65731 = tf.constant([[[[0.9715, 0.6403]]]])
+in0Sep92727 = tf.constant([[[[0.5299]], [[0.9482]]]])
+print (np.array2string(model.predict([in0Ave50283,in1Ave50283,in0Con65731,in0Sep92727],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave62149.png')
+
+LAve50283 = average_layer([[[[0.1842, 0.8703]]], [[[0.9395, 0.6401]]]], Ave50283), 
+LRes73580 = reshape_layer(Ave50283, [1, 2, 1], Res73580), 
+LDep73827 = depthwise_conv2D_layer(Res73580, 1, 2,[[[[0.6949]], [[0.9331]]]],[0], 1, 1, false, Dep73827), 
+LCon65731 = concatenate_layer([Dep73827,[[[[0.9715, 0.6403]]]]], 3, Con65731), 
+LSep92727 = separable_conv2D_layer([[[[0.5299]], [[0.9482]]]], 1, 1,[[[[[0.9918]]]],[[[[0.4013, 0.6916, 0.6588]]]]],[0, 0, 0], 2, 2, true, Sep92727), 
+LAve62149 = average_layer([Con65731,Sep92727], Ave62149), 
+exec_layers([LAve50283,LRes73580,LDep73827,LCon65731,LSep92727,LAve62149],["Ave50283","Res73580","Dep73827","Con65731","Sep92727","Ave62149"],Ave62149,"Ave62149")
+
+Actual (Unparsed): [[[[0.6530059, 0.6674869, 0.4932678]]]]
+
+Expected (Unparsed): [[[[0.653005917133,0.6674868567560001,0.493267757708]]]]
+
+Actual:   [[[[0.6531, 0.6675, 0.4933]]]]
+
+Expected: [[[[0.6531, 0.6675, 0.4933]]]]

@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot22781 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot22781 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo76367 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con46690 = tf.keras.layers.Input(shape=([3]))
+
+Dot22781 = keras.layers.Dot(axes=(1, 2), name = 'Dot22781', )([in0Dot22781,in1Dot22781])
+Sep77030 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep77030', )(Dot22781)
+Fla39162 = keras.layers.Flatten(name = 'Fla39162', )(Sep77030)
+Glo76367 = keras.layers.GlobalAveragePooling3D(name = 'Glo76367', )(in0Glo76367)
+Con46690 = keras.layers.Concatenate(axis=1, name = 'Con46690', )([Glo76367,in0Con46690])
+Min19667 = keras.layers.Minimum(name = 'Min19667', )([Fla39162,Con46690])
+model = tf.keras.models.Model(inputs=[in0Dot22781,in1Dot22781,in0Glo76367,in0Con46690], outputs=Min19667)
+w = model.get_layer('Sep77030').get_weights() 
+w[0] = np.array([[[0.5937], [0.7108]]])
+w[1] = np.array([[[0.6707, 0.7756], [0.4408, 0.756]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep77030').set_weights(w) 
+in0Dot22781 = tf.constant([[[0.1843, 0.91], [0.3213, 0.7619]]])
+in1Dot22781 = tf.constant([[[0.9859, 0.1153], [0.0609, 0.4947]]])
+in0Glo76367 = tf.constant([[[[[1.9058], [1.8455]], [[1.1611], [1.25]]]]])
+in0Con46690 = tf.constant([[0.4797, 0.4614, 0.2976]])
+print (np.array2string(model.predict([in0Dot22781,in1Dot22781,in0Glo76367,in0Con46690],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min19667.png')
+
+LDot22781 = dot_layer([[[0.1843, 0.91], [0.3213, 0.7619]]], [[[0.9859, 0.1153], [0.0609, 0.4947]]], 1, 2, Dot22781), 
+LSep77030 = separable_conv1D_layer(Dot22781, 1,[[[[0.5937], [0.7108]]],[[[0.6707, 0.7756], [0.4408, 0.756]]]],[0, 0], 1, false, Sep77030), 
+LFla39162 = flatten_layer(Sep77030, Fla39162), 
+LGlo76367 = global_average_pooling3D_layer([[[[[1.9058], [1.8455]], [[1.1611], [1.25]]]]], Glo76367), 
+LCon46690 = concatenate_layer([Glo76367,[[0.4797, 0.4614, 0.2976]]], 1, Con46690), 
+LMin19667 = minimum_layer([Fla39162,Con46690], Min19667), 
+exec_layers([LDot22781,LSep77030,LFla39162,LGlo76367,LCon46690,LMin19667],["Dot22781","Sep77030","Fla39162","Glo76367","Con46690","Min19667"],Min19667,"Min19667")
+
+Actual (Unparsed): [[0.1404221, 0.1921713, 0.4614000, 0.2976000]]
+
+Expected (Unparsed): [[0.14042205587235057,0.19217125918551117,0.4614,0.2976]]
+
+Actual:   [[0.1405, 0.1922, 0.4614, 0.2976]]
+
+Expected: [[0.1405, 0.1922, 0.4614, 0.2976]]

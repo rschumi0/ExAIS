@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min95306 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min95306 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con3811 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in0Con94400 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Min95306 = keras.layers.Minimum(name = 'Min95306', )([in0Min95306,in1Min95306])
+Res60613 = keras.layers.Reshape((1, 2, 1), name = 'Res60613', )(Min95306)
+Res36117 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res36117', )(Res60613)
+Zer9641 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer9641', )(Res36117)
+Con3811 = keras.layers.Concatenate(axis=4, name = 'Con3811', )([Zer9641,in0Con3811])
+Con94400 = keras.layers.Conv3DTranspose(3, (1, 2, 1),strides=(1, 1, 1), padding='same', name = 'Con94400', )(in0Con94400)
+Mul19330 = keras.layers.Multiply(name = 'Mul19330', )([Con3811,Con94400])
+model = tf.keras.models.Model(inputs=[in0Min95306,in1Min95306,in0Con3811,in0Con94400], outputs=Mul19330)
+w = model.get_layer('Con94400').get_weights() 
+w[0] = np.array([[[[[0.3185], [0.0155], [0.6293]]], [[[0.9092], [0.0106], [0.4699]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con94400').set_weights(w) 
+in0Min95306 = tf.constant([[[0.4797, 0.4377]]])
+in1Min95306 = tf.constant([[[0.5834, 0.0495]]])
+in0Con3811 = tf.constant([[[[[0.2076, 0.0787]], [[0.2768, 0.2524]]], [[[0.3484, 0.8765]], [[0.9214, 0.0658]]]]])
+in0Con94400 = tf.constant([[[[[0.9151]], [[0.4757]]], [[[0.0661]], [[0.3085]]]]])
+print (np.array2string(model.predict([in0Min95306,in1Min95306,in0Con3811,in0Con94400],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul19330.png')
+
+LMin95306 = minimum_layer([[[[0.4797, 0.4377]]], [[[0.5834, 0.0495]]]], Min95306), 
+LRes60613 = reshape_layer(Min95306, [1, 2, 1], Res60613), 
+LRes36117 = reshape_layer(Res60613, [1, 2, 1, 1], Res36117), 
+LZer9641 = zero_padding3D_layer(Res36117, 1, 0, 0, 0, 0, 0, Zer9641), 
+LCon3811 = concatenate_layer([Zer9641,[[[[[0.2076, 0.0787]], [[0.2768, 0.2524]]], [[[0.3484, 0.8765]], [[0.9214, 0.0658]]]]]], 4, Con3811), 
+LCon94400 = conv3D_transpose_layer([[[[[0.9151]], [[0.4757]]], [[[0.0661]], [[0.3085]]]]], 1, 2, 1,[[[[[0.3185], [0.0155], [0.6293]]], [[[0.9092], [0.0106], [0.4699]]]]],[0, 0, 0], 1, 1, 1, true, Con94400), 
+LMul19330 = multiply_layer([Con3811,Con94400], Mul19330), 
+exec_layers([LMin95306,LRes60613,LRes36117,LZer9641,LCon3811,LCon94400,LMul19330],["Min95306","Res60613","Res36117","Zer9641","Con3811","Con94400","Mul19330"],Mul19330,"Mul19330")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0029446, 0.0453212]], [[0.0000000, 0.0047259, 0.1840914]]], [[[0.0100991, 0.0003570, 0.0364595]], [[0.0078386, 0.0050515, 0.0148181]]]]]
+
+Expected (Unparsed): [[[[[0.0,0.00294460878,0.045321160241000004]],[[0.0,0.004725919888,0.18409134740000002]]],[[[0.010099052145,0.00035695322000000007,0.036459533844999996]],[[0.007838590815000001,0.005051492574,0.014818123151999998]]]]]
+
+Actual:   [[[[[0, 0.003, 0.0454]], [[0, 0.0048, 0.1841]]], [[[0.0101, 0.0004, 0.0365]], [[0.0079, 0.0051, 0.0149]]]]]
+
+Expected: [[[[[0, 0.003, 0.0454]], [[0, 0.0048, 0.1841]]], [[[0.0101, 0.0004, 0.0365]], [[0.0079, 0.0051, 0.0149]]]]]

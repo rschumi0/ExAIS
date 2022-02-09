@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer78188 = tf.keras.layers.Input(shape=([1, 3]))
+in0Max64012 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max64012 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con74418 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sim54156 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con50457 = tf.keras.layers.Input(shape=([8]))
+
+Zer78188 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer78188', )(in0Zer78188)
+Max64012 = keras.layers.Maximum(name = 'Max64012', )([in0Max64012,in1Max64012])
+Zer77908 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer77908', )(Max64012)
+Con74418 = keras.layers.Concatenate(axis=2, name = 'Con74418', )([Zer77908,in0Con74418])
+Min60437 = keras.layers.Minimum(name = 'Min60437', )([Zer78188,Con74418])
+Fla19515 = keras.layers.Flatten(name = 'Fla19515', )(Min60437)
+Sim54156 = keras.layers.SimpleRNN(1,name = 'Sim54156', )(in0Sim54156)
+Con50457 = keras.layers.Concatenate(axis=1, name = 'Con50457', )([Sim54156,in0Con50457])
+Min20849 = keras.layers.Minimum(name = 'Min20849', )([Fla19515,Con50457])
+model = tf.keras.models.Model(inputs=[in0Zer78188,in0Max64012,in1Max64012,in0Con74418,in0Sim54156,in0Con50457], outputs=Min20849)
+w = model.get_layer('Sim54156').get_weights() 
+w[0] = np.array([[1]])
+w[1] = np.array([[5]])
+w[2] = np.array([3])
+model.get_layer('Sim54156').set_weights(w) 
+in0Zer78188 = tf.constant([[[1.5199, 1.172, 1.7293]]])
+in0Max64012 = tf.constant([[[0.3189, 0.8526], [0.3228, 0.7216]]])
+in1Max64012 = tf.constant([[[0.8416, 0.9513], [0.2396, 0.5011]]])
+in0Con74418 = tf.constant([[[0.121], [0.8351], [0.89]]])
+in0Sim54156 = tf.constant([[[5], [4], [1]]])
+in0Con50457 = tf.constant([[0.9854, 0.224, 0.2806, 0.1902, 0.8706, 0.5784, 0.2895, 0.9439]])
+print (np.array2string(model.predict([in0Zer78188,in0Max64012,in1Max64012,in0Con74418,in0Sim54156,in0Con50457],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min20849.png')
+
+LZer78188 = zero_padding1D_layer([[[1.5199, 1.172, 1.7293]]], 1, 1, Zer78188), 
+LMax64012 = maximum_layer([[[[0.3189, 0.8526], [0.3228, 0.7216]]], [[[0.8416, 0.9513], [0.2396, 0.5011]]]], Max64012), 
+LZer77908 = zero_padding1D_layer(Max64012, 1, 0, Zer77908), 
+LCon74418 = concatenate_layer([Zer77908,[[[0.121], [0.8351], [0.89]]]], 2, Con74418), 
+LMin60437 = minimum_layer([Zer78188,Con74418], Min60437), 
+LFla19515 = flatten_layer(Min60437, Fla19515), 
+LSim54156 = simple_rnn_layer([[[5], [4], [1]]],[[1]],[[5]],[3], Sim54156), 
+LCon50457 = concatenate_layer([Sim54156,[[0.9854, 0.224, 0.2806, 0.1902, 0.8706, 0.5784, 0.2895, 0.9439]]], 1, Con50457), 
+LMin20849 = minimum_layer([Fla19515,Con50457], Min20849), 
+exec_layers([LZer78188,LMax64012,LZer77908,LCon74418,LMin60437,LFla19515,LSim54156,LCon50457,LMin20849],["Zer78188","Max64012","Zer77908","Con74418","Min60437","Fla19515","Sim54156","Con50457","Min20849"],Min20849,"Min20849")
+
+Actual (Unparsed): [[0.0000000, 0.0000000, 0.0000000, 0.2806000, 0.1902000, 0.8351000, 0.0000000, 0.0000000, 0.0000000]]
+
+Expected (Unparsed): [[0,0,0,0.2806,0.1902,0.8351,0,0,0]]
+
+Actual:   [[0, 0, 0, 0.2806, 0.1902, 0.8351, 0, 0, 0]]
+
+Expected: [[0, 0, 0, 0.2806, 0.1902, 0.8351, 0, 0, 0]]

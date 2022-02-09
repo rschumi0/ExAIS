@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo63314 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Con3765 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sep45312 = tf.keras.layers.Input(shape=([1, 2]))
+
+Glo63314 = keras.layers.GlobalMaxPool3D(name = 'Glo63314', )(in0Glo63314)
+Lea64439 = keras.layers.LeakyReLU(alpha=6.621405767712507, name = 'Lea64439', )(Glo63314)
+Res9450 = keras.layers.Reshape((2, 1), name = 'Res9450', )(Lea64439)
+Con3765 = keras.layers.Concatenate(axis=2, name = 'Con3765', )([Res9450,in0Con3765])
+Sep45312 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='same', name = 'Sep45312', )(in0Sep45312)
+Zer79180 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer79180', )(Sep45312)
+Add18296 = keras.layers.Add(name = 'Add18296', )([Con3765,Zer79180])
+Con96249 = keras.layers.Conv1D(3, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con96249', )(Add18296)
+model = tf.keras.models.Model(inputs=[in0Glo63314,in0Con3765,in0Sep45312], outputs=Con96249)
+w = model.get_layer('Sep45312').get_weights() 
+w[0] = np.array([[[0.2998], [0.4798]]])
+w[1] = np.array([[[0.5683, 0.4807, 0.8646], [0.5787, 0.5341, 0.151]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep45312').set_weights(w) 
+w = model.get_layer('Con96249').get_weights() 
+w[0] = np.array([[[0.6456, 0.7358, 0.7578], [0.241, 0.7564, 0.8908], [0.3306, 0.2653, 0.3137]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con96249').set_weights(w) 
+in0Glo63314 = tf.constant([[[[[1.4011, 1.0205], [1.7941, 1.5646]], [[1.8764, 1.202], [1.3255, 1.6284]]]]])
+in0Con3765 = tf.constant([[[0.068, 0.566], [0.3774, 0.6478]]])
+in0Sep45312 = tf.constant([[[0.7153, 0.8193]]])
+print (np.array2string(model.predict([in0Glo63314,in0Con3765,in0Sep45312],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con96249.png')
+
+LGlo63314 = global_max_pool3D_layer([[[[[1.4011, 1.0205], [1.7941, 1.5646]], [[1.8764, 1.202], [1.3255, 1.6284]]]]], Glo63314), 
+LLea64439 = leaky_relu_layer(Glo63314, 6.621405767712507, Lea64439), 
+LRes9450 = reshape_layer(Lea64439, [2, 1], Res9450), 
+LCon3765 = concatenate_layer([Res9450,[[[0.068, 0.566], [0.3774, 0.6478]]]], 2, Con3765), 
+LSep45312 = separable_conv1D_layer([[[0.7153, 0.8193]]], 1,[[[[0.2998], [0.4798]]],[[[0.5683, 0.4807, 0.8646], [0.5787, 0.5341, 0.151]]]],[0, 0, 0], 1, true, Sep45312), 
+LZer79180 = zero_padding1D_layer(Sep45312, 1, 0, Zer79180), 
+LAdd18296 = add_layer([Con3765,Zer79180], Add18296), 
+LCon96249 = conv1D_layer(Add18296, 1,[[[0.6456, 0.7358, 0.7578], [0.241, 0.7564, 0.8908], [0.3306, 0.2653, 0.3137]]],[0, 0, 0], 1, false, 1, Con96249), 
+exec_layers([LGlo63314,LLea64439,LRes9450,LCon3765,LSep45312,LZer79180,LAdd18296,LCon96249],["Glo63314","Lea64439","Res9450","Con3765","Sep45312","Zer79180","Add18296","Con96249"],Con96249,"Con96249")
+
+Actual (Unparsed): [[[1.4149114, 1.5822501, 1.6600645], [1.7383193, 2.2142807, 2.3937868]]]
+
+Expected (Unparsed): [[[1.41491144,1.58225012,1.66006452],[1.7383192743950222,2.21428070755744,2.3937867631873586]]]
+
+Actual:   [[[1.415, 1.5823, 1.6601], [1.7384, 2.2143, 2.3938]]]
+
+Expected: [[[1.415, 1.5823, 1.6601], [1.7384, 2.2143, 2.3938]]]

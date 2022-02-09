@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max3289 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max3289 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con38493 = tf.keras.layers.Input(shape=([2, 2]))
+in0Loc83935 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sub75158 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub75158 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con58369 = tf.keras.layers.Input(shape=([2, 1]))
+
+Max3289 = keras.layers.Maximum(name = 'Max3289', )([in0Max3289,in1Max3289])
+Con38493 = keras.layers.Concatenate(axis=2, name = 'Con38493', )([Max3289,in0Con38493])
+Loc83935 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc83935', )(in0Loc83935)
+Min68773 = keras.layers.Minimum(name = 'Min68773', )([Con38493,Loc83935])
+Sub75158 = keras.layers.Subtract(name = 'Sub75158', )([in0Sub75158,in1Sub75158])
+Con58369 = keras.layers.Concatenate(axis=2, name = 'Con58369', )([Sub75158,in0Con58369])
+Min54715 = keras.layers.Minimum(name = 'Min54715', )([Min68773,Con58369])
+model = tf.keras.models.Model(inputs=[in0Max3289,in1Max3289,in0Con38493,in0Loc83935,in0Sub75158,in1Sub75158,in0Con58369], outputs=Min54715)
+w = model.get_layer('Loc83935').get_weights() 
+w[0] = np.array([[[0.6436, 0.0079, 0.585]], [[0.9631, 0.1102, 0.4879]]])
+w[1] = np.array([[0, 0, 0], [0, 0, 0]])
+model.get_layer('Loc83935').set_weights(w) 
+in0Max3289 = tf.constant([[[0.0326], [0.7402]]])
+in1Max3289 = tf.constant([[[0.0465], [0.2206]]])
+in0Con38493 = tf.constant([[[0.2054, 0.4145], [0.1401, 0.3376]]])
+in0Loc83935 = tf.constant([[[0.1686], [0.2553]]])
+in0Sub75158 = tf.constant([[[0.2834, 0.9767], [0.7355, 0.8347]]])
+in1Sub75158 = tf.constant([[[0.0618, 0.8966], [0.7726, 0.5382]]])
+in0Con58369 = tf.constant([[[0.3499], [0.1612]]])
+print (np.array2string(model.predict([in0Max3289,in1Max3289,in0Con38493,in0Loc83935,in0Sub75158,in1Sub75158,in0Con58369],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min54715.png')
+
+LMax3289 = maximum_layer([[[[0.0326], [0.7402]]], [[[0.0465], [0.2206]]]], Max3289), 
+LCon38493 = concatenate_layer([Max3289,[[[0.2054, 0.4145], [0.1401, 0.3376]]]], 2, Con38493), 
+LLoc83935 = locally_connected1D_layer([[[0.1686], [0.2553]]], 1,[[[0.6436, 0.0079, 0.585]], [[0.9631, 0.1102, 0.4879]]],[[0, 0, 0], [0, 0, 0]], 1, Loc83935), 
+LMin68773 = minimum_layer([Con38493,Loc83935], Min68773), 
+LSub75158 = subtract_layer([[[0.2834, 0.9767], [0.7355, 0.8347]]], [[[0.0618, 0.8966], [0.7726, 0.5382]]], Sub75158), 
+LCon58369 = concatenate_layer([Sub75158,[[[0.3499], [0.1612]]]], 2, Con58369), 
+LMin54715 = minimum_layer([Min68773,Con58369], Min54715), 
+exec_layers([LMax3289,LCon38493,LLoc83935,LMin68773,LSub75158,LCon58369,LMin54715],["Max3289","Con38493","Loc83935","Min68773","Sub75158","Con58369","Min54715"],Min54715,"Min54715")
+
+Actual (Unparsed): [[[0.0465000, 0.0013319, 0.0986310], [-0.0371000, 0.0281341, 0.1245609]]]
+
+Expected (Unparsed): [[[0.0465,0.0013319400000000002,0.098631],[-0.03709999999999991,0.028134060000000006,0.12456087000000002]]]
+
+Actual:   [[[0.0465, 0.0014, 0.0987], [-0.0371, 0.0282, 0.1246]]]
+
+Expected: [[[0.0465, 0.0014, 0.0987], [-0.037, 0.0282, 0.1246]]]

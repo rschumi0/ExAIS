@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul53991 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul53991 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con74088 = tf.keras.layers.Input(shape=([1]))
+in0GRU11870 = tf.keras.layers.Input(shape=([3, 3]))
+in0Mul77883 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Mul77883 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Mul53991 = keras.layers.Multiply(name = 'Mul53991', )([in0Mul53991,in1Mul53991])
+Fla94494 = keras.layers.Flatten(name = 'Fla94494', )(Mul53991)
+Con74088 = keras.layers.Concatenate(axis=1, name = 'Con74088', )([Fla94494,in0Con74088])
+GRU11870 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU11870', )(in0GRU11870)
+Ave35101 = keras.layers.Average(name = 'Ave35101', )([Con74088,GRU11870])
+Res24459 = keras.layers.Reshape((2, 1), name = 'Res24459', )(Ave35101)
+Res59518 = keras.layers.Reshape((2, 1, 1), name = 'Res59518', )(Res24459)
+Mul77883 = keras.layers.Multiply(name = 'Mul77883', )([in0Mul77883,in1Mul77883])
+Zer33977 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer33977', )(Mul77883)
+Ave52166 = keras.layers.Average(name = 'Ave52166', )([Res59518,Zer33977])
+model = tf.keras.models.Model(inputs=[in0Mul53991,in1Mul53991,in0Con74088,in0GRU11870,in0Mul77883,in1Mul77883], outputs=Ave52166)
+w = model.get_layer('GRU11870').get_weights() 
+w[0] = np.array([[3, 9, 2, 3, 1, 7], [8, 4, 5, 2, 10, 3], [9, 3, 1, 7, 10, 3]])
+w[1] = np.array([[8, 4, 10, 10, 7, 8], [7, 1, 7, 6, 8, 2]])
+w[2] = np.array([[10, 1, 1, 5, 6, 3], [4, 8, 5, 10, 1, 2]])
+model.get_layer('GRU11870').set_weights(w) 
+in0Mul53991 = tf.constant([[[0.4024]]])
+in1Mul53991 = tf.constant([[[0.2494]]])
+in0Con74088 = tf.constant([[0.1553]])
+in0GRU11870 = tf.constant([[[10, 4, 9], [5, 2, 2], [10, 7, 7]]])
+in0Mul77883 = tf.constant([[[[0.3007]]]])
+in1Mul77883 = tf.constant([[[[0.7801]]]])
+print (np.array2string(model.predict([in0Mul53991,in1Mul53991,in0Con74088,in0GRU11870,in0Mul77883,in1Mul77883],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave52166.png')
+
+LMul53991 = multiply_layer([[[[0.4024]]], [[[0.2494]]]], Mul53991), 
+LFla94494 = flatten_layer(Mul53991, Fla94494), 
+LCon74088 = concatenate_layer([Fla94494,[[0.1553]]], 1, Con74088), 
+LGRU11870 = gru_layer([[[10, 4, 9], [5, 2, 2], [10, 7, 7]]],[[3, 9, 2, 3, 1, 7], [8, 4, 5, 2, 10, 3], [9, 3, 1, 7, 10, 3]],[[8, 4, 10, 10, 7, 8], [7, 1, 7, 6, 8, 2]],[[10, 1, 1, 5, 6, 3], [4, 8, 5, 10, 1, 2]], true, GRU11870), 
+LAve35101 = average_layer([Con74088,GRU11870], Ave35101), 
+LRes24459 = reshape_layer(Ave35101, [2, 1], Res24459), 
+LRes59518 = reshape_layer(Res24459, [2, 1, 1], Res59518), 
+LMul77883 = multiply_layer([[[[[0.3007]]]], [[[[0.7801]]]]], Mul77883), 
+LZer33977 = zero_padding2D_layer(Mul77883, 1, 0, 0, 0, Zer33977), 
+LAve52166 = average_layer([Res59518,Zer33977], Ave52166), 
+exec_layers([LMul53991,LFla94494,LCon74088,LGRU11870,LAve35101,LRes24459,LRes59518,LMul77883,LZer33977,LAve52166],["Mul53991","Fla94494","Con74088","GRU11870","Ave35101","Res24459","Res59518","Mul77883","Zer33977","Ave52166"],Ave52166,"Ave52166")
+
+Actual (Unparsed): [[[[0.0250896]], [[0.1561130]]]]
+
+Expected (Unparsed): [[[[0.02508964]],[[0.156113035]]]]
+
+Actual:   [[[[0.0251]], [[0.1562]]]]
+
+Expected: [[[[0.0251]], [[0.1562]]]]

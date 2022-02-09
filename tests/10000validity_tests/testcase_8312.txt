@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min40407 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Min40407 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Ave73736 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave73736 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con60979 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Min40407 = keras.layers.Minimum(name = 'Min40407', )([in0Min40407,in1Min40407])
+Res54523 = keras.layers.Reshape((2, 1, 2), name = 'Res54523', )(Min40407)
+Ave73736 = keras.layers.Average(name = 'Ave73736', )([in0Ave73736,in1Ave73736])
+Zer36284 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer36284', )(Ave73736)
+Con60979 = keras.layers.Concatenate(axis=3, name = 'Con60979', )([Zer36284,in0Con60979])
+Ave3302 = keras.layers.Average(name = 'Ave3302', )([Res54523,Con60979])
+Res56470 = keras.layers.Reshape((2, 2), name = 'Res56470', )(Ave3302)
+Glo81534 = keras.layers.GlobalAveragePooling1D(name = 'Glo81534', )(Res56470)
+Res99732 = keras.layers.Reshape((2, 1), name = 'Res99732', )(Glo81534)
+GRU92216 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU92216', )(Res99732)
+model = tf.keras.models.Model(inputs=[in0Min40407,in1Min40407,in0Ave73736,in1Ave73736,in0Con60979], outputs=GRU92216)
+w = model.get_layer('GRU92216').get_weights() 
+w[0] = np.array([[6, 6, 7]])
+w[1] = np.array([[5, 5, 5]])
+w[2] = np.array([3, 10, 2])
+model.get_layer('GRU92216').set_weights(w) 
+in0Min40407 = tf.constant([[[[[0.7653], [0.1878]]], [[[0.6559], [0.3528]]]]])
+in1Min40407 = tf.constant([[[[[0.2221], [0.796]]], [[[0.4242], [0.6763]]]]])
+in0Ave73736 = tf.constant([[[[0.1526]]]])
+in1Ave73736 = tf.constant([[[[0.3762]]]])
+in0Con60979 = tf.constant([[[[0.0221]], [[0.3898]]]])
+print (np.array2string(model.predict([in0Min40407,in1Min40407,in0Ave73736,in1Ave73736,in0Con60979],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU92216.png')
+
+LMin40407 = minimum_layer([[[[[[0.7653], [0.1878]]], [[[0.6559], [0.3528]]]]], [[[[[0.2221], [0.796]]], [[[0.4242], [0.6763]]]]]], Min40407), 
+LRes54523 = reshape_layer(Min40407, [2, 1, 2], Res54523), 
+LAve73736 = average_layer([[[[[0.1526]]]], [[[[0.3762]]]]], Ave73736), 
+LZer36284 = zero_padding2D_layer(Ave73736, 1, 0, 0, 0, Zer36284), 
+LCon60979 = concatenate_layer([Zer36284,[[[[0.0221]], [[0.3898]]]]], 3, Con60979), 
+LAve3302 = average_layer([Res54523,Con60979], Ave3302), 
+LRes56470 = reshape_layer(Ave3302, [2, 2], Res56470), 
+LGlo81534 = global_average_pooling1D_layer(Res56470, Glo81534), 
+LRes99732 = reshape_layer(Glo81534, [2, 1], Res99732), 
+LGRU92216 = gru_layer(Res99732,[[6, 6, 7]],[[5, 5, 5]],[3, 10, 2], false, GRU92216), 
+exec_layers([LMin40407,LRes54523,LAve73736,LZer36284,LCon60979,LAve3302,LRes56470,LGlo81534,LRes99732,LGRU92216],["Min40407","Res54523","Ave73736","Zer36284","Con60979","Ave3302","Res56470","Glo81534","Res99732","GRU92216"],GRU92216,"GRU92216")
+
+Actual (Unparsed): [[0.0234527]]
+
+Expected (Unparsed): [[0.023452694953952247]]
+
+Actual:   [[0.0235]]
+
+Expected: [[0.0235]]

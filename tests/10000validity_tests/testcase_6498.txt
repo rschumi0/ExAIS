@@ -1,0 +1,83 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc79605 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Loc32474 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con69629 = tf.keras.layers.Input(shape=([3, 3, 3, 1]))
+in0Ave29942 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Ave29942 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Con64361 = tf.keras.layers.Input(shape=([3, 3, 3, 1]))
+in0Zer9391 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Loc79605 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(6, 1), name = 'Loc79605', )(in0Loc79605)
+Res96609 = keras.layers.Reshape((1, 3), name = 'Res96609', )(Loc79605)
+Loc32474 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc32474', )(in0Loc32474)
+Max78373 = keras.layers.Maximum(name = 'Max78373', )([Res96609,Loc32474])
+Bat84205 = keras.layers.BatchNormalization(axis=1, epsilon=0.8117543365133408,  name = 'Bat84205', )(Max78373)
+Res91040 = keras.layers.Reshape((1, 3, 1), name = 'Res91040', )(Bat84205)
+Res18944 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res18944', )(Res91040)
+Zer20227 = keras.layers.ZeroPadding3D(padding=((2, 0), (0, 0), (2, 0)), name = 'Zer20227', )(Res18944)
+Con69629 = keras.layers.Concatenate(axis=4, name = 'Con69629', )([Zer20227,in0Con69629])
+Ave29942 = keras.layers.Average(name = 'Ave29942', )([in0Ave29942,in1Ave29942])
+Zer28892 = keras.layers.ZeroPadding3D(padding=((2, 0), (2, 0), (1, 0)), name = 'Zer28892', )(Ave29942)
+Con64361 = keras.layers.Concatenate(axis=4, name = 'Con64361', )([Zer28892,in0Con64361])
+Zer9391 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer9391', )(in0Zer9391)
+Mul69978 = keras.layers.Multiply(name = 'Mul69978', )([Con64361,Zer9391])
+Max38514 = keras.layers.Maximum(name = 'Max38514', )([Con69629,Mul69978])
+Res95300 = keras.layers.Reshape((3, 3, 6), name = 'Res95300', )(Max38514)
+Glo81453 = keras.layers.GlobalAveragePooling2D(name = 'Glo81453', )(Res95300)
+model = tf.keras.models.Model(inputs=[in0Loc79605,in0Loc32474,in0Con69629,in0Ave29942,in1Ave29942,in0Con64361,in0Zer9391], outputs=Glo81453)
+w = model.get_layer('Loc79605').get_weights() 
+w[0] = np.array([[[0.6566, 0.6982, 0.7546]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc79605').set_weights(w) 
+w = model.get_layer('Loc32474').get_weights() 
+w[0] = np.array([[[0.8454, 0.6199, 0.3634], [0.431, 0.8468, 0.8251]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc32474').set_weights(w) 
+w = model.get_layer('Bat84205').get_weights() 
+w[0] = np.array([0.1375])
+w[1] = np.array([0.0364])
+w[2] = np.array([0.3025])
+w[3] = np.array([0.8857])
+model.get_layer('Bat84205').set_weights(w) 
+in0Loc79605 = tf.constant([[[[0.1334]], [[0.87]]]])
+in0Loc32474 = tf.constant([[[0.4831, 0.3649]]])
+in0Con69629 = tf.constant([[[[[0.8364], [0.1491], [0.7376]], [[0.9226], [0.6219], [0.3479]], [[0.2055], [0.9003], [0.936]]], [[[0.3037], [0.901], [0.6626]], [[0.5818], [0.0094], [0.7678]], [[0.5911], [0.4735], [0.8267]]], [[[0.6659], [0.0017], [0.2451]], [[0.3745], [0.218], [0.0109]], [[0.8732], [0.8071], [0.9862]]]]])
+in0Ave29942 = tf.constant([[[[[0.3399], [0.2793]]]]])
+in1Ave29942 = tf.constant([[[[[0.5645], [0.0112]]]]])
+in0Con64361 = tf.constant([[[[[0.1498], [0.0517], [0.2048]], [[0.1355], [0.8628], [0.3887]], [[0.8696], [0.1353], [0.1981]]], [[[0.8887], [0.5223], [0.0752]], [[0.9787], [0.4952], [0.1336]], [[0.9241], [0.0658], [0.5477]]], [[[0.032], [0.6975], [0.8341]], [[0.6853], [0.9921], [0.9366]], [[0.4539], [0.223], [0.3636]]]]])
+in0Zer9391 = tf.constant([[[[[1.5964, 1.8999]]]]])
+print (np.array2string(model.predict([in0Loc79605,in0Loc32474,in0Con69629,in0Ave29942,in1Ave29942,in0Con64361,in0Zer9391],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo81453.png')
+
+LLoc79605 = locally_connected2D_layer([[[[0.1334]], [[0.87]]]], 1, 1,[[[0.6566, 0.6982, 0.7546]]],[[[0, 0, 0]]], 6, 1, Loc79605), 
+LRes96609 = reshape_layer(Loc79605, [1, 3], Res96609), 
+LLoc32474 = locally_connected1D_layer([[[0.4831, 0.3649]]], 1,[[[0.8454, 0.6199, 0.3634], [0.431, 0.8468, 0.8251]]],[[0, 0, 0]], 1, Loc32474), 
+LMax78373 = maximum_layer([Res96609,Loc32474], Max78373), 
+LBat84205 = batch_normalization_layer(Max78373, 1, 0.8117543365133408, [0.1375], [0.0364], [0.3025], [0.8857], Bat84205), 
+LRes91040 = reshape_layer(Bat84205, [1, 3, 1], Res91040), 
+LRes18944 = reshape_layer(Res91040, [1, 3, 1, 1], Res18944), 
+LZer20227 = zero_padding3D_layer(Res18944, 2, 0, 0, 0, 2, 0, Zer20227), 
+LCon69629 = concatenate_layer([Zer20227,[[[[[0.8364], [0.1491], [0.7376]], [[0.9226], [0.6219], [0.3479]], [[0.2055], [0.9003], [0.936]]], [[[0.3037], [0.901], [0.6626]], [[0.5818], [0.0094], [0.7678]], [[0.5911], [0.4735], [0.8267]]], [[[0.6659], [0.0017], [0.2451]], [[0.3745], [0.218], [0.0109]], [[0.8732], [0.8071], [0.9862]]]]]], 4, Con69629), 
+LAve29942 = average_layer([[[[[[0.3399], [0.2793]]]]], [[[[[0.5645], [0.0112]]]]]], Ave29942), 
+LZer28892 = zero_padding3D_layer(Ave29942, 2, 0, 2, 0, 1, 0, Zer28892), 
+LCon64361 = concatenate_layer([Zer28892,[[[[[0.1498], [0.0517], [0.2048]], [[0.1355], [0.8628], [0.3887]], [[0.8696], [0.1353], [0.1981]]], [[[0.8887], [0.5223], [0.0752]], [[0.9787], [0.4952], [0.1336]], [[0.9241], [0.0658], [0.5477]]], [[[0.032], [0.6975], [0.8341]], [[0.6853], [0.9921], [0.9366]], [[0.4539], [0.223], [0.3636]]]]]], 4, Con64361), 
+LZer9391 = zero_padding3D_layer([[[[[1.5964, 1.8999]]]]], 1, 1, 1, 1, 1, 1, Zer9391), 
+LMul69978 = multiply_layer([Con64361,Zer9391], Mul69978), 
+LMax38514 = maximum_layer([Con69629,Mul69978], Max38514), 
+LRes95300 = reshape_layer(Max38514, [3, 3, 6], Res95300), 
+LGlo81453 = global_average_pooling2D_layer(Res95300, Glo81453), 
+exec_layers([LLoc79605,LRes96609,LLoc32474,LMax78373,LBat84205,LRes91040,LRes18944,LZer20227,LCon69629,LAve29942,LZer28892,LCon64361,LZer9391,LMul69978,LMax38514,LRes95300,LGlo81453],["Loc79605","Res96609","Loc32474","Max78373","Bat84205","Res91040","Res18944","Zer20227","Con69629","Ave29942","Zer28892","Con64361","Zer9391","Mul69978","Max38514","Res95300","Glo81453"],Glo81453,"Glo81453")
+
+Actual (Unparsed): [[0.0000000, 0.5949667, 0.0000000, 0.5570478, 0.0208494, 0.6134222]]
+
+Expected (Unparsed): [[0,0.5949666666666666,0,0.5570478311111111,0.02084941491781321,0.6134222222222223]]
+
+Actual:   [[0, 0.595, 0, 0.5571, 0.0209, 0.6135]]
+
+Expected: [[0, 0.595, 0, 0.5571, 0.0209, 0.6135]]

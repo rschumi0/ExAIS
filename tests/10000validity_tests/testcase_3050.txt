@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot40076 = tf.keras.layers.Input(shape=([3]))
+in1Dot40076 = tf.keras.layers.Input(shape=([3]))
+in0Dot30276 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot30276 = tf.keras.layers.Input(shape=([3, 3]))
+in0Max66333 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Max66333 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Dot40076 = keras.layers.Dot(axes=(1, 1), name = 'Dot40076', )([in0Dot40076,in1Dot40076])
+Res9203 = keras.layers.Reshape((1, 1), name = 'Res9203', )(Dot40076)
+Ave80679 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave80679', )(Res9203)
+Res64170 = keras.layers.Reshape((1, 1, 1), name = 'Res64170', )(Ave80679)
+Up_72317 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_72317', )(Res64170)
+Zer36812 = keras.layers.ZeroPadding2D(padding=((2, 0), (2, 0)), name = 'Zer36812', )(Up_72317)
+Dot30276 = keras.layers.Dot(axes=(2, 2), name = 'Dot30276', )([in0Dot30276,in1Dot30276])
+Res61540 = keras.layers.Reshape((3, 3, 1), name = 'Res61540', )(Dot30276)
+Max66333 = keras.layers.Maximum(name = 'Max66333', )([in0Max66333,in1Max66333])
+Zer81316 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer81316', )(Max66333)
+Max32157 = keras.layers.Maximum(name = 'Max32157', )([Res61540,Zer81316])
+Ave18698 = keras.layers.Average(name = 'Ave18698', )([Zer36812,Max32157])
+model = tf.keras.models.Model(inputs=[in0Dot40076,in1Dot40076,in0Dot30276,in1Dot30276,in0Max66333,in1Max66333], outputs=Ave18698)
+in0Dot40076 = tf.constant([[0.3033, 0.2941, 0.6146]])
+in1Dot40076 = tf.constant([[0.7131, 0.7567, 0.3828]])
+in0Dot30276 = tf.constant([[[0.7697, 0.9203, 0.2812], [0.3073, 0.0016, 0.1848], [0.4971, 0.3562, 0.6465]]])
+in1Dot30276 = tf.constant([[[0.8894, 0.6785, 0.3938], [0.0509, 0.3237, 0.1696], [0.4163, 0.1182, 0.1629]]])
+in0Max66333 = tf.constant([[[[0.0683], [0.0868]], [[0.8522], [0.2746]]]])
+in1Max66333 = tf.constant([[[[0.5911], [0.2763]], [[0.1753], [0.0297]]]])
+print (np.array2string(model.predict([in0Dot40076,in1Dot40076,in0Dot30276,in1Dot30276,in0Max66333,in1Max66333],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave18698.png')
+
+LDot40076 = dot_layer([[0.3033, 0.2941, 0.6146]], [[0.7131, 0.7567, 0.3828]], 1, 1, Dot40076), 
+LRes9203 = reshape_layer(Dot40076, [1, 1], Res9203), 
+LAve80679 = average_pooling1D_layer(Res9203, 1, Ave80679), 
+LRes64170 = reshape_layer(Ave80679, [1, 1, 1], Res64170), 
+LUp_72317 = up_sampling2D_layer(Res64170, 1, 1, Up_72317), 
+LZer36812 = zero_padding2D_layer(Up_72317, 2, 0, 2, 0, Zer36812), 
+LDot30276 = dot_layer([[[0.7697, 0.9203, 0.2812], [0.3073, 0.0016, 0.1848], [0.4971, 0.3562, 0.6465]]], [[[0.8894, 0.6785, 0.3938], [0.0509, 0.3237, 0.1696], [0.4163, 0.1182, 0.1629]]], 2, 2, Dot30276), 
+LRes61540 = reshape_layer(Dot30276, [3, 3, 1], Res61540), 
+LMax66333 = maximum_layer([[[[[0.0683], [0.0868]], [[0.8522], [0.2746]]]], [[[[0.5911], [0.2763]], [[0.1753], [0.0297]]]]], Max66333), 
+LZer81316 = zero_padding2D_layer(Max66333, 1, 0, 1, 0, Zer81316), 
+LMax32157 = maximum_layer([Res61540,Zer81316], Max32157), 
+LAve18698 = average_layer([Zer36812,Max32157], Ave18698), 
+exec_layers([LDot40076,LRes9203,LAve80679,LRes64170,LUp_72317,LZer36812,LDot30276,LRes61540,LMax66333,LZer81316,LMax32157,LAve18698],["Dot40076","Res9203","Ave80679","Res64170","Up_72317","Zer36812","Dot30276","Res61540","Max66333","Zer81316","Max32157","Ave18698"],Ave18698,"Ave18698")
+
+Actual (Unparsed): [[[[0.7098656], [0.1923852], [0.2375065]], [[0.1735862], [0.2955500], [0.1381500]], [[0.4691971], [0.4261000], [0.5142290]]]]
+
+Expected (Unparsed): [[[[0.7098656450000002],[0.19238518],[0.23750652500000002]],[[0.17358623],[0.29555],[0.13815]],[[0.46919707],[0.4261],[0.514229]]]]
+
+Actual:   [[[[0.7099], [0.1924], [0.2376]], [[0.1736], [0.2956], [0.1382]], [[0.4692], [0.4261], [0.5143]]]]
+
+Expected: [[[[0.7099], [0.1924], [0.2376]], [[0.1736], [0.2956], [0.1382]], [[0.4692], [0.4261], [0.5143]]]]

@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot45727 = tf.keras.layers.Input(shape=([2]))
+in1Dot45727 = tf.keras.layers.Input(shape=([2]))
+in0Con16538 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Add86073 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add86073 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Dot45727 = keras.layers.Dot(axes=(1, 1), name = 'Dot45727', )([in0Dot45727,in1Dot45727])
+Res70206 = keras.layers.Reshape((1, 1), name = 'Res70206', )(Dot45727)
+Res11512 = keras.layers.Reshape((1, 1, 1), name = 'Res11512', )(Res70206)
+Zer32330 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer32330', )(Res11512)
+Con16538 = keras.layers.Concatenate(axis=3, name = 'Con16538', )([Zer32330,in0Con16538])
+Add86073 = keras.layers.Add(name = 'Add86073', )([in0Add86073,in1Add86073])
+Max28003 = keras.layers.Maximum(name = 'Max28003', )([Con16538,Add86073])
+Mas67271 = keras.layers.Masking(mask_value=1, name = 'Mas67271', )(Max28003)
+Ave3475 = keras.layers.AveragePooling2D(pool_size=(2, 1), strides=(1, 4), padding='same', name = 'Ave3475', )(Mas67271)
+Ave50338 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 1), padding='valid', name = 'Ave50338', )(Ave3475)
+model = tf.keras.models.Model(inputs=[in0Dot45727,in1Dot45727,in0Con16538,in0Add86073,in1Add86073], outputs=Ave50338)
+in0Dot45727 = tf.constant([[0.0299, 0.997]])
+in1Dot45727 = tf.constant([[0.8975, 0.1413]])
+in0Con16538 = tf.constant([[[[0.2477]], [[0.0394]]]])
+in0Add86073 = tf.constant([[[[0.0842, 0.111]], [[0.4301, 0.5725]]]])
+in1Add86073 = tf.constant([[[[0.1722, 0.6866]], [[0.4112, 0.3181]]]])
+print (np.array2string(model.predict([in0Dot45727,in1Dot45727,in0Con16538,in0Add86073,in1Add86073],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave50338.png')
+
+LDot45727 = dot_layer([[0.0299, 0.997]], [[0.8975, 0.1413]], 1, 1, Dot45727), 
+LRes70206 = reshape_layer(Dot45727, [1, 1], Res70206), 
+LRes11512 = reshape_layer(Res70206, [1, 1, 1], Res11512), 
+LZer32330 = zero_padding2D_layer(Res11512, 1, 0, 0, 0, Zer32330), 
+LCon16538 = concatenate_layer([Zer32330,[[[[0.2477]], [[0.0394]]]]], 3, Con16538), 
+LAdd86073 = add_layer([[[[[0.0842, 0.111]], [[0.4301, 0.5725]]]], [[[[0.1722, 0.6866]], [[0.4112, 0.3181]]]]], Add86073), 
+LMax28003 = maximum_layer([Con16538,Add86073], Max28003), 
+LMas67271 = masking_layer(Max28003, 1, Mas67271), 
+LAve3475 = average_pooling2D_layer(Mas67271, 2, 1, 1, 4, true, Ave3475), 
+LAve50338 = average_pooling2D_layer(Ave3475, 1, 1, 1, 1, false, Ave50338), 
+exec_layers([LDot45727,LRes70206,LRes11512,LZer32330,LCon16538,LAdd86073,LMax28003,LMas67271,LAve3475,LAve50338],["Dot45727","Res70206","Res11512","Zer32330","Con16538","Add86073","Max28003","Mas67271","Ave3475","Ave50338"],Ave50338,"Ave50338")
+
+Actual (Unparsed): [[[[0.5488500, 0.8441000]], [[0.8413000, 0.8906000]]]]
+
+Expected (Unparsed): [[[[0.54885,0.8441000000000001]],[[0.8412999999999999,0.8906000000000001]]]]
+
+Actual:   [[[[0.5489, 0.8441]], [[0.8413, 0.8906]]]]
+
+Expected: [[[[0.5489, 0.8442]], [[0.8413, 0.8907]]]]

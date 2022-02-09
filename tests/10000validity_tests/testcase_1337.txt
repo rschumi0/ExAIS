@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo88256 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Min26018 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Min26018 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Glo88256 = keras.layers.GlobalAveragePooling3D(name = 'Glo88256', )(in0Glo88256)
+Res94529 = keras.layers.Reshape((2, 1), name = 'Res94529', )(Glo88256)
+Res34277 = keras.layers.Reshape((2, 1, 1), name = 'Res34277', )(Res94529)
+Res73835 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res73835', )(Res34277)
+Zer30272 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer30272', )(Res73835)
+Min26018 = keras.layers.Minimum(name = 'Min26018', )([in0Min26018,in1Min26018])
+Zer65963 = keras.layers.ZeroPadding3D(padding=((3, 0), (2, 0), (1, 0)), name = 'Zer65963', )(Min26018)
+Ave61043 = keras.layers.Average(name = 'Ave61043', )([Zer30272,Zer65963])
+model = tf.keras.models.Model(inputs=[in0Glo88256,in0Min26018,in1Min26018], outputs=Ave61043)
+in0Glo88256 = tf.constant([[[[[1.987, 1.4383], [1.177, 1.3427]]], [[[1.8297, 1.8965], [1.6277, 1.8173]]]]])
+in0Min26018 = tf.constant([[[[[0.1515], [0.1999]]]]])
+in1Min26018 = tf.constant([[[[[0.1355], [0.6748]]]]])
+print (np.array2string(model.predict([in0Glo88256,in0Min26018,in1Min26018],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave61043.png')
+
+LGlo88256 = global_average_pooling3D_layer([[[[[1.987, 1.4383], [1.177, 1.3427]]], [[[1.8297, 1.8965], [1.6277, 1.8173]]]]], Glo88256), 
+LRes94529 = reshape_layer(Glo88256, [2, 1], Res94529), 
+LRes34277 = reshape_layer(Res94529, [2, 1, 1], Res34277), 
+LRes73835 = reshape_layer(Res34277, [2, 1, 1, 1], Res73835), 
+LZer30272 = zero_padding3D_layer(Res73835, 1, 1, 1, 1, 1, 1, Zer30272), 
+LMin26018 = minimum_layer([[[[[[0.1515], [0.1999]]]]], [[[[[0.1355], [0.6748]]]]]], Min26018), 
+LZer65963 = zero_padding3D_layer(Min26018, 3, 0, 2, 0, 1, 0, Zer65963), 
+LAve61043 = average_layer([Zer30272,Zer65963], Ave61043), 
+exec_layers([LGlo88256,LRes94529,LRes34277,LRes73835,LZer30272,LMin26018,LZer65963,LAve61043],["Glo88256","Res94529","Res34277","Res73835","Zer30272","Min26018","Zer65963","Ave61043"],Ave61043,"Ave61043")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.8276750], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.8118500], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0677500], [0.0999500]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.827675],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.81185],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0],[0]],[[0],[0.06775],[0.09995]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.8277], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.8119], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0.0678], [0.1]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.8277], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.8119], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0.0678], [0.1]]]]]

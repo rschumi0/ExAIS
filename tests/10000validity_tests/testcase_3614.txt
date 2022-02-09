@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave80919 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Ave80919 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con30906 = tf.keras.layers.Input(shape=([1, 3, 1, 1]))
+in0Up_58188 = tf.keras.layers.Input(shape=([4, 3]))
+
+Ave80919 = keras.layers.Average(name = 'Ave80919', )([in0Ave80919,in1Ave80919])
+Res5093 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res5093', )(Ave80919)
+Zer41351 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (0, 0)), name = 'Zer41351', )(Res5093)
+Con30906 = keras.layers.Concatenate(axis=4, name = 'Con30906', )([Zer41351,in0Con30906])
+Up_58188 = keras.layers.UpSampling1D(size=(2), name = 'Up_58188', )(in0Up_58188)
+Res44322 = keras.layers.Reshape((8, 3, 1), name = 'Res44322', )(Up_58188)
+Res8821 = keras.layers.Reshape((8, 3, 1, 1), name = 'Res8821', )(Res44322)
+Con64828 = keras.layers.Conv3D(2, (3, 1, 1),strides=(8, 1, 11), padding='same', dilation_rate=(1, 1, 1), name = 'Con64828', )(Res8821)
+Add68487 = keras.layers.Add(name = 'Add68487', )([Con30906,Con64828])
+Res65572 = keras.layers.Reshape((1, 3, 2), name = 'Res65572', )(Add68487)
+Ave81339 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave81339', )(Res65572)
+model = tf.keras.models.Model(inputs=[in0Ave80919,in1Ave80919,in0Con30906,in0Up_58188], outputs=Ave81339)
+w = model.get_layer('Con64828').get_weights() 
+w[0] = np.array([[[[[0.5283, 0.5742]]]], [[[[0.9868, 0.7202]]]], [[[[0.9961, 0.5784]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con64828').set_weights(w) 
+in0Ave80919 = tf.constant([[[[0.7247], [0.301]]]])
+in1Ave80919 = tf.constant([[[[0.6122], [0.7291]]]])
+in0Con30906 = tf.constant([[[[[0.1409]], [[0.2648]], [[0.3093]]]]])
+in0Up_58188 = tf.constant([[[1.5843, 1.7043, 1.0189], [1.2299, 1.8319, 1.4042], [1.081, 1.0051, 1.7154], [1.298, 1.1918, 1.6331]]])
+print (np.array2string(model.predict([in0Ave80919,in1Ave80919,in0Con30906,in0Up_58188],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave81339.png')
+
+LAve80919 = average_layer([[[[[0.7247], [0.301]]]], [[[[0.6122], [0.7291]]]]], Ave80919), 
+LRes5093 = reshape_layer(Ave80919, [1, 2, 1, 1], Res5093), 
+LZer41351 = zero_padding3D_layer(Res5093, 0, 0, 1, 0, 0, 0, Zer41351), 
+LCon30906 = concatenate_layer([Zer41351,[[[[[0.1409]], [[0.2648]], [[0.3093]]]]]], 4, Con30906), 
+LUp_58188 = up_sampling1D_layer([[[1.5843, 1.7043, 1.0189], [1.2299, 1.8319, 1.4042], [1.081, 1.0051, 1.7154], [1.298, 1.1918, 1.6331]]], 2, Up_58188), 
+LRes44322 = reshape_layer(Up_58188, [8, 3, 1], Res44322), 
+LRes8821 = reshape_layer(Res44322, [8, 3, 1, 1], Res8821), 
+LCon64828 = conv3D_layer(Res8821, 3, 1, 1,[[[[[0.5283, 0.5742]]]], [[[[0.9868, 0.7202]]]], [[[[0.9961, 0.5784]]]]],[0, 0], 8, 1, 11, true, 1, 1, 1, Con64828), 
+LAdd68487 = add_layer([Con30906,Con64828], Add68487), 
+LRes65572 = reshape_layer(Add68487, [1, 3, 2], Res65572), 
+LAve81339 = average_pooling2D_layer(Res65572, 1, 1, Ave81339), 
+exec_layers([LAve80919,LRes5093,LZer41351,LCon30906,LUp_58188,LRes44322,LRes8821,LCon64828,LAdd68487,LRes65572,LAve81339],["Ave80919","Res5093","Zer41351","Con30906","Up_58188","Res44322","Res8821","Con64828","Add68487","Res65572","Ave81339"],Ave81339,"Ave81339")
+
+Actual (Unparsed): [[[[3.6254764, 2.9029921], [5.0753906, 3.5304170], [3.4575090, 2.4403535]]]]
+
+Expected (Unparsed): [[[[3.6254763199999998,2.90299208],[5.07539052,3.5304168799999998],[3.4575090099999994,2.44035344]]]]
+
+Actual:   [[[[3.6255, 2.903], [5.0754, 3.5305], [3.4576, 2.4404]]]]
+
+Expected: [[[[3.6255, 2.903], [5.0754, 3.5305], [3.4576, 2.4404]]]]

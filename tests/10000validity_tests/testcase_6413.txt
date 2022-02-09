@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave28662 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave28662 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min13595 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Min13595 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Ave28662 = keras.layers.Average(name = 'Ave28662', )([in0Ave28662,in1Ave28662])
+Res62509 = keras.layers.Reshape((2, 2), name = 'Res62509', )(Ave28662)
+GRU40069 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU40069', )(Res62509)
+Res98341 = keras.layers.Reshape((1, 1), name = 'Res98341', )(GRU40069)
+Res15192 = keras.layers.Reshape((1, 1, 1), name = 'Res15192', )(Res98341)
+Min13595 = keras.layers.Minimum(name = 'Min13595', )([in0Min13595,in1Min13595])
+Sub96410 = keras.layers.Subtract(name = 'Sub96410', )([Res15192,Min13595])
+model = tf.keras.models.Model(inputs=[in0Ave28662,in1Ave28662,in0Min13595,in1Min13595], outputs=Sub96410)
+w = model.get_layer('GRU40069').get_weights() 
+w[0] = np.array([[3, 5, 3], [10, 1, 7]])
+w[1] = np.array([[5, 9, 4]])
+w[2] = np.array([[9, 1, 10], [5, 3, 1]])
+model.get_layer('GRU40069').set_weights(w) 
+in0Ave28662 = tf.constant([[[[0.4399], [0.3417]], [[0.9306], [0.3005]]]])
+in1Ave28662 = tf.constant([[[[0.7903], [0.7762]], [[0.2531], [0.6996]]]])
+in0Min13595 = tf.constant([[[[0.1882]]]])
+in1Min13595 = tf.constant([[[[0.927]]]])
+print (np.array2string(model.predict([in0Ave28662,in1Ave28662,in0Min13595,in1Min13595],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub96410.png')
+
+LAve28662 = average_layer([[[[[0.4399], [0.3417]], [[0.9306], [0.3005]]]], [[[[0.7903], [0.7762]], [[0.2531], [0.6996]]]]], Ave28662), 
+LRes62509 = reshape_layer(Ave28662, [2, 2], Res62509), 
+LGRU40069 = gru_layer(Res62509,[[3, 5, 3], [10, 1, 7]],[[5, 9, 4]],[[9, 1, 10], [5, 3, 1]], true, GRU40069), 
+LRes98341 = reshape_layer(GRU40069, [1, 1], Res98341), 
+LRes15192 = reshape_layer(Res98341, [1, 1, 1], Res15192), 
+LMin13595 = minimum_layer([[[[[0.1882]]]], [[[[0.927]]]]], Min13595), 
+LSub96410 = subtract_layer(Res15192,Min13595, Sub96410), 
+exec_layers([LAve28662,LRes62509,LGRU40069,LRes98341,LRes15192,LMin13595,LSub96410],["Ave28662","Res62509","GRU40069","Res98341","Res15192","Min13595","Sub96410"],Sub96410,"Sub96410")
+
+Actual (Unparsed): [[[[-0.1882000]]]]
+
+Expected (Unparsed): [[[[-0.1881999985605248]]]]
+
+Actual:   [[[[-0.1882]]]]
+
+Expected: [[[[-0.1881]]]]

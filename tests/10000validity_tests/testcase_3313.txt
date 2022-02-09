@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max93290 = tf.keras.layers.Input(shape=([1, 1]))
+in0Cro87417 = tf.keras.layers.Input(shape=([4, 1]))
+
+Max93290 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max93290', )(in0Max93290)
+Fla74397 = keras.layers.Flatten(name = 'Fla74397', )(Max93290)
+Cro87417 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro87417', )(in0Cro87417)
+Res55955 = keras.layers.Reshape((3, 1, 1), name = 'Res55955', )(Cro87417)
+Ave75152 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 2), padding='valid', name = 'Ave75152', )(Res55955)
+Loc86630 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 11), name = 'Loc86630', )(Ave75152)
+Res89 = keras.layers.Reshape((3, 4), name = 'Res89', )(Loc86630)
+Sim83748 = keras.layers.SimpleRNN(1,name = 'Sim83748', )(Res89)
+Sub54080 = keras.layers.Subtract(name = 'Sub54080', )([Fla74397,Sim83748])
+model = tf.keras.models.Model(inputs=[in0Max93290,in0Cro87417], outputs=Sub54080)
+w = model.get_layer('Loc86630').get_weights() 
+w[0] = np.array([[[0.6079, 0.581, 0.7875, 0.6462]], [[0.7914, 0.5214, 0.3794, 0.3861]], [[0.6895, 0.2967, 0.9242, 0.8232]]])
+w[1] = np.array([[[0, 0, 0, 0]], [[0, 0, 0, 0]], [[0, 0, 0, 0]]])
+model.get_layer('Loc86630').set_weights(w) 
+w = model.get_layer('Sim83748').get_weights() 
+w[0] = np.array([[1], [8], [7], [7]])
+w[1] = np.array([[7]])
+w[2] = np.array([4])
+model.get_layer('Sim83748').set_weights(w) 
+in0Max93290 = tf.constant([[[1.3754]]])
+in0Cro87417 = tf.constant([[[1.6846], [1.1748], [1.8692], [1.4625]]])
+print (np.array2string(model.predict([in0Max93290,in0Cro87417],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub54080.png')
+
+LMax93290 = max_pool1D_layer([[[1.3754]]], 1, 1, true, Max93290), 
+LFla74397 = flatten_layer(Max93290, Fla74397), 
+LCro87417 = cropping1D_layer([[[1.6846], [1.1748], [1.8692], [1.4625]]], 1, 0, Cro87417), 
+LRes55955 = reshape_layer(Cro87417, [3, 1, 1], Res55955), 
+LAve75152 = average_pooling2D_layer(Res55955, 1, 1, 1, 2, false, Ave75152), 
+LLoc86630 = locally_connected2D_layer(Ave75152, 1, 1,[[[0.6079, 0.581, 0.7875, 0.6462]], [[0.7914, 0.5214, 0.3794, 0.3861]], [[0.6895, 0.2967, 0.9242, 0.8232]]],[[[0, 0, 0, 0]], [[0, 0, 0, 0]], [[0, 0, 0, 0]]], 1, 11, Loc86630), 
+LRes89 = reshape_layer(Loc86630, [3, 4], Res89), 
+LSim83748 = simple_rnn_layer(Res89,[[1], [8], [7], [7]],[[7]],[4], Sim83748), 
+LSub54080 = subtract_layer(Fla74397,Sim83748, Sub54080), 
+exec_layers([LMax93290,LFla74397,LCro87417,LRes55955,LAve75152,LLoc86630,LRes89,LSim83748,LSub54080],["Max93290","Fla74397","Cro87417","Res55955","Ave75152","Loc86630","Res89","Sim83748","Sub54080"],Sub54080,"Sub54080")
+
+Actual (Unparsed): [[0.3753999]]
+
+Expected (Unparsed): [[0.37539999999999996]]
+
+Actual:   [[0.3754]]
+
+Expected: [[0.3754]]

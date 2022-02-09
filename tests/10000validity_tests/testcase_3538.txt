@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU36801 = tf.keras.layers.Input(shape=([1, 3]))
+in0Glo22865 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+GRU36801 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU36801', )(in0GRU36801)
+Res72580 = keras.layers.Reshape((1, 1), name = 'Res72580', )(GRU36801)
+Res57679 = keras.layers.Reshape((1, 1, 1), name = 'Res57679', )(Res72580)
+Dep23849 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep23849', )(Res57679)
+Res98459 = keras.layers.Reshape((1, 1), name = 'Res98459', )(Dep23849)
+Glo22865 = keras.layers.GlobalAveragePooling3D(name = 'Glo22865', )(in0Glo22865)
+Res30210 = keras.layers.Reshape((1, 1), name = 'Res30210', )(Glo22865)
+Mul4961 = keras.layers.Multiply(name = 'Mul4961', )([Res98459,Res30210])
+Sof34420 = keras.layers.Softmax(axis=1, name = 'Sof34420', )(Mul4961)
+model = tf.keras.models.Model(inputs=[in0GRU36801,in0Glo22865], outputs=Sof34420)
+w = model.get_layer('GRU36801').get_weights() 
+w[0] = np.array([[6, 1, 3], [1, 8, 8], [4, 7, 4]])
+w[1] = np.array([[6, 4, 7]])
+w[2] = np.array([[8, 5, 10], [7, 6, 1]])
+model.get_layer('GRU36801').set_weights(w) 
+w = model.get_layer('Dep23849').get_weights() 
+w[0] = np.array([[[[0.0102]]]])
+w[1] = np.array([0])
+model.get_layer('Dep23849').set_weights(w) 
+in0GRU36801 = tf.constant([[[8, 6, 3]]])
+in0Glo22865 = tf.constant([[[[[1.0937], [1.1338]], [[1.7783], [1.9213]]]]])
+print (np.array2string(model.predict([in0GRU36801,in0Glo22865],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sof34420.png')
+
+LGRU36801 = gru_layer([[[8, 6, 3]]],[[6, 1, 3], [1, 8, 8], [4, 7, 4]],[[6, 4, 7]],[[8, 5, 10], [7, 6, 1]], true, GRU36801), 
+LRes72580 = reshape_layer(GRU36801, [1, 1], Res72580), 
+LRes57679 = reshape_layer(Res72580, [1, 1, 1], Res57679), 
+LDep23849 = depthwise_conv2D_layer(Res57679, 1, 1,[[[[0.0102]]]],[0], 1, 1, true, Dep23849), 
+LRes98459 = reshape_layer(Dep23849, [1, 1], Res98459), 
+LGlo22865 = global_average_pooling3D_layer([[[[[1.0937], [1.1338]], [[1.7783], [1.9213]]]]], Glo22865), 
+LRes30210 = reshape_layer(Glo22865, [1, 1], Res30210), 
+LMul4961 = multiply_layer([Res98459,Res30210], Mul4961), 
+LSof34420 = softmax_layer(Mul4961, 1, Sof34420), 
+exec_layers([LGRU36801,LRes72580,LRes57679,LDep23849,LRes98459,LGlo22865,LRes30210,LMul4961,LSof34420],["GRU36801","Res72580","Res57679","Dep23849","Res98459","Glo22865","Res30210","Mul4961","Sof34420"],Sof34420,"Sof34420")
+
+Actual (Unparsed): [[[1.0000000]]]
+
+Expected (Unparsed): [[[1.0]]]
+
+Actual:   [[[1]]]
+
+Expected: [[[1]]]

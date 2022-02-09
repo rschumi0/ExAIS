@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot91630 = tf.keras.layers.Input(shape=([2]))
+in1Dot91630 = tf.keras.layers.Input(shape=([2]))
+
+Dot91630 = keras.layers.Dot(axes=(1, 1), name = 'Dot91630', )([in0Dot91630,in1Dot91630])
+Res21133 = keras.layers.Reshape((1, 1), name = 'Res21133', )(Dot91630)
+LST54186 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST54186', )(Res21133)
+Res94245 = keras.layers.Reshape((2, 1), name = 'Res94245', )(LST54186)
+Res11864 = keras.layers.Reshape((2, 1, 1), name = 'Res11864', )(Res94245)
+Res99199 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res99199', )(Res11864)
+Con73656 = keras.layers.Conv3D(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con73656', )(Res99199)
+Zer72988 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer72988', )(Con73656)
+model = tf.keras.models.Model(inputs=[in0Dot91630,in1Dot91630], outputs=Zer72988)
+w = model.get_layer('LST54186').get_weights() 
+w[0] = np.array([[7, 3, 5, 9, 5, 8, 2, 9]])
+w[1] = np.array([[4, 8, 6, 2, 9, 4, 1, 9], [1, 2, 10, 5, 10, 2, 7, 8]])
+w[2] = np.array([8, 2, 5, 4, 6, 4, 4, 10])
+model.get_layer('LST54186').set_weights(w) 
+w = model.get_layer('Con73656').get_weights() 
+w[0] = np.array([[[[[0.7707, 0.1216]]]], [[[[0.7102, 0.6092]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con73656').set_weights(w) 
+in0Dot91630 = tf.constant([[0.5882, 0.1588]])
+in1Dot91630 = tf.constant([[0.7318, 0.0953]])
+print (np.array2string(model.predict([in0Dot91630,in1Dot91630],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer72988.png')
+
+LDot91630 = dot_layer([[0.5882, 0.1588]], [[0.7318, 0.0953]], 1, 1, Dot91630), 
+LRes21133 = reshape_layer(Dot91630, [1, 1], Res21133), 
+LLST54186 = lstm_layer(Res21133,[[7, 3, 5, 9, 5, 8, 2, 9]],[[4, 8, 6, 2, 9, 4, 1, 9], [1, 2, 10, 5, 10, 2, 7, 8]],[8, 2, 5, 4, 6, 4, 4, 10], LST54186), 
+LRes94245 = reshape_layer(LST54186, [2, 1], Res94245), 
+LRes11864 = reshape_layer(Res94245, [2, 1, 1], Res11864), 
+LRes99199 = reshape_layer(Res11864, [2, 1, 1, 1], Res99199), 
+LCon73656 = conv3D_layer(Res99199, 2, 1, 1,[[[[[0.7707, 0.1216]]]], [[[[0.7102, 0.6092]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con73656), 
+LZer72988 = zero_padding3D_layer(Con73656, 1, 1, 1, 1, 1, 1, Zer72988), 
+exec_layers([LDot91630,LRes21133,LLST54186,LRes94245,LRes11864,LRes99199,LCon73656,LZer72988],["Dot91630","Res21133","LST54186","Res94245","Res11864","Res99199","Con73656","Zer72988"],Zer72988,"Zer72988")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]], [[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [1.1129518, 0.5468651], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]], [[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0]]],[[[0,0],[0,0],[0,0]],[[0,0],[1.1129517538436846,0.5468651232303331],[0,0]],[[0,0],[0,0],[0,0]]],[[[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0]],[[0,0],[0,0],[0,0]]]]]
+
+Actual:   [[[[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0], [0, 0]], [[0, 0], [1.113, 0.5469], [0, 0]], [[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]]]
+
+Expected: [[[[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0], [0, 0]], [[0, 0], [1.113, 0.5469], [0, 0]], [[0, 0], [0, 0], [0, 0]]], [[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]]]

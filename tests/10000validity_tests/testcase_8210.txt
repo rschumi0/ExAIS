@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_40202 = tf.keras.layers.Input(shape=([3, 4]))
+in0Glo24803 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con58953 = tf.keras.layers.Input(shape=([6, 1]))
+
+Up_40202 = keras.layers.UpSampling1D(size=(2), name = 'Up_40202', )(in0Up_40202)
+Glo24803 = keras.layers.GlobalMaxPool1D(name = 'Glo24803', )(in0Glo24803)
+Res76282 = keras.layers.Reshape((2, 1), name = 'Res76282', )(Glo24803)
+Sep18589 = keras.layers.SeparableConv1D(3, (2),strides=(2), padding='same', name = 'Sep18589', )(Res76282)
+Zer28787 = keras.layers.ZeroPadding1D(padding=((5, 0)), name = 'Zer28787', )(Sep18589)
+Con58953 = keras.layers.Concatenate(axis=2, name = 'Con58953', )([Zer28787,in0Con58953])
+Mul98629 = keras.layers.Multiply(name = 'Mul98629', )([Up_40202,Con58953])
+model = tf.keras.models.Model(inputs=[in0Up_40202,in0Glo24803,in0Con58953], outputs=Mul98629)
+w = model.get_layer('Sep18589').get_weights() 
+w[0] = np.array([[[0.3321]], [[0.3152]]])
+w[1] = np.array([[[0.6112, 0.3087, 0.2078]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep18589').set_weights(w) 
+in0Up_40202 = tf.constant([[[1.198, 1.5992, 1.2627, 1.476], [1.92, 1.3229, 1.7431, 1.4792], [1.991, 1.1997, 1.2578, 1.2117]]])
+in0Glo24803 = tf.constant([[[1.3968, 1.169]]])
+in0Con58953 = tf.constant([[[0.7419], [0.1092], [0.7682], [0.2129], [0.933], [0.7891]]])
+print (np.array2string(model.predict([in0Up_40202,in0Glo24803,in0Con58953],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul98629.png')
+
+LUp_40202 = up_sampling1D_layer([[[1.198, 1.5992, 1.2627, 1.476], [1.92, 1.3229, 1.7431, 1.4792], [1.991, 1.1997, 1.2578, 1.2117]]], 2, Up_40202), 
+LGlo24803 = global_max_pool1D_layer([[[1.3968, 1.169]]], Glo24803), 
+LRes76282 = reshape_layer(Glo24803, [2, 1], Res76282), 
+LSep18589 = separable_conv1D_layer(Res76282, 2,[[[[0.3321]], [[0.3152]]],[[[0.6112, 0.3087, 0.2078]]]],[0, 0, 0], 2, true, Sep18589), 
+LZer28787 = zero_padding1D_layer(Sep18589, 5, 0, Zer28787), 
+LCon58953 = concatenate_layer([Zer28787,[[[0.7419], [0.1092], [0.7682], [0.2129], [0.933], [0.7891]]]], 2, Con58953), 
+LMul98629 = multiply_layer([Up_40202,Con58953], Mul98629), 
+exec_layers([LUp_40202,LGlo24803,LRes76282,LSep18589,LZer28787,LCon58953,LMul98629],["Up_40202","Glo24803","Res76282","Sep18589","Zer28787","Con58953","Mul98629"],Mul98629,"Mul98629")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 1.0950444], [0.0000000, 0.0000000, 0.0000000, 0.1611792], [0.0000000, 0.0000000, 0.0000000, 1.1363214], [0.0000000, 0.0000000, 0.0000000, 0.3149217], [0.0000000, 0.0000000, 0.0000000, 1.1305161], [1.0128813, 0.3082572, 0.2175510, 0.9561524]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,1.0950444],[0.0,0.0,0.0,0.1611792],[0.0,0.0,0.0,1.1363214400000001],[0.0,0.0,0.0,0.31492168000000004],[0.0,0.0,0.0,1.1305161000000001],[1.012881278875136,0.30825719830473114,0.21755099410030723,0.95615247]]]
+
+Actual:   [[[0, 0, 0, 1.0951], [0, 0, 0, 0.1612], [0, 0, 0, 1.1364], [0, 0, 0, 0.315], [0, 0, 0, 1.1306], [1.0129, 0.3083, 0.2176, 0.9562]]]
+
+Expected: [[[0, 0, 0, 1.0951], [0, 0, 0, 0.1612], [0, 0, 0, 1.1364], [0, 0, 0, 0.315], [0, 0, 0, 1.1306], [1.0129, 0.3083, 0.2176, 0.9562]]]

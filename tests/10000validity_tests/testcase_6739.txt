@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Lay46767 = tf.keras.layers.Input(shape=([2]))
+in0Ave52809 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave52809 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con55302 = tf.keras.layers.Input(shape=([2, 1]))
+in0Sep11524 = tf.keras.layers.Input(shape=([2, 1]))
+
+Lay46767 = keras.layers.LayerNormalization(axis=1, epsilon=2.06605681848482, name = 'Lay46767', )(in0Lay46767)
+Res85705 = keras.layers.Reshape((2, 1), name = 'Res85705', )(Lay46767)
+Ave52809 = keras.layers.Average(name = 'Ave52809', )([in0Ave52809,in1Ave52809])
+Loc62626 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 1), name = 'Loc62626', )(Ave52809)
+Res75406 = keras.layers.Reshape((2, 1), name = 'Res75406', )(Loc62626)
+Max16666 = keras.layers.Maximum(name = 'Max16666', )([Res85705,Res75406])
+Con55302 = keras.layers.Concatenate(axis=2, name = 'Con55302', )([Max16666,in0Con55302])
+Sep11524 = keras.layers.SeparableConv1D(2, (2),strides=(2), padding='same', name = 'Sep11524', )(in0Sep11524)
+Zer43779 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer43779', )(Sep11524)
+Sub94732 = keras.layers.Subtract(name = 'Sub94732', )([Con55302,Zer43779])
+Ave59201 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave59201', )(Sub94732)
+model = tf.keras.models.Model(inputs=[in0Lay46767,in0Ave52809,in1Ave52809,in0Con55302,in0Sep11524], outputs=Ave59201)
+w = model.get_layer('Loc62626').get_weights() 
+w[0] = np.array([[[0.0984, 0.1425], [0.6207, 0.4412], [0.949, 0.2358], [0.9094, 0.7773]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc62626').set_weights(w) 
+w = model.get_layer('Sep11524').get_weights() 
+w[0] = np.array([[[0.8356]], [[0.1663]]])
+w[1] = np.array([[[0.7192, 0.7416]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep11524').set_weights(w) 
+in0Lay46767 = tf.constant([[1.9336, 1.1194]])
+in0Ave52809 = tf.constant([[[[0.9666, 0.1425], [0.6992, 0.3635]]]])
+in1Ave52809 = tf.constant([[[[0.5454, 0.1075], [0.528, 0.6667]]]])
+in0Con55302 = tf.constant([[[0.2076], [0.096]]])
+in0Sep11524 = tf.constant([[[0.5865], [0.8274]]])
+print (np.array2string(model.predict([in0Lay46767,in0Ave52809,in1Ave52809,in0Con55302,in0Sep11524],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave59201.png')
+
+LLay46767 = layer_normalization_layer([[1.9336, 1.1194]], 1, 2.06605681848482, Lay46767), 
+LRes85705 = reshape_layer(Lay46767, [2, 1], Res85705), 
+LAve52809 = average_layer([[[[[0.9666, 0.1425], [0.6992, 0.3635]]]], [[[[0.5454, 0.1075], [0.528, 0.6667]]]]], Ave52809), 
+LLoc62626 = locally_connected2D_layer(Ave52809, 1, 2,[[[0.0984, 0.1425], [0.6207, 0.4412], [0.949, 0.2358], [0.9094, 0.7773]]],[[[0, 0]]], 1, 1, Loc62626), 
+LRes75406 = reshape_layer(Loc62626, [2, 1], Res75406), 
+LMax16666 = maximum_layer([Res85705,Res75406], Max16666), 
+LCon55302 = concatenate_layer([Max16666,[[[0.2076], [0.096]]]], 2, Con55302), 
+LSep11524 = separable_conv1D_layer([[[0.5865], [0.8274]]], 2,[[[[0.8356]], [[0.1663]]],[[[0.7192, 0.7416]]]],[0, 0], 2, true, Sep11524), 
+LZer43779 = zero_padding1D_layer(Sep11524, 1, 0, Zer43779), 
+LSub94732 = subtract_layer(Con55302,Zer43779, Sub94732), 
+LAve59201 = average_pooling1D_layer(Sub94732, 1, Ave59201), 
+exec_layers([LLay46767,LRes85705,LAve52809,LLoc62626,LRes75406,LMax16666,LCon55302,LSep11524,LZer43779,LSub94732,LAve59201],["Lay46767","Res85705","Ave52809","Loc62626","Res75406","Max16666","Con55302","Sep11524","Zer43779","Sub94732","Ave59201"],Ave59201,"Ave59201")
+
+Actual (Unparsed): [[[1.2027162, 0.2076000], [0.2565295, -0.3694845]]]
+
+Expected (Unparsed): [[[1.20271624,0.2076],[0.256529516416,-0.36948453643199997]]]
+
+Actual:   [[[1.2028, 0.2076], [0.2566, -0.3694]]]
+
+Expected: [[[1.2028, 0.2076], [0.2566, -0.3694]]]

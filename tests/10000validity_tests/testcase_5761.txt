@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave82014 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave82014 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave82014 = keras.layers.Average(name = 'Ave82014', )([in0Ave82014,in1Ave82014])
+GRU64854 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU64854', )(Ave82014)
+Res87574 = keras.layers.Reshape((3, 1), name = 'Res87574', )(GRU64854)
+Res74604 = keras.layers.Reshape((3, 1, 1), name = 'Res74604', )(Res87574)
+Sep4295 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='same', name = 'Sep4295', )(Res74604)
+Res89460 = keras.layers.Reshape((3, 3), name = 'Res89460', )(Sep4295)
+Up_99356 = keras.layers.UpSampling1D(size=(1), name = 'Up_99356', )(Res89460)
+model = tf.keras.models.Model(inputs=[in0Ave82014,in1Ave82014], outputs=Up_99356)
+w = model.get_layer('GRU64854').get_weights() 
+w[0] = np.array([[3, 5, 6, 9, 7, 9, 7, 2, 10], [2, 4, 8, 1, 2, 9, 1, 9, 3]])
+w[1] = np.array([[9, 10, 6, 8, 7, 4, 5, 5, 2], [5, 7, 10, 9, 1, 1, 7, 6, 6], [5, 5, 9, 2, 9, 9, 10, 10, 8]])
+w[2] = np.array([3, 1, 10, 7, 4, 8, 7, 4, 6])
+model.get_layer('GRU64854').set_weights(w) 
+w = model.get_layer('Sep4295').get_weights() 
+w[0] = np.array([[[[0.6536]]]])
+w[1] = np.array([[[[0.3977, 0.9318, 0.9741]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep4295').set_weights(w) 
+in0Ave82014 = tf.constant([[[0.2034, 0.9591]]])
+in1Ave82014 = tf.constant([[[0.1118, 0.5438]]])
+print (np.array2string(model.predict([in0Ave82014,in1Ave82014],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_99356.png')
+
+LAve82014 = average_layer([[[[0.2034, 0.9591]]], [[[0.1118, 0.5438]]]], Ave82014), 
+LGRU64854 = gru_layer(Ave82014,[[3, 5, 6, 9, 7, 9, 7, 2, 10], [2, 4, 8, 1, 2, 9, 1, 9, 3]],[[9, 10, 6, 8, 7, 4, 5, 5, 2], [5, 7, 10, 9, 1, 1, 7, 6, 6], [5, 5, 9, 2, 9, 9, 10, 10, 8]],[3, 1, 10, 7, 4, 8, 7, 4, 6], false, GRU64854), 
+LRes87574 = reshape_layer(GRU64854, [3, 1], Res87574), 
+LRes74604 = reshape_layer(Res87574, [3, 1, 1], Res74604), 
+LSep4295 = separable_conv2D_layer(Res74604, 1, 1,[[[[[0.6536]]]],[[[[0.3977, 0.9318, 0.9741]]]]],[0, 0, 0], 1, 1, true, Sep4295), 
+LRes89460 = reshape_layer(Sep4295, [3, 3], Res89460), 
+LUp_99356 = up_sampling1D_layer(Res89460, 1, Up_99356), 
+exec_layers([LAve82014,LGRU64854,LRes87574,LRes74604,LSep4295,LRes89460,LUp_99356],["Ave82014","GRU64854","Res87574","Res74604","Sep4295","Res89460","Up_99356"],Up_99356,"Up_99356")
+
+Actual (Unparsed): [[[0.0017822, 0.0041757, 0.0043652], [0.0021348, 0.0050019, 0.0052289], [0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0017822172098860844,0.0041756851802158745,0.004365244616922391],[0.0021348393225718377,0.005001868948384306,0.005228933829814502],[1.1231796437563912e-8,2.631578556832299e-8,2.751041717332413e-8]]]
+
+Actual:   [[[0.0018, 0.0042, 0.0044], [0.0022, 0.0051, 0.0053], [0, 0, 0]]]
+
+Expected: [[[0.0018, 0.0042, 0.0044], [0.0022, 0.0051, 0.0053], [0, 0, 0]]]

@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim12857 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con44334 = tf.keras.layers.Input(shape=([2, 1, 1, 3]))
+in0Mul97604 = tf.keras.layers.Input(shape=([1, 1]))
+in1Mul97604 = tf.keras.layers.Input(shape=([1, 1]))
+
+Sim12857 = keras.layers.SimpleRNN(2,name = 'Sim12857', )(in0Sim12857)
+ELU18250 = keras.layers.ELU(alpha=2.0830516257905423, name = 'ELU18250', )(Sim12857)
+Res20172 = keras.layers.Reshape((2, 1), name = 'Res20172', )(ELU18250)
+Res68485 = keras.layers.Reshape((2, 1, 1), name = 'Res68485', )(Res20172)
+Res85284 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res85284', )(Res68485)
+Con44334 = keras.layers.Concatenate(axis=4, name = 'Con44334', )([Res85284,in0Con44334])
+Mul97604 = keras.layers.Multiply(name = 'Mul97604', )([in0Mul97604,in1Mul97604])
+Res35853 = keras.layers.Reshape((1, 1, 1), name = 'Res35853', )(Mul97604)
+Res34815 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res34815', )(Res35853)
+Con71783 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con71783', )(Res34815)
+Zer97091 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer97091', )(Con71783)
+Sub38029 = keras.layers.Subtract(name = 'Sub38029', )([Con44334,Zer97091])
+model = tf.keras.models.Model(inputs=[in0Sim12857,in0Con44334,in0Mul97604,in1Mul97604], outputs=Sub38029)
+w = model.get_layer('Sim12857').get_weights() 
+w[0] = np.array([[3, 5], [3, 6], [4, 8]])
+w[1] = np.array([[6, 4], [2, 10]])
+w[2] = np.array([5, 8])
+model.get_layer('Sim12857').set_weights(w) 
+w = model.get_layer('Con71783').get_weights() 
+w[0] = np.array([[[[[0.2321], [0.32], [0.7082], [0.7563]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con71783').set_weights(w) 
+in0Sim12857 = tf.constant([[[7, 4, 2], [8, 1, 1], [10, 1, 6]]])
+in0Con44334 = tf.constant([[[[[0.7753, 0.1611, 0.7245]]], [[[0.0387, 0.1217, 0.7945]]]]])
+in0Mul97604 = tf.constant([[[0.3662]]])
+in1Mul97604 = tf.constant([[[0.7976]]])
+print (np.array2string(model.predict([in0Sim12857,in0Con44334,in0Mul97604,in1Mul97604],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub38029.png')
+
+LSim12857 = simple_rnn_layer([[[7, 4, 2], [8, 1, 1], [10, 1, 6]]],[[3, 5], [3, 6], [4, 8]],[[6, 4], [2, 10]],[5, 8], Sim12857), 
+LELU18250 = elu_layer(Sim12857, 2.0830516257905423, ELU18250), 
+LRes20172 = reshape_layer(ELU18250, [2, 1], Res20172), 
+LRes68485 = reshape_layer(Res20172, [2, 1, 1], Res68485), 
+LRes85284 = reshape_layer(Res68485, [2, 1, 1, 1], Res85284), 
+LCon44334 = concatenate_layer([Res85284,[[[[[0.7753, 0.1611, 0.7245]]], [[[0.0387, 0.1217, 0.7945]]]]]], 4, Con44334), 
+LMul97604 = multiply_layer([[[[0.3662]]], [[[0.7976]]]], Mul97604), 
+LRes35853 = reshape_layer(Mul97604, [1, 1, 1], Res35853), 
+LRes34815 = reshape_layer(Res35853, [1, 1, 1, 1], Res34815), 
+LCon71783 = conv3D_transpose_layer(Res34815, 1, 1, 1,[[[[[0.2321], [0.32], [0.7082], [0.7563]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con71783), 
+LZer97091 = zero_padding3D_layer(Con71783, 1, 0, 0, 0, 0, 0, Zer97091), 
+LSub38029 = subtract_layer(Con44334,Zer97091, Sub38029), 
+exec_layers([LSim12857,LELU18250,LRes20172,LRes68485,LRes85284,LCon44334,LMul97604,LRes35853,LRes34815,LCon71783,LZer97091,LSub38029],["Sim12857","ELU18250","Res20172","Res68485","Res85284","Con44334","Mul97604","Res35853","Res34815","Con71783","Zer97091","Sub38029"],Sub38029,"Sub38029")
+
+Actual (Unparsed): [[[[[1.0000000, 0.7753000, 0.1611000, 0.7245000]]], [[[0.9322080, -0.0547660, -0.0851518, 0.5735991]]]]]
+
+Expected (Unparsed): [[[[[1.0,0.7753,0.1611,0.7245]]],[[[0.932207972048,-0.05476595840000001,-0.08515184918400004,0.5735990489439999]]]]]
+
+Actual:   [[[[[1, 0.7753, 0.1611, 0.7245]]], [[[0.9323, -0.0547, -0.0851, 0.5736]]]]]
+
+Expected: [[[[[1, 0.7753, 0.1611, 0.7245]]], [[[0.9323, -0.0547, -0.0851, 0.5736]]]]]

@@ -1,0 +1,39 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub50100 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub50100 = tf.keras.layers.Input(shape=([3, 3]))
+
+Sub50100 = keras.layers.Subtract(name = 'Sub50100', )([in0Sub50100,in1Sub50100])
+Res544 = keras.layers.Reshape((3, 3, 1), name = 'Res544', )(Sub50100)
+Glo25543 = keras.layers.GlobalAveragePooling2D(name = 'Glo25543', )(Res544)
+Res87550 = keras.layers.Reshape((1, 1), name = 'Res87550', )(Glo25543)
+Con226 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con226', )(Res87550)
+model = tf.keras.models.Model(inputs=[in0Sub50100,in1Sub50100], outputs=Con226)
+w = model.get_layer('Con226').get_weights() 
+w[0] = np.array([[[0.8357, 0.4401, 0.6383, 0.6326]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con226').set_weights(w) 
+in0Sub50100 = tf.constant([[[0.2177, 0.5701, 0.5527], [0.7061, 0.6243, 0.6718], [0.85, 0.8432, 0.3816]]])
+in1Sub50100 = tf.constant([[[0.852, 0.715, 0.0174], [0.616, 0.2156, 0.7116], [0.5254, 0.1574, 0.3873]]])
+print (np.array2string(model.predict([in0Sub50100,in1Sub50100],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con226.png')
+
+LSub50100 = subtract_layer([[[0.2177, 0.5701, 0.5527], [0.7061, 0.6243, 0.6718], [0.85, 0.8432, 0.3816]]], [[[0.852, 0.715, 0.0174], [0.616, 0.2156, 0.7116], [0.5254, 0.1574, 0.3873]]], Sub50100), 
+LRes544 = reshape_layer(Sub50100, [3, 3, 1], Res544), 
+LGlo25543 = global_average_pooling2D_layer(Res544, Glo25543), 
+LRes87550 = reshape_layer(Glo25543, [1, 1], Res87550), 
+LCon226 = conv1D_layer(Res87550, 1,[[[0.8357, 0.4401, 0.6383, 0.6326]]],[0, 0, 0, 0], 1, false, 1, Con226), 
+exec_layers([LSub50100,LRes544,LGlo25543,LRes87550,LCon226],["Sub50100","Res544","Glo25543","Res87550","Con226"],Con226,"Con226")
+
+Actual (Unparsed): [[[0.1132652, 0.0596482, 0.0865109, 0.0857384]]]
+
+Expected (Unparsed): [[[0.11326520666666665,0.05964821999999999,0.08651092666666665,0.08573838666666667]]]
+
+Actual:   [[[0.1133, 0.0597, 0.0866, 0.0858]]]
+
+Expected: [[[0.1133, 0.0597, 0.0866, 0.0858]]]

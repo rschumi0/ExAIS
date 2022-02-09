@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep19916 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min39187 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in1Min39187 = tf.keras.layers.Input(shape=([1, 2, 1, 2]))
+in0Add24279 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Add24279 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con58650 = tf.keras.layers.Input(shape=([3]))
+
+Sep19916 = keras.layers.SeparableConv1D(4, (2),strides=(1), padding='valid', name = 'Sep19916', )(in0Sep19916)
+Fla31696 = keras.layers.Flatten(name = 'Fla31696', )(Sep19916)
+Min39187 = keras.layers.Minimum(name = 'Min39187', )([in0Min39187,in1Min39187])
+Res37644 = keras.layers.Reshape((1, 2, 2), name = 'Res37644', )(Min39187)
+Cro57382 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro57382', )(Res37644)
+Res81101 = keras.layers.Reshape((1, 4), name = 'Res81101', )(Cro57382)
+Fla9420 = keras.layers.Flatten(name = 'Fla9420', )(Res81101)
+Add24279 = keras.layers.Add(name = 'Add24279', )([in0Add24279,in1Add24279])
+Res89235 = keras.layers.Reshape((2, 2), name = 'Res89235', )(Add24279)
+GRU74408 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU74408', )(Res89235)
+Con58650 = keras.layers.Concatenate(axis=1, name = 'Con58650', )([GRU74408,in0Con58650])
+Ave22814 = keras.layers.Average(name = 'Ave22814', )([Fla9420,Con58650])
+Min27716 = keras.layers.Minimum(name = 'Min27716', )([Fla31696,Ave22814])
+model = tf.keras.models.Model(inputs=[in0Sep19916,in0Min39187,in1Min39187,in0Add24279,in1Add24279,in0Con58650], outputs=Min27716)
+w = model.get_layer('Sep19916').get_weights() 
+w[0] = np.array([[[0.3231], [0.7123]], [[0.587], [0.9677]]])
+w[1] = np.array([[[0.9387, 0.7359, 0.0978, 0.407], [0.7842, 0.9754, 0.1052, 0.4822]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep19916').set_weights(w) 
+w = model.get_layer('GRU74408').get_weights() 
+w[0] = np.array([[4, 1, 5], [1, 10, 1]])
+w[1] = np.array([[8, 5, 2]])
+w[2] = np.array([1, 9, 2])
+model.get_layer('GRU74408').set_weights(w) 
+in0Sep19916 = tf.constant([[[0.8417, 0.9089], [0.9, 0.3907]]])
+in0Min39187 = tf.constant([[[[[0.5896, 0.2497]], [[0.3662, 0.0819]]]]])
+in1Min39187 = tf.constant([[[[[0.2078, 0.9328]], [[0.9897, 0.9936]]]]])
+in0Add24279 = tf.constant([[[[0.7331, 0.4707]], [[0.1082, 0.6215]]]])
+in1Add24279 = tf.constant([[[[0.8267, 0.1161]], [[0.2275, 0.2427]]]])
+in0Con58650 = tf.constant([[0.4632, 0.1659, 0.7301]])
+print (np.array2string(model.predict([in0Sep19916,in0Min39187,in1Min39187,in0Add24279,in1Add24279,in0Con58650],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min27716.png')
+
+LSep19916 = separable_conv1D_layer([[[0.8417, 0.9089], [0.9, 0.3907]]], 2,[[[[0.3231], [0.7123]], [[0.587], [0.9677]]],[[[0.9387, 0.7359, 0.0978, 0.407], [0.7842, 0.9754, 0.1052, 0.4822]]]],[0, 0, 0, 0], 1, false, Sep19916), 
+LFla31696 = flatten_layer(Sep19916, Fla31696), 
+LMin39187 = minimum_layer([[[[[[0.5896, 0.2497]], [[0.3662, 0.0819]]]]], [[[[[0.2078, 0.9328]], [[0.9897, 0.9936]]]]]], Min39187), 
+LRes37644 = reshape_layer(Min39187, [1, 2, 2], Res37644), 
+LCro57382 = cropping2D_layer(Res37644, 0, 0, 0, 0, Cro57382), 
+LRes81101 = reshape_layer(Cro57382, [1, 4], Res81101), 
+LFla9420 = flatten_layer(Res81101, Fla9420), 
+LAdd24279 = add_layer([[[[[0.7331, 0.4707]], [[0.1082, 0.6215]]]], [[[[0.8267, 0.1161]], [[0.2275, 0.2427]]]]], Add24279), 
+LRes89235 = reshape_layer(Add24279, [2, 2], Res89235), 
+LGRU74408 = gru_layer(Res89235,[[4, 1, 5], [1, 10, 1]],[[8, 5, 2]],[1, 9, 2], false, GRU74408), 
+LCon58650 = concatenate_layer([GRU74408,[[0.4632, 0.1659, 0.7301]]], 1, Con58650), 
+LAve22814 = average_layer([Fla9420,Con58650], Ave22814), 
+LMin27716 = minimum_layer([Fla31696,Ave22814], Min27716), 
+exec_layers([LSep19916,LFla31696,LMin39187,LRes37644,LCro57382,LRes81101,LFla9420,LAdd24279,LRes89235,LGRU74408,LCon58650,LAve22814,LMin27716],["Sep19916","Fla31696","Min39187","Res37644","Cro57382","Res81101","Fla9420","Add24279","Res89235","GRU74408","Con58650","Ave22814","Min27716"],Min27716,"Min27716")
+
+Actual (Unparsed): [[0.1234794, 0.3564500, 0.1861463, 0.4060000]]
+
+Expected (Unparsed): [[0.1234793834649961,0.35645,0.18614630307799998,0.40599999999999997]]
+
+Actual:   [[0.1235, 0.3565, 0.1862, 0.406]]
+
+Expected: [[0.1235, 0.3565, 0.1862, 0.406]]

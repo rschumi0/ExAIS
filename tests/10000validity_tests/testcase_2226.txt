@@ -1,0 +1,67 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc88915 = tf.keras.layers.Input(shape=([1, 1]))
+in0Sub49222 = tf.keras.layers.Input(shape=([2]))
+in1Sub49222 = tf.keras.layers.Input(shape=([2]))
+in0Glo9689 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+
+Loc88915 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc88915', )(in0Loc88915)
+Res22179 = keras.layers.Reshape((1, 3, 1), name = 'Res22179', )(Loc88915)
+Con74063 = keras.layers.Conv2DTranspose(3, (1, 3),strides=(1, 4), padding='same', name = 'Con74063', )(Res22179)
+Res34263 = keras.layers.Reshape((1, 12, 3, 1), name = 'Res34263', )(Con74063)
+Glo70531 = keras.layers.GlobalAveragePooling3D(name = 'Glo70531', )(Res34263)
+Res80351 = keras.layers.Reshape((1, 1), name = 'Res80351', )(Glo70531)
+Zer58471 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer58471', )(Res80351)
+Sub49222 = keras.layers.Subtract(name = 'Sub49222', )([in0Sub49222,in1Sub49222])
+Res52115 = keras.layers.Reshape((2, 1), name = 'Res52115', )(Sub49222)
+Glo9689 = keras.layers.GlobalMaxPool3D(name = 'Glo9689', )(in0Glo9689)
+Res46751 = keras.layers.Reshape((2, 1), name = 'Res46751', )(Glo9689)
+Cro2092 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro2092', )(Res46751)
+Zer66338 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer66338', )(Cro2092)
+Min6920 = keras.layers.Minimum(name = 'Min6920', )([Res52115,Zer66338])
+Ave57244 = keras.layers.Average(name = 'Ave57244', )([Zer58471,Min6920])
+model = tf.keras.models.Model(inputs=[in0Loc88915,in0Sub49222,in1Sub49222,in0Glo9689], outputs=Ave57244)
+w = model.get_layer('Loc88915').get_weights() 
+w[0] = np.array([[[0.7159, 0.576, 0.9862]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc88915').set_weights(w) 
+w = model.get_layer('Con74063').get_weights() 
+w[0] = np.array([[[[0.516], [0.9], [0.0035]], [[0.2182], [0.0192], [0.6608]], [[0.7638], [0.6557], [0.2274]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con74063').set_weights(w) 
+in0Loc88915 = tf.constant([[[0.055]]])
+in0Sub49222 = tf.constant([[0.1433, 0.5116]])
+in1Sub49222 = tf.constant([[0.0567, 0.8963]])
+in0Glo9689 = tf.constant([[[[[1.2423, 1.2621], [1.2448, 1.7507]], [[1.9177, 1.4608], [1.0012, 1.3461]]], [[[1.5997, 1.7949], [1.0512, 1.4835]], [[1.3808, 1.1558], [1.1675, 1.597]]]]])
+print (np.array2string(model.predict([in0Loc88915,in0Sub49222,in1Sub49222,in0Glo9689],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave57244.png')
+
+LLoc88915 = locally_connected1D_layer([[[0.055]]], 1,[[[0.7159, 0.576, 0.9862]]],[[0, 0, 0]], 1, Loc88915), 
+LRes22179 = reshape_layer(Loc88915, [1, 3, 1], Res22179), 
+LCon74063 = conv2D_transpose_layer(Res22179, 1, 3,[[[[0.516], [0.9], [0.0035]], [[0.2182], [0.0192], [0.6608]], [[0.7638], [0.6557], [0.2274]]]],[0, 0, 0], 1, 4, true, Con74063), 
+LRes34263 = reshape_layer(Con74063, [1, 12, 3, 1], Res34263), 
+LGlo70531 = global_average_pooling3D_layer(Res34263, Glo70531), 
+LRes80351 = reshape_layer(Glo70531, [1, 1], Res80351), 
+LZer58471 = zero_padding1D_layer(Res80351, 1, 0, Zer58471), 
+LSub49222 = subtract_layer([[0.1433, 0.5116]], [[0.0567, 0.8963]], Sub49222), 
+LRes52115 = reshape_layer(Sub49222, [2, 1], Res52115), 
+LGlo9689 = global_max_pool3D_layer([[[[[1.2423, 1.2621], [1.2448, 1.7507]], [[1.9177, 1.4608], [1.0012, 1.3461]]], [[[1.5997, 1.7949], [1.0512, 1.4835]], [[1.3808, 1.1558], [1.1675, 1.597]]]]], Glo9689), 
+LRes46751 = reshape_layer(Glo9689, [2, 1], Res46751), 
+LCro2092 = cropping1D_layer(Res46751, 1, 0, Cro2092), 
+LZer66338 = zero_padding1D_layer(Cro2092, 1, 0, Zer66338), 
+LMin6920 = minimum_layer([Res52115,Zer66338], Min6920), 
+LAve57244 = average_layer([Zer58471,Min6920], Ave57244), 
+exec_layers([LLoc88915,LRes22179,LCon74063,LRes34263,LGlo70531,LRes80351,LZer58471,LSub49222,LRes52115,LGlo9689,LRes46751,LCro2092,LZer66338,LMin6920,LAve57244],["Loc88915","Res22179","Con74063","Res34263","Glo70531","Res80351","Zer58471","Sub49222","Res52115","Glo9689","Res46751","Cro2092","Zer66338","Min6920","Ave57244"],Ave57244,"Ave57244")
+
+Actual (Unparsed): [[[0.0000000], [-0.1854507]]]
+
+Expected (Unparsed): [[[0],[-0.18545074250972218]]]
+
+Actual:   [[[0], [-0.1854]]]
+
+Expected: [[[0], [-0.1854]]]

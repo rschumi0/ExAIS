@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot97051 = tf.keras.layers.Input(shape=([2]))
+in1Dot97051 = tf.keras.layers.Input(shape=([2]))
+in0Con88016 = tf.keras.layers.Input(shape=([1, 2]))
+in0Min4205 = tf.keras.layers.Input(shape=([1, 1]))
+in1Min4205 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot97051 = keras.layers.Dot(axes=(1, 1), name = 'Dot97051', )([in0Dot97051,in1Dot97051])
+Res13816 = keras.layers.Reshape((1, 1), name = 'Res13816', )(Dot97051)
+Con88016 = keras.layers.Concatenate(axis=2, name = 'Con88016', )([Res13816,in0Con88016])
+Min4205 = keras.layers.Minimum(name = 'Min4205', )([in0Min4205,in1Min4205])
+Sep49101 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep49101', )(Min4205)
+Ave38644 = keras.layers.Average(name = 'Ave38644', )([Con88016,Sep49101])
+model = tf.keras.models.Model(inputs=[in0Dot97051,in1Dot97051,in0Con88016,in0Min4205,in1Min4205], outputs=Ave38644)
+w = model.get_layer('Sep49101').get_weights() 
+w[0] = np.array([[[0.0313]]])
+w[1] = np.array([[[0.9847, 0.6209, 0.7665]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep49101').set_weights(w) 
+in0Dot97051 = tf.constant([[0.1902, 0.2293]])
+in1Dot97051 = tf.constant([[0.1814, 0.2143]])
+in0Con88016 = tf.constant([[[0.3723, 0.2398]]])
+in0Min4205 = tf.constant([[[0.5068]]])
+in1Min4205 = tf.constant([[[0.1316]]])
+print (np.array2string(model.predict([in0Dot97051,in1Dot97051,in0Con88016,in0Min4205,in1Min4205],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave38644.png')
+
+LDot97051 = dot_layer([[0.1902, 0.2293]], [[0.1814, 0.2143]], 1, 1, Dot97051), 
+LRes13816 = reshape_layer(Dot97051, [1, 1], Res13816), 
+LCon88016 = concatenate_layer([Res13816,[[[0.3723, 0.2398]]]], 2, Con88016), 
+LMin4205 = minimum_layer([[[[0.5068]]], [[[0.1316]]]], Min4205), 
+LSep49101 = separable_conv1D_layer(Min4205, 1,[[[[0.0313]]],[[[0.9847, 0.6209, 0.7665]]]],[0, 0, 0], 1, false, Sep49101), 
+LAve38644 = average_layer([Con88016,Sep49101], Ave38644), 
+exec_layers([LDot97051,LRes13816,LCon88016,LMin4205,LSep49101,LAve38644],["Dot97051","Res13816","Con88016","Min4205","Sep49101","Ave38644"],Ave38644,"Ave38644")
+
+Actual (Unparsed): [[[0.0438487, 0.1874288, 0.1214786]]]
+
+Expected (Unparsed): [[[0.043848664038,0.187428768386,0.12147863741]]]
+
+Actual:   [[[0.0439, 0.1875, 0.1215]]]
+
+Expected: [[[0.0439, 0.1875, 0.1215]]]

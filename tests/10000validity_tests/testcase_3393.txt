@@ -1,0 +1,75 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo51298 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Glo36240 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con76575 = tf.keras.layers.Input(shape=([1]))
+in0Glo84009 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Dep80837 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Glo51298 = keras.layers.GlobalMaxPool3D(name = 'Glo51298', )(in0Glo51298)
+Res65394 = keras.layers.Reshape((1, 1), name = 'Res65394', )(Glo51298)
+Zer76177 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer76177', )(Res65394)
+Glo36240 = keras.layers.GlobalMaxPool2D(name = 'Glo36240', )(in0Glo36240)
+Con76575 = keras.layers.Concatenate(axis=1, name = 'Con76575', )([Glo36240,in0Con76575])
+Glo84009 = keras.layers.GlobalMaxPool3D(name = 'Glo84009', )(in0Glo84009)
+Add58925 = keras.layers.Add(name = 'Add58925', )([Con76575,Glo84009])
+Sof84760 = keras.layers.Softmax(axis=1, name = 'Sof84760', )(Add58925)
+Res4387 = keras.layers.Reshape((2, 1), name = 'Res4387', )(Sof84760)
+Res19371 = keras.layers.Reshape((2, 1, 1), name = 'Res19371', )(Res4387)
+Dep80837 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep80837', )(in0Dep80837)
+Bat56876 = keras.layers.BatchNormalization(axis=3, epsilon=0.7938641019922698,  name = 'Bat56876', )(Dep80837)
+Zer69039 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer69039', )(Bat56876)
+Max63503 = keras.layers.Maximum(name = 'Max63503', )([Res19371,Zer69039])
+Res76297 = keras.layers.Reshape((2, 1), name = 'Res76297', )(Max63503)
+Zer14296 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer14296', )(Res76297)
+Dot4161 = keras.layers.Dot(axes=(1, 1), name = 'Dot4161', )([Zer76177,Zer14296])
+model = tf.keras.models.Model(inputs=[in0Glo51298,in0Glo36240,in0Con76575,in0Glo84009,in0Dep80837], outputs=Dot4161)
+w = model.get_layer('Dep80837').get_weights() 
+w[0] = np.array([[[[0.7372]]], [[[0.856]]]])
+w[1] = np.array([0])
+model.get_layer('Dep80837').set_weights(w) 
+w = model.get_layer('Bat56876').get_weights() 
+w[0] = np.array([0.2852])
+w[1] = np.array([0.5487])
+w[2] = np.array([0.4666])
+w[3] = np.array([0.23])
+model.get_layer('Bat56876').set_weights(w) 
+in0Glo51298 = tf.constant([[[[[1.3269], [1.1868]], [[1.79], [1.3342]]]]])
+in0Glo36240 = tf.constant([[[[1.1959], [1.6095]]]])
+in0Con76575 = tf.constant([[0.7603]])
+in0Glo84009 = tf.constant([[[[[1.8878, 1.8162], [1.4323, 1.1523]], [[1.938, 1.3193], [1.4765, 1.8596]]], [[[1.4496, 1.005], [1.6734, 1.902]], [[1.1235, 1.9189], [1.8355, 1.9709]]]]])
+in0Dep80837 = tf.constant([[[[0.3402]], [[0.5181]]]])
+print (np.array2string(model.predict([in0Glo51298,in0Glo36240,in0Con76575,in0Glo84009,in0Dep80837],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot4161.png')
+
+LGlo51298 = global_max_pool3D_layer([[[[[1.3269], [1.1868]], [[1.79], [1.3342]]]]], Glo51298), 
+LRes65394 = reshape_layer(Glo51298, [1, 1], Res65394), 
+LZer76177 = zero_padding1D_layer(Res65394, 1, 1, Zer76177), 
+LGlo36240 = global_max_pool2D_layer([[[[1.1959], [1.6095]]]], Glo36240), 
+LCon76575 = concatenate_layer([Glo36240,[[0.7603]]], 1, Con76575), 
+LGlo84009 = global_max_pool3D_layer([[[[[1.8878, 1.8162], [1.4323, 1.1523]], [[1.938, 1.3193], [1.4765, 1.8596]]], [[[1.4496, 1.005], [1.6734, 1.902]], [[1.1235, 1.9189], [1.8355, 1.9709]]]]], Glo84009), 
+LAdd58925 = add_layer([Con76575,Glo84009], Add58925), 
+LSof84760 = softmax_layer(Add58925, 1, Sof84760), 
+LRes4387 = reshape_layer(Sof84760, [2, 1], Res4387), 
+LRes19371 = reshape_layer(Res4387, [2, 1, 1], Res19371), 
+LDep80837 = depthwise_conv2D_layer([[[[0.3402]], [[0.5181]]]], 2, 1,[[[[0.7372]]], [[[0.856]]]],[0], 2, 2, false, Dep80837), 
+LBat56876 = batch_normalization_layer(Dep80837, 3, 0.7938641019922698, [0.2852], [0.5487], [0.4666], [0.23], Bat56876), 
+LZer69039 = zero_padding2D_layer(Bat56876, 1, 0, 0, 0, Zer69039), 
+LMax63503 = maximum_layer([Res19371,Zer69039], Max63503), 
+LRes76297 = reshape_layer(Max63503, [2, 1], Res76297), 
+LZer14296 = zero_padding1D_layer(Res76297, 1, 0, Zer14296), 
+LDot4161 = dot_layer(Zer76177,Zer14296, 1, 1, Dot4161), 
+exec_layers([LGlo51298,LRes65394,LZer76177,LGlo36240,LCon76575,LGlo84009,LAdd58925,LSof84760,LRes4387,LRes19371,LDep80837,LBat56876,LZer69039,LMax63503,LRes76297,LZer14296,LDot4161],["Glo51298","Res65394","Zer76177","Glo36240","Con76575","Glo84009","Add58925","Sof84760","Res4387","Res19371","Dep80837","Bat56876","Zer69039","Max63503","Res76297","Zer14296","Dot4161"],Dot4161,"Dot4161")
+
+Actual (Unparsed): [[[1.2412761]]]
+
+Expected (Unparsed): [[[1.2412761602303097]]]
+
+Actual:   [[[1.2413]]]
+
+Expected: [[[1.2413]]]

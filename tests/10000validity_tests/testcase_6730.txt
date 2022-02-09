@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot82032 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot82032 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con67030 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dot82032 = keras.layers.Dot(axes=(2, 2), name = 'Dot82032', )([in0Dot82032,in1Dot82032])
+Res10547 = keras.layers.Reshape((2, 2, 1), name = 'Res10547', )(Dot82032)
+Zer62299 = keras.layers.ZeroPadding2D(padding=((0, 0), (4, 0)), name = 'Zer62299', )(Res10547)
+Con67030 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con67030', )(in0Con67030)
+Res50614 = keras.layers.Reshape((1, 4, 1), name = 'Res50614', )(Con67030)
+PRe41062 = keras.layers.PReLU(name = 'PRe41062', )(Res50614)
+Zer40496 = keras.layers.ZeroPadding2D(padding=((1, 0), (2, 0)), name = 'Zer40496', )(PRe41062)
+Ave43459 = keras.layers.Average(name = 'Ave43459', )([Zer62299,Zer40496])
+model = tf.keras.models.Model(inputs=[in0Dot82032,in1Dot82032,in0Con67030], outputs=Ave43459)
+w = model.get_layer('Con67030').get_weights() 
+w[0] = np.array([[[0.0762, 0.2139, 0.692, 0.7208], [0.4276, 0.6807, 0.4597, 0.2167]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con67030').set_weights(w) 
+w = model.get_layer('PRe41062').get_weights() 
+w[0] = np.array([[[0.8592], [0.0534], [0.5767], [0.3255]]])
+model.get_layer('PRe41062').set_weights(w) 
+in0Dot82032 = tf.constant([[[0.6006, 0.0096, 0.3524], [0.1424, 0.0271, 0.4517]]])
+in1Dot82032 = tf.constant([[[0.5262, 0.9931, 0.818], [0.3612, 0.6172, 0.5621]]])
+in0Con67030 = tf.constant([[[0.0366, 0.8399]]])
+print (np.array2string(model.predict([in0Dot82032,in1Dot82032,in0Con67030],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave43459.png')
+
+LDot82032 = dot_layer([[[0.6006, 0.0096, 0.3524], [0.1424, 0.0271, 0.4517]]], [[[0.5262, 0.9931, 0.818], [0.3612, 0.6172, 0.5621]]], 2, 2, Dot82032), 
+LRes10547 = reshape_layer(Dot82032, [2, 2, 1], Res10547), 
+LZer62299 = zero_padding2D_layer(Res10547, 0, 0, 4, 0, Zer62299), 
+LCon67030 = conv1D_layer([[[0.0366, 0.8399]]], 1,[[[0.0762, 0.2139, 0.692, 0.7208], [0.4276, 0.6807, 0.4597, 0.2167]]],[0, 0, 0, 0], 1, false, 1, Con67030), 
+LRes50614 = reshape_layer(Con67030, [1, 4, 1], Res50614), 
+LPRe41062 = prelu_layer(Res50614, [[[0.8592], [0.0534], [0.5767], [0.3255]]], PRe41062), 
+LZer40496 = zero_padding2D_layer(PRe41062, 1, 0, 2, 0, Zer40496), 
+LAve43459 = average_layer([Zer62299,Zer40496], Ave43459), 
+exec_layers([LDot82032,LRes10547,LZer62299,LCon67030,LRes50614,LPRe41062,LZer40496,LAve43459],["Dot82032","Res10547","Zer62299","Con67030","Res50614","PRe41062","Zer40496","Ave43459"],Ave43459,"Ave43459")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.3069163], [0.2104729]], [[0.0000000], [0.0000000], [0.1809651], [0.2897743], [0.4413819], [0.2652246]]]]
+
+Expected (Unparsed): [[[[0],[0],[0],[0],[0.30691634],[0.21047294000000003]],[[0],[0],[0.18096508],[0.289774335],[0.44138185999999996],[0.26522459]]]]
+
+Actual:   [[[[0], [0], [0], [0], [0.307], [0.2105]], [[0], [0], [0.181], [0.2898], [0.4414], [0.2653]]]]
+
+Expected: [[[[0], [0], [0], [0], [0.307], [0.2105]], [[0], [0], [0.181], [0.2898], [0.4414], [0.2653]]]]

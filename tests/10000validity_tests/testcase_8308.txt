@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per85606 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con89460 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Ave32017 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Ave32017 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Sof23452 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con17078 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Per85606 = keras.layers.Permute((1,2), name = 'Per85606',)(in0Per85606)
+Res60222 = keras.layers.Reshape((1, 2, 1), name = 'Res60222', )(Per85606)
+Zer67501 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer67501', )(Res60222)
+Con89460 = keras.layers.Concatenate(axis=3, name = 'Con89460', )([Zer67501,in0Con89460])
+Ave32017 = keras.layers.Average(name = 'Ave32017', )([in0Ave32017,in1Ave32017])
+Thr57276 = keras.layers.ThresholdedReLU(theta=7.289875629861422, name = 'Thr57276', )(Ave32017)
+Sof23452 = keras.layers.Softmax(axis=1, name = 'Sof23452', input_shape=(1, 2, 1))(in0Sof23452)
+Zer13075 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer13075', )(Sof23452)
+Con17078 = keras.layers.Concatenate(axis=3, name = 'Con17078', )([Zer13075,in0Con17078])
+Mul41144 = keras.layers.Multiply(name = 'Mul41144', )([Thr57276,Con17078])
+Ave45098 = keras.layers.Average(name = 'Ave45098', )([Con89460,Mul41144])
+Res81875 = keras.layers.Reshape((2, 4), name = 'Res81875', )(Ave45098)
+Glo14104 = keras.layers.GlobalMaxPool1D(name = 'Glo14104', )(Res81875)
+model = tf.keras.models.Model(inputs=[in0Per85606,in0Con89460,in0Ave32017,in1Ave32017,in0Sof23452,in0Con17078], outputs=Glo14104)
+in0Per85606 = tf.constant([[[1.951, 1.0454]]])
+in0Con89460 = tf.constant([[[[0.2342], [0.0256]], [[0.6072], [0.9714]]]])
+in0Ave32017 = tf.constant([[[[0.3882, 0.4467], [0.2235, 0.1511]], [[0.8454, 0.8293], [0.6485, 0.5296]]]])
+in1Ave32017 = tf.constant([[[[0.7926, 0.4735], [0.2102, 0.061]], [[0.8528, 0.7155], [0.3402, 0.55]]]])
+in0Sof23452 = tf.constant([[[[0.3623], [0.2205]]]])
+in0Con17078 = tf.constant([[[[0.5228], [0.6865]], [[0.9586], [0.9443]]]])
+print (np.array2string(model.predict([in0Per85606,in0Con89460,in0Ave32017,in1Ave32017,in0Sof23452,in0Con17078],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo14104.png')
+
+LPer85606 = permute_layer([[[1.951, 1.0454]]], 1,2, Per85606), 
+LRes60222 = reshape_layer(Per85606, [1, 2, 1], Res60222), 
+LZer67501 = zero_padding2D_layer(Res60222, 1, 0, 0, 0, Zer67501), 
+LCon89460 = concatenate_layer([Zer67501,[[[[0.2342], [0.0256]], [[0.6072], [0.9714]]]]], 3, Con89460), 
+LAve32017 = average_layer([[[[[0.3882, 0.4467], [0.2235, 0.1511]], [[0.8454, 0.8293], [0.6485, 0.5296]]]], [[[[0.7926, 0.4735], [0.2102, 0.061]], [[0.8528, 0.7155], [0.3402, 0.55]]]]], Ave32017), 
+LThr57276 = thresholded_relu_layer(Ave32017, 7.289875629861422, Thr57276), 
+LSof23452 = softmax_layer([[[[0.3623], [0.2205]]]], 1, Sof23452), 
+LZer13075 = zero_padding2D_layer(Sof23452, 1, 0, 0, 0, Zer13075), 
+LCon17078 = concatenate_layer([Zer13075,[[[[0.5228], [0.6865]], [[0.9586], [0.9443]]]]], 3, Con17078), 
+LMul41144 = multiply_layer([Thr57276,Con17078], Mul41144), 
+LAve45098 = average_layer([Con89460,Mul41144], Ave45098), 
+LRes81875 = reshape_layer(Ave45098, [2, 4], Res81875), 
+LGlo14104 = global_max_pool1D_layer(Res81875, Glo14104), 
+exec_layers([LPer85606,LRes60222,LZer67501,LCon89460,LAve32017,LThr57276,LSof23452,LZer13075,LCon17078,LMul41144,LAve45098,LRes81875,LGlo14104],["Per85606","Res60222","Zer67501","Con89460","Ave32017","Thr57276","Sof23452","Zer13075","Con17078","Mul41144","Ave45098","Res81875","Glo14104"],Glo14104,"Glo14104")
+
+Actual (Unparsed): [[0.9755000, 0.3036000, 0.5227000, 0.4857000]]
+
+Expected (Unparsed): [[0.9755,0.3036,0.5227,0.4857]]
+
+Actual:   [[0.9755, 0.3036, 0.5227, 0.4857]]
+
+Expected: [[0.9755, 0.3036, 0.5227, 0.4857]]

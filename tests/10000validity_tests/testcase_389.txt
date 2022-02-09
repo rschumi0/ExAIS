@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr68601 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Min46633 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min46633 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con79173 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mas34832 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con21134 = tf.keras.layers.Input(shape=([2, 3]))
+
+Thr68601 = keras.layers.ThresholdedReLU(theta=1.9662613971594471, name = 'Thr68601', input_shape=(2, 2, 2))(in0Thr68601)
+Res1547 = keras.layers.Reshape((2, 4), name = 'Res1547', )(Thr68601)
+Min46633 = keras.layers.Minimum(name = 'Min46633', )([in0Min46633,in1Min46633])
+Con79173 = keras.layers.Concatenate(axis=2, name = 'Con79173', )([Min46633,in0Con79173])
+Sub14665 = keras.layers.Subtract(name = 'Sub14665', )([Res1547,Con79173])
+Mas34832 = keras.layers.Masking(mask_value=2, name = 'Mas34832', )(in0Mas34832)
+Con21134 = keras.layers.Concatenate(axis=2, name = 'Con21134', )([Mas34832,in0Con21134])
+Ave2022 = keras.layers.Average(name = 'Ave2022', )([Sub14665,Con21134])
+Ave48030 = keras.layers.AveragePooling1D(pool_size=(2), name = 'Ave48030', )(Ave2022)
+Res19032 = keras.layers.Reshape((1, 4, 1), name = 'Res19032', )(Ave48030)
+Res92602 = keras.layers.Reshape((1, 4, 1, 1), name = 'Res92602', )(Res19032)
+Up_33920 = keras.layers.UpSampling3D(size=(2, 1, 2), name = 'Up_33920', )(Res92602)
+model = tf.keras.models.Model(inputs=[in0Thr68601,in0Min46633,in1Min46633,in0Con79173,in0Mas34832,in0Con21134], outputs=Up_33920)
+in0Thr68601 = tf.constant([[[[0.8841, 0.7774], [0.0916, 0.842]], [[0.9672, 0.7264], [0.2509, 0.9306]]]])
+in0Min46633 = tf.constant([[[0.6227, 0.2367], [0.4052, 0.3477]]])
+in1Min46633 = tf.constant([[[0.9403, 0.5761], [0.2965, 0.3939]]])
+in0Con79173 = tf.constant([[[0.5959, 0.9973], [0.6196, 0.5242]]])
+in0Mas34832 = tf.constant([[[1.5484], [1.67]]])
+in0Con21134 = tf.constant([[[0.9194, 0.8719, 0.6526], [0.6263, 0.542, 0.3664]]])
+print (np.array2string(model.predict([in0Thr68601,in0Min46633,in1Min46633,in0Con79173,in0Mas34832,in0Con21134],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_33920.png')
+
+LThr68601 = thresholded_relu_layer([[[[0.8841, 0.7774], [0.0916, 0.842]], [[0.9672, 0.7264], [0.2509, 0.9306]]]], 1.9662613971594471, Thr68601), 
+LRes1547 = reshape_layer(Thr68601, [2, 4], Res1547), 
+LMin46633 = minimum_layer([[[[0.6227, 0.2367], [0.4052, 0.3477]]], [[[0.9403, 0.5761], [0.2965, 0.3939]]]], Min46633), 
+LCon79173 = concatenate_layer([Min46633,[[[0.5959, 0.9973], [0.6196, 0.5242]]]], 2, Con79173), 
+LSub14665 = subtract_layer(Res1547,Con79173, Sub14665), 
+LMas34832 = masking_layer([[[1.5484], [1.67]]], 2, Mas34832), 
+LCon21134 = concatenate_layer([Mas34832,[[[0.9194, 0.8719, 0.6526], [0.6263, 0.542, 0.3664]]]], 2, Con21134), 
+LAve2022 = average_layer([Sub14665,Con21134], Ave2022), 
+LAve48030 = average_pooling1D_layer(Ave2022, 2, Ave48030), 
+LRes19032 = reshape_layer(Ave48030, [1, 4, 1], Res19032), 
+LRes92602 = reshape_layer(Res19032, [1, 4, 1, 1], Res92602), 
+LUp_33920 = up_sampling3D_layer(Res92602, 2, 1, 2, Up_33920), 
+exec_layers([LThr68601,LRes1547,LMin46633,LCon79173,LSub14665,LMas34832,LCon21134,LAve2022,LAve48030,LRes19032,LRes92602,LUp_33920],["Thr68601","Res1547","Min46633","Con79173","Sub14665","Mas34832","Con21134","Ave2022","Ave48030","Res19032","Res92602","Up_33920"],Up_33920,"Up_33920")
+
+Actual (Unparsed): [[[[[0.5748000], [0.5748000]], [[0.2403250], [0.2403250]], [[0.0496000], [0.0496000]], [[-0.1256250], [-0.1256250]]], [[[0.5748000], [0.5748000]], [[0.2403250], [0.2403250]], [[0.0496000], [0.0496000]], [[-0.1256250], [-0.1256250]]]]]
+
+Expected (Unparsed): [[[[[0.5748],[0.5748]],[[0.24032499999999998],[0.24032499999999998]],[[0.049600000000000005],[0.049600000000000005]],[[-0.125625],[-0.125625]]],[[[0.5748],[0.5748]],[[0.24032499999999998],[0.24032499999999998]],[[0.049600000000000005],[0.049600000000000005]],[[-0.125625],[-0.125625]]]]]
+
+Actual:   [[[[[0.5748], [0.5748]], [[0.2404], [0.2404]], [[0.0496], [0.0496]], [[-0.1256], [-0.1256]]], [[[0.5748], [0.5748]], [[0.2404], [0.2404]], [[0.0496], [0.0496]], [[-0.1256], [-0.1256]]]]]
+
+Expected: [[[[[0.5748], [0.5748]], [[0.2404], [0.2404]], [[0.0497], [0.0497]], [[-0.1256], [-0.1256]]], [[[0.5748], [0.5748]], [[0.2404], [0.2404]], [[0.0497], [0.0497]], [[-0.1256], [-0.1256]]]]]

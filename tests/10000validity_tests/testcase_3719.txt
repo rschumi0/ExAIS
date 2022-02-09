@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul5430 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Mul5430 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0Add40356 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Add40356 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+
+Mul5430 = keras.layers.Multiply(name = 'Mul5430', )([in0Mul5430,in1Mul5430])
+Add40356 = keras.layers.Add(name = 'Add40356', )([in0Add40356,in1Add40356])
+Sof63605 = keras.layers.Softmax(axis=1, name = 'Sof63605', )(Add40356)
+Min80717 = keras.layers.Minimum(name = 'Min80717', )([Mul5430,Sof63605])
+Res835 = keras.layers.Reshape((2, 1, 4), name = 'Res835', )(Min80717)
+Up_37406 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_37406', )(Res835)
+model = tf.keras.models.Model(inputs=[in0Mul5430,in1Mul5430,in0Add40356,in1Add40356], outputs=Up_37406)
+in0Mul5430 = tf.constant([[[[[0.7018, 0.603], [0.6076, 0.6293]]], [[[0.5203, 0.5382], [0.9719, 0.3551]]]]])
+in1Mul5430 = tf.constant([[[[[0.0048, 0.8166], [0.5174, 0.787]]], [[[0.4274, 0.987], [0.0685, 0.4486]]]]])
+in0Add40356 = tf.constant([[[[[0.8053, 0.0689], [0.2214, 0.1154]]], [[[0.2536, 0.4799], [0.2094, 0.0784]]]]])
+in1Add40356 = tf.constant([[[[[0.9592, 0.6543], [0.5604, 0.6992]]], [[[0.7853, 0.5323], [0.2192, 0.2572]]]]])
+print (np.array2string(model.predict([in0Mul5430,in1Mul5430,in0Add40356,in1Add40356],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_37406.png')
+
+LMul5430 = multiply_layer([[[[[[0.7018, 0.603], [0.6076, 0.6293]]], [[[0.5203, 0.5382], [0.9719, 0.3551]]]]], [[[[[0.0048, 0.8166], [0.5174, 0.787]]], [[[0.4274, 0.987], [0.0685, 0.4486]]]]]], Mul5430), 
+LAdd40356 = add_layer([[[[[[0.8053, 0.0689], [0.2214, 0.1154]]], [[[0.2536, 0.4799], [0.2094, 0.0784]]]]], [[[[[0.9592, 0.6543], [0.5604, 0.6992]]], [[[0.7853, 0.5323], [0.2192, 0.2572]]]]]], Add40356), 
+LSof63605 = softmax_layer(Add40356, 1, Sof63605), 
+LMin80717 = minimum_layer([Mul5430,Sof63605], Min80717), 
+LRes835 = reshape_layer(Min80717, [2, 1, 4], Res835), 
+LUp_37406 = up_sampling2D_layer(Res835, 1, 1, Up_37406), 
+exec_layers([LMul5430,LAdd40356,LSof63605,LMin80717,LRes835,LUp_37406],["Mul5430","Add40356","Sof63605","Min80717","Res835","Up_37406"],Up_37406,"Up_37406")
+
+Actual (Unparsed): [[[[0.0033686, 0.4282487, 0.3143722, 0.4952591]], [[0.2223762, 0.5312034, 0.0665751, 0.1592979]]]]
+
+Expected (Unparsed): [[[[0.0033686399999999996,0.4282487012320344,0.31437224,0.4952591]],[[0.22237621999999999,0.5312034,0.06657515,0.15929786]]]]
+
+Actual:   [[[[0.0034, 0.4283, 0.3144, 0.4953]], [[0.2224, 0.5313, 0.0666, 0.1593]]]]
+
+Expected: [[[[0.0034, 0.4283, 0.3144, 0.4953]], [[0.2224, 0.5313, 0.0666, 0.1593]]]]

@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub5763 = tf.keras.layers.Input(shape=([3, 2, 2]))
+in1Sub5763 = tf.keras.layers.Input(shape=([3, 2, 2]))
+in0Con43388 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Sub5763 = keras.layers.Subtract(name = 'Sub5763', )([in0Sub5763,in1Sub5763])
+Con43388 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con43388', )(in0Con43388)
+Zer37525 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer37525', )(Con43388)
+Max61719 = keras.layers.Maximum(name = 'Max61719', )([Sub5763,Zer37525])
+Res5541 = keras.layers.Reshape((3, 4), name = 'Res5541', )(Max61719)
+Up_55920 = keras.layers.UpSampling1D(size=(1), name = 'Up_55920', )(Res5541)
+model = tf.keras.models.Model(inputs=[in0Sub5763,in1Sub5763,in0Con43388], outputs=Up_55920)
+w = model.get_layer('Con43388').get_weights() 
+w[0] = np.array([[[[0.9662, 0.1517]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con43388').set_weights(w) 
+in0Sub5763 = tf.constant([[[[0.2234, 0.3956], [0.5301, 0.1458]], [[0.4716, 0.7829], [0.6352, 0.9777]], [[0.7488, 0.7303], [0.1289, 0.0673]]]])
+in1Sub5763 = tf.constant([[[[0.5263, 0.5987], [0.5289, 0.6044]], [[0.4802, 0.2161], [0.3278, 0.4942]], [[0.6249, 0.9401], [0.5823, 0.4151]]]])
+in0Con43388 = tf.constant([[[[0.2174]]]])
+print (np.array2string(model.predict([in0Sub5763,in1Sub5763,in0Con43388],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_55920.png')
+
+LSub5763 = subtract_layer([[[[0.2234, 0.3956], [0.5301, 0.1458]], [[0.4716, 0.7829], [0.6352, 0.9777]], [[0.7488, 0.7303], [0.1289, 0.0673]]]], [[[[0.5263, 0.5987], [0.5289, 0.6044]], [[0.4802, 0.2161], [0.3278, 0.4942]], [[0.6249, 0.9401], [0.5823, 0.4151]]]], Sub5763), 
+LCon43388 = conv2D_layer([[[[0.2174]]]], 1, 1,[[[[0.9662, 0.1517]]]],[0, 0], 1, 1, true, 1, 1, Con43388), 
+LZer37525 = zero_padding2D_layer(Con43388, 2, 0, 1, 0, Zer37525), 
+LMax61719 = maximum_layer([Sub5763,Zer37525], Max61719), 
+LRes5541 = reshape_layer(Max61719, [3, 4], Res5541), 
+LUp_55920 = up_sampling1D_layer(Res5541, 1, Up_55920), 
+exec_layers([LSub5763,LCon43388,LZer37525,LMax61719,LRes5541,LUp_55920],["Sub5763","Con43388","Zer37525","Max61719","Res5541","Up_55920"],Up_55920,"Up_55920")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0012000, 0.0000000], [0.0000000, 0.5668000, 0.3074000, 0.4835000], [0.1239000, 0.0000000, 0.2100519, 0.0329796]]]
+
+Expected (Unparsed): [[[0,0,0.0011999999999999789,0],[0,0.5668000000000001,0.3074,0.48350000000000004],[0.12390000000000001,0,0.21005188,0.03297958]]]
+
+Actual:   [[[0, 0, 0.0012, 0], [0, 0.5668, 0.3074, 0.4835], [0.1239, 0, 0.2101, 0.033]]]
+
+Expected: [[[0, 0, 0.0012, 0], [0, 0.5669, 0.3074, 0.4836], [0.124, 0, 0.2101, 0.033]]]

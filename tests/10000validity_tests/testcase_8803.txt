@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep90956 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Max6156 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max6156 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Glo6823 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con15604 = tf.keras.layers.Input(shape=([1]))
+
+Dep90956 = keras.layers.DepthwiseConv2D((2, 2),strides=(2, 2), padding='same', name = 'Dep90956', )(in0Dep90956)
+Res33676 = keras.layers.Reshape((1, 2), name = 'Res33676', )(Dep90956)
+PRe21463 = keras.layers.PReLU(name = 'PRe21463', )(Res33676)
+Fla50069 = keras.layers.Flatten(name = 'Fla50069', )(PRe21463)
+Max6156 = keras.layers.Maximum(name = 'Max6156', )([in0Max6156,in1Max6156])
+Res93396 = keras.layers.Reshape((1, 2), name = 'Res93396', )(Max6156)
+Fla48452 = keras.layers.Flatten(name = 'Fla48452', )(Res93396)
+Glo6823 = keras.layers.GlobalAveragePooling3D(name = 'Glo6823', )(in0Glo6823)
+Dot137 = keras.layers.Dot(axes=(1, 1), name = 'Dot137', )([Fla48452,Glo6823])
+Con15604 = keras.layers.Concatenate(axis=1, name = 'Con15604', )([Dot137,in0Con15604])
+Max41208 = keras.layers.Maximum(name = 'Max41208', )([Fla50069,Con15604])
+model = tf.keras.models.Model(inputs=[in0Dep90956,in0Max6156,in1Max6156,in0Glo6823,in0Con15604], outputs=Max41208)
+w = model.get_layer('Dep90956').get_weights() 
+w[0] = np.array([[[[0.7963], [0.2854]], [[0.9004], [0.3175]]], [[[0.3924], [0.5137]], [[0.7345], [0.2594]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep90956').set_weights(w) 
+w = model.get_layer('PRe21463').get_weights() 
+w[0] = np.array([[0.7716, 0.1448]])
+model.get_layer('PRe21463').set_weights(w) 
+in0Dep90956 = tf.constant([[[[0.6759, 0.5877], [0.247, 0.3242]], [[0.8873, 0.0218], [0.0519, 0.5032]]]])
+in0Max6156 = tf.constant([[[[0.5014, 0.3418]]]])
+in1Max6156 = tf.constant([[[[0.8736, 0.3142]]]])
+in0Glo6823 = tf.constant([[[[[1.8437, 1.1697]]]]])
+in0Con15604 = tf.constant([[0.37]])
+print (np.array2string(model.predict([in0Dep90956,in0Max6156,in1Max6156,in0Glo6823,in0Con15604],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max41208.png')
+
+LDep90956 = depthwise_conv2D_layer([[[[0.6759, 0.5877], [0.247, 0.3242]], [[0.8873, 0.0218], [0.0519, 0.5032]]]], 2, 2,[[[[0.7963], [0.2854]], [[0.9004], [0.3175]]], [[[0.3924], [0.5137]], [[0.7345], [0.2594]]]],[0, 0], 2, 2, true, Dep90956), 
+LRes33676 = reshape_layer(Dep90956, [1, 2], Res33676), 
+LPRe21463 = prelu_layer(Res33676, [[0.7716, 0.1448]], PRe21463), 
+LFla50069 = flatten_layer(PRe21463, Fla50069), 
+LMax6156 = maximum_layer([[[[[0.5014, 0.3418]]]], [[[[0.8736, 0.3142]]]]], Max6156), 
+LRes93396 = reshape_layer(Max6156, [1, 2], Res93396), 
+LFla48452 = flatten_layer(Res93396, Fla48452), 
+LGlo6823 = global_average_pooling3D_layer([[[[[1.8437, 1.1697]]]]], Glo6823), 
+LDot137 = dot_layer(Fla48452,Glo6823, 1, 1, Dot137), 
+LCon15604 = concatenate_layer([Dot137,[[0.37]]], 1, Con15604), 
+LMax41208 = maximum_layer([Fla50069,Con15604], Max41208), 
+exec_layers([LDep90956,LRes33676,LPRe21463,LFla50069,LMax6156,LRes93396,LFla48452,LGlo6823,LDot137,LCon15604,LMax41208],["Dep90956","Res33676","PRe21463","Fla50069","Max6156","Res93396","Fla48452","Glo6823","Dot137","Con15604","Max41208"],Max41208,"Max41208")
+
+Actual (Unparsed): [[2.0104599, 0.4123918]]
+
+Expected (Unparsed): [[2.0104597799999997,0.41239181999999996]]
+
+Actual:   [[2.0105, 0.4124]]
+
+Expected: [[2.0105, 0.4124]]

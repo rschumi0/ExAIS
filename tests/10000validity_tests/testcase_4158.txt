@@ -1,0 +1,71 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max20182 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Max20182 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Glo48180 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con44775 = tf.keras.layers.Input(shape=([2]))
+in0LST10580 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con43097 = tf.keras.layers.Input(shape=([1]))
+
+Max20182 = keras.layers.Maximum(name = 'Max20182', )([in0Max20182,in1Max20182])
+Res82801 = keras.layers.Reshape((1, 4), name = 'Res82801', )(Max20182)
+Fla1149 = keras.layers.Flatten(name = 'Fla1149', )(Res82801)
+Glo48180 = keras.layers.GlobalMaxPool2D(name = 'Glo48180', )(in0Glo48180)
+Res66813 = keras.layers.Reshape((2, 1), name = 'Res66813', )(Glo48180)
+Cro88531 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro88531', )(Res66813)
+Fla33567 = keras.layers.Flatten(name = 'Fla33567', )(Cro88531)
+Con44775 = keras.layers.Concatenate(axis=1, name = 'Con44775', )([Fla33567,in0Con44775])
+LST10580 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST10580', )(in0LST10580)
+Res36515 = keras.layers.Reshape((2, 1), name = 'Res36515', )(LST10580)
+Sim60077 = keras.layers.SimpleRNN(3,name = 'Sim60077', )(Res36515)
+Sub65343 = keras.layers.Subtract(name = 'Sub65343', )([Con44775,Sim60077])
+Con43097 = keras.layers.Concatenate(axis=1, name = 'Con43097', )([Sub65343,in0Con43097])
+Sub63716 = keras.layers.Subtract(name = 'Sub63716', )([Fla1149,Con43097])
+model = tf.keras.models.Model(inputs=[in0Max20182,in1Max20182,in0Glo48180,in0Con44775,in0LST10580,in0Con43097], outputs=Sub63716)
+w = model.get_layer('LST10580').get_weights() 
+w[0] = np.array([[3, 4, 2, 5, 7, 8, 7, 6], [6, 4, 6, 9, 5, 7, 8, 4], [8, 2, 1, 4, 8, 8, 2, 5]])
+w[1] = np.array([[8, 10, 8, 3, 1, 5, 4, 9], [2, 3, 7, 7, 10, 8, 6, 4]])
+w[2] = np.array([2, 10, 1, 10, 7, 8, 1, 8])
+model.get_layer('LST10580').set_weights(w) 
+w = model.get_layer('Sim60077').get_weights() 
+w[0] = np.array([[5, 4, 4]])
+w[1] = np.array([[3, 5, 6], [1, 7, 10], [2, 3, 3]])
+w[2] = np.array([10, 8, 6])
+model.get_layer('Sim60077').set_weights(w) 
+in0Max20182 = tf.constant([[[[0.7601, 0.5263], [0.0047, 0.764]]]])
+in1Max20182 = tf.constant([[[[0.5433, 0.5849], [0.4647, 0.0418]]]])
+in0Glo48180 = tf.constant([[[[1.573, 1.1185], [1.2996, 1.4463]]]])
+in0Con44775 = tf.constant([[0.287, 0.0944]])
+in0LST10580 = tf.constant([[[7, 3, 9], [10, 5, 10], [1, 2, 6]]])
+in0Con43097 = tf.constant([[0.1164]])
+print (np.array2string(model.predict([in0Max20182,in1Max20182,in0Glo48180,in0Con44775,in0LST10580,in0Con43097],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub63716.png')
+
+LMax20182 = maximum_layer([[[[[0.7601, 0.5263], [0.0047, 0.764]]]], [[[[0.5433, 0.5849], [0.4647, 0.0418]]]]], Max20182), 
+LRes82801 = reshape_layer(Max20182, [1, 4], Res82801), 
+LFla1149 = flatten_layer(Res82801, Fla1149), 
+LGlo48180 = global_max_pool2D_layer([[[[1.573, 1.1185], [1.2996, 1.4463]]]], Glo48180), 
+LRes66813 = reshape_layer(Glo48180, [2, 1], Res66813), 
+LCro88531 = cropping1D_layer(Res66813, 0, 1, Cro88531), 
+LFla33567 = flatten_layer(Cro88531, Fla33567), 
+LCon44775 = concatenate_layer([Fla33567,[[0.287, 0.0944]]], 1, Con44775), 
+LLST10580 = lstm_layer([[[7, 3, 9], [10, 5, 10], [1, 2, 6]]],[[3, 4, 2, 5, 7, 8, 7, 6], [6, 4, 6, 9, 5, 7, 8, 4], [8, 2, 1, 4, 8, 8, 2, 5]],[[8, 10, 8, 3, 1, 5, 4, 9], [2, 3, 7, 7, 10, 8, 6, 4]],[2, 10, 1, 10, 7, 8, 1, 8], LST10580), 
+LRes36515 = reshape_layer(LST10580, [2, 1], Res36515), 
+LSim60077 = simple_rnn_layer(Res36515,[[5, 4, 4]],[[3, 5, 6], [1, 7, 10], [2, 3, 3]],[10, 8, 6], Sim60077), 
+LSub65343 = subtract_layer(Con44775,Sim60077, Sub65343), 
+LCon43097 = concatenate_layer([Sub65343,[[0.1164]]], 1, Con43097), 
+LSub63716 = subtract_layer(Fla1149,Con43097, Sub63716), 
+exec_layers([LMax20182,LRes82801,LFla1149,LGlo48180,LRes66813,LCro88531,LFla33567,LCon44775,LLST10580,LRes36515,LSim60077,LSub65343,LCon43097,LSub63716],["Max20182","Res82801","Fla1149","Glo48180","Res66813","Cro88531","Fla33567","Con44775","LST10580","Res36515","Sim60077","Sub65343","Con43097","Sub63716"],Sub63716,"Sub63716")
+
+Actual (Unparsed): [[0.1871001, 1.2979000, 1.3703000, 0.6476000]]
+
+Expected (Unparsed): [[0.18710000000000004,1.2979,1.3702999999999999,0.6476]]
+
+Actual:   [[0.1872, 1.2979, 1.3703, 0.6476]]
+
+Expected: [[0.1872, 1.2979, 1.3703, 0.6476]]

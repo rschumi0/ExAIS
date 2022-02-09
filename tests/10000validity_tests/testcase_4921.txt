@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro80518 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con86295 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Glo79627 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+Cro80518 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro80518', )(in0Cro80518)
+Res71836 = keras.layers.Reshape((2, 1, 1), name = 'Res71836', )(Cro80518)
+Con86295 = keras.layers.Concatenate(axis=3, name = 'Con86295', )([Res71836,in0Con86295])
+Glo79627 = keras.layers.GlobalMaxPool3D(name = 'Glo79627', )(in0Glo79627)
+Res45421 = keras.layers.Reshape((1, 1), name = 'Res45421', )(Glo79627)
+Res34850 = keras.layers.Reshape((1, 1, 1), name = 'Res34850', )(Res45421)
+Loc73853 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc73853', )(Res34850)
+Zer36064 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer36064', )(Loc73853)
+Ave41995 = keras.layers.Average(name = 'Ave41995', )([Con86295,Zer36064])
+model = tf.keras.models.Model(inputs=[in0Cro80518,in0Con86295,in0Glo79627], outputs=Ave41995)
+w = model.get_layer('Loc73853').get_weights() 
+w[0] = np.array([[[0.6899, 0.2329, 0.4562]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc73853').set_weights(w) 
+in0Cro80518 = tf.constant([[[1.6924], [1.8623], [1.1393]]])
+in0Con86295 = tf.constant([[[[0.9747, 0.9902]], [[0.5732, 0.0202]]]])
+in0Glo79627 = tf.constant([[[[[1.4473]]], [[[1.7313]]]]])
+print (np.array2string(model.predict([in0Cro80518,in0Con86295,in0Glo79627],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave41995.png')
+
+LCro80518 = cropping1D_layer([[[1.6924], [1.8623], [1.1393]]], 0, 1, Cro80518), 
+LRes71836 = reshape_layer(Cro80518, [2, 1, 1], Res71836), 
+LCon86295 = concatenate_layer([Res71836,[[[[0.9747, 0.9902]], [[0.5732, 0.0202]]]]], 3, Con86295), 
+LGlo79627 = global_max_pool3D_layer([[[[[1.4473]]], [[[1.7313]]]]], Glo79627), 
+LRes45421 = reshape_layer(Glo79627, [1, 1], Res45421), 
+LRes34850 = reshape_layer(Res45421, [1, 1, 1], Res34850), 
+LLoc73853 = locally_connected2D_layer(Res34850, 1, 1,[[[0.6899, 0.2329, 0.4562]]],[[[0, 0, 0]]], 1, 1, Loc73853), 
+LZer36064 = zero_padding2D_layer(Loc73853, 1, 0, 0, 0, Zer36064), 
+LAve41995 = average_layer([Con86295,Zer36064], Ave41995), 
+exec_layers([LCro80518,LRes71836,LCon86295,LGlo79627,LRes45421,LRes34850,LLoc73853,LZer36064,LAve41995],["Cro80518","Res71836","Con86295","Glo79627","Res45421","Res34850","Loc73853","Zer36064","Ave41995"],Ave41995,"Ave41995")
+
+Actual (Unparsed): [[[[0.8462000, 0.4873500, 0.4951000]], [[1.5283620, 0.4882099, 0.4050095]]]]
+
+Expected (Unparsed): [[[[0.8462,0.48735,0.4951]],[[1.528361935,0.48820988500000007,0.40500953]]]]
+
+Actual:   [[[[0.8462, 0.4874, 0.4951]], [[1.5284, 0.4883, 0.4051]]]]
+
+Expected: [[[[0.8462, 0.4874, 0.4951]], [[1.5284, 0.4883, 0.4051]]]]

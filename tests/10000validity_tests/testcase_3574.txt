@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min18744 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min18744 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Ave23270 = tf.keras.layers.Input(shape=([1, 2]))
+
+Min18744 = keras.layers.Minimum(name = 'Min18744', )([in0Min18744,in1Min18744])
+Res36331 = keras.layers.Reshape((1, 1, 2), name = 'Res36331', )(Min18744)
+Res50760 = keras.layers.Reshape((1, 2), name = 'Res50760', )(Res36331)
+Ave23270 = keras.layers.AveragePooling1D(pool_size=(1), strides=(12), padding='valid', name = 'Ave23270', )(in0Ave23270)
+Max12376 = keras.layers.Maximum(name = 'Max12376', )([Res50760,Ave23270])
+Res84794 = keras.layers.Reshape((1, 2, 1), name = 'Res84794', )(Max12376)
+Con91074 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con91074', )(Res84794)
+Res89431 = keras.layers.Reshape((1, 4), name = 'Res89431', )(Con91074)
+Loc18578 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc18578', )(Res89431)
+model = tf.keras.models.Model(inputs=[in0Min18744,in1Min18744,in0Ave23270], outputs=Loc18578)
+w = model.get_layer('Con91074').get_weights() 
+w[0] = np.array([[[[0.9682], [0.1705]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con91074').set_weights(w) 
+w = model.get_layer('Loc18578').get_weights() 
+w[0] = np.array([[[0.7122, 0.0783], [0.5308, 0.2338], [0.4368, 0.2647], [0.202, 0.5689]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc18578').set_weights(w) 
+in0Min18744 = tf.constant([[[[[0.4084, 0.1791]]]]])
+in1Min18744 = tf.constant([[[[[0.8712, 0.6791]]]]])
+in0Ave23270 = tf.constant([[[1.5521, 1.8665]]])
+print (np.array2string(model.predict([in0Min18744,in1Min18744,in0Ave23270],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc18578.png')
+
+LMin18744 = minimum_layer([[[[[[0.4084, 0.1791]]]]], [[[[[0.8712, 0.6791]]]]]], Min18744), 
+LRes36331 = reshape_layer(Min18744, [1, 1, 2], Res36331), 
+LRes50760 = reshape_layer(Res36331, [1, 2], Res50760), 
+LAve23270 = average_pooling1D_layer([[[1.5521, 1.8665]]], 1, 12, false, Ave23270), 
+LMax12376 = maximum_layer([Res50760,Ave23270], Max12376), 
+LRes84794 = reshape_layer(Max12376, [1, 2, 1], Res84794), 
+LCon91074 = conv2D_transpose_layer(Res84794, 1, 1,[[[[0.9682], [0.1705]]]],[0, 0], 1, 1, false, Con91074), 
+LRes89431 = reshape_layer(Con91074, [1, 4], Res89431), 
+LLoc18578 = locally_connected1D_layer(Res89431, 1,[[[0.7122, 0.0783], [0.5308, 0.2338], [0.4368, 0.2647], [0.202, 0.5689]]],[[0, 0]], 1, Loc18578), 
+exec_layers([LMin18744,LRes36331,LRes50760,LAve23270,LMax12376,LRes84794,LCon91074,LRes89431,LLoc18578],["Min18744","Res36331","Res50760","Ave23270","Max12376","Res84794","Con91074","Res89431","Loc18578"],Loc18578,"Loc18578")
+
+Actual (Unparsed): [[[2.0643661, 0.8389331]]]
+
+Expected (Unparsed): [[[2.0643661377640004,0.838933102551]]]
+
+Actual:   [[[2.0644, 0.839]]]
+
+Expected: [[[2.0644, 0.839]]]

@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul85839 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+in1Mul85839 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+
+Mul85839 = keras.layers.Multiply(name = 'Mul85839', )([in0Mul85839,in1Mul85839])
+Res34510 = keras.layers.Reshape((2, 2, 2), name = 'Res34510', )(Mul85839)
+Loc60015 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 2), name = 'Loc60015', )(Res34510)
+Lay71165 = keras.layers.LayerNormalization(axis=1, epsilon=1.1447937608900258, name = 'Lay71165', )(Loc60015)
+Res20152 = keras.layers.Reshape((2, 1, 3, 1), name = 'Res20152', )(Lay71165)
+Cro73370 = keras.layers.Cropping3D(cropping=((0, 1), (0, 0), (1, 0)), name = 'Cro73370', )(Res20152)
+Res11012 = keras.layers.Reshape((1, 1, 2), name = 'Res11012', )(Cro73370)
+Res98076 = keras.layers.Reshape((1, 2), name = 'Res98076', )(Res11012)
+Max22075 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max22075', )(Res98076)
+model = tf.keras.models.Model(inputs=[in0Mul85839,in1Mul85839], outputs=Max22075)
+w = model.get_layer('Loc60015').get_weights() 
+w[0] = np.array([[[0.854, 0.1904, 0.4981], [0.7492, 0.1445, 0.1486]], [[0.3102, 0.5309, 0.3241], [0.9803, 0.9551, 0.2559]]])
+w[1] = np.array([[[0, 0, 0]], [[0, 0, 0]]])
+model.get_layer('Loc60015').set_weights(w) 
+in0Mul85839 = tf.constant([[[[[0.3817, 0.6582]], [[0.4583, 0.9522]]], [[[0.2334, 0.392]], [[0.6252, 0.1046]]]]])
+in1Mul85839 = tf.constant([[[[[0.1628, 0.4322]], [[0.6744, 0.1518]]], [[[0.0994, 0.8749]], [[0.8338, 0.4073]]]]])
+print (np.array2string(model.predict([in0Mul85839,in1Mul85839],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max22075.png')
+
+LMul85839 = multiply_layer([[[[[[0.3817, 0.6582]], [[0.4583, 0.9522]]], [[[0.2334, 0.392]], [[0.6252, 0.1046]]]]], [[[[[0.1628, 0.4322]], [[0.6744, 0.1518]]], [[[0.0994, 0.8749]], [[0.8338, 0.4073]]]]]], Mul85839), 
+LRes34510 = reshape_layer(Mul85839, [2, 2, 2], Res34510), 
+LLoc60015 = locally_connected2D_layer(Res34510, 1, 1,[[[0.854, 0.1904, 0.4981], [0.7492, 0.1445, 0.1486]], [[0.3102, 0.5309, 0.3241], [0.9803, 0.9551, 0.2559]]],[[[0, 0, 0]], [[0, 0, 0]]], 1, 2, Loc60015), 
+LLay71165 = layer_normalization_layer(Loc60015, 1, 1.1447937608900258, Lay71165), 
+LRes20152 = reshape_layer(Lay71165, [2, 1, 3, 1], Res20152), 
+LCro73370 = cropping3D_layer(Res20152, 0, 1, 0, 0, 1, 0, Cro73370), 
+LRes11012 = reshape_layer(Cro73370, [1, 1, 2], Res11012), 
+LRes98076 = reshape_layer(Res11012, [1, 2], Res98076), 
+LMax22075 = max_pool1D_layer(Res98076, 1, 1, true, Max22075), 
+exec_layers([LMul85839,LRes34510,LLoc60015,LLay71165,LRes20152,LCro73370,LRes11012,LRes98076,LMax22075],["Mul85839","Res34510","Loc60015","Lay71165","Res20152","Cro73370","Res11012","Res98076","Max22075"],Max22075,"Max22075")
+
+Actual (Unparsed): [[[-0.1329011, -0.0103072]]]
+
+Expected (Unparsed): [[[-0.13290114513355564,-0.010307230164635087]]]
+
+Actual:   [[[-0.1329, -0.0103]]]
+
+Expected: [[[-0.1329, -0.0103]]]

@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con50242 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Ave26974 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave26974 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in0Con65197 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+
+Con50242 = keras.layers.Conv3D(3, (1, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con50242', )(in0Con50242)
+ELU55391 = keras.layers.ELU(alpha=8.983548873657696, name = 'ELU55391', )(Con50242)
+Ave26974 = keras.layers.Average(name = 'Ave26974', )([in0Ave26974,in1Ave26974])
+Con65197 = keras.layers.Concatenate(axis=4, name = 'Con65197', )([Ave26974,in0Con65197])
+Ave78257 = keras.layers.Average(name = 'Ave78257', )([ELU55391,Con65197])
+model = tf.keras.models.Model(inputs=[in0Con50242,in0Ave26974,in1Ave26974,in0Con65197], outputs=Ave78257)
+w = model.get_layer('Con50242').get_weights() 
+w[0] = np.array([[[[[0.4056, 0.301, 0.3864]]], [[[0.3928, 0.0002, 0.7265]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con50242').set_weights(w) 
+in0Con50242 = tf.constant([[[[[0.0507], [0.2988]], [[0.1965], [0.6243]]], [[[0.368], [0.0578]], [[0.2535], [0.4441]]]]])
+in0Ave26974 = tf.constant([[[[[0.566], [0.2564]]], [[[0.2147], [0.1388]]]]])
+in1Ave26974 = tf.constant([[[[[0.3767], [0.2358]]], [[[0.3208], [0.6507]]]]])
+in0Con65197 = tf.constant([[[[[0.9606, 0.2839], [0.477, 0.5199]]], [[[0.5973, 0.7561], [0.1982, 0.886]]]]])
+print (np.array2string(model.predict([in0Con50242,in0Ave26974,in1Ave26974,in0Con65197],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave78257.png')
+
+LCon50242 = conv3D_layer([[[[[0.0507], [0.2988]], [[0.1965], [0.6243]]], [[[0.368], [0.0578]], [[0.2535], [0.4441]]]]], 1, 2, 1,[[[[[0.4056, 0.301, 0.3864]]], [[[0.3928, 0.0002, 0.7265]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con50242), 
+LELU55391 = elu_layer(Con50242, 8.983548873657696, ELU55391), 
+LAve26974 = average_layer([[[[[[0.566], [0.2564]]], [[[0.2147], [0.1388]]]]], [[[[[0.3767], [0.2358]]], [[[0.3208], [0.6507]]]]]], Ave26974), 
+LCon65197 = concatenate_layer([Ave26974,[[[[[0.9606, 0.2839], [0.477, 0.5199]]], [[[0.5973, 0.7561], [0.1982, 0.886]]]]]], 4, Con65197), 
+LAve78257 = average_layer([ELU55391,Con65197], Ave78257), 
+exec_layers([LCon50242,LELU55391,LAve26974,LCon65197,LAve78257],["Con50242","ELU55391","Ave26974","Con65197","Ave78257"],Ave78257,"Ave78257")
+
+Actual (Unparsed): [[[[[0.2845496, 0.4879500, 0.2231239], [0.3062592, 0.2835318, 0.5444551]]], [[[0.2582928, 0.3540593, 0.5412315], [0.2963181, 0.1078433, 0.6154863]]]]]
+
+Expected (Unparsed): [[[[[0.28454956,0.48795,0.22312386499999998],[0.30625916,0.28353183,0.544455135]]],[[[0.2582928,0.35405935,0.541231475],[0.29631808,0.10784331,0.615486285]]]]]
+
+Actual:   [[[[[0.2846, 0.488, 0.2232], [0.3063, 0.2836, 0.5445]]], [[[0.2583, 0.3541, 0.5413], [0.2964, 0.1079, 0.6155]]]]]
+
+Expected: [[[[[0.2846, 0.488, 0.2232], [0.3063, 0.2836, 0.5445]]], [[[0.2583, 0.3541, 0.5413], [0.2964, 0.1079, 0.6155]]]]]

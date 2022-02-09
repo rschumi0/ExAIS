@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot13324 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot13324 = tf.keras.layers.Input(shape=([2, 2]))
+in0LST27442 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con31478 = tf.keras.layers.Input(shape=([3]))
+
+Dot13324 = keras.layers.Dot(axes=(2, 1), name = 'Dot13324', )([in0Dot13324,in1Dot13324])
+Fla40135 = keras.layers.Flatten(name = 'Fla40135', )(Dot13324)
+LST27442 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST27442', )(in0LST27442)
+Con31478 = keras.layers.Concatenate(axis=1, name = 'Con31478', )([LST27442,in0Con31478])
+Max68995 = keras.layers.Maximum(name = 'Max68995', )([Fla40135,Con31478])
+Res95806 = keras.layers.Reshape((4, 1), name = 'Res95806', )(Max68995)
+Res96439 = keras.layers.Reshape((4, 1, 1), name = 'Res96439', )(Res95806)
+Zer97443 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer97443', )(Res96439)
+Den31866 = keras.layers.Dense(4,name = 'Den31866', )(Zer97443)
+Glo85171 = keras.layers.GlobalAveragePooling2D(name = 'Glo85171', )(Den31866)
+model = tf.keras.models.Model(inputs=[in0Dot13324,in1Dot13324,in0LST27442,in0Con31478], outputs=Glo85171)
+w = model.get_layer('LST27442').get_weights() 
+w[0] = np.array([[2, 3, 8, 1], [4, 8, 6, 7]])
+w[1] = np.array([[7, 9, 2, 9]])
+w[2] = np.array([4, 10, 1, 10])
+model.get_layer('LST27442').set_weights(w) 
+w = model.get_layer('Den31866').get_weights() 
+w[0] = np.array([[0.4953, 0.6555, 0.3053, 0.2807]])
+w[1] = np.array([0.2667, 0.2542, 0.1824, 0.9569])
+model.get_layer('Den31866').set_weights(w) 
+in0Dot13324 = tf.constant([[[0.8619, 0.6091], [0.4355, 0.5069]]])
+in1Dot13324 = tf.constant([[[0.7769, 0.3686], [0.8597, 0.3353]]])
+in0LST27442 = tf.constant([[[6, 9], [9, 4], [10, 2]]])
+in0Con31478 = tf.constant([[0.7452, 0.7354, 0.1653]])
+print (np.array2string(model.predict([in0Dot13324,in1Dot13324,in0LST27442,in0Con31478],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo85171.png')
+
+LDot13324 = dot_layer([[[0.8619, 0.6091], [0.4355, 0.5069]]], [[[0.7769, 0.3686], [0.8597, 0.3353]]], 2, 1, Dot13324), 
+LFla40135 = flatten_layer(Dot13324, Fla40135), 
+LLST27442 = lstm_layer([[[6, 9], [9, 4], [10, 2]]],[[2, 3, 8, 1], [4, 8, 6, 7]],[[7, 9, 2, 9]],[4, 10, 1, 10], LST27442), 
+LCon31478 = concatenate_layer([LST27442,[[0.7452, 0.7354, 0.1653]]], 1, Con31478), 
+LMax68995 = maximum_layer([Fla40135,Con31478], Max68995), 
+LRes95806 = reshape_layer(Max68995, [4, 1], Res95806), 
+LRes96439 = reshape_layer(Res95806, [4, 1, 1], Res96439), 
+LZer97443 = zero_padding2D_layer(Res96439, 1, 1, 1, 1, Zer97443), 
+LDen31866 = dense_layer(Zer97443, [[0.4953, 0.6555, 0.3053, 0.2807]],[0.2667, 0.2542, 0.1824, 0.9569], Den31866), 
+LGlo85171 = global_average_pooling2D_layer(Den31866, Glo85171), 
+exec_layers([LDot13324,LFla40135,LLST27442,LCon31478,LMax68995,LRes95806,LRes96439,LZer97443,LDen31866,LGlo85171],["Dot13324","Fla40135","LST27442","Con31478","Max68995","Res95806","Res96439","Zer97443","Den31866","Glo85171"],Glo85171,"Glo85171")
+
+Actual (Unparsed): [[0.3504350, 0.3650183, 0.2340137, 1.0043549]]
+
+Expected (Unparsed): [[0.3504349813105001,0.3650182520675,0.23401374882716666,1.0043548945161667]]
+
+Actual:   [[0.3505, 0.3651, 0.2341, 1.0044]]
+
+Expected: [[0.3505, 0.3651, 0.2341, 1.0044]]

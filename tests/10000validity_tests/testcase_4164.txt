@@ -1,0 +1,37 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con23126 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+
+Con23126 = keras.layers.Conv3D(3, (1, 1, 2),strides=(11, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con23126', )(in0Con23126)
+Res48872 = keras.layers.Reshape((1, 2, 3), name = 'Res48872', )(Con23126)
+Con27308 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='same', name = 'Con27308', )(Res48872)
+model = tf.keras.models.Model(inputs=[in0Con23126], outputs=Con27308)
+w = model.get_layer('Con23126').get_weights() 
+w[0] = np.array([[[[[0.2125, 0.7607, 0.8652], [0.3977, 0.9967, 0.7177]], [[0.7332, 0.6156, 0.9665], [0.3827, 0.3833, 0.6533]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con23126').set_weights(w) 
+w = model.get_layer('Con27308').get_weights() 
+w[0] = np.array([[[[0.0572, 0.5923, 0.4705], [0.1754, 0.1408, 0.5081], [0.5447, 0.0536, 0.8791], [0.9158, 0.4675, 0.7408]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con27308').set_weights(w) 
+in0Con23126 = tf.constant([[[[[0.7653, 0.9525], [0.5569, 0.8553]], [[0.8116, 0.3367], [0.2288, 0.4816]]]]])
+print (np.array2string(model.predict([in0Con23126],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con27308.png')
+
+LCon23126 = conv3D_layer([[[[[0.7653, 0.9525], [0.5569, 0.8553]], [[0.8116, 0.3367], [0.2288, 0.4816]]]]], 1, 1, 2,[[[[[0.2125, 0.7607, 0.8652], [0.3977, 0.9967, 0.7177]], [[0.7332, 0.6156, 0.9665], [0.3827, 0.3833, 0.6533]]]]],[0, 0, 0], 11, 1, 1, false, 1, 1, 1, Con23126), 
+LRes48872 = reshape_layer(Con23126, [1, 2, 3], Res48872), 
+LCon27308 = conv2D_transpose_layer(Res48872, 1, 1,[[[[0.0572, 0.5923, 0.4705], [0.1754, 0.1408, 0.5081], [0.5447, 0.0536, 0.8791], [0.9158, 0.4675, 0.7408]]]],[0, 0, 0, 0], 1, 1, true, Con27308), 
+exec_layers([LCon23126,LRes48872,LCon27308],["Con23126","Res48872","Con27308"],Con27308,"Con27308")
+
+Actual (Unparsed): [[[[2.5267205, 1.7752325, 2.9610901, 4.0086645], [1.4910271, 1.0472810, 1.7278984, 2.2967514]]]]
+
+Expected (Unparsed): [[[[2.5267204975400004,1.7752324681929998,2.961090110371999,4.008664465007],[1.4910270858099999,1.047281025893,1.72789836543,2.2967513629929996]]]]
+
+Actual:   [[[[2.5268, 1.7753, 2.9611, 4.0087], [1.4911, 1.0473, 1.7279, 2.2968]]]]
+
+Expected: [[[[2.5268, 1.7753, 2.9611, 4.0087], [1.4911, 1.0473, 1.7279, 2.2968]]]]

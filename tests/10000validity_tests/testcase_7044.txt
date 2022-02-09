@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc12000 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Ave99450 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave99450 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Loc12000 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(2, 1), name = 'Loc12000', )(in0Loc12000)
+Res4375 = keras.layers.Reshape((1, 4), name = 'Res4375', )(Loc12000)
+GRU6915 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU6915', )(Res4375)
+Res70631 = keras.layers.Reshape((1, 1), name = 'Res70631', )(GRU6915)
+Res98791 = keras.layers.Reshape((1, 1, 1), name = 'Res98791', )(Res70631)
+Zer42857 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer42857', )(Res98791)
+Ave99450 = keras.layers.Average(name = 'Ave99450', )([in0Ave99450,in1Ave99450])
+Den32180 = keras.layers.Dense(1,name = 'Den32180', )(Ave99450)
+Min31118 = keras.layers.Minimum(name = 'Min31118', )([Zer42857,Den32180])
+model = tf.keras.models.Model(inputs=[in0Loc12000,in0Ave99450,in1Ave99450], outputs=Min31118)
+w = model.get_layer('Loc12000').get_weights() 
+w[0] = np.array([[[0.4829, 0.1776, 0.6388, 0.9817]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc12000').set_weights(w) 
+w = model.get_layer('GRU6915').get_weights() 
+w[0] = np.array([[9, 1, 4], [9, 3, 7], [9, 9, 5], [4, 2, 5]])
+w[1] = np.array([[5, 4, 1]])
+w[2] = np.array([[9, 9, 6], [7, 8, 4]])
+model.get_layer('GRU6915').set_weights(w) 
+w = model.get_layer('Den32180').get_weights() 
+w[0] = np.array([[0.5273], [0.1635]])
+w[1] = np.array([0.694])
+model.get_layer('Den32180').set_weights(w) 
+in0Loc12000 = tf.constant([[[[0.0877]], [[0.3933]]]])
+in0Ave99450 = tf.constant([[[[0.4563, 0.0024], [0.2048, 0.3334]]]])
+in1Ave99450 = tf.constant([[[[0.6132, 0.4439], [0.8387, 0.062]]]])
+print (np.array2string(model.predict([in0Loc12000,in0Ave99450,in1Ave99450],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min31118.png')
+
+LLoc12000 = locally_connected2D_layer([[[[0.0877]], [[0.3933]]]], 1, 1,[[[0.4829, 0.1776, 0.6388, 0.9817]]],[[[0, 0, 0, 0]]], 2, 1, Loc12000), 
+LRes4375 = reshape_layer(Loc12000, [1, 4], Res4375), 
+LGRU6915 = gru_layer(Res4375,[[9, 1, 4], [9, 3, 7], [9, 9, 5], [4, 2, 5]],[[5, 4, 1]],[[9, 9, 6], [7, 8, 4]], true, GRU6915), 
+LRes70631 = reshape_layer(GRU6915, [1, 1], Res70631), 
+LRes98791 = reshape_layer(Res70631, [1, 1, 1], Res98791), 
+LZer42857 = zero_padding2D_layer(Res98791, 0, 0, 1, 0, Zer42857), 
+LAve99450 = average_layer([[[[[0.4563, 0.0024], [0.2048, 0.3334]]]], [[[[0.6132, 0.4439], [0.8387, 0.062]]]]], Ave99450), 
+LDen32180 = dense_layer(Ave99450, [[0.5273], [0.1635]],[0.694], Den32180), 
+LMin31118 = minimum_layer([Zer42857,Den32180], Min31118), 
+exec_layers([LLoc12000,LRes4375,LGRU6915,LRes70631,LRes98791,LZer42857,LAve99450,LDen32180,LMin31118],["Loc12000","Res4375","GRU6915","Res70631","Res98791","Zer42857","Ave99450","Den32180","Min31118"],Min31118,"Min31118")
+
+Actual (Unparsed): [[[[0.0000000], [0.0000000]]]]
+
+Expected (Unparsed): [[[[0],[2.8598319585027096e-8]]]]
+
+Actual:   [[[[0], [0]]]]
+
+Expected: [[[[0], [0]]]]

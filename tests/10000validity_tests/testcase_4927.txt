@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con22804 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Mul89953 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul89953 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con90824 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con96178 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave88101 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave88101 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con73967 = tf.keras.layers.Input(shape=([2, 2]))
+
+Con22804 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con22804', )(in0Con22804)
+Mul89953 = keras.layers.Multiply(name = 'Mul89953', )([in0Mul89953,in1Mul89953])
+Con90824 = keras.layers.Concatenate(axis=3, name = 'Con90824', )([Mul89953,in0Con90824])
+Mul76479 = keras.layers.Multiply(name = 'Mul76479', )([Con22804,Con90824])
+Res83701 = keras.layers.Reshape((1, 4), name = 'Res83701', )(Mul76479)
+Con96178 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con96178', )(in0Con96178)
+Ave88101 = keras.layers.Average(name = 'Ave88101', )([in0Ave88101,in1Ave88101])
+Mas84167 = keras.layers.Masking(mask_value=2, name = 'Mas84167', )(Ave88101)
+Zer42802 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer42802', )(Mas84167)
+Con73967 = keras.layers.Concatenate(axis=2, name = 'Con73967', )([Zer42802,in0Con73967])
+Sub59553 = keras.layers.Subtract(name = 'Sub59553', )([Con96178,Con73967])
+Dot55206 = keras.layers.Dot(axes=(2, 2), name = 'Dot55206', )([Res83701,Sub59553])
+model = tf.keras.models.Model(inputs=[in0Con22804,in0Mul89953,in1Mul89953,in0Con90824,in0Con96178,in0Ave88101,in1Ave88101,in0Con73967], outputs=Dot55206)
+w = model.get_layer('Con22804').get_weights() 
+w[0] = np.array([[[[0.5306, 0.7882], [0.3043, 0.2508]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con22804').set_weights(w) 
+w = model.get_layer('Con96178').get_weights() 
+w[0] = np.array([[[0.1366, 0.1984, 0.2035, 0.3978], [0.5705, 0.8468, 0.9678, 0.4463]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con96178').set_weights(w) 
+in0Con22804 = tf.constant([[[[0.6351, 0.3263], [0.1864, 0.1925]]]])
+in0Mul89953 = tf.constant([[[[0.3659], [0.8786]]]])
+in1Mul89953 = tf.constant([[[[0.3342], [0.7929]]]])
+in0Con90824 = tf.constant([[[[0.6349], [0.5601]]]])
+in0Con96178 = tf.constant([[[0.3463, 0.0774], [0.5183, 0.7615]]])
+in0Ave88101 = tf.constant([[[0.1779, 0.4855]]])
+in1Ave88101 = tf.constant([[[0.6126, 0.4245]]])
+in0Con73967 = tf.constant([[[0.1606, 0.5058], [0.2829, 0.9497]]])
+print (np.array2string(model.predict([in0Con22804,in0Mul89953,in1Mul89953,in0Con90824,in0Con96178,in0Ave88101,in1Ave88101,in0Con73967],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot55206.png')
+
+LCon22804 = conv2D_layer([[[[0.6351, 0.3263], [0.1864, 0.1925]]]], 1, 1,[[[[0.5306, 0.7882], [0.3043, 0.2508]]]],[0, 0], 1, 1, true, 1, 1, Con22804), 
+LMul89953 = multiply_layer([[[[[0.3659], [0.8786]]]], [[[[0.3342], [0.7929]]]]], Mul89953), 
+LCon90824 = concatenate_layer([Mul89953,[[[[0.6349], [0.5601]]]]], 3, Con90824), 
+LMul76479 = multiply_layer([Con22804,Con90824], Mul76479), 
+LRes83701 = reshape_layer(Mul76479, [1, 4], Res83701), 
+LCon96178 = conv1D_layer([[[0.3463, 0.0774], [0.5183, 0.7615]]], 1,[[[0.1366, 0.1984, 0.2035, 0.3978], [0.5705, 0.8468, 0.9678, 0.4463]]],[0, 0, 0, 0], 1, false, 1, Con96178), 
+LAve88101 = average_layer([[[[0.1779, 0.4855]]], [[[0.6126, 0.4245]]]], Ave88101), 
+LMas84167 = masking_layer(Ave88101, 2, Mas84167), 
+LZer42802 = zero_padding1D_layer(Mas84167, 1, 0, Zer42802), 
+LCon73967 = concatenate_layer([Zer42802,[[[0.1606, 0.5058], [0.2829, 0.9497]]]], 2, Con73967), 
+LSub59553 = subtract_layer(Con96178,Con73967, Sub59553), 
+LDot55206 = dot_layer(Res83701,Sub59553, 2, 2, Dot55206), 
+exec_layers([LCon22804,LMul89953,LCon90824,LMul76479,LRes83701,LCon96178,LAve88101,LMas84167,LZer42802,LCon73967,LSub59553,LDot55206],["Con22804","Mul89953","Con90824","Mul76479","Res83701","Con96178","Ave88101","Mas84167","Zer42802","Con73967","Sub59553","Dot55206"],Dot55206,"Dot55206")
+
+Actual (Unparsed): [[[0.0163901, 0.1313454]]]
+
+Expected (Unparsed): [[[0.016390132531342076,0.13134542235419094]]]
+
+Actual:   [[[0.0164, 0.1314]]]
+
+Expected: [[[0.0164, 0.1314]]]

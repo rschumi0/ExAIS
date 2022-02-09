@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul93050 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul93050 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0GRU94121 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con82088 = tf.keras.layers.Input(shape=([2]))
+
+Mul93050 = keras.layers.Multiply(name = 'Mul93050', )([in0Mul93050,in1Mul93050])
+Res26392 = keras.layers.Reshape((2, 1, 2, 1), name = 'Res26392', )(Mul93050)
+Up_57888 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_57888', )(Res26392)
+Res65832 = keras.layers.Reshape((2, 1, 2), name = 'Res65832', )(Up_57888)
+Res20615 = keras.layers.Reshape((2, 2), name = 'Res20615', )(Res65832)
+Fla65300 = keras.layers.Flatten(name = 'Fla65300', )(Res20615)
+GRU94121 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU94121', )(in0GRU94121)
+Res15558 = keras.layers.Reshape((2, 1), name = 'Res15558', )(GRU94121)
+Res99001 = keras.layers.Reshape((2, 1, 1), name = 'Res99001', )(Res15558)
+Cro88506 = keras.layers.Cropping2D(cropping=((0, 1), (0, 0)), name = 'Cro88506', )(Res99001)
+Res39726 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res39726', )(Cro88506)
+Con39011 = keras.layers.Conv3DTranspose(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con39011', )(Res39726)
+Res62521 = keras.layers.Reshape((1, 1, 2), name = 'Res62521', )(Con39011)
+Glo12888 = keras.layers.GlobalMaxPool2D(name = 'Glo12888', )(Res62521)
+Con82088 = keras.layers.Concatenate(axis=1, name = 'Con82088', )([Glo12888,in0Con82088])
+Add24188 = keras.layers.Add(name = 'Add24188', )([Fla65300,Con82088])
+model = tf.keras.models.Model(inputs=[in0Mul93050,in1Mul93050,in0GRU94121,in0Con82088], outputs=Add24188)
+w = model.get_layer('GRU94121').get_weights() 
+w[0] = np.array([[4, 5, 3, 10, 9, 7], [1, 1, 2, 1, 10, 4]])
+w[1] = np.array([[4, 3, 5, 8, 9, 1], [1, 5, 2, 8, 4, 6]])
+w[2] = np.array([10, 10, 2, 5, 3, 10])
+model.get_layer('GRU94121').set_weights(w) 
+w = model.get_layer('Con39011').get_weights() 
+w[0] = np.array([[[[[0.4776], [0.2406]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con39011').set_weights(w) 
+in0Mul93050 = tf.constant([[[[0.7056, 0.1674]], [[0.8614, 0.793]]]])
+in1Mul93050 = tf.constant([[[[0.9011, 0.2327]], [[0.3682, 0.265]]]])
+in0GRU94121 = tf.constant([[[6, 5], [6, 5]]])
+in0Con82088 = tf.constant([[0.3665, 0.5023]])
+print (np.array2string(model.predict([in0Mul93050,in1Mul93050,in0GRU94121,in0Con82088],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add24188.png')
+
+LMul93050 = multiply_layer([[[[[0.7056, 0.1674]], [[0.8614, 0.793]]]], [[[[0.9011, 0.2327]], [[0.3682, 0.265]]]]], Mul93050), 
+LRes26392 = reshape_layer(Mul93050, [2, 1, 2, 1], Res26392), 
+LUp_57888 = up_sampling3D_layer(Res26392, 1, 1, 1, Up_57888), 
+LRes65832 = reshape_layer(Up_57888, [2, 1, 2], Res65832), 
+LRes20615 = reshape_layer(Res65832, [2, 2], Res20615), 
+LFla65300 = flatten_layer(Res20615, Fla65300), 
+LGRU94121 = gru_layer([[[6, 5], [6, 5]]],[[4, 5, 3, 10, 9, 7], [1, 1, 2, 1, 10, 4]],[[4, 3, 5, 8, 9, 1], [1, 5, 2, 8, 4, 6]],[10, 10, 2, 5, 3, 10], false, GRU94121), 
+LRes15558 = reshape_layer(GRU94121, [2, 1], Res15558), 
+LRes99001 = reshape_layer(Res15558, [2, 1, 1], Res99001), 
+LCro88506 = cropping2D_layer(Res99001, 0, 1, 0, 0, Cro88506), 
+LRes39726 = reshape_layer(Cro88506, [1, 1, 1, 1], Res39726), 
+LCon39011 = conv3D_transpose_layer(Res39726, 1, 1, 1,[[[[[0.4776], [0.2406]]]]],[0, 0], 1, 1, 1, false, Con39011), 
+LRes62521 = reshape_layer(Con39011, [1, 1, 2], Res62521), 
+LGlo12888 = global_max_pool2D_layer(Res62521, Glo12888), 
+LCon82088 = concatenate_layer([Glo12888,[[0.3665, 0.5023]]], 1, Con82088), 
+LAdd24188 = add_layer([Fla65300,Con82088], Add24188), 
+exec_layers([LMul93050,LRes26392,LUp_57888,LRes65832,LRes20615,LFla65300,LGRU94121,LRes15558,LRes99001,LCro88506,LRes39726,LCon39011,LRes62521,LGlo12888,LCon82088,LAdd24188],["Mul93050","Res26392","Up_57888","Res65832","Res20615","Fla65300","GRU94121","Res15558","Res99001","Cro88506","Res39726","Con39011","Res62521","Glo12888","Con82088","Add24188"],Add24188,"Add24188")
+
+Actual (Unparsed): [[0.6358162, 0.0389540, 0.6836675, 0.7124450]]
+
+Expected (Unparsed): [[0.63581616,0.03895398,0.68366748,0.712445]]
+
+Actual:   [[0.6359, 0.039, 0.6837, 0.7125]]
+
+Expected: [[0.6359, 0.039, 0.6837, 0.7125]]

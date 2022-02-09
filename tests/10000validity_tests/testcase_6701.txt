@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min11052 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Min11052 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con87603 = tf.keras.layers.Input(shape=([1]))
+in0Loc95868 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Min11052 = keras.layers.Minimum(name = 'Min11052', )([in0Min11052,in1Min11052])
+Res43612 = keras.layers.Reshape((2, 1, 1), name = 'Res43612', )(Min11052)
+Res473 = keras.layers.Reshape((2, 1), name = 'Res473', )(Res43612)
+Fla42937 = keras.layers.Flatten(name = 'Fla42937', )(Res473)
+Con87603 = keras.layers.Concatenate(axis=1, name = 'Con87603', )([Fla42937,in0Con87603])
+Loc95868 = keras.layers.LocallyConnected2D(4, (2, 1),strides=(1, 1), name = 'Loc95868', )(in0Loc95868)
+Res33173 = keras.layers.Reshape((1, 4), name = 'Res33173', )(Loc95868)
+GRU59303 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU59303', )(Res33173)
+Min62456 = keras.layers.Minimum(name = 'Min62456', )([Con87603,GRU59303])
+Res30279 = keras.layers.Reshape((3, 1), name = 'Res30279', )(Min62456)
+Res79775 = keras.layers.Reshape((3, 1, 1), name = 'Res79775', )(Res30279)
+Res19072 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res19072', )(Res79775)
+Glo70460 = keras.layers.GlobalMaxPool3D(name = 'Glo70460', )(Res19072)
+model = tf.keras.models.Model(inputs=[in0Min11052,in1Min11052,in0Con87603,in0Loc95868], outputs=Glo70460)
+w = model.get_layer('Loc95868').get_weights() 
+w[0] = np.array([[[0.9838, 0.7289, 0.782, 0.0246], [0.6045, 0.689, 0.0287, 0.0501], [0.2788, 0.6347, 0.7859, 0.2533], [0.8472, 0.8354, 0.3113, 0.4909]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc95868').set_weights(w) 
+w = model.get_layer('GRU59303').get_weights() 
+w[0] = np.array([[5, 1, 2, 6, 9, 1, 2, 1, 3], [10, 1, 3, 6, 1, 4, 5, 10, 10], [10, 1, 2, 2, 2, 4, 6, 1, 8], [8, 7, 8, 6, 1, 5, 1, 9, 5]])
+w[1] = np.array([[9, 4, 7, 7, 2, 9, 5, 1, 5], [3, 2, 4, 1, 10, 1, 4, 6, 5], [2, 9, 5, 6, 4, 7, 1, 9, 1]])
+w[2] = np.array([[6, 4, 7, 10, 3, 9, 4, 10, 10], [9, 1, 5, 10, 4, 10, 3, 4, 8]])
+model.get_layer('GRU59303').set_weights(w) 
+in0Min11052 = tf.constant([[[[[0.613]]], [[[0.1122]]]]])
+in1Min11052 = tf.constant([[[[[0.7966]]], [[[0.3237]]]]])
+in0Con87603 = tf.constant([[0.7672]])
+in0Loc95868 = tf.constant([[[[0.2948, 0.1082]], [[0.6065, 0.4845]]]])
+print (np.array2string(model.predict([in0Min11052,in1Min11052,in0Con87603,in0Loc95868],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo70460.png')
+
+LMin11052 = minimum_layer([[[[[[0.613]]], [[[0.1122]]]]], [[[[[0.7966]]], [[[0.3237]]]]]], Min11052), 
+LRes43612 = reshape_layer(Min11052, [2, 1, 1], Res43612), 
+LRes473 = reshape_layer(Res43612, [2, 1], Res473), 
+LFla42937 = flatten_layer(Res473, Fla42937), 
+LCon87603 = concatenate_layer([Fla42937,[[0.7672]]], 1, Con87603), 
+LLoc95868 = locally_connected2D_layer([[[[0.2948, 0.1082]], [[0.6065, 0.4845]]]], 2, 1,[[[0.9838, 0.7289, 0.782, 0.0246], [0.6045, 0.689, 0.0287, 0.0501], [0.2788, 0.6347, 0.7859, 0.2533], [0.8472, 0.8354, 0.3113, 0.4909]]],[[[0, 0, 0, 0]]], 1, 1, Loc95868), 
+LRes33173 = reshape_layer(Loc95868, [1, 4], Res33173), 
+LGRU59303 = gru_layer(Res33173,[[5, 1, 2, 6, 9, 1, 2, 1, 3], [10, 1, 3, 6, 1, 4, 5, 10, 10], [10, 1, 2, 2, 2, 4, 6, 1, 8], [8, 7, 8, 6, 1, 5, 1, 9, 5]],[[9, 4, 7, 7, 2, 9, 5, 1, 5], [3, 2, 4, 1, 10, 1, 4, 6, 5], [2, 9, 5, 6, 4, 7, 1, 9, 1]],[[6, 4, 7, 10, 3, 9, 4, 10, 10], [9, 1, 5, 10, 4, 10, 3, 4, 8]], true, GRU59303), 
+LMin62456 = minimum_layer([Con87603,GRU59303], Min62456), 
+LRes30279 = reshape_layer(Min62456, [3, 1], Res30279), 
+LRes79775 = reshape_layer(Res30279, [3, 1, 1], Res79775), 
+LRes19072 = reshape_layer(Res79775, [3, 1, 1, 1], Res19072), 
+LGlo70460 = global_max_pool3D_layer(Res19072, Glo70460), 
+exec_layers([LMin11052,LRes43612,LRes473,LFla42937,LCon87603,LLoc95868,LRes33173,LGRU59303,LMin62456,LRes30279,LRes79775,LRes19072,LGlo70460],["Min11052","Res43612","Res473","Fla42937","Con87603","Loc95868","Res33173","GRU59303","Min62456","Res30279","Res79775","Res19072","Glo70460"],Glo70460,"Glo70460")
+
+Actual (Unparsed): [[0.0000224]]
+
+Expected (Unparsed): [[2.244965076769745e-5]]
+
+Actual:   [[0.0001]]
+
+Expected: [[0.0001]]

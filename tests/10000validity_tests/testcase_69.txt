@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add68103 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add68103 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con26785 = tf.keras.layers.Input(shape=([3, 1]))
+in0Sub64655 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub64655 = tf.keras.layers.Input(shape=([3, 2]))
+
+Add68103 = keras.layers.Add(name = 'Add68103', )([in0Add68103,in1Add68103])
+GRU6368 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU6368', )(Add68103)
+Res32954 = keras.layers.Reshape((3, 1), name = 'Res32954', )(GRU6368)
+Con26785 = keras.layers.Concatenate(axis=2, name = 'Con26785', )([Res32954,in0Con26785])
+Sub64655 = keras.layers.Subtract(name = 'Sub64655', )([in0Sub64655,in1Sub64655])
+Loc45046 = keras.layers.LocallyConnected1D(2, (2),strides=(1), name = 'Loc45046', )(Sub64655)
+Zer37682 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer37682', )(Loc45046)
+Ave10740 = keras.layers.Average(name = 'Ave10740', )([Con26785,Zer37682])
+model = tf.keras.models.Model(inputs=[in0Add68103,in1Add68103,in0Con26785,in0Sub64655,in1Sub64655], outputs=Ave10740)
+w = model.get_layer('GRU6368').get_weights() 
+w[0] = np.array([[4, 9, 9, 7, 3, 5, 8, 10, 2]])
+w[1] = np.array([[4, 3, 9, 2, 10, 10, 9, 4, 8], [10, 2, 8, 4, 7, 5, 10, 5, 3], [5, 8, 4, 6, 3, 6, 10, 10, 7]])
+w[2] = np.array([[9, 6, 1, 2, 5, 4, 3, 10, 3], [4, 8, 4, 8, 8, 3, 4, 1, 10]])
+model.get_layer('GRU6368').set_weights(w) 
+w = model.get_layer('Loc45046').get_weights() 
+w[0] = np.array([[[0.037, 0.4134], [0.04, 0.2321], [0.1002, 0.7971], [0.3791, 0.6752]], [[0.2665, 0.644], [0.3539, 0.1135], [0.2932, 0.2165], [0.1637, 0.98]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc45046').set_weights(w) 
+in0Add68103 = tf.constant([[[0.2038], [0.7724]]])
+in1Add68103 = tf.constant([[[0.5987], [0.2921]]])
+in0Con26785 = tf.constant([[[0.5903], [0.7325], [0.5489]]])
+in0Sub64655 = tf.constant([[[0.3823, 0.9809], [0.2063, 0.6708], [0.1987, 0.1413]]])
+in1Sub64655 = tf.constant([[[0.2656, 0.8677], [0.0234, 0.2168], [0.0231, 0.6939]]])
+print (np.array2string(model.predict([in0Add68103,in1Add68103,in0Con26785,in0Sub64655,in1Sub64655],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave10740.png')
+
+LAdd68103 = add_layer([[[[0.2038], [0.7724]]], [[[0.5987], [0.2921]]]], Add68103), 
+LGRU6368 = gru_layer(Add68103,[[4, 9, 9, 7, 3, 5, 8, 10, 2]],[[4, 3, 9, 2, 10, 10, 9, 4, 8], [10, 2, 8, 4, 7, 5, 10, 5, 3], [5, 8, 4, 6, 3, 6, 10, 10, 7]],[[9, 6, 1, 2, 5, 4, 3, 10, 3], [4, 8, 4, 8, 8, 3, 4, 1, 10]], true, GRU6368), 
+LRes32954 = reshape_layer(GRU6368, [3, 1], Res32954), 
+LCon26785 = concatenate_layer([Res32954,[[[0.5903], [0.7325], [0.5489]]]], 2, Con26785), 
+LSub64655 = subtract_layer([[[0.3823, 0.9809], [0.2063, 0.6708], [0.1987, 0.1413]]], [[[0.2656, 0.8677], [0.0234, 0.2168], [0.0231, 0.6939]]], Sub64655), 
+LLoc45046 = locally_connected1D_layer(Sub64655, 2,[[[0.037, 0.4134], [0.04, 0.2321], [0.1002, 0.7971], [0.3791, 0.6752]], [[0.2665, 0.644], [0.3539, 0.1135], [0.2932, 0.2165], [0.1637, 0.98]]],[[0, 0], [0, 0]], 1, Loc45046), 
+LZer37682 = zero_padding1D_layer(Loc45046, 1, 0, Zer37682), 
+LAve10740 = average_layer([Con26785,Zer37682], Ave10740), 
+exec_layers([LAdd68103,LGRU6368,LRes32954,LCon26785,LSub64655,LLoc45046,LZer37682,LAve10740],["Add68103","GRU6368","Res32954","Con26785","Sub64655","Loc45046","Zer37682","Ave10740"],Ave10740,"Ave10740")
+
+Actual (Unparsed): [[[0.0000001, 0.2951500], [0.0996419, 0.6296739], [0.0852221, 0.1073430]]]
+
+Expected (Unparsed): [[[6.160169517361958e-8,0.29515],[0.09964194033221024,0.629673945],[0.08522206691840051,0.10734300000000008]]]
+
+Actual:   [[[0, 0.2952], [0.0997, 0.6297], [0.0853, 0.1074]]]
+
+Expected: [[[0, 0.2952], [0.0997, 0.6297], [0.0853, 0.1074]]]

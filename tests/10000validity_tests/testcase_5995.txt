@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave65212 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con17404 = tf.keras.layers.Input(shape=([2, 1]))
+in0Min93099 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min93099 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave65212 = keras.layers.AveragePooling2D(pool_size=(2, 2), strides=(1, 11), padding='same', name = 'Ave65212', )(in0Ave65212)
+Res20594 = keras.layers.Reshape((2, 2), name = 'Res20594', )(Ave65212)
+Up_90645 = keras.layers.UpSampling1D(size=(1), name = 'Up_90645', )(Res20594)
+Con17404 = keras.layers.Concatenate(axis=2, name = 'Con17404', )([Up_90645,in0Con17404])
+Min93099 = keras.layers.Minimum(name = 'Min93099', )([in0Min93099,in1Min93099])
+Res71409 = keras.layers.Reshape((1, 2, 1), name = 'Res71409', )(Min93099)
+Up_98950 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_98950', )(Res71409)
+Res44562 = keras.layers.Reshape((1, 2), name = 'Res44562', )(Up_98950)
+Sep84288 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep84288', )(Res44562)
+Zer27157 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer27157', )(Sep84288)
+Sub62089 = keras.layers.Subtract(name = 'Sub62089', )([Con17404,Zer27157])
+Max98085 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max98085', )(Sub62089)
+model = tf.keras.models.Model(inputs=[in0Ave65212,in0Con17404,in0Min93099,in1Min93099], outputs=Max98085)
+w = model.get_layer('Sep84288').get_weights() 
+w[0] = np.array([[[0.129], [0.7245]]])
+w[1] = np.array([[[0.152, 0.4625, 0.8404], [0.9319, 0.4156, 0.1897]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep84288').set_weights(w) 
+in0Ave65212 = tf.constant([[[[1.3325, 1.3249], [1.5209, 1.5457]], [[1.4534, 1.2817], [1.6448, 1.2126]]]])
+in0Con17404 = tf.constant([[[0.5828], [0.5156]]])
+in0Min93099 = tf.constant([[[0.3565, 0.6216]]])
+in1Min93099 = tf.constant([[[0.3317, 0.3996]]])
+print (np.array2string(model.predict([in0Ave65212,in0Con17404,in0Min93099,in1Min93099],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max98085.png')
+
+LAve65212 = average_pooling2D_layer([[[[1.3325, 1.3249], [1.5209, 1.5457]], [[1.4534, 1.2817], [1.6448, 1.2126]]]], 2, 2, 1, 11, true, Ave65212), 
+LRes20594 = reshape_layer(Ave65212, [2, 2], Res20594), 
+LUp_90645 = up_sampling1D_layer(Res20594, 1, Up_90645), 
+LCon17404 = concatenate_layer([Up_90645,[[[0.5828], [0.5156]]]], 2, Con17404), 
+LMin93099 = minimum_layer([[[[0.3565, 0.6216]]], [[[0.3317, 0.3996]]]], Min93099), 
+LRes71409 = reshape_layer(Min93099, [1, 2, 1], Res71409), 
+LUp_98950 = up_sampling2D_layer(Res71409, 1, 1, Up_98950), 
+LRes44562 = reshape_layer(Up_98950, [1, 2], Res44562), 
+LSep84288 = separable_conv1D_layer(Res44562, 1,[[[[0.129], [0.7245]]],[[[0.152, 0.4625, 0.8404], [0.9319, 0.4156, 0.1897]]]],[0, 0, 0], 1, false, Sep84288), 
+LZer27157 = zero_padding1D_layer(Sep84288, 1, 0, Zer27157), 
+LSub62089 = subtract_layer(Con17404,Zer27157, Sub62089), 
+LMax98085 = max_pool1D_layer(Sub62089, 1, Max98085), 
+exec_layers([LAve65212,LRes20594,LUp_90645,LCon17404,LMin93099,LRes71409,LUp_98950,LRes44562,LSep84288,LZer27157,LSub62089,LMax98085],["Ave65212","Res20594","Up_90645","Con17404","Min93099","Res71409","Up_98950","Res44562","Sep84288","Zer27157","Sub62089","Max98085"],Max98085,"Max98085")
+
+Actual (Unparsed): [[[1.4879000, 1.3412250, 0.5828000], [1.2728015, 1.1070395, 0.4247198]]]
+
+Expected (Unparsed): [[[1.4879,1.3412250000000001,0.5828],[1.2728014710200002,1.1070395096299999,0.42471978733999993]]]
+
+Actual:   [[[1.4879, 1.3413, 0.5828], [1.2729, 1.1071, 0.4248]]]
+
+Expected: [[[1.4879, 1.3413, 0.5828], [1.2729, 1.1071, 0.4248]]]

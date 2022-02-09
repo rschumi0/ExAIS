@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep58434 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con68438 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Ave52969 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave52969 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Dep58434 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep58434', )(in0Dep58434)
+Max67192 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max67192', )(Dep58434)
+Con68438 = keras.layers.Concatenate(axis=3, name = 'Con68438', )([Max67192,in0Con68438])
+Ave52969 = keras.layers.Average(name = 'Ave52969', )([in0Ave52969,in1Ave52969])
+Sub96704 = keras.layers.Subtract(name = 'Sub96704', )([Con68438,Ave52969])
+model = tf.keras.models.Model(inputs=[in0Dep58434,in0Con68438,in0Ave52969,in1Ave52969], outputs=Sub96704)
+w = model.get_layer('Dep58434').get_weights() 
+w[0] = np.array([[[[0.1249]]]])
+w[1] = np.array([0])
+model.get_layer('Dep58434').set_weights(w) 
+in0Dep58434 = tf.constant([[[[0.194]]]])
+in0Con68438 = tf.constant([[[[0.487]]]])
+in0Ave52969 = tf.constant([[[[0.3835, 0.2132]]]])
+in1Ave52969 = tf.constant([[[[0.6257, 0.9887]]]])
+print (np.array2string(model.predict([in0Dep58434,in0Con68438,in0Ave52969,in1Ave52969],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub96704.png')
+
+LDep58434 = depthwise_conv2D_layer([[[[0.194]]]], 1, 1,[[[[0.1249]]]],[0], 1, 1, true, Dep58434), 
+LMax67192 = max_pool2D_layer(Dep58434, 1, 1, Max67192), 
+LCon68438 = concatenate_layer([Max67192,[[[[0.487]]]]], 3, Con68438), 
+LAve52969 = average_layer([[[[[0.3835, 0.2132]]]], [[[[0.6257, 0.9887]]]]], Ave52969), 
+LSub96704 = subtract_layer(Con68438,Ave52969, Sub96704), 
+exec_layers([LDep58434,LMax67192,LCon68438,LAve52969,LSub96704],["Dep58434","Max67192","Con68438","Ave52969","Sub96704"],Sub96704,"Sub96704")
+
+Actual (Unparsed): [[[[-0.4803694, -0.1139500]]]]
+
+Expected (Unparsed): [[[[-0.48036940000000006,-0.11395]]]]
+
+Actual:   [[[[-0.4803, -0.1139]]]]
+
+Expected: [[[[-0.4803, -0.1139]]]]

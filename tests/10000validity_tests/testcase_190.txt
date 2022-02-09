@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul39680 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Mul39680 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Con55175 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mul7167 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul7167 = tf.keras.layers.Input(shape=([2, 2]))
+
+Mul39680 = keras.layers.Multiply(name = 'Mul39680', )([in0Mul39680,in1Mul39680])
+Res56891 = keras.layers.Reshape((2, 1, 2), name = 'Res56891', )(Mul39680)
+Res48314 = keras.layers.Reshape((2, 2), name = 'Res48314', )(Res56891)
+Con55175 = keras.layers.Concatenate(axis=2, name = 'Con55175', )([Res48314,in0Con55175])
+Mul7167 = keras.layers.Multiply(name = 'Mul7167', )([in0Mul7167,in1Mul7167])
+Den79783 = keras.layers.Dense(4,name = 'Den79783', )(Mul7167)
+Sub39587 = keras.layers.Subtract(name = 'Sub39587', )([Con55175,Den79783])
+ELU64132 = keras.layers.ELU(alpha=8.498838186635428, name = 'ELU64132', )(Sub39587)
+Bat36846 = keras.layers.BatchNormalization(axis=2, epsilon=0.4286315106566553,  name = 'Bat36846', )(ELU64132)
+model = tf.keras.models.Model(inputs=[in0Mul39680,in1Mul39680,in0Con55175,in0Mul7167,in1Mul7167], outputs=Bat36846)
+w = model.get_layer('Den79783').get_weights() 
+w[0] = np.array([[0.0862, 0.7489, 0.5341, 0.6933], [0.9205, 0.4552, 0.2538, 0.9419]])
+w[1] = np.array([0.7851, 0.963, 0.7688, 0.3315])
+model.get_layer('Den79783').set_weights(w) 
+w = model.get_layer('Bat36846').get_weights() 
+w[0] = np.array([0.9043, 0.7301, 0.7058, 0.6827])
+w[1] = np.array([0.4009, 0.2273, 0.1144, 0.3657])
+w[2] = np.array([0.0126, 0.3792, 0.1204, 0.3987])
+w[3] = np.array([0.7585, 0.1265, 0.7696, 0.4248])
+model.get_layer('Bat36846').set_weights(w) 
+in0Mul39680 = tf.constant([[[[[0.4332, 0.9664]]], [[[0.485, 0.2575]]]]])
+in1Mul39680 = tf.constant([[[[[0.8998, 0.6775]]], [[[0.1883, 0.1504]]]]])
+in0Con55175 = tf.constant([[[0.8507, 0.1203], [0.8114, 0.2185]]])
+in0Mul7167 = tf.constant([[[0.8093, 0.5801], [0.2627, 0.2712]]])
+in1Mul7167 = tf.constant([[[0.7146, 0.376], [0.4803, 0.889]]])
+print (np.array2string(model.predict([in0Mul39680,in1Mul39680,in0Con55175,in0Mul7167,in1Mul7167],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat36846.png')
+
+LMul39680 = multiply_layer([[[[[[0.4332, 0.9664]]], [[[0.485, 0.2575]]]]], [[[[[0.8998, 0.6775]]], [[[0.1883, 0.1504]]]]]], Mul39680), 
+LRes56891 = reshape_layer(Mul39680, [2, 1, 2], Res56891), 
+LRes48314 = reshape_layer(Res56891, [2, 2], Res48314), 
+LCon55175 = concatenate_layer([Res48314,[[[0.8507, 0.1203], [0.8114, 0.2185]]]], 2, Con55175), 
+LMul7167 = multiply_layer([[[[0.8093, 0.5801], [0.2627, 0.2712]]], [[[0.7146, 0.376], [0.4803, 0.889]]]], Mul7167), 
+LDen79783 = dense_layer(Mul7167, [[0.0862, 0.7489, 0.5341, 0.6933], [0.9205, 0.4552, 0.2538, 0.9419]],[0.7851, 0.963, 0.7688, 0.3315], Den79783), 
+LSub39587 = subtract_layer(Con55175,Den79783, Sub39587), 
+LELU64132 = elu_layer(Sub39587, 8.498838186635428, ELU64132), 
+LBat36846 = batch_normalization_layer(ELU64132, 2, 0.4286315106566553, [0.9043, 0.7301, 0.7058, 0.6827], [0.4009, 0.2273, 0.1144, 0.3657], [0.0126, 0.3792, 0.1204, 0.3987], [0.7585, 0.1265, 0.7696, 0.4248], Bat36846), 
+exec_layers([LMul39680,LRes56891,LRes48314,LCon55175,LMul7167,LDen79783,LSub39587,LELU64132,LBat36846],["Mul39680","Res56891","Res48314","Con55175","Mul7167","Den79783","Sub39587","ELU64132","Bat36846"],Bat36846,"Bat36846")
+
+Actual (Unparsed): [[[-2.9659502, -4.8794001, -1.3111951, -3.4367456], [-3.8707166, -5.7780944, -0.4147061, -2.1140166]]]
+
+Expected (Unparsed): [[[-2.965950202732644,-4.879400192590926,-1.3111951054009723,-3.436745556629929],[-3.870716632558721,-5.778094419413659,-0.4147060894269495,-2.1140165892650034]]]
+
+Actual:   [[[-2.9659, -4.8794, -1.3111, -3.4367], [-3.8707, -5.778, -0.4147, -2.114]]]
+
+Expected: [[[-2.9659, -4.8794, -1.3111, -3.4367], [-3.8707, -5.778, -0.4147, -2.114]]]

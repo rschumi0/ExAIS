@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep5110 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Glo23330 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dep5110 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep5110', )(in0Dep5110)
+Up_12797 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_12797', )(Dep5110)
+Res20382 = keras.layers.Reshape((1, 4), name = 'Res20382', )(Up_12797)
+Sep61239 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep61239', )(Res20382)
+Fla70132 = keras.layers.Flatten(name = 'Fla70132', )(Sep61239)
+Glo23330 = keras.layers.GlobalAveragePooling1D(name = 'Glo23330', )(in0Glo23330)
+Bat15159 = keras.layers.BatchNormalization(axis=1, epsilon=0.8238684097976191,  name = 'Bat15159', )(Glo23330)
+Mul63050 = keras.layers.Multiply(name = 'Mul63050', )([Fla70132,Bat15159])
+Lay4961 = keras.layers.LayerNormalization(axis=1, epsilon=1.6833698415087586, name = 'Lay4961', )(Mul63050)
+model = tf.keras.models.Model(inputs=[in0Dep5110,in0Glo23330], outputs=Lay4961)
+w = model.get_layer('Dep5110').get_weights() 
+w[0] = np.array([[[[0.7693], [0.5779]]], [[[0.1398], [0.0613]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep5110').set_weights(w) 
+w = model.get_layer('Sep61239').get_weights() 
+w[0] = np.array([[[0.2018], [0.6282], [0.9201], [0.7896]]])
+w[1] = np.array([[[0.4569, 0.2155], [0.8245, 0.5385], [0.9517, 0.4621], [0.2979, 0.0572]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep61239').set_weights(w) 
+w = model.get_layer('Bat15159').get_weights() 
+w[0] = np.array([0.9578, 0.7043])
+w[1] = np.array([0.9094, 0.5536])
+w[2] = np.array([0.4043, 0.6467])
+w[3] = np.array([0.9484, 0.7023])
+model.get_layer('Bat15159').set_weights(w) 
+in0Dep5110 = tf.constant([[[[0.8979, 0.2456]], [[0.7379, 0.8497]]]])
+in0Glo23330 = tf.constant([[[1.0247, 1.307]]])
+print (np.array2string(model.predict([in0Dep5110,in0Glo23330],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lay4961.png')
+
+LDep5110 = depthwise_conv2D_layer([[[[0.8979, 0.2456]], [[0.7379, 0.8497]]]], 2, 1,[[[[0.7693], [0.5779]]], [[[0.1398], [0.0613]]]],[0, 0], 2, 2, false, Dep5110), 
+LUp_12797 = up_sampling2D_layer(Dep5110, 1, 2, Up_12797), 
+LRes20382 = reshape_layer(Up_12797, [1, 4], Res20382), 
+LSep61239 = separable_conv1D_layer(Res20382, 1,[[[[0.2018], [0.6282], [0.9201], [0.7896]]],[[[0.4569, 0.2155], [0.8245, 0.5385], [0.9517, 0.4621], [0.2979, 0.0572]]]],[0, 0], 1, true, Sep61239), 
+LFla70132 = flatten_layer(Sep61239, Fla70132), 
+LGlo23330 = global_average_pooling1D_layer([[[1.0247, 1.307]]], Glo23330), 
+LBat15159 = batch_normalization_layer(Glo23330, 1, 0.8238684097976191, [0.9578, 0.7043], [0.9094, 0.5536], [0.4043, 0.6467], [0.9484, 0.7023], Bat15159), 
+LMul63050 = multiply_layer([Fla70132,Bat15159], Mul63050), 
+LLay4961 = layer_normalization_layer(Mul63050, 1, 1.6833698415087586, Lay4961), 
+exec_layers([LDep5110,LUp_12797,LRes20382,LSep61239,LFla70132,LGlo23330,LBat15159,LMul63050,LLay4961],["Dep5110","Up_12797","Res20382","Sep61239","Fla70132","Glo23330","Bat15159","Mul63050","Lay4961"],Lay4961,"Lay4961")
+
+Actual (Unparsed): [[0.3028655, -0.3028655]]
+
+Expected (Unparsed): [[0.30286553996383,-0.30286553996383003]]
+
+Actual:   [[0.3029, -0.3028]]
+
+Expected: [[0.3029, -0.3028]]

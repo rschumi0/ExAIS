@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min32048 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min32048 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Max65123 = tf.keras.layers.Input(shape=([2, 1]))
+in1Max65123 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con61720 = tf.keras.layers.Input(shape=([2, 3]))
+
+Min32048 = keras.layers.Minimum(name = 'Min32048', )([in0Min32048,in1Min32048])
+Res71543 = keras.layers.Reshape((1, 4), name = 'Res71543', )(Min32048)
+Zer452 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer452', )(Res71543)
+Max65123 = keras.layers.Maximum(name = 'Max65123', )([in0Max65123,in1Max65123])
+Con61720 = keras.layers.Concatenate(axis=2, name = 'Con61720', )([Max65123,in0Con61720])
+Max77400 = keras.layers.Maximum(name = 'Max77400', )([Zer452,Con61720])
+Res45670 = keras.layers.Reshape((2, 4, 1), name = 'Res45670', )(Max77400)
+Glo56060 = keras.layers.GlobalMaxPool2D(name = 'Glo56060', )(Res45670)
+model = tf.keras.models.Model(inputs=[in0Min32048,in1Min32048,in0Max65123,in1Max65123,in0Con61720], outputs=Glo56060)
+in0Min32048 = tf.constant([[[[0.1918, 0.6223], [0.4343, 0.5693]]]])
+in1Min32048 = tf.constant([[[[0.6184, 0.0523], [0.9677, 0.3415]]]])
+in0Max65123 = tf.constant([[[0.899], [0.4732]]])
+in1Max65123 = tf.constant([[[0.6774], [0.7978]]])
+in0Con61720 = tf.constant([[[0.2149, 0.7117, 0.7412], [0.4457, 0.8747, 0.6791]]])
+print (np.array2string(model.predict([in0Min32048,in1Min32048,in0Max65123,in1Max65123,in0Con61720],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo56060.png')
+
+LMin32048 = minimum_layer([[[[[0.1918, 0.6223], [0.4343, 0.5693]]]], [[[[0.6184, 0.0523], [0.9677, 0.3415]]]]], Min32048), 
+LRes71543 = reshape_layer(Min32048, [1, 4], Res71543), 
+LZer452 = zero_padding1D_layer(Res71543, 1, 0, Zer452), 
+LMax65123 = maximum_layer([[[[0.899], [0.4732]]], [[[0.6774], [0.7978]]]], Max65123), 
+LCon61720 = concatenate_layer([Max65123,[[[0.2149, 0.7117, 0.7412], [0.4457, 0.8747, 0.6791]]]], 2, Con61720), 
+LMax77400 = maximum_layer([Zer452,Con61720], Max77400), 
+LRes45670 = reshape_layer(Max77400, [2, 4, 1], Res45670), 
+LGlo56060 = global_max_pool2D_layer(Res45670, Glo56060), 
+exec_layers([LMin32048,LRes71543,LZer452,LMax65123,LCon61720,LMax77400,LRes45670,LGlo56060],["Min32048","Res71543","Zer452","Max65123","Con61720","Max77400","Res45670","Glo56060"],Glo56060,"Glo56060")
+
+Actual (Unparsed): [[0.8990000]]
+
+Expected (Unparsed): [[0.899]]
+
+Actual:   [[0.899]]
+
+Expected: [[0.899]]

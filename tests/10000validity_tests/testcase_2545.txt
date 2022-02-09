@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat40713 = tf.keras.layers.Input(shape=([1, 2]))
+in0Dep37999 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Up_68542 = tf.keras.layers.Input(shape=([4, 1]))
+
+Bat40713 = keras.layers.BatchNormalization(axis=2, epsilon=0.960626490832343,  name = 'Bat40713', )(in0Bat40713)
+Res54427 = keras.layers.Reshape((1, 2, 1), name = 'Res54427', )(Bat40713)
+Res5792 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res5792', )(Res54427)
+Glo35224 = keras.layers.GlobalMaxPool3D(name = 'Glo35224', )(Res5792)
+Res48143 = keras.layers.Reshape((1, 1), name = 'Res48143', )(Glo35224)
+Zer37869 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer37869', )(Res48143)
+Dep37999 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep37999', )(in0Dep37999)
+Res62566 = keras.layers.Reshape((1, 1), name = 'Res62566', )(Dep37999)
+Zer21906 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer21906', )(Res62566)
+Up_68542 = keras.layers.UpSampling1D(size=(1), name = 'Up_68542', )(in0Up_68542)
+Add4171 = keras.layers.Add(name = 'Add4171', )([Zer21906,Up_68542])
+Min32408 = keras.layers.Minimum(name = 'Min32408', )([Zer37869,Add4171])
+model = tf.keras.models.Model(inputs=[in0Bat40713,in0Dep37999,in0Up_68542], outputs=Min32408)
+w = model.get_layer('Bat40713').get_weights() 
+w[0] = np.array([0.8466, 0.6275])
+w[1] = np.array([0.1546, 0.1644])
+w[2] = np.array([0.8087, 0.6957])
+w[3] = np.array([0.1104, 0.0206])
+model.get_layer('Bat40713').set_weights(w) 
+w = model.get_layer('Dep37999').get_weights() 
+w[0] = np.array([[[[0.9071]]]])
+w[1] = np.array([0])
+model.get_layer('Dep37999').set_weights(w) 
+in0Bat40713 = tf.constant([[[1.9214, 1.4831]]])
+in0Dep37999 = tf.constant([[[[0.3937]]]])
+in0Up_68542 = tf.constant([[[1.3425], [1.4785], [1.8741], [1.5682]]])
+print (np.array2string(model.predict([in0Bat40713,in0Dep37999,in0Up_68542],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min32408.png')
+
+LBat40713 = batch_normalization_layer([[[1.9214, 1.4831]]], 2, 0.960626490832343, [0.8466, 0.6275], [0.1546, 0.1644], [0.8087, 0.6957], [0.1104, 0.0206], Bat40713), 
+LRes54427 = reshape_layer(Bat40713, [1, 2, 1], Res54427), 
+LRes5792 = reshape_layer(Res54427, [1, 2, 1, 1], Res5792), 
+LGlo35224 = global_max_pool3D_layer(Res5792, Glo35224), 
+LRes48143 = reshape_layer(Glo35224, [1, 1], Res48143), 
+LZer37869 = zero_padding1D_layer(Res48143, 3, 0, Zer37869), 
+LDep37999 = depthwise_conv2D_layer([[[[0.3937]]]], 1, 1,[[[[0.9071]]]],[0], 1, 1, true, Dep37999), 
+LRes62566 = reshape_layer(Dep37999, [1, 1], Res62566), 
+LZer21906 = zero_padding1D_layer(Res62566, 3, 0, Zer21906), 
+LUp_68542 = up_sampling1D_layer([[[1.3425], [1.4785], [1.8741], [1.5682]]], 1, Up_68542), 
+LAdd4171 = add_layer([Zer21906,Up_68542], Add4171), 
+LMin32408 = minimum_layer([Zer37869,Add4171], Min32408), 
+exec_layers([LBat40713,LRes54427,LRes5792,LGlo35224,LRes48143,LZer37869,LDep37999,LRes62566,LZer21906,LUp_68542,LAdd4171,LMin32408],["Bat40713","Res54427","Res5792","Glo35224","Res48143","Zer37869","Dep37999","Res62566","Zer21906","Up_68542","Add4171","Min32408"],Min32408,"Min32408")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.0000000], [1.0648407]]]
+
+Expected (Unparsed): [[[0],[0],[0],[1.0648406902814807]]]
+
+Actual:   [[[0], [0], [0], [1.0649]]]
+
+Expected: [[[0], [0], [0], [1.0649]]]

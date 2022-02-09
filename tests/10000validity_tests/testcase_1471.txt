@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con56038 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Mul61876 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Mul61876 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con97332 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+
+Con56038 = keras.layers.Conv3D(2, (1, 2, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con56038', )(in0Con56038)
+Zer14193 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer14193', )(Con56038)
+Mul61876 = keras.layers.Multiply(name = 'Mul61876', )([in0Mul61876,in1Mul61876])
+PRe54616 = keras.layers.PReLU(name = 'PRe54616', )(Mul61876)
+Con97332 = keras.layers.Concatenate(axis=4, name = 'Con97332', )([PRe54616,in0Con97332])
+Sub40044 = keras.layers.Subtract(name = 'Sub40044', )([Zer14193,Con97332])
+model = tf.keras.models.Model(inputs=[in0Con56038,in0Mul61876,in1Mul61876,in0Con97332], outputs=Sub40044)
+w = model.get_layer('Con56038').get_weights() 
+w[0] = np.array([[[[[0.74, 0.213]]], [[[0.8363, 0.55]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con56038').set_weights(w) 
+w = model.get_layer('PRe54616').get_weights() 
+w[0] = np.array([[[[0.7177], [0.3297]], [[0.0011], [0.3]]]])
+model.get_layer('PRe54616').set_weights(w) 
+in0Con56038 = tf.constant([[[[[0.5945]], [[0.7079]]]]])
+in0Mul61876 = tf.constant([[[[[0.2403], [0.1344]], [[0.2022], [0.7017]]]]])
+in1Mul61876 = tf.constant([[[[[0.0736], [0.5457]], [[0.908], [0.3879]]]]])
+in0Con97332 = tf.constant([[[[[0.5159], [0.7109]], [[0.7555], [0.1179]]]]])
+print (np.array2string(model.predict([in0Con56038,in0Mul61876,in1Mul61876,in0Con97332],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub40044.png')
+
+LCon56038 = conv3D_layer([[[[[0.5945]], [[0.7079]]]]], 1, 2, 1,[[[[[0.74, 0.213]]], [[[0.8363, 0.55]]]]],[0, 0], 1, 1, 1, true, 1, 1, 1, Con56038), 
+LZer14193 = zero_padding3D_layer(Con56038, 0, 0, 0, 0, 1, 0, Zer14193), 
+LMul61876 = multiply_layer([[[[[[0.2403], [0.1344]], [[0.2022], [0.7017]]]]], [[[[[0.0736], [0.5457]], [[0.908], [0.3879]]]]]], Mul61876), 
+LPRe54616 = prelu_layer(Mul61876, [[[[0.7177], [0.3297]], [[0.0011], [0.3]]]], PRe54616), 
+LCon97332 = concatenate_layer([PRe54616,[[[[[0.5159], [0.7109]], [[0.7555], [0.1179]]]]]], 4, Con97332), 
+LSub40044 = subtract_layer(Zer14193,Con97332, Sub40044), 
+exec_layers([LCon56038,LZer14193,LMul61876,LPRe54616,LCon97332,LSub40044],["Con56038","Zer14193","Mul61876","PRe54616","Con97332","Sub40044"],Sub40044,"Sub40044")
+
+Actual (Unparsed): [[[[[-0.0176861, -0.5159000], [0.9586047, -0.1949265]], [[-0.1835976, -0.7555000], [0.2516566, 0.0328827]]]]]
+
+Expected (Unparsed): [[[[[-0.01768608,-0.5159],[0.95860469,-0.1949265]],[[-0.1835976,-0.7555],[0.2516565699999999,0.03288269999999999]]]]]
+
+Actual:   [[[[[-0.0176, -0.5159], [0.9587, -0.1949]], [[-0.1835, -0.7555], [0.2517, 0.0329]]]]]
+
+Expected: [[[[[-0.0176, -0.5159], [0.9587, -0.1949]], [[-0.1835, -0.7555], [0.2517, 0.0329]]]]]

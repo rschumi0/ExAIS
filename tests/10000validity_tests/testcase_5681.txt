@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min67047 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min67047 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Max63439 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max63439 = tf.keras.layers.Input(shape=([2, 2]))
+in0LST37212 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con87888 = tf.keras.layers.Input(shape=([2]))
+
+Min67047 = keras.layers.Minimum(name = 'Min67047', )([in0Min67047,in1Min67047])
+Res73080 = keras.layers.Reshape((1, 2), name = 'Res73080', )(Min67047)
+Zer65862 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer65862', )(Res73080)
+Max63439 = keras.layers.Maximum(name = 'Max63439', )([in0Max63439,in1Max63439])
+Min39520 = keras.layers.Minimum(name = 'Min39520', )([Zer65862,Max63439])
+Fla48496 = keras.layers.Flatten(name = 'Fla48496', )(Min39520)
+LST37212 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST37212', )(in0LST37212)
+Con87888 = keras.layers.Concatenate(axis=1, name = 'Con87888', )([LST37212,in0Con87888])
+Sub67296 = keras.layers.Subtract(name = 'Sub67296', )([Fla48496,Con87888])
+Res29706 = keras.layers.Reshape((4, 1), name = 'Res29706', )(Sub67296)
+Glo92377 = keras.layers.GlobalAveragePooling1D(name = 'Glo92377', )(Res29706)
+model = tf.keras.models.Model(inputs=[in0Min67047,in1Min67047,in0Max63439,in1Max63439,in0LST37212,in0Con87888], outputs=Glo92377)
+w = model.get_layer('LST37212').get_weights() 
+w[0] = np.array([[6, 5, 10, 6, 8, 6, 8, 8], [8, 9, 2, 3, 7, 5, 4, 7], [3, 10, 9, 1, 9, 10, 6, 10]])
+w[1] = np.array([[4, 7, 5, 3, 10, 9, 7, 4], [1, 3, 9, 2, 8, 10, 2, 1]])
+w[2] = np.array([10, 3, 1, 9, 2, 1, 2, 2])
+model.get_layer('LST37212').set_weights(w) 
+in0Min67047 = tf.constant([[[[0.3181], [0.7467]]]])
+in1Min67047 = tf.constant([[[[0.6992], [0.9497]]]])
+in0Max63439 = tf.constant([[[0.0523, 0.359], [0.4551, 0.2178]]])
+in1Max63439 = tf.constant([[[0.7777, 0.8399], [0.4576, 0.4693]]])
+in0LST37212 = tf.constant([[[5, 4, 6], [6, 5, 1], [8, 7, 10]]])
+in0Con87888 = tf.constant([[0.8038, 0.9206]])
+print (np.array2string(model.predict([in0Min67047,in1Min67047,in0Max63439,in1Max63439,in0LST37212,in0Con87888],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo92377.png')
+
+LMin67047 = minimum_layer([[[[[0.3181], [0.7467]]]], [[[[0.6992], [0.9497]]]]], Min67047), 
+LRes73080 = reshape_layer(Min67047, [1, 2], Res73080), 
+LZer65862 = zero_padding1D_layer(Res73080, 1, 0, Zer65862), 
+LMax63439 = maximum_layer([[[[0.0523, 0.359], [0.4551, 0.2178]]], [[[0.7777, 0.8399], [0.4576, 0.4693]]]], Max63439), 
+LMin39520 = minimum_layer([Zer65862,Max63439], Min39520), 
+LFla48496 = flatten_layer(Min39520, Fla48496), 
+LLST37212 = lstm_layer([[[5, 4, 6], [6, 5, 1], [8, 7, 10]]],[[6, 5, 10, 6, 8, 6, 8, 8], [8, 9, 2, 3, 7, 5, 4, 7], [3, 10, 9, 1, 9, 10, 6, 10]],[[4, 7, 5, 3, 10, 9, 7, 4], [1, 3, 9, 2, 8, 10, 2, 1]],[10, 3, 1, 9, 2, 1, 2, 2], LST37212), 
+LCon87888 = concatenate_layer([LST37212,[[0.8038, 0.9206]]], 1, Con87888), 
+LSub67296 = subtract_layer(Fla48496,Con87888, Sub67296), 
+LRes29706 = reshape_layer(Sub67296, [4, 1], Res29706), 
+LGlo92377 = global_average_pooling1D_layer(Res29706, Glo92377), 
+exec_layers([LMin67047,LRes73080,LZer65862,LMax63439,LMin39520,LFla48496,LLST37212,LCon87888,LSub67296,LRes29706,LGlo92377],["Min67047","Res73080","Zer65862","Max63439","Min39520","Fla48496","LST37212","Con87888","Sub67296","Res29706","Glo92377"],Glo92377,"Glo92377")
+
+Actual (Unparsed): [[-0.7317774]]
+
+Expected (Unparsed): [[-0.7317773768433652]]
+
+Actual:   [[-0.7317]]
+
+Expected: [[-0.7317]]

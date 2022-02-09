@@ -1,0 +1,63 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat98183 = tf.keras.layers.Input(shape=([2]))
+in0Con48135 = tf.keras.layers.Input(shape=([2, 7]))
+in0Sub31418 = tf.keras.layers.Input(shape=([3]))
+in1Sub31418 = tf.keras.layers.Input(shape=([3]))
+
+Bat98183 = keras.layers.BatchNormalization(axis=1, epsilon=0.7817955510502926,  name = 'Bat98183', )(in0Bat98183)
+Res40388 = keras.layers.Reshape((2, 1), name = 'Res40388', )(Bat98183)
+Con48135 = keras.layers.Concatenate(axis=2, name = 'Con48135', )([Res40388,in0Con48135])
+Sub31418 = keras.layers.Subtract(name = 'Sub31418', )([in0Sub31418,in1Sub31418])
+Res24089 = keras.layers.Reshape((3, 1), name = 'Res24089', )(Sub31418)
+Res93968 = keras.layers.Reshape((3, 1, 1), name = 'Res93968', )(Res24089)
+Con28161 = keras.layers.Conv2DTranspose(4, (2, 1),strides=(1, 1), padding='same', name = 'Con28161', )(Res93968)
+Res17146 = keras.layers.Reshape((3, 1, 4, 1), name = 'Res17146', )(Con28161)
+Up_91723 = keras.layers.UpSampling3D(size=(2, 2, 1), name = 'Up_91723', )(Res17146)
+Res87055 = keras.layers.Reshape((6, 2, 4), name = 'Res87055', )(Up_91723)
+Res61735 = keras.layers.Reshape((6, 8), name = 'Res61735', )(Res87055)
+Dot50972 = keras.layers.Dot(axes=(2, 2), name = 'Dot50972', )([Con48135,Res61735])
+model = tf.keras.models.Model(inputs=[in0Bat98183,in0Con48135,in0Sub31418,in1Sub31418], outputs=Dot50972)
+w = model.get_layer('Bat98183').get_weights() 
+w[0] = np.array([0.7016, 0.5782])
+w[1] = np.array([0.9253, 0.1104])
+w[2] = np.array([0.6732, 0.3161])
+w[3] = np.array([0.2138, 0.4789])
+model.get_layer('Bat98183').set_weights(w) 
+w = model.get_layer('Con28161').get_weights() 
+w[0] = np.array([[[[0.9053], [0.2421], [0.1228], [0.6489]]], [[[0.0098], [0.7497], [0.3795], [0.8249]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con28161').set_weights(w) 
+in0Bat98183 = tf.constant([[1.0586, 1.1298]])
+in0Con48135 = tf.constant([[[0.664, 0.3885, 0.1937, 0.0169, 0.8714, 0.9514, 0.891], [0.7714, 0.8934, 0.7839, 0.3419, 0.8137, 0.1607, 0.8292]]])
+in0Sub31418 = tf.constant([[0.1101, 0.5462, 0.5295]])
+in1Sub31418 = tf.constant([[0.9739, 0.6621, 0.8014]])
+print (np.array2string(model.predict([in0Bat98183,in0Con48135,in0Sub31418,in1Sub31418],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot50972.png')
+
+LBat98183 = batch_normalization_layer([[1.0586, 1.1298]], 1, 0.7817955510502926, [0.7016, 0.5782], [0.9253, 0.1104], [0.6732, 0.3161], [0.2138, 0.4789], Bat98183), 
+LRes40388 = reshape_layer(Bat98183, [2, 1], Res40388), 
+LCon48135 = concatenate_layer([Res40388,[[[0.664, 0.3885, 0.1937, 0.0169, 0.8714, 0.9514, 0.891], [0.7714, 0.8934, 0.7839, 0.3419, 0.8137, 0.1607, 0.8292]]]], 2, Con48135), 
+LSub31418 = subtract_layer([[0.1101, 0.5462, 0.5295]], [[0.9739, 0.6621, 0.8014]], Sub31418), 
+LRes24089 = reshape_layer(Sub31418, [3, 1], Res24089), 
+LRes93968 = reshape_layer(Res24089, [3, 1, 1], Res93968), 
+LCon28161 = conv2D_transpose_layer(Res93968, 2, 1,[[[[0.9053], [0.2421], [0.1228], [0.6489]]], [[[0.0098], [0.7497], [0.3795], [0.8249]]]],[0, 0, 0, 0], 1, 1, true, Con28161), 
+LRes17146 = reshape_layer(Con28161, [3, 1, 4, 1], Res17146), 
+LUp_91723 = up_sampling3D_layer(Res17146, 2, 2, 1, Up_91723), 
+LRes87055 = reshape_layer(Up_91723, [6, 2, 4], Res87055), 
+LRes61735 = reshape_layer(Res87055, [6, 8], Res61735), 
+LDot50972 = dot_layer(Con48135,Res61735, 2, 2, Dot50972), 
+exec_layers([LBat98183,LRes40388,LCon48135,LSub31418,LRes24089,LRes93968,LCon28161,LRes17146,LUp_91723,LRes87055,LRes61735,LDot50972],["Bat98183","Res40388","Con48135","Sub31418","Res24089","Res93968","Con28161","Res17146","Up_91723","Res87055","Res61735","Dot50972"],Dot50972,"Dot50972")
+
+Actual (Unparsed): [[[-2.0199328, -2.0199328, -2.4877416, -2.4877416, -0.9332454, -0.9332454], [-2.0288460, -2.0288460, -2.8010509, -2.8010509, -0.9779287, -0.9779287]]]
+
+Expected (Unparsed): [[[-2.0199328091680178,-2.0199328091680178,-2.4877415376173153,-2.4877415376173153,-0.9332453532912591,-0.9332453532912591],[-2.0288459268577856,-2.0288459268577856,-2.8010506843302627,-2.8010506843302627,-0.9779286137618366,-0.9779286137618366]]]
+
+Actual:   [[[-2.0199, -2.0199, -2.4877, -2.4877, -0.9332, -0.9332], [-2.0288, -2.0288, -2.801, -2.801, -0.9779, -0.9779]]]
+
+Expected: [[[-2.0199, -2.0199, -2.4877, -2.4877, -0.9332, -0.9332], [-2.0288, -2.0288, -2.801, -2.801, -0.9779, -0.9779]]]

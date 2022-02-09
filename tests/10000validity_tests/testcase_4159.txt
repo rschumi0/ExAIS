@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr31867 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con76659 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Loc83130 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Thr31867 = keras.layers.ThresholdedReLU(theta=6.425105119616093, name = 'Thr31867', input_shape=(2, 2, 2))(in0Thr31867)
+Con76659 = keras.layers.Concatenate(axis=3, name = 'Con76659', )([Thr31867,in0Con76659])
+Loc83130 = keras.layers.LocallyConnected2D(3, (1, 2),strides=(1, 1), name = 'Loc83130', )(in0Loc83130)
+Zer77551 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer77551', )(Loc83130)
+Min9594 = keras.layers.Minimum(name = 'Min9594', )([Con76659,Zer77551])
+model = tf.keras.models.Model(inputs=[in0Thr31867,in0Con76659,in0Loc83130], outputs=Min9594)
+w = model.get_layer('Loc83130').get_weights() 
+w[0] = np.array([[[0.5351, 0.0412, 0.9325], [0.8259, 0.1984, 0.6744], [0.7621, 0.2667, 0.6911], [0.9341, 0.5603, 0.4193]], [[0.7433, 0.85, 0.9185], [0.1459, 0.6582, 0.0531], [0.6115, 0.3664, 0.6746], [0.4029, 0.7866, 0.7453]]])
+w[1] = np.array([[[0, 0, 0]], [[0, 0, 0]]])
+model.get_layer('Loc83130').set_weights(w) 
+in0Thr31867 = tf.constant([[[[0.8206, 0.2187], [0.2549, 0.6178]], [[0.686, 0.9193], [0.9623, 0.6411]]]])
+in0Con76659 = tf.constant([[[[0.209], [0.4522]], [[0.4607], [0.7778]]]])
+in0Loc83130 = tf.constant([[[[0.3628, 0.7228], [0.6752, 0.9654]], [[0.0322, 0.4748], [0.273, 0.3786]]]])
+print (np.array2string(model.predict([in0Thr31867,in0Con76659,in0Loc83130],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min9594.png')
+
+LThr31867 = thresholded_relu_layer([[[[0.8206, 0.2187], [0.2549, 0.6178]], [[0.686, 0.9193], [0.9623, 0.6411]]]], 6.425105119616093, Thr31867), 
+LCon76659 = concatenate_layer([Thr31867,[[[[0.209], [0.4522]], [[0.4607], [0.7778]]]]], 3, Con76659), 
+LLoc83130 = locally_connected2D_layer([[[[0.3628, 0.7228], [0.6752, 0.9654]], [[0.0322, 0.4748], [0.273, 0.3786]]]], 1, 2,[[[0.5351, 0.0412, 0.9325], [0.8259, 0.1984, 0.6744], [0.7621, 0.2667, 0.6911], [0.9341, 0.5603, 0.4193]], [[0.7433, 0.85, 0.9185], [0.1459, 0.6582, 0.0531], [0.6115, 0.3664, 0.6746], [0.4029, 0.7866, 0.7453]]],[[[0, 0, 0]], [[0, 0, 0]]], 1, 1, Loc83130), 
+LZer77551 = zero_padding2D_layer(Loc83130, 0, 0, 1, 0, Zer77551), 
+LMin9594 = minimum_layer([Con76659,Zer77551], Min9594), 
+exec_layers([LThr31867,LCon76659,LLoc83130,LZer77551,LMin9594],["Thr31867","Con76659","Loc83130","Zer77551","Min9594"],Min9594,"Min9594")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.4522000]], [[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.5211240]]]]
+
+Expected (Unparsed): [[[[0,0,0],[0,0,0.4522]],[[0,0,0],[0,0,0.52112396]]]]
+
+Actual:   [[[[0, 0, 0], [0, 0, 0.4522]], [[0, 0, 0], [0, 0, 0.5212]]]]
+
+Expected: [[[[0, 0, 0], [0, 0, 0.4522]], [[0, 0, 0], [0, 0, 0.5212]]]]

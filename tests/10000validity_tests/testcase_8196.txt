@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub8743 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub8743 = tf.keras.layers.Input(shape=([3, 2]))
+in0Ave50714 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave50714 = tf.keras.layers.Input(shape=([2, 1]))
+
+Sub8743 = keras.layers.Subtract(name = 'Sub8743', )([in0Sub8743,in1Sub8743])
+Bat4391 = keras.layers.BatchNormalization(axis=1, epsilon=0.9151893036520541,  name = 'Bat4391', )(Sub8743)
+Res25763 = keras.layers.Reshape((3, 2, 1), name = 'Res25763', )(Bat4391)
+Ave50714 = keras.layers.Average(name = 'Ave50714', )([in0Ave50714,in1Ave50714])
+Fla34066 = keras.layers.Flatten(name = 'Fla34066', )(Ave50714)
+Res89644 = keras.layers.Reshape((2, 1), name = 'Res89644', )(Fla34066)
+Res55090 = keras.layers.Reshape((2, 1, 1), name = 'Res55090', )(Res89644)
+Res50618 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res50618', )(Res55090)
+Con28 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='valid', name = 'Con28', )(Res50618)
+Res8705 = keras.layers.Reshape((3, 2, 1), name = 'Res8705', )(Con28)
+Mul38919 = keras.layers.Multiply(name = 'Mul38919', )([Res25763,Res8705])
+model = tf.keras.models.Model(inputs=[in0Sub8743,in1Sub8743,in0Ave50714,in1Ave50714], outputs=Mul38919)
+w = model.get_layer('Bat4391').get_weights() 
+w[0] = np.array([0.0704, 0.955, 0.8851])
+w[1] = np.array([0.9289, 0.7378, 0.9869])
+w[2] = np.array([0.7683, 0.3809, 0.8126])
+w[3] = np.array([0.5051, 0.5194, 0.686])
+model.get_layer('Bat4391').set_weights(w) 
+w = model.get_layer('Con28').get_weights() 
+w[0] = np.array([[[[[0.5531], [0.1561], [0.9972]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con28').set_weights(w) 
+in0Sub8743 = tf.constant([[[0.2386, 0.5872], [0.5431, 0.7739], [0.0089, 0.2198]]])
+in1Sub8743 = tf.constant([[[0.7762, 0.3261], [0.0623, 0.3092], [0.3988, 0.5458]]])
+in0Ave50714 = tf.constant([[[0.5732], [0.656]]])
+in1Ave50714 = tf.constant([[[0.1388], [0.8499]]])
+print (np.array2string(model.predict([in0Sub8743,in1Sub8743,in0Ave50714,in1Ave50714],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul38919.png')
+
+LSub8743 = subtract_layer([[[0.2386, 0.5872], [0.5431, 0.7739], [0.0089, 0.2198]]], [[[0.7762, 0.3261], [0.0623, 0.3092], [0.3988, 0.5458]]], Sub8743), 
+LBat4391 = batch_normalization_layer(Sub8743, 1, 0.9151893036520541, [0.0704, 0.955, 0.8851], [0.9289, 0.7378, 0.9869], [0.7683, 0.3809, 0.8126], [0.5051, 0.5194, 0.686], Bat4391), 
+LRes25763 = reshape_layer(Bat4391, [3, 2, 1], Res25763), 
+LAve50714 = average_layer([[[[0.5732], [0.656]]], [[[0.1388], [0.8499]]]], Ave50714), 
+LFla34066 = flatten_layer(Ave50714, Fla34066), 
+LRes89644 = reshape_layer(Fla34066, [2, 1], Res89644), 
+LRes55090 = reshape_layer(Res89644, [2, 1, 1], Res55090), 
+LRes50618 = reshape_layer(Res55090, [2, 1, 1, 1], Res50618), 
+LCon28 = conv3D_transpose_layer(Res50618, 1, 1, 1,[[[[[0.5531], [0.1561], [0.9972]]]]],[0, 0, 0], 1, 1, 1, false, Con28), 
+LRes8705 = reshape_layer(Con28, [3, 2, 1], Res8705), 
+LMul38919 = multiply_layer([Res25763,Res8705], Mul38919), 
+exec_layers([LSub8743,LBat4391,LRes25763,LAve50714,LFla34066,LRes89644,LRes55090,LRes50618,LCon28,LRes8705,LMul38919],["Sub8743","Bat4391","Res25763","Ave50714","Fla34066","Res89644","Res55090","Res50618","Con28","Res8705","Mul38919"],Mul38919,"Mul38919")
+
+Actual (Unparsed): [[[[0.1677141], [0.0499554]], [[0.2901986], [0.3350879]], [[0.0171348], [0.1430203]]]]
+
+Expected (Unparsed): [[[[0.16771410186005853],[0.04995545096265256]],[[0.2901986215047495],[0.33508787999324724]],[[0.01713475105248695],[0.143020303735445]]]]
+
+Actual:   [[[[0.1678], [0.05]], [[0.2902], [0.3351]], [[0.0172], [0.1431]]]]
+
+Expected: [[[[0.1678], [0.05]], [[0.2902], [0.3351]], [[0.0172], [0.1431]]]]

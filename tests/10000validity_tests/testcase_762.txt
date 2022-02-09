@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc46983 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con57952 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Add23351 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in1Add23351 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Sim60156 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con50146 = tf.keras.layers.Input(shape=([7]))
+
+Loc46983 = keras.layers.LocallyConnected1D(2, (2),strides=(4), name = 'Loc46983', )(in0Loc46983)
+Res69402 = keras.layers.Reshape((1, 2, 1), name = 'Res69402', )(Loc46983)
+Res42250 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res42250', )(Res69402)
+Zer55998 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer55998', )(Res42250)
+Con57952 = keras.layers.Concatenate(axis=4, name = 'Con57952', )([Zer55998,in0Con57952])
+Add23351 = keras.layers.Add(name = 'Add23351', )([in0Add23351,in1Add23351])
+Max4499 = keras.layers.Maximum(name = 'Max4499', )([Con57952,Add23351])
+Res49934 = keras.layers.Reshape((1, 2, 4), name = 'Res49934', )(Max4499)
+Res72696 = keras.layers.Reshape((1, 8), name = 'Res72696', )(Res49934)
+Fla9454 = keras.layers.Flatten(name = 'Fla9454', )(Res72696)
+Sim60156 = keras.layers.SimpleRNN(1,name = 'Sim60156', )(in0Sim60156)
+Lay90275 = keras.layers.LayerNormalization(axis=1, epsilon=1.1456246965958925, name = 'Lay90275', )(Sim60156)
+Con50146 = keras.layers.Concatenate(axis=1, name = 'Con50146', )([Lay90275,in0Con50146])
+Add96796 = keras.layers.Add(name = 'Add96796', )([Fla9454,Con50146])
+model = tf.keras.models.Model(inputs=[in0Loc46983,in0Con57952,in0Add23351,in1Add23351,in0Sim60156,in0Con50146], outputs=Add96796)
+w = model.get_layer('Loc46983').get_weights() 
+w[0] = np.array([[[0.2059, 0.5378], [0.7174, 0.3341]]])
+w[1] = np.array([[0, 0]])
+model.get_layer('Loc46983').set_weights(w) 
+w = model.get_layer('Sim60156').get_weights() 
+w[0] = np.array([[9], [5]])
+w[1] = np.array([[9]])
+w[2] = np.array([8])
+model.get_layer('Sim60156').set_weights(w) 
+in0Loc46983 = tf.constant([[[0.9889], [0.7339]]])
+in0Con57952 = tf.constant([[[[[0.347], [0.7879]], [[0.5968], [0.1015]]]]])
+in0Add23351 = tf.constant([[[[[0.2218, 0.3639], [0.6643, 0.4131]], [[0.5705, 0.926], [0.4673, 0.1718]]]]])
+in1Add23351 = tf.constant([[[[[0.0204, 0.2184], [0.6928, 0.7329]], [[0.2301, 0.9453], [0.5582, 0.8646]]]]])
+in0Sim60156 = tf.constant([[[3, 1], [6, 8], [7, 5]]])
+in0Con50146 = tf.constant([[0.1162, 0.636, 0.4664, 0.4497, 0.658, 0.0572, 0.9007]])
+print (np.array2string(model.predict([in0Loc46983,in0Con57952,in0Add23351,in1Add23351,in0Sim60156,in0Con50146],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add96796.png')
+
+LLoc46983 = locally_connected1D_layer([[[0.9889], [0.7339]]], 2,[[[0.2059, 0.5378], [0.7174, 0.3341]]],[[0, 0]], 4, Loc46983), 
+LRes69402 = reshape_layer(Loc46983, [1, 2, 1], Res69402), 
+LRes42250 = reshape_layer(Res69402, [1, 2, 1, 1], Res42250), 
+LZer55998 = zero_padding3D_layer(Res42250, 0, 0, 0, 0, 1, 0, Zer55998), 
+LCon57952 = concatenate_layer([Zer55998,[[[[[0.347], [0.7879]], [[0.5968], [0.1015]]]]]], 4, Con57952), 
+LAdd23351 = add_layer([[[[[[0.2218, 0.3639], [0.6643, 0.4131]], [[0.5705, 0.926], [0.4673, 0.1718]]]]], [[[[[0.0204, 0.2184], [0.6928, 0.7329]], [[0.2301, 0.9453], [0.5582, 0.8646]]]]]], Add23351), 
+LMax4499 = maximum_layer([Con57952,Add23351], Max4499), 
+LRes49934 = reshape_layer(Max4499, [1, 2, 4], Res49934), 
+LRes72696 = reshape_layer(Res49934, [1, 8], Res72696), 
+LFla9454 = flatten_layer(Res72696, Fla9454), 
+LSim60156 = simple_rnn_layer([[[3, 1], [6, 8], [7, 5]]],[[9], [5]],[[9]],[8], Sim60156), 
+LLay90275 = layer_normalization_layer(Sim60156, 1, 1.1456246965958925, Lay90275), 
+LCon50146 = concatenate_layer([Lay90275,[[0.1162, 0.636, 0.4664, 0.4497, 0.658, 0.0572, 0.9007]]], 1, Con50146), 
+LAdd96796 = add_layer([Fla9454,Con50146], Add96796), 
+exec_layers([LLoc46983,LRes69402,LRes42250,LZer55998,LCon57952,LAdd23351,LMax4499,LRes49934,LRes72696,LFla9454,LSim60156,LLay90275,LCon50146,LAdd96796],["Loc46983","Res69402","Res42250","Zer55998","Con57952","Add23351","Max4499","Res49934","Res72696","Fla9454","Sim60156","Lay90275","Con50146","Add96796"],Add96796,"Add96796")
+
+Actual (Unparsed): [[0.2422000, 0.6985000, 1.9931000, 1.6124000, 1.2503000, 2.5293000, 1.0827000, 1.9371000]]
+
+Expected (Unparsed): [[0.2422,0.6985,1.9931,1.6123999999999998,1.2503,2.5293,1.0827,1.9371]]
+
+Actual:   [[0.2422, 0.6985, 1.9931, 1.6124, 1.2503, 2.5293, 1.0827, 1.9371]]
+
+Expected: [[0.2422, 0.6985, 1.9931, 1.6124, 1.2503, 2.5293, 1.0827, 1.9371]]

@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min60153 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min60153 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Thr30825 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con32076 = tf.keras.layers.Input(shape=([1, 2]))
+
+Min60153 = keras.layers.Minimum(name = 'Min60153', )([in0Min60153,in1Min60153])
+Res86912 = keras.layers.Reshape((1, 1, 2), name = 'Res86912', )(Min60153)
+Res35447 = keras.layers.Reshape((1, 2), name = 'Res35447', )(Res86912)
+Sep79933 = keras.layers.SeparableConv1D(3, (1),strides=(1), padding='valid', name = 'Sep79933', )(Res35447)
+Thr30825 = keras.layers.ThresholdedReLU(theta=0.1784080442764021, name = 'Thr30825', input_shape=(1, 1))(in0Thr30825)
+Up_46875 = keras.layers.UpSampling1D(size=(1), name = 'Up_46875', )(Thr30825)
+Con32076 = keras.layers.Concatenate(axis=2, name = 'Con32076', )([Up_46875,in0Con32076])
+Min95290 = keras.layers.Minimum(name = 'Min95290', )([Sep79933,Con32076])
+model = tf.keras.models.Model(inputs=[in0Min60153,in1Min60153,in0Thr30825,in0Con32076], outputs=Min95290)
+w = model.get_layer('Sep79933').get_weights() 
+w[0] = np.array([[[0.5916], [0.9892]]])
+w[1] = np.array([[[0.8928, 0.4962, 0.296], [0.1021, 0.4389, 0.8188]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep79933').set_weights(w) 
+in0Min60153 = tf.constant([[[[[0.6559, 0.1662]]]]])
+in1Min60153 = tf.constant([[[[[0.9348, 0.9485]]]]])
+in0Thr30825 = tf.constant([[[0.4967]]])
+in0Con32076 = tf.constant([[[0.1812, 0.6344]]])
+print (np.array2string(model.predict([in0Min60153,in1Min60153,in0Thr30825,in0Con32076],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min95290.png')
+
+LMin60153 = minimum_layer([[[[[[0.6559, 0.1662]]]]], [[[[[0.9348, 0.9485]]]]]], Min60153), 
+LRes86912 = reshape_layer(Min60153, [1, 1, 2], Res86912), 
+LRes35447 = reshape_layer(Res86912, [1, 2], Res35447), 
+LSep79933 = separable_conv1D_layer(Res35447, 1,[[[[0.5916], [0.9892]]],[[[0.8928, 0.4962, 0.296], [0.1021, 0.4389, 0.8188]]]],[0, 0, 0], 1, false, Sep79933), 
+LThr30825 = thresholded_relu_layer([[[0.4967]]], 0.1784080442764021, Thr30825), 
+LUp_46875 = up_sampling1D_layer(Thr30825, 1, Up_46875), 
+LCon32076 = concatenate_layer([Up_46875,[[[0.1812, 0.6344]]]], 2, Con32076), 
+LMin95290 = minimum_layer([Sep79933,Con32076], Min95290), 
+exec_layers([LMin60153,LRes86912,LRes35447,LSep79933,LThr30825,LUp_46875,LCon32076,LMin95290],["Min60153","Res86912","Res35447","Sep79933","Thr30825","Up_46875","Con32076","Min95290"],Min95290,"Min95290")
+
+Actual (Unparsed): [[[0.3632193, 0.1812000, 0.2494719]]]
+
+Expected (Unparsed): [[[0.36321933141600005,0.1812,0.24947185699199997]]]
+
+Actual:   [[[0.3633, 0.1812, 0.2495]]]
+
+Expected: [[[0.3633, 0.1812, 0.2495]]]

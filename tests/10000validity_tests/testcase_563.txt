@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU23345 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con36150 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mas85311 = tf.keras.layers.Input(shape=([2, 3]))
+
+ELU23345 = keras.layers.ELU(alpha=-0.3994541873834443, name = 'ELU23345', input_shape=(1, 2, 1))(in0ELU23345)
+Res70408 = keras.layers.Reshape((1, 2), name = 'Res70408', )(ELU23345)
+GRU48865 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU48865', )(Res70408)
+Res74138 = keras.layers.Reshape((2, 1), name = 'Res74138', )(GRU48865)
+Con36150 = keras.layers.Concatenate(axis=2, name = 'Con36150', )([Res74138,in0Con36150])
+Mas85311 = keras.layers.Masking(mask_value=2, name = 'Mas85311', )(in0Mas85311)
+Bat28123 = keras.layers.BatchNormalization(axis=2, epsilon=0.9626460261140969,  name = 'Bat28123', )(Mas85311)
+Max2279 = keras.layers.Maximum(name = 'Max2279', )([Con36150,Bat28123])
+model = tf.keras.models.Model(inputs=[in0ELU23345,in0Con36150,in0Mas85311], outputs=Max2279)
+w = model.get_layer('GRU48865').get_weights() 
+w[0] = np.array([[1, 6, 2, 7, 1, 5], [5, 9, 1, 7, 5, 2]])
+w[1] = np.array([[5, 3, 7, 10, 8, 10], [9, 8, 5, 2, 3, 1]])
+w[2] = np.array([9, 7, 8, 10, 3, 1])
+model.get_layer('GRU48865').set_weights(w) 
+w = model.get_layer('Bat28123').get_weights() 
+w[0] = np.array([0.1492, 0.7412, 0.896])
+w[1] = np.array([0.0561, 0.9013, 0.3985])
+w[2] = np.array([0.1968, 0.9763, 0.0026])
+w[3] = np.array([0.0671, 0.3974, 0.3896])
+model.get_layer('Bat28123').set_weights(w) 
+in0ELU23345 = tf.constant([[[[0.4432], [0.9789]]]])
+in0Con36150 = tf.constant([[[0.0096, 0.9064], [0.3807, 0.4033]]])
+in0Mas85311 = tf.constant([[[1.2568, 1.1177, 1.1408], [1.5474, 1.6645, 1.2764]]])
+print (np.array2string(model.predict([in0ELU23345,in0Con36150,in0Mas85311],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max2279.png')
+
+LELU23345 = elu_layer([[[[0.4432], [0.9789]]]], -0.3994541873834443, ELU23345), 
+LRes70408 = reshape_layer(ELU23345, [1, 2], Res70408), 
+LGRU48865 = gru_layer(Res70408,[[1, 6, 2, 7, 1, 5], [5, 9, 1, 7, 5, 2]],[[5, 3, 7, 10, 8, 10], [9, 8, 5, 2, 3, 1]],[9, 7, 8, 10, 3, 1], false, GRU48865), 
+LRes74138 = reshape_layer(GRU48865, [2, 1], Res74138), 
+LCon36150 = concatenate_layer([Res74138,[[[0.0096, 0.9064], [0.3807, 0.4033]]]], 2, Con36150), 
+LMas85311 = masking_layer([[[1.2568, 1.1177, 1.1408], [1.5474, 1.6645, 1.2764]]], 2, Mas85311), 
+LBat28123 = batch_normalization_layer(Mas85311, 2, 0.9626460261140969, [0.1492, 0.7412, 0.896], [0.0561, 0.9013, 0.3985], [0.1968, 0.9763, 0.0026], [0.0671, 0.3974, 0.3896], Bat28123), 
+LMax2279 = maximum_layer([Con36150,Bat28123], Max2279), 
+exec_layers([LELU23345,LRes70408,LGRU48865,LRes74138,LCon36150,LMas85311,LBat28123,LMax2279],["ELU23345","Res70408","GRU48865","Res74138","Con36150","Mas85311","Bat28123","Max2279"],Max2279,"Max2279")
+
+Actual (Unparsed): [[[0.2119510, 0.9911686, 1.2754983], [0.2546777, 1.3386945, 1.3799798]]]
+
+Expected (Unparsed): [[[0.211951011790235,0.9911686084877894,1.275498264653536],[0.2546777137017844,1.338694458000684,1.3799798713017697]]]
+
+Actual:   [[[0.212, 0.9912, 1.2755], [0.2547, 1.3387, 1.38]]]
+
+Expected: [[[0.212, 0.9912, 1.2755], [0.2547, 1.3387, 1.38]]]

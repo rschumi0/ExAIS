@@ -1,0 +1,35 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot30628 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot30628 = tf.keras.layers.Input(shape=([3, 2]))
+
+Dot30628 = keras.layers.Dot(axes=(1, 1), name = 'Dot30628', )([in0Dot30628,in1Dot30628])
+Res82994 = keras.layers.Reshape((2, 2, 1), name = 'Res82994', )(Dot30628)
+Up_55600 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_55600', )(Res82994)
+Res18910 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res18910', )(Up_55600)
+Up_86061 = keras.layers.UpSampling3D(size=(2, 1, 1), name = 'Up_86061', )(Res18910)
+model = tf.keras.models.Model(inputs=[in0Dot30628,in1Dot30628], outputs=Up_86061)
+in0Dot30628 = tf.constant([[[0.7325, 0.6444], [0.6193, 0.4261], [0.5895, 0.5608]]])
+in1Dot30628 = tf.constant([[[0.1625, 0.2584], [0.5764, 0.7246], [0.8184, 0.6164]]])
+print (np.array2string(model.predict([in0Dot30628,in1Dot30628],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_86061.png')
+
+LDot30628 = dot_layer([[[0.7325, 0.6444], [0.6193, 0.4261], [0.5895, 0.5608]]], [[[0.1625, 0.2584], [0.5764, 0.7246], [0.8184, 0.6164]]], 1, 1, Dot30628), 
+LRes82994 = reshape_layer(Dot30628, [2, 2, 1], Res82994), 
+LUp_55600 = up_sampling2D_layer(Res82994, 1, 1, Up_55600), 
+LRes18910 = reshape_layer(Up_55600, [2, 2, 1, 1], Res18910), 
+LUp_86061 = up_sampling3D_layer(Res18910, 2, 1, 1, Up_86061), 
+exec_layers([LDot30628,LRes82994,LUp_55600,LRes18910,LUp_86061],["Dot30628","Res82994","Up_55600","Res18910","Up_86061"],Up_86061,"Up_86061")
+
+Actual (Unparsed): [[[[[0.9584426]], [[1.0013906]]], [[[0.9584426]], [[1.0013906]]], [[[0.8092778]], [[0.8209421]]], [[[0.8092778]], [[0.8209421]]]]]
+
+Expected (Unparsed): [[[[[0.9584425700000001]],[[1.00139058]]],[[[0.9584425700000001]],[[1.00139058]]],[[[0.8092777600000001]],[[0.82094214]]],[[[0.8092777600000001]],[[0.82094214]]]]]
+
+Actual:   [[[[[0.9585]], [[1.0014]]], [[[0.9585]], [[1.0014]]], [[[0.8093]], [[0.821]]], [[[0.8093]], [[0.821]]]]]
+
+Expected: [[[[[0.9585]], [[1.0014]]], [[[0.9585]], [[1.0014]]], [[[0.8093]], [[0.821]]], [[[0.8093]], [[0.821]]]]]

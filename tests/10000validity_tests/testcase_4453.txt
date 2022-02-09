@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave91801 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave91801 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Glo61373 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con29085 = tf.keras.layers.Input(shape=([2]))
+
+Ave91801 = keras.layers.Average(name = 'Ave91801', )([in0Ave91801,in1Ave91801])
+Res97192 = keras.layers.Reshape((1, 1), name = 'Res97192', )(Ave91801)
+Loc2538 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc2538', )(Res97192)
+Fla27468 = keras.layers.Flatten(name = 'Fla27468', )(Loc2538)
+Glo61373 = keras.layers.GlobalMaxPool2D(name = 'Glo61373', )(in0Glo61373)
+Con29085 = keras.layers.Concatenate(axis=1, name = 'Con29085', )([Glo61373,in0Con29085])
+Add48668 = keras.layers.Add(name = 'Add48668', )([Fla27468,Con29085])
+Res68557 = keras.layers.Reshape((3, 1), name = 'Res68557', )(Add48668)
+Res87976 = keras.layers.Reshape((3, 1, 1), name = 'Res87976', )(Res68557)
+Con11305 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(2, 1), padding='valid', name = 'Con11305', )(Res87976)
+model = tf.keras.models.Model(inputs=[in0Ave91801,in1Ave91801,in0Glo61373,in0Con29085], outputs=Con11305)
+w = model.get_layer('Loc2538').get_weights() 
+w[0] = np.array([[[0.2413, 0.7399, 0.9092]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc2538').set_weights(w) 
+w = model.get_layer('Con11305').get_weights() 
+w[0] = np.array([[[[0.1031], [0.5703], [0.5228], [0.315]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con11305').set_weights(w) 
+in0Ave91801 = tf.constant([[[[0.0821]]]])
+in1Ave91801 = tf.constant([[[[0.1408]]]])
+in0Glo61373 = tf.constant([[[[1.9368], [1.2132]], [[1.5259], [1.3706]]]])
+in0Con29085 = tf.constant([[0.5741, 0.561]])
+print (np.array2string(model.predict([in0Ave91801,in1Ave91801,in0Glo61373,in0Con29085],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con11305.png')
+
+LAve91801 = average_layer([[[[[0.0821]]]], [[[[0.1408]]]]], Ave91801), 
+LRes97192 = reshape_layer(Ave91801, [1, 1], Res97192), 
+LLoc2538 = locally_connected1D_layer(Res97192, 1,[[[0.2413, 0.7399, 0.9092]]],[[0, 0, 0]], 1, Loc2538), 
+LFla27468 = flatten_layer(Loc2538, Fla27468), 
+LGlo61373 = global_max_pool2D_layer([[[[1.9368], [1.2132]], [[1.5259], [1.3706]]]], Glo61373), 
+LCon29085 = concatenate_layer([Glo61373,[[0.5741, 0.561]]], 1, Con29085), 
+LAdd48668 = add_layer([Fla27468,Con29085], Add48668), 
+LRes68557 = reshape_layer(Add48668, [3, 1], Res68557), 
+LRes87976 = reshape_layer(Res68557, [3, 1, 1], Res87976), 
+LCon11305 = conv2D_transpose_layer(Res87976, 1, 1,[[[[0.1031], [0.5703], [0.5228], [0.315]]]],[0, 0, 0, 0], 2, 1, false, Con11305), 
+exec_layers([LAve91801,LRes97192,LLoc2538,LFla27468,LGlo61373,LCon29085,LAdd48668,LRes68557,LRes87976,LCon11305],["Ave91801","Res97192","Loc2538","Fla27468","Glo61373","Con29085","Add48668","Res68557","Res87976","Con11305"],Con11305,"Con11305")
+
+Actual (Unparsed): [[[[0.2024567, 1.1198941, 1.0266186, 0.6185633]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0676915, 0.3744372, 0.3432505, 0.2068170]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0682863, 0.3777270, 0.3462663, 0.2086341]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0.2024567364435,1.1198940523155,1.0266186402780002,0.6185632587750001]],[[0,0,0,0]],[[0.06769152725050001,0.3744372259065001,0.34325053779400005,0.20681698432500004]],[[0,0,0,0]],[[0.068286258054,0.377726992902,0.346266301752,0.20863405710000002]],[[0,0,0,0]]]]
+
+Actual:   [[[[0.2025, 1.1199, 1.0267, 0.6186]], [[0, 0, 0, 0]], [[0.0677, 0.3745, 0.3433, 0.2069]], [[0, 0, 0, 0]], [[0.0683, 0.3778, 0.3463, 0.2087]], [[0, 0, 0, 0]]]]
+
+Expected: [[[[0.2025, 1.1199, 1.0267, 0.6186]], [[0, 0, 0, 0]], [[0.0677, 0.3745, 0.3433, 0.2069]], [[0, 0, 0, 0]], [[0.0683, 0.3778, 0.3463, 0.2087]], [[0, 0, 0, 0]]]]

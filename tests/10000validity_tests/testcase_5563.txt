@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add187 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Add187 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Sep68008 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con59379 = tf.keras.layers.Input(shape=([3]))
+
+Add187 = keras.layers.Add(name = 'Add187', )([in0Add187,in1Add187])
+Mas54194 = keras.layers.Masking(mask_value=1, name = 'Mas54194', )(Add187)
+Res36457 = keras.layers.Reshape((2, 1, 2), name = 'Res36457', )(Mas54194)
+Res87785 = keras.layers.Reshape((2, 2), name = 'Res87785', )(Res36457)
+Fla17489 = keras.layers.Flatten(name = 'Fla17489', )(Res87785)
+Sep68008 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep68008', )(in0Sep68008)
+Res3982 = keras.layers.Reshape((1, 2), name = 'Res3982', )(Sep68008)
+Sim84254 = keras.layers.SimpleRNN(1,name = 'Sim84254', )(Res3982)
+Con59379 = keras.layers.Concatenate(axis=1, name = 'Con59379', )([Sim84254,in0Con59379])
+Sub85519 = keras.layers.Subtract(name = 'Sub85519', )([Fla17489,Con59379])
+ReL97692 = keras.layers.ReLU(max_value=8.096496899914007, negative_slope=0.7464371874509286, threshold=2.6057975753178897, name = 'ReL97692', )(Sub85519)
+model = tf.keras.models.Model(inputs=[in0Add187,in1Add187,in0Sep68008,in0Con59379], outputs=ReL97692)
+w = model.get_layer('Sep68008').get_weights() 
+w[0] = np.array([[[[0.939]]]])
+w[1] = np.array([[[[0.326, 0.864]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep68008').set_weights(w) 
+w = model.get_layer('Sim84254').get_weights() 
+w[0] = np.array([[8], [6]])
+w[1] = np.array([[8]])
+w[2] = np.array([6])
+model.get_layer('Sim84254').set_weights(w) 
+in0Add187 = tf.constant([[[[[0.8324, 0.3272]]], [[[0.0965, 0.4967]]]]])
+in1Add187 = tf.constant([[[[[0.0502, 0.4674]]], [[[0.7801, 0.6346]]]]])
+in0Sep68008 = tf.constant([[[[0.2728]]]])
+in0Con59379 = tf.constant([[0.3281, 0.7679, 0.1827]])
+print (np.array2string(model.predict([in0Add187,in1Add187,in0Sep68008,in0Con59379],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ReL97692.png')
+
+LAdd187 = add_layer([[[[[[0.8324, 0.3272]]], [[[0.0965, 0.4967]]]]], [[[[[0.0502, 0.4674]]], [[[0.7801, 0.6346]]]]]], Add187), 
+LMas54194 = masking_layer(Add187, 1, Mas54194), 
+LRes36457 = reshape_layer(Mas54194, [2, 1, 2], Res36457), 
+LRes87785 = reshape_layer(Res36457, [2, 2], Res87785), 
+LFla17489 = flatten_layer(Res87785, Fla17489), 
+LSep68008 = separable_conv2D_layer([[[[0.2728]]]], 1, 1,[[[[[0.939]]]],[[[[0.326, 0.864]]]]],[0, 0], 1, 1, true, Sep68008), 
+LRes3982 = reshape_layer(Sep68008, [1, 2], Res3982), 
+LSim84254 = simple_rnn_layer(Res3982,[[8], [6]],[[8]],[6], Sim84254), 
+LCon59379 = concatenate_layer([Sim84254,[[0.3281, 0.7679, 0.1827]]], 1, Con59379), 
+LSub85519 = subtract_layer(Fla17489,Con59379, Sub85519), 
+LReL97692 = relu_layer(Sub85519, 8.096496899914007, 0.7464371874509286, 2.6057975753178897, ReL97692), 
+exec_layers([LAdd187,LMas54194,LRes36457,LRes87785,LFla17489,LSep68008,LRes3982,LSim84254,LCon59379,LSub85519,LReL97692],["Add187","Mas54194","Res36457","Res87785","Fla17489","Sep68008","Res3982","Sim84254","Con59379","Sub85519","ReL97692"],ReL97692,"ReL97692")
+
+Actual (Unparsed): [[-2.0326958, -1.5968513, -1.8639265, -1.2369939]]
+
+Expected (Unparsed): [[-2.032695769640672,-1.5968512652408766,-1.8639264909108189,-1.236993897170784]]
+
+Actual:   [[-2.0326, -1.5968, -1.8639, -1.2369]]
+
+Expected: [[-2.0326, -1.5968, -1.8639, -1.2369]]

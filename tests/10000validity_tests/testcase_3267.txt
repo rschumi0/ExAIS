@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot62405 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot62405 = tf.keras.layers.Input(shape=([2, 3]))
+in0Max77271 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max77271 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Dot62405 = keras.layers.Dot(axes=(2, 2), name = 'Dot62405', )([in0Dot62405,in1Dot62405])
+Res53958 = keras.layers.Reshape((2, 2, 1), name = 'Res53958', )(Dot62405)
+Max77271 = keras.layers.Maximum(name = 'Max77271', )([in0Max77271,in1Max77271])
+Zer89291 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer89291', )(Max77271)
+Min46170 = keras.layers.Minimum(name = 'Min46170', )([Res53958,Zer89291])
+PRe79473 = keras.layers.PReLU(name = 'PRe79473', )(Min46170)
+model = tf.keras.models.Model(inputs=[in0Dot62405,in1Dot62405,in0Max77271,in1Max77271], outputs=PRe79473)
+w = model.get_layer('PRe79473').get_weights() 
+w[0] = np.array([[[0.0098], [0.5235]], [[0.5296], [0.524]]])
+model.get_layer('PRe79473').set_weights(w) 
+in0Dot62405 = tf.constant([[[0.3477, 0.0486, 0.2183], [0.2435, 0.9615, 0.9507]]])
+in1Dot62405 = tf.constant([[[0.7137, 0.3444, 0.9819], [0.5118, 0.979, 0.6702]]])
+in0Max77271 = tf.constant([[[[0.794]], [[0.9646]]]])
+in1Max77271 = tf.constant([[[[0.1859]], [[0.0989]]]])
+print (np.array2string(model.predict([in0Dot62405,in1Dot62405,in0Max77271,in1Max77271],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe79473.png')
+
+LDot62405 = dot_layer([[[0.3477, 0.0486, 0.2183], [0.2435, 0.9615, 0.9507]]], [[[0.7137, 0.3444, 0.9819], [0.5118, 0.979, 0.6702]]], 2, 2, Dot62405), 
+LRes53958 = reshape_layer(Dot62405, [2, 2, 1], Res53958), 
+LMax77271 = maximum_layer([[[[[0.794]], [[0.9646]]]], [[[[0.1859]], [[0.0989]]]]], Max77271), 
+LZer89291 = zero_padding2D_layer(Max77271, 0, 0, 1, 0, Zer89291), 
+LMin46170 = minimum_layer([Res53958,Zer89291], Min46170), 
+LPRe79473 = prelu_layer(Min46170, [[[0.0098], [0.5235]], [[0.5296], [0.524]]], PRe79473), 
+exec_layers([LDot62405,LRes53958,LMax77271,LZer89291,LMin46170,LPRe79473],["Dot62405","Res53958","Max77271","Zer89291","Min46170","PRe79473"],PRe79473,"PRe79473")
+
+Actual (Unparsed): [[[[0.0000000], [0.3718369]], [[0.0000000], [0.9646000]]]]
+
+Expected (Unparsed): [[[[0],[0.37183692]],[[0],[0.9646]]]]
+
+Actual:   [[[[0], [0.3719]], [[0], [0.9646]]]]
+
+Expected: [[[[0], [0.3719]], [[0], [0.9646]]]]

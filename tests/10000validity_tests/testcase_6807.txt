@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim34 = tf.keras.layers.Input(shape=([2, 3]))
+in0Add44388 = tf.keras.layers.Input(shape=([1, 1]))
+in1Add44388 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con9275 = tf.keras.layers.Input(shape=([3, 1]))
+in0PRe1909 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sim34 = keras.layers.SimpleRNN(3,name = 'Sim34', )(in0Sim34)
+Res41694 = keras.layers.Reshape((3, 1), name = 'Res41694', )(Sim34)
+Add44388 = keras.layers.Add(name = 'Add44388', )([in0Add44388,in1Add44388])
+Zer89064 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer89064', )(Add44388)
+Ave57321 = keras.layers.Average(name = 'Ave57321', )([Res41694,Zer89064])
+Con9275 = keras.layers.Concatenate(axis=2, name = 'Con9275', )([Ave57321,in0Con9275])
+PRe1909 = keras.layers.PReLU(name = 'PRe1909', input_shape=(2, 2))(in0PRe1909)
+Zer42512 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer42512', )(PRe1909)
+Sub71723 = keras.layers.Subtract(name = 'Sub71723', )([Con9275,Zer42512])
+model = tf.keras.models.Model(inputs=[in0Sim34,in0Add44388,in1Add44388,in0Con9275,in0PRe1909], outputs=Sub71723)
+w = model.get_layer('Sim34').get_weights() 
+w[0] = np.array([[2, 3, 9], [5, 4, 3], [9, 4, 9]])
+w[1] = np.array([[4, 4, 10], [6, 6, 2], [7, 5, 5]])
+w[2] = np.array([5, 9, 4])
+model.get_layer('Sim34').set_weights(w) 
+w = model.get_layer('PRe1909').get_weights() 
+w[0] = np.array([[0.458, 0.4852], [0.1253, 0.5789]])
+model.get_layer('PRe1909').set_weights(w) 
+in0Sim34 = tf.constant([[[7, 7, 4], [9, 8, 2]]])
+in0Add44388 = tf.constant([[[0.8972]]])
+in1Add44388 = tf.constant([[[0.797]]])
+in0Con9275 = tf.constant([[[0.3065], [0.8979], [0.6349]]])
+in0PRe1909 = tf.constant([[[0.2017, 0.4702], [0.4963, 0.5916]]])
+print (np.array2string(model.predict([in0Sim34,in0Add44388,in1Add44388,in0Con9275,in0PRe1909],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub71723.png')
+
+LSim34 = simple_rnn_layer([[[7, 7, 4], [9, 8, 2]]],[[2, 3, 9], [5, 4, 3], [9, 4, 9]],[[4, 4, 10], [6, 6, 2], [7, 5, 5]],[5, 9, 4], Sim34), 
+LRes41694 = reshape_layer(Sim34, [3, 1], Res41694), 
+LAdd44388 = add_layer([[[[0.8972]]], [[[0.797]]]], Add44388), 
+LZer89064 = zero_padding1D_layer(Add44388, 2, 0, Zer89064), 
+LAve57321 = average_layer([Res41694,Zer89064], Ave57321), 
+LCon9275 = concatenate_layer([Ave57321,[[[0.3065], [0.8979], [0.6349]]]], 2, Con9275), 
+LPRe1909 = prelu_layer([[[0.2017, 0.4702], [0.4963, 0.5916]]], [[0.458, 0.4852], [0.1253, 0.5789]], PRe1909), 
+LZer42512 = zero_padding1D_layer(PRe1909, 1, 0, Zer42512), 
+LSub71723 = subtract_layer(Con9275,Zer42512, Sub71723), 
+exec_layers([LSim34,LRes41694,LAdd44388,LZer89064,LAve57321,LCon9275,LPRe1909,LZer42512,LSub71723],["Sim34","Res41694","Add44388","Zer89064","Ave57321","Con9275","PRe1909","Zer42512","Sub71723"],Sub71723,"Sub71723")
+
+Actual (Unparsed): [[[0.5000000, 0.3065000], [0.2983000, 0.4277000], [0.8508000, 0.0433000]]]
+
+Expected (Unparsed): [[[0.5,0.3065],[0.2983,0.4277],[0.8508,0.043300000000000005]]]
+
+Actual:   [[[0.5, 0.3065], [0.2983, 0.4277], [0.8508, 0.0433]]]
+
+Expected: [[[0.5, 0.3065], [0.2983, 0.4277], [0.8508, 0.0434]]]

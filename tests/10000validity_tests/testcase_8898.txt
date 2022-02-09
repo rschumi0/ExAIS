@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot62433 = tf.keras.layers.Input(shape=([2]))
+in1Dot62433 = tf.keras.layers.Input(shape=([2]))
+in0Con96475 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con97780 = tf.keras.layers.Input(shape=([2, 2, 1, 2]))
+
+Dot62433 = keras.layers.Dot(axes=(1, 1), name = 'Dot62433', )([in0Dot62433,in1Dot62433])
+Thr43591 = keras.layers.ThresholdedReLU(theta=5.401249127086863, name = 'Thr43591', )(Dot62433)
+ReL41848 = keras.layers.ReLU(max_value=0.13756470986822458, negative_slope=8.834315067715416, threshold=5.018441208686642, name = 'ReL41848', )(Thr43591)
+Res42228 = keras.layers.Reshape((1, 1), name = 'Res42228', )(ReL41848)
+Res43803 = keras.layers.Reshape((1, 1, 1), name = 'Res43803', )(Res42228)
+Res46609 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res46609', )(Res43803)
+Zer36264 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer36264', )(Res46609)
+Con96475 = keras.layers.Concatenate(axis=4, name = 'Con96475', )([Zer36264,in0Con96475])
+Con97780 = keras.layers.Conv3D(2, (1, 2, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con97780', )(in0Con97780)
+Sub56936 = keras.layers.Subtract(name = 'Sub56936', )([Con96475,Con97780])
+Res98919 = keras.layers.Reshape((2, 1, 2), name = 'Res98919', )(Sub56936)
+Res77584 = keras.layers.Reshape((2, 2), name = 'Res77584', )(Res98919)
+Glo51200 = keras.layers.GlobalAveragePooling1D(name = 'Glo51200', )(Res77584)
+model = tf.keras.models.Model(inputs=[in0Dot62433,in1Dot62433,in0Con96475,in0Con97780], outputs=Glo51200)
+w = model.get_layer('Con97780').get_weights() 
+w[0] = np.array([[[[[0.4406, 0.3907], [0.9971, 0.8899]]], [[[0.5823, 0.8163], [0.5504, 0.3637]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con97780').set_weights(w) 
+in0Dot62433 = tf.constant([[0.5635, 0.1964]])
+in1Dot62433 = tf.constant([[0.3586, 0.2644]])
+in0Con96475 = tf.constant([[[[[0.5412]]], [[[0.1155]]]]])
+in0Con97780 = tf.constant([[[[[0.8775, 0.366]], [[0.7093, 0.7501]]], [[[0.5084, 0.3524]], [[0.3199, 0.0406]]]]])
+print (np.array2string(model.predict([in0Dot62433,in1Dot62433,in0Con96475,in0Con97780],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo51200.png')
+
+LDot62433 = dot_layer([[0.5635, 0.1964]], [[0.3586, 0.2644]], 1, 1, Dot62433), 
+LThr43591 = thresholded_relu_layer(Dot62433, 5.401249127086863, Thr43591), 
+LReL41848 = relu_layer(Thr43591, 0.13756470986822458, 8.834315067715416, 5.018441208686642, ReL41848), 
+LRes42228 = reshape_layer(ReL41848, [1, 1], Res42228), 
+LRes43803 = reshape_layer(Res42228, [1, 1, 1], Res43803), 
+LRes46609 = reshape_layer(Res43803, [1, 1, 1, 1], Res46609), 
+LZer36264 = zero_padding3D_layer(Res46609, 1, 0, 0, 0, 0, 0, Zer36264), 
+LCon96475 = concatenate_layer([Zer36264,[[[[[0.5412]]], [[[0.1155]]]]]], 4, Con96475), 
+LCon97780 = conv3D_layer([[[[[0.8775, 0.366]], [[0.7093, 0.7501]]], [[[0.5084, 0.3524]], [[0.3199, 0.0406]]]]], 1, 2, 1,[[[[[0.4406, 0.3907], [0.9971, 0.8899]]], [[[0.5823, 0.8163], [0.5504, 0.3637]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con97780), 
+LSub56936 = subtract_layer(Con96475,Con97780, Sub56936), 
+LRes98919 = reshape_layer(Sub56936, [2, 1, 2], Res98919), 
+LRes77584 = reshape_layer(Res98919, [2, 2], Res77584), 
+LGlo51200 = global_average_pooling1D_layer(Res77584, Glo51200), 
+exec_layers([LDot62433,LThr43591,LReL41848,LRes42228,LRes43803,LRes46609,LZer36264,LCon96475,LCon97780,LSub56936,LRes98919,LRes77584,LGlo51200],["Dot62433","Thr43591","ReL41848","Res42228","Res43803","Res46609","Zer36264","Con96475","Con97780","Sub56936","Res98919","Res77584","Glo51200"],Glo51200,"Glo51200")
+
+Actual (Unparsed): [[-23.3479697, -0.8258944]]
+
+Expected (Unparsed): [[-23.347969703172183,-0.8258944199999998]]
+
+Actual:   [[-23.3479, -0.8258]]
+
+Expected: [[-23.3479, -0.8258]]

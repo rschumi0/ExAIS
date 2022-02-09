@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc59667 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave63059 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con22866 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con5687 = tf.keras.layers.Input(shape=([2, 2]))
+in0Mul98531 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul98531 = tf.keras.layers.Input(shape=([2, 1]))
+
+Loc59667 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc59667', )(in0Loc59667)
+Per39982 = keras.layers.Permute((1,2), name = 'Per39982',)(Loc59667)
+Ave63059 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave63059', )(in0Ave63059)
+Per44029 = keras.layers.Permute((1,2), name = 'Per44029',)(Ave63059)
+Zer92502 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer92502', )(Per44029)
+Con22866 = keras.layers.Concatenate(axis=2, name = 'Con22866', )([Zer92502,in0Con22866])
+Add95337 = keras.layers.Add(name = 'Add95337', )([Per39982,Con22866])
+Con5687 = keras.layers.Concatenate(axis=2, name = 'Con5687', )([Add95337,in0Con5687])
+Mul98531 = keras.layers.Multiply(name = 'Mul98531', )([in0Mul98531,in1Mul98531])
+Mas50852 = keras.layers.Masking(mask_value=2, name = 'Mas50852', )(Mul98531)
+Dot88939 = keras.layers.Dot(axes=(1, 1), name = 'Dot88939', )([Con5687,Mas50852])
+model = tf.keras.models.Model(inputs=[in0Loc59667,in0Ave63059,in0Con22866,in0Con5687,in0Mul98531,in1Mul98531], outputs=Dot88939)
+w = model.get_layer('Loc59667').get_weights() 
+w[0] = np.array([[[0.4809, 0.8214, 0.8501], [0.8224, 0.2804, 0.3968]], [[0.7406, 0.4655, 0.6392], [0.6137, 0.5105, 0.4688]]])
+w[1] = np.array([[0, 0, 0], [0, 0, 0]])
+model.get_layer('Loc59667').set_weights(w) 
+in0Loc59667 = tf.constant([[[0.0713, 0.3606], [0.5618, 0.7278]]])
+in0Ave63059 = tf.constant([[[1.4078, 1.1479]]])
+in0Con22866 = tf.constant([[[0.4654], [0.0135]]])
+in0Con5687 = tf.constant([[[0.6234, 0.7085], [0.132, 0.1514]]])
+in0Mul98531 = tf.constant([[[0.3382], [0.5787]]])
+in1Mul98531 = tf.constant([[[0.9372], [0.9618]]])
+print (np.array2string(model.predict([in0Loc59667,in0Ave63059,in0Con22866,in0Con5687,in0Mul98531,in1Mul98531],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot88939.png')
+
+LLoc59667 = locally_connected1D_layer([[[0.0713, 0.3606], [0.5618, 0.7278]]], 1,[[[0.4809, 0.8214, 0.8501], [0.8224, 0.2804, 0.3968]], [[0.7406, 0.4655, 0.6392], [0.6137, 0.5105, 0.4688]]],[[0, 0, 0], [0, 0, 0]], 1, Loc59667), 
+LPer39982 = permute_layer(Loc59667, 1,2, Per39982), 
+LAve63059 = average_pooling1D_layer([[[1.4078, 1.1479]]], 1, Ave63059), 
+LPer44029 = permute_layer(Ave63059, 1,2, Per44029), 
+LZer92502 = zero_padding1D_layer(Per44029, 1, 0, Zer92502), 
+LCon22866 = concatenate_layer([Zer92502,[[[0.4654], [0.0135]]]], 2, Con22866), 
+LAdd95337 = add_layer([Per39982,Con22866], Add95337), 
+LCon5687 = concatenate_layer([Add95337,[[[0.6234, 0.7085], [0.132, 0.1514]]]], 2, Con5687), 
+LMul98531 = multiply_layer([[[[0.3382], [0.5787]]], [[[0.9372], [0.9618]]]], Mul98531), 
+LMas50852 = masking_layer(Mul98531, 2, Mas50852), 
+LDot88939 = dot_layer(Con5687,Mas50852, 1, 1, Dot88939), 
+exec_layers([LLoc59667,LPer39982,LAve63059,LPer44029,LZer92502,LCon22866,LAdd95337,LCon5687,LMul98531,LMas50852,LDot88939],["Loc59667","Per39982","Ave63059","Per44029","Zer92502","Con22866","Add95337","Con5687","Mul98531","Mas50852","Dot88939"],Dot88939,"Dot88939")
+
+Actual (Unparsed): [[[1.3686221], [1.0418826], [0.6093720], [0.2710639], [0.3088352]]]
+
+Expected (Unparsed): [[[1.3686221721326146],[1.0418826573576503],[0.6093719473621704],[0.271063875456],[0.30883517696400004]]]
+
+Actual:   [[[1.3687], [1.0419], [0.6094], [0.2711], [0.3089]]]
+
+Expected: [[[1.3687], [1.0419], [0.6094], [0.2711], [0.3089]]]

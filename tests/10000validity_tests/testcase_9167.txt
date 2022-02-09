@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc61425 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave40489 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Ave40489 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Loc61425 = keras.layers.LocallyConnected1D(3, (2),strides=(1), name = 'Loc61425', )(in0Loc61425)
+Cro1611 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro1611', )(Loc61425)
+Res21850 = keras.layers.Reshape((1, 3, 1), name = 'Res21850', )(Cro1611)
+Res65507 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res65507', )(Res21850)
+Zer68952 = keras.layers.ZeroPadding3D(padding=((3, 0), (0, 0), (2, 0)), name = 'Zer68952', )(Res65507)
+Ave40489 = keras.layers.Average(name = 'Ave40489', )([in0Ave40489,in1Ave40489])
+Res88469 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res88469', )(Ave40489)
+Zer24904 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer24904', )(Res88469)
+Sub3168 = keras.layers.Subtract(name = 'Sub3168', )([Zer68952,Zer24904])
+model = tf.keras.models.Model(inputs=[in0Loc61425,in0Ave40489,in1Ave40489], outputs=Sub3168)
+w = model.get_layer('Loc61425').get_weights() 
+w[0] = np.array([[[0.645, 0.0802, 0.6476], [0.9578, 0.3377, 0.4573], [0.8775, 0.5077, 0.6426], [0.5453, 0.5221, 0.9731]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc61425').set_weights(w) 
+in0Loc61425 = tf.constant([[[0.2256, 0.6828], [0.9122, 0.1065]]])
+in0Ave40489 = tf.constant([[[[0.4251]], [[0.6926]]]])
+in1Ave40489 = tf.constant([[[[0.1649]], [[0.7412]]]])
+print (np.array2string(model.predict([in0Loc61425,in0Ave40489,in1Ave40489],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub3168.png')
+
+LLoc61425 = locally_connected1D_layer([[[0.2256, 0.6828], [0.9122, 0.1065]]], 2,[[[0.645, 0.0802, 0.6476], [0.9578, 0.3377, 0.4573], [0.8775, 0.5077, 0.6426], [0.5453, 0.5221, 0.9731]]],[[0, 0, 0]], 1, Loc61425), 
+LCro1611 = cropping1D_layer(Loc61425, 0, 0, Cro1611), 
+LRes21850 = reshape_layer(Cro1611, [1, 3, 1], Res21850), 
+LRes65507 = reshape_layer(Res21850, [1, 3, 1, 1], Res65507), 
+LZer68952 = zero_padding3D_layer(Res65507, 3, 0, 0, 0, 2, 0, Zer68952), 
+LAve40489 = average_layer([[[[[0.4251]], [[0.6926]]]], [[[[0.1649]], [[0.7412]]]]], Ave40489), 
+LRes88469 = reshape_layer(Ave40489, [2, 1, 1, 1], Res88469), 
+LZer24904 = zero_padding3D_layer(Res88469, 1, 1, 1, 1, 1, 1, Zer24904), 
+LSub3168 = subtract_layer(Zer68952,Zer24904, Sub3168), 
+exec_layers([LLoc61425,LCro1611,LRes21850,LRes65507,LZer68952,LAve40489,LRes88469,LZer24904,LSub3168],["Loc61425","Cro1611","Res21850","Res65507","Zer68952","Ave40489","Res88469","Zer24904","Sub3168"],Sub3168,"Sub3168")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [-0.2950000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [-0.7169000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [1.6580278]], [[0.0000000], [0.0000000], [0.7674023]], [[0.0000000], [0.0000000], [1.1481579]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[-0.295],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[-0.7169],[0]],[[0],[0],[0]]],[[[0],[0],[1.6580277899999998]],[[0],[0],[0.76740227]],[[0],[0],[1.1481578699999997]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [-0.295], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [-0.7169], [0]], [[0], [0], [0]]], [[[0], [0], [1.6581]], [[0], [0], [0.7675]], [[0], [0], [1.1482]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [-0.295], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [-0.7169], [0]], [[0], [0], [0]]], [[[0], [0], [1.6581]], [[0], [0], [0.7675]], [[0], [0], [1.1482]]]]]

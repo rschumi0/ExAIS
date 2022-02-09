@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep34988 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con36962 = tf.keras.layers.Input(shape=([11]))
+in0Fla62506 = tf.keras.layers.Input(shape=([3, 4, 1]))
+
+Dep34988 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='valid', name = 'Dep34988', )(in0Dep34988)
+Res47901 = keras.layers.Reshape((1, 1), name = 'Res47901', )(Dep34988)
+Fla77323 = keras.layers.Flatten(name = 'Fla77323', )(Res47901)
+Con36962 = keras.layers.Concatenate(axis=1, name = 'Con36962', )([Fla77323,in0Con36962])
+Fla62506 = keras.layers.Flatten(name = 'Fla62506', )(in0Fla62506)
+Ave65324 = keras.layers.Average(name = 'Ave65324', )([Con36962,Fla62506])
+model = tf.keras.models.Model(inputs=[in0Dep34988,in0Con36962,in0Fla62506], outputs=Ave65324)
+w = model.get_layer('Dep34988').get_weights() 
+w[0] = np.array([[[[0.1505]]], [[[0.372]]]])
+w[1] = np.array([0])
+model.get_layer('Dep34988').set_weights(w) 
+in0Dep34988 = tf.constant([[[[0.4172], [0.2845]], [[0.76], [0.4129]]]])
+in0Con36962 = tf.constant([[0.3265, 0.0564, 0.6429, 0.2415, 0.4209, 0.7987, 0.2702, 0.9555, 0.1407, 0.7827, 0.3877]])
+in0Fla62506 = tf.constant([[[[1.2649], [1.9139], [1.8766], [1.1834]], [[1.9878], [1.2097], [1.222], [1.1025]], [[1.2233], [1.4992], [1.2775], [1.3176]]]])
+print (np.array2string(model.predict([in0Dep34988,in0Con36962,in0Fla62506],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave65324.png')
+
+LDep34988 = depthwise_conv2D_layer([[[[0.4172], [0.2845]], [[0.76], [0.4129]]]], 2, 1,[[[[0.1505]]], [[[0.372]]]],[0], 2, 2, false, Dep34988), 
+LRes47901 = reshape_layer(Dep34988, [1, 1], Res47901), 
+LFla77323 = flatten_layer(Res47901, Fla77323), 
+LCon36962 = concatenate_layer([Fla77323,[[0.3265, 0.0564, 0.6429, 0.2415, 0.4209, 0.7987, 0.2702, 0.9555, 0.1407, 0.7827, 0.3877]]], 1, Con36962), 
+LFla62506 = flatten_layer([[[[1.2649], [1.9139], [1.8766], [1.1834]], [[1.9878], [1.2097], [1.222], [1.1025]], [[1.2233], [1.4992], [1.2775], [1.3176]]]], Fla62506), 
+LAve65324 = average_layer([Con36962,Fla62506], Ave65324), 
+exec_layers([LDep34988,LRes47901,LFla77323,LCon36962,LFla62506,LAve65324],["Dep34988","Res47901","Fla77323","Con36962","Fla62506","Ave65324"],Ave65324,"Ave65324")
+
+Actual (Unparsed): [[0.8052043, 1.1202000, 0.9665000, 0.9131500, 1.1146500, 0.8153000, 1.0103500, 0.6863500, 1.0894000, 0.8199500, 1.0301000, 0.8526500]]
+
+Expected (Unparsed): [[0.8052043,1.1202,0.9665,0.91315,1.11465,0.8153,1.0103499999999999,0.68635,1.0894,0.8199500000000001,1.0301,0.85265]]
+
+Actual:   [[0.8053, 1.1202, 0.9665, 0.9132, 1.1147, 0.8153, 1.0104, 0.6864, 1.0894, 0.82, 1.0301, 0.8527]]
+
+Expected: [[0.8053, 1.1202, 0.9665, 0.9132, 1.1147, 0.8153, 1.0104, 0.6864, 1.0894, 0.82, 1.0301, 0.8527]]

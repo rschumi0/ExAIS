@@ -1,0 +1,67 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min33611 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Min33611 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Dep26282 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Con59950 = tf.keras.layers.Input(shape=([1]))
+
+Min33611 = keras.layers.Minimum(name = 'Min33611', )([in0Min33611,in1Min33611])
+Thr643 = keras.layers.ThresholdedReLU(theta=1.7361506728888814, name = 'Thr643', )(Min33611)
+Res18657 = keras.layers.Reshape((2, 1), name = 'Res18657', )(Thr643)
+Fla14483 = keras.layers.Flatten(name = 'Fla14483', )(Res18657)
+Dep26282 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='same', name = 'Dep26282', )(in0Dep26282)
+Res72640 = keras.layers.Reshape((1, 2), name = 'Res72640', )(Dep26282)
+GRU19036 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU19036', )(Res72640)
+ReL93624 = keras.layers.ReLU(max_value=8.999016059884092, negative_slope=4.0340334967444775, threshold=7.43783604991539, name = 'ReL93624', )(GRU19036)
+Con59950 = keras.layers.Concatenate(axis=1, name = 'Con59950', )([ReL93624,in0Con59950])
+Max20976 = keras.layers.Maximum(name = 'Max20976', )([Fla14483,Con59950])
+Res96240 = keras.layers.Reshape((2, 1), name = 'Res96240', )(Max20976)
+GRU86523 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU86523', )(Res96240)
+model = tf.keras.models.Model(inputs=[in0Min33611,in1Min33611,in0Dep26282,in0Con59950], outputs=GRU86523)
+w = model.get_layer('Dep26282').get_weights() 
+w[0] = np.array([[[[0.7155], [0.7561]]], [[[0.384], [0.268]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep26282').set_weights(w) 
+w = model.get_layer('GRU19036').get_weights() 
+w[0] = np.array([[10, 6, 8], [4, 10, 7]])
+w[1] = np.array([[8, 10, 8]])
+w[2] = np.array([8, 6, 4])
+model.get_layer('GRU19036').set_weights(w) 
+w = model.get_layer('GRU86523').get_weights() 
+w[0] = np.array([[5, 5, 9, 1, 3, 8, 6, 3, 5]])
+w[1] = np.array([[3, 3, 7, 7, 10, 7, 6, 6, 3], [10, 2, 6, 8, 6, 1, 7, 8, 10], [8, 4, 9, 1, 2, 2, 3, 7, 9]])
+w[2] = np.array([9, 9, 10, 5, 8, 1, 7, 3, 2])
+model.get_layer('GRU86523').set_weights(w) 
+in0Min33611 = tf.constant([[[[0.2415]], [[0.8179]]]])
+in1Min33611 = tf.constant([[[[0.851]], [[0.175]]]])
+in0Dep26282 = tf.constant([[[[0.6284, 0.9712]], [[0.7786, 0.8077]]]])
+in0Con59950 = tf.constant([[0.0434]])
+print (np.array2string(model.predict([in0Min33611,in1Min33611,in0Dep26282,in0Con59950],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU86523.png')
+
+LMin33611 = minimum_layer([[[[[0.2415]], [[0.8179]]]], [[[[0.851]], [[0.175]]]]], Min33611), 
+LThr643 = thresholded_relu_layer(Min33611, 1.7361506728888814, Thr643), 
+LRes18657 = reshape_layer(Thr643, [2, 1], Res18657), 
+LFla14483 = flatten_layer(Res18657, Fla14483), 
+LDep26282 = depthwise_conv2D_layer([[[[0.6284, 0.9712]], [[0.7786, 0.8077]]]], 2, 1,[[[[0.7155], [0.7561]]], [[[0.384], [0.268]]]],[0, 0], 2, 2, true, Dep26282), 
+LRes72640 = reshape_layer(Dep26282, [1, 2], Res72640), 
+LGRU19036 = gru_layer(Res72640,[[10, 6, 8], [4, 10, 7]],[[8, 10, 8]],[8, 6, 4], false, GRU19036), 
+LReL93624 = relu_layer(GRU19036, 8.999016059884092, 4.0340334967444775, 7.43783604991539, ReL93624), 
+LCon59950 = concatenate_layer([ReL93624,[[0.0434]]], 1, Con59950), 
+LMax20976 = maximum_layer([Fla14483,Con59950], Max20976), 
+LRes96240 = reshape_layer(Max20976, [2, 1], Res96240), 
+LGRU86523 = gru_layer(Res96240,[[5, 5, 9, 1, 3, 8, 6, 3, 5]],[[3, 3, 7, 7, 10, 7, 6, 6, 3], [10, 2, 6, 8, 6, 1, 7, 8, 10], [8, 4, 9, 1, 2, 2, 3, 7, 9]],[9, 9, 10, 5, 8, 1, 7, 3, 2], false, GRU86523), 
+exec_layers([LMin33611,LThr643,LRes18657,LFla14483,LDep26282,LRes72640,LGRU19036,LReL93624,LCon59950,LMax20976,LRes96240,LGRU86523],["Min33611","Thr643","Res18657","Fla14483","Dep26282","Res72640","GRU19036","ReL93624","Con59950","Max20976","Res96240","GRU86523"],GRU86523,"GRU86523")
+
+Actual (Unparsed): [[0.0002225, 0.0002216, 0.0000737]]
+
+Expected (Unparsed): [[0.00022251512913123257,0.00022164302616279761,7.370482138155744e-5]]
+
+Actual:   [[0.0003, 0.0003, 0.0001]]
+
+Expected: [[0.0003, 0.0003, 0.0001]]

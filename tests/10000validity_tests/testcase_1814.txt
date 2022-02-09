@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave84040 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Ave84040 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con41193 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add29724 = tf.keras.layers.Input(shape=([1, 2]))
+in1Add29724 = tf.keras.layers.Input(shape=([1, 2]))
+
+Ave84040 = keras.layers.Average(name = 'Ave84040', )([in0Ave84040,in1Ave84040])
+Res98965 = keras.layers.Reshape((1, 1), name = 'Res98965', )(Ave84040)
+Con41193 = keras.layers.Concatenate(axis=2, name = 'Con41193', )([Res98965,in0Con41193])
+Add29724 = keras.layers.Add(name = 'Add29724', )([in0Add29724,in1Add29724])
+Bat65055 = keras.layers.BatchNormalization(axis=1, epsilon=0.5540524498853775,  name = 'Bat65055', )(Add29724)
+Ave66830 = keras.layers.Average(name = 'Ave66830', )([Con41193,Bat65055])
+Res12373 = keras.layers.Reshape((1, 2, 1), name = 'Res12373', )(Ave66830)
+Res37031 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res37031', )(Res12373)
+Up_60238 = keras.layers.UpSampling3D(size=(2, 2, 2), name = 'Up_60238', )(Res37031)
+Res35669 = keras.layers.Reshape((2, 4, 2), name = 'Res35669', )(Up_60238)
+Res70032 = keras.layers.Reshape((2, 8), name = 'Res70032', )(Res35669)
+GRU59013 = keras.layers.GRU(1,reset_after=False, recurrent_activation='sigmoid', name = 'GRU59013', )(Res70032)
+model = tf.keras.models.Model(inputs=[in0Ave84040,in1Ave84040,in0Con41193,in0Add29724,in1Add29724], outputs=GRU59013)
+w = model.get_layer('Bat65055').get_weights() 
+w[0] = np.array([0.2183])
+w[1] = np.array([0.5517])
+w[2] = np.array([0.573])
+w[3] = np.array([0.4111])
+model.get_layer('Bat65055').set_weights(w) 
+w = model.get_layer('GRU59013').get_weights() 
+w[0] = np.array([[2, 6, 8], [4, 6, 9], [4, 10, 1], [10, 6, 1], [9, 1, 1], [10, 3, 6], [2, 10, 2], [10, 10, 7]])
+w[1] = np.array([[9, 6, 4]])
+w[2] = np.array([6, 8, 3])
+model.get_layer('GRU59013').set_weights(w) 
+in0Ave84040 = tf.constant([[[[0.0095]]]])
+in1Ave84040 = tf.constant([[[[0.2605]]]])
+in0Con41193 = tf.constant([[[0.2339]]])
+in0Add29724 = tf.constant([[[0.2677, 0.5127]]])
+in1Add29724 = tf.constant([[[0.4357, 0.9384]]])
+print (np.array2string(model.predict([in0Ave84040,in1Ave84040,in0Con41193,in0Add29724,in1Add29724],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU59013.png')
+
+LAve84040 = average_layer([[[[[0.0095]]]], [[[[0.2605]]]]], Ave84040), 
+LRes98965 = reshape_layer(Ave84040, [1, 1], Res98965), 
+LCon41193 = concatenate_layer([Res98965,[[[0.2339]]]], 2, Con41193), 
+LAdd29724 = add_layer([[[[0.2677, 0.5127]]], [[[0.4357, 0.9384]]]], Add29724), 
+LBat65055 = batch_normalization_layer(Add29724, 1, 0.5540524498853775, [0.2183], [0.5517], [0.573], [0.4111], Bat65055), 
+LAve66830 = average_layer([Con41193,Bat65055], Ave66830), 
+LRes12373 = reshape_layer(Ave66830, [1, 2, 1], Res12373), 
+LRes37031 = reshape_layer(Res12373, [1, 2, 1, 1], Res37031), 
+LUp_60238 = up_sampling3D_layer(Res37031, 2, 2, 2, Up_60238), 
+LRes35669 = reshape_layer(Up_60238, [2, 4, 2], Res35669), 
+LRes70032 = reshape_layer(Res35669, [2, 8], Res70032), 
+LGRU59013 = gru_layer(Res70032,[[2, 6, 8], [4, 6, 9], [4, 10, 1], [10, 6, 1], [9, 1, 1], [10, 3, 6], [2, 10, 2], [10, 10, 7]],[[9, 6, 4]],[6, 8, 3], false, GRU59013), 
+exec_layers([LAve84040,LRes98965,LCon41193,LAdd29724,LBat65055,LAve66830,LRes12373,LRes37031,LUp_60238,LRes35669,LRes70032,LGRU59013],["Ave84040","Res98965","Con41193","Add29724","Bat65055","Ave66830","Res12373","Res37031","Up_60238","Res35669","Res70032","GRU59013"],GRU59013,"GRU59013")
+
+Actual (Unparsed): [[0.0000000]]
+
+Expected (Unparsed): [[9.667822098433517e-13]]
+
+Actual:   [[0]]
+
+Expected: [[0]]

@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul8595 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Mul8595 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Ave21908 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Ave21908 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Mul8595 = keras.layers.Multiply(name = 'Mul8595', )([in0Mul8595,in1Mul8595])
+Lea77744 = keras.layers.LeakyReLU(alpha=3.004732124607813, name = 'Lea77744', )(Mul8595)
+Res88651 = keras.layers.Reshape((1, 1, 2), name = 'Res88651', )(Lea77744)
+Ave21908 = keras.layers.Average(name = 'Ave21908', )([in0Ave21908,in1Ave21908])
+Res68037 = keras.layers.Reshape((1, 1, 1), name = 'Res68037', )(Ave21908)
+PRe38644 = keras.layers.PReLU(name = 'PRe38644', )(Res68037)
+Res34652 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res34652', )(PRe38644)
+Glo16069 = keras.layers.GlobalMaxPool3D(name = 'Glo16069', )(Res34652)
+Res12496 = keras.layers.Reshape((1, 1), name = 'Res12496', )(Glo16069)
+Sim12521 = keras.layers.SimpleRNN(2,name = 'Sim12521', )(Res12496)
+Res40907 = keras.layers.Reshape((1, 1, 2), name = 'Res40907', )(Sim12521)
+Mul57508 = keras.layers.Multiply(name = 'Mul57508', )([Res88651,Res40907])
+model = tf.keras.models.Model(inputs=[in0Mul8595,in1Mul8595,in0Ave21908,in1Ave21908], outputs=Mul57508)
+w = model.get_layer('PRe38644').get_weights() 
+w[0] = np.array([[[0.7692]]])
+model.get_layer('PRe38644').set_weights(w) 
+w = model.get_layer('Sim12521').get_weights() 
+w[0] = np.array([[3, 2]])
+w[1] = np.array([[3, 6], [3, 9]])
+w[2] = np.array([7, 8])
+model.get_layer('Sim12521').set_weights(w) 
+in0Mul8595 = tf.constant([[[[[0.2313], [0.6287]]]]])
+in1Mul8595 = tf.constant([[[[[0.0281], [0.7942]]]]])
+in0Ave21908 = tf.constant([[[[[0.2445]]]]])
+in1Ave21908 = tf.constant([[[[[0.6701]]]]])
+print (np.array2string(model.predict([in0Mul8595,in1Mul8595,in0Ave21908,in1Ave21908],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul57508.png')
+
+LMul8595 = multiply_layer([[[[[[0.2313], [0.6287]]]]], [[[[[0.0281], [0.7942]]]]]], Mul8595), 
+LLea77744 = leaky_relu_layer(Mul8595, 3.004732124607813, Lea77744), 
+LRes88651 = reshape_layer(Lea77744, [1, 1, 2], Res88651), 
+LAve21908 = average_layer([[[[[[0.2445]]]]], [[[[[0.6701]]]]]], Ave21908), 
+LRes68037 = reshape_layer(Ave21908, [1, 1, 1], Res68037), 
+LPRe38644 = prelu_layer(Res68037, [[[0.7692]]], PRe38644), 
+LRes34652 = reshape_layer(PRe38644, [1, 1, 1, 1], Res34652), 
+LGlo16069 = global_max_pool3D_layer(Res34652, Glo16069), 
+LRes12496 = reshape_layer(Glo16069, [1, 1], Res12496), 
+LSim12521 = simple_rnn_layer(Res12496,[[3, 2]],[[3, 6], [3, 9]],[7, 8], Sim12521), 
+LRes40907 = reshape_layer(Sim12521, [1, 1, 2], Res40907), 
+LMul57508 = multiply_layer([Res88651,Res40907], Mul57508), 
+exec_layers([LMul8595,LLea77744,LRes88651,LAve21908,LRes68037,LPRe38644,LRes34652,LGlo16069,LRes12496,LSim12521,LRes40907,LMul57508],["Mul8595","Lea77744","Res88651","Ave21908","Res68037","PRe38644","Res34652","Glo16069","Res12496","Sim12521","Res40907","Mul57508"],Mul57508,"Mul57508")
+
+Actual (Unparsed): [[[[0.0064995, 0.4993135]]]]
+
+Expected (Unparsed): [[[[0.006499529304700401,0.499313521958188]]]]
+
+Actual:   [[[[0.0065, 0.4994]]]]
+
+Expected: [[[[0.0065, 0.4994]]]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con62872 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Ave45543 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con72454 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Con62872 = keras.layers.Conv2D(3, (2, 2),strides=(1, 11), padding='valid', dilation_rate=(1, 1), name = 'Con62872', )(in0Con62872)
+Res30441 = keras.layers.Reshape((1, 3), name = 'Res30441', )(Con62872)
+Glo46728 = keras.layers.GlobalMaxPool1D(name = 'Glo46728', )(Res30441)
+Res46652 = keras.layers.Reshape((3, 1), name = 'Res46652', )(Glo46728)
+Res33973 = keras.layers.Reshape((3, 1, 1), name = 'Res33973', )(Res46652)
+Con35466 = keras.layers.Conv2D(2, (2, 1),strides=(1, 10), padding='valid', dilation_rate=(1, 1), name = 'Con35466', )(Res33973)
+Ave45543 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave45543', )(in0Ave45543)
+Con72454 = keras.layers.Concatenate(axis=3, name = 'Con72454', )([Ave45543,in0Con72454])
+Ave68082 = keras.layers.Average(name = 'Ave68082', )([Con35466,Con72454])
+model = tf.keras.models.Model(inputs=[in0Con62872,in0Ave45543,in0Con72454], outputs=Ave68082)
+w = model.get_layer('Con62872').get_weights() 
+w[0] = np.array([[[[0.3843, 0.7485, 0.711], [0.4458, 0.264, 0.4189]], [[0.1505, 0.0798, 0.9736], [0.2964, 0.484, 0.6106]]], [[[0.0717, 0.5646, 0.8977], [0.3453, 0.9557, 0.3596]], [[0.8605, 0.3161, 0.5434], [0.3453, 0.6044, 0.6364]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con62872').set_weights(w) 
+w = model.get_layer('Con35466').get_weights() 
+w[0] = np.array([[[[0.0901, 0.5164]]], [[[0.0443, 0.3529]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con35466').set_weights(w) 
+in0Con62872 = tf.constant([[[[0.1146, 0.2816], [0.7781, 0.4885]], [[0.9166, 0.0757], [0.5653, 0.8052]]]])
+in0Ave45543 = tf.constant([[[[1.5678]], [[1.5414]]]])
+in0Con72454 = tf.constant([[[[0.5909]], [[0.4578]]]])
+print (np.array2string(model.predict([in0Con62872,in0Ave45543,in0Con72454],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave68082.png')
+
+LCon62872 = conv2D_layer([[[[0.1146, 0.2816], [0.7781, 0.4885]], [[0.9166, 0.0757], [0.5653, 0.8052]]]], 2, 2,[[[[0.3843, 0.7485, 0.711], [0.4458, 0.264, 0.4189]], [[0.1505, 0.0798, 0.9736], [0.2964, 0.484, 0.6106]]], [[[0.0717, 0.5646, 0.8977], [0.3453, 0.9557, 0.3596]], [[0.8605, 0.3161, 0.5434], [0.3453, 0.6044, 0.6364]]]],[0, 0, 0], 1, 11, false, 1, 1, Con62872), 
+LRes30441 = reshape_layer(Con62872, [1, 3], Res30441), 
+LGlo46728 = global_max_pool1D_layer(Res30441, Glo46728), 
+LRes46652 = reshape_layer(Glo46728, [3, 1], Res46652), 
+LRes33973 = reshape_layer(Res46652, [3, 1, 1], Res33973), 
+LCon35466 = conv2D_layer(Res33973, 2, 1,[[[[0.0901, 0.5164]]], [[[0.0443, 0.3529]]]],[0, 0], 1, 10, false, 1, 1, Con35466), 
+LAve45543 = average_pooling2D_layer([[[[1.5678]], [[1.5414]]]], 1, 1, Ave45543), 
+LCon72454 = concatenate_layer([Ave45543,[[[[0.5909]], [[0.4578]]]]], 3, Con72454), 
+LAve68082 = average_layer([Con35466,Con72454], Ave68082), 
+exec_layers([LCon62872,LRes30441,LGlo46728,LRes46652,LRes33973,LCon35466,LAve45543,LCon72454,LAve68082],["Con62872","Res30441","Glo46728","Res46652","Res33973","Con35466","Ave45543","Con72454","Ave68082"],Ave68082,"Ave68082")
+
+Actual (Unparsed): [[[[0.8798778, 0.9303729]], [[0.9126969, 1.1875253]]]]
+
+Expected (Unparsed): [[[[0.8798777998785,0.930372908943]],[[0.9126969428680001,1.187525347621]]]]
+
+Actual:   [[[[0.8799, 0.9304]], [[0.9127, 1.1876]]]]
+
+Expected: [[[[0.8799, 0.9304]], [[0.9127, 1.1876]]]]

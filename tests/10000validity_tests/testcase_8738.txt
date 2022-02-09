@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim94376 = tf.keras.layers.Input(shape=([1, 3]))
+in0Con56488 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot74771 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot74771 = tf.keras.layers.Input(shape=([3, 2]))
+
+Sim94376 = keras.layers.SimpleRNN(3,name = 'Sim94376', )(in0Sim94376)
+Res36173 = keras.layers.Reshape((3, 1), name = 'Res36173', )(Sim94376)
+Con56488 = keras.layers.Concatenate(axis=2, name = 'Con56488', )([Res36173,in0Con56488])
+Dot74771 = keras.layers.Dot(axes=(2, 2), name = 'Dot74771', )([in0Dot74771,in1Dot74771])
+Min60879 = keras.layers.Minimum(name = 'Min60879', )([Con56488,Dot74771])
+model = tf.keras.models.Model(inputs=[in0Sim94376,in0Con56488,in0Dot74771,in1Dot74771], outputs=Min60879)
+w = model.get_layer('Sim94376').get_weights() 
+w[0] = np.array([[8, 1, 4], [9, 7, 2], [6, 5, 1]])
+w[1] = np.array([[10, 8, 4], [6, 6, 8], [7, 1, 2]])
+w[2] = np.array([2, 6, 3])
+model.get_layer('Sim94376').set_weights(w) 
+in0Sim94376 = tf.constant([[[2, 9, 5]]])
+in0Con56488 = tf.constant([[[0.8691, 0.5166], [0.1672, 0.0147], [0.1572, 0.6864]]])
+in0Dot74771 = tf.constant([[[0.9488, 0.4723], [0.0652, 0.1079], [0.6388, 0.8912]]])
+in1Dot74771 = tf.constant([[[0.9189, 0.6168], [0.5164, 0.1297], [0.7543, 0.6733]]])
+print (np.array2string(model.predict([in0Sim94376,in0Con56488,in0Dot74771,in1Dot74771],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min60879.png')
+
+LSim94376 = simple_rnn_layer([[[2, 9, 5]]],[[8, 1, 4], [9, 7, 2], [6, 5, 1]],[[10, 8, 4], [6, 6, 8], [7, 1, 2]],[2, 6, 3], Sim94376), 
+LRes36173 = reshape_layer(Sim94376, [3, 1], Res36173), 
+LCon56488 = concatenate_layer([Res36173,[[[0.8691, 0.5166], [0.1672, 0.0147], [0.1572, 0.6864]]]], 2, Con56488), 
+LDot74771 = dot_layer([[[0.9488, 0.4723], [0.0652, 0.1079], [0.6388, 0.8912]]], [[[0.9189, 0.6168], [0.5164, 0.1297], [0.7543, 0.6733]]], 2, 2, Dot74771), 
+LMin60879 = minimum_layer([Con56488,Dot74771], Min60879), 
+exec_layers([LSim94376,LRes36173,LCon56488,LDot74771,LMin60879],["Sim94376","Res36173","Con56488","Dot74771","Min60879"],Min60879,"Min60879")
+
+Actual (Unparsed): [[[1.0000000, 0.5512176, 0.5166000], [0.1264650, 0.0476639, 0.0147000], [1.0000000, 0.1572000, 0.6864000]]]
+
+Expected (Unparsed): [[[1.0,0.5512176299999999,0.5166],[0.126465,0.04766391,0.0147],[1.0,0.1572,0.6864]]]
+
+Actual:   [[[1, 0.5513, 0.5166], [0.1265, 0.0477, 0.0147], [1, 0.1572, 0.6864]]]
+
+Expected: [[[1, 0.5513, 0.5166], [0.1265, 0.0477, 0.0147], [1, 0.1572, 0.6864]]]

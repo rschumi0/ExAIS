@@ -1,0 +1,46 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub16321 = tf.keras.layers.Input(shape=([3]))
+in1Sub16321 = tf.keras.layers.Input(shape=([3]))
+in0Glo11075 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con29754 = tf.keras.layers.Input(shape=([2]))
+
+Sub16321 = keras.layers.Subtract(name = 'Sub16321', )([in0Sub16321,in1Sub16321])
+Glo11075 = keras.layers.GlobalAveragePooling1D(name = 'Glo11075', )(in0Glo11075)
+Con29754 = keras.layers.Concatenate(axis=1, name = 'Con29754', )([Glo11075,in0Con29754])
+Min559 = keras.layers.Minimum(name = 'Min559', )([Sub16321,Con29754])
+Res51391 = keras.layers.Reshape((3, 1), name = 'Res51391', )(Min559)
+GRU43444 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU43444', )(Res51391)
+model = tf.keras.models.Model(inputs=[in0Sub16321,in1Sub16321,in0Glo11075,in0Con29754], outputs=GRU43444)
+w = model.get_layer('GRU43444').get_weights() 
+w[0] = np.array([[8, 9, 9, 2, 1, 2, 3, 8, 5]])
+w[1] = np.array([[3, 4, 2, 4, 2, 4, 10, 6, 9], [6, 10, 6, 3, 1, 4, 5, 1, 7], [1, 8, 4, 8, 5, 6, 2, 10, 9]])
+w[2] = np.array([10, 10, 2, 2, 4, 8, 2, 6, 5])
+model.get_layer('GRU43444').set_weights(w) 
+in0Sub16321 = tf.constant([[0.3673, 0.8113, 0.304]])
+in1Sub16321 = tf.constant([[0.5512, 0.293, 0.6579]])
+in0Glo11075 = tf.constant([[[1.4405], [1.1985]]])
+in0Con29754 = tf.constant([[0.566, 0.7285]])
+print (np.array2string(model.predict([in0Sub16321,in1Sub16321,in0Glo11075,in0Con29754],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU43444.png')
+
+LSub16321 = subtract_layer([[0.3673, 0.8113, 0.304]], [[0.5512, 0.293, 0.6579]], Sub16321), 
+LGlo11075 = global_average_pooling1D_layer([[[1.4405], [1.1985]]], Glo11075), 
+LCon29754 = concatenate_layer([Glo11075,[[0.566, 0.7285]]], 1, Con29754), 
+LMin559 = minimum_layer([Sub16321,Con29754], Min559), 
+LRes51391 = reshape_layer(Min559, [3, 1], Res51391), 
+LGRU43444 = gru_layer(Res51391,[[8, 9, 9, 2, 1, 2, 3, 8, 5]],[[3, 4, 2, 4, 2, 4, 10, 6, 9], [6, 10, 6, 3, 1, 4, 5, 1, 7], [1, 8, 4, 8, 5, 6, 2, 10, 9]],[10, 10, 2, 2, 4, 8, 2, 6, 5], false, GRU43444), 
+exec_layers([LSub16321,LGlo11075,LCon29754,LMin559,LRes51391,LGRU43444],["Sub16321","Glo11075","Con29754","Min559","Res51391","GRU43444"],GRU43444,"GRU43444")
+
+Actual (Unparsed): [[0.0006564, 0.0002772, 0.6390455]]
+
+Expected (Unparsed): [[0.000656355687913382,0.0002771968701214481,0.6390455011717562]]
+
+Actual:   [[0.0007, 0.0003, 0.6391]]
+
+Expected: [[0.0007, 0.0003, 0.6391]]

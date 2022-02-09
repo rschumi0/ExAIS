@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0PRe15360 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Con14139 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Sep59872 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+PRe15360 = keras.layers.PReLU(name = 'PRe15360', input_shape=(1, 2, 2, 2))(in0PRe15360)
+Con14139 = keras.layers.Concatenate(axis=4, name = 'Con14139', )([PRe15360,in0Con14139])
+Sep59872 = keras.layers.SeparableConv2D(2, (2, 1),strides=(1, 1), padding='valid', name = 'Sep59872', )(in0Sep59872)
+Res45271 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res45271', )(Sep59872)
+PRe42742 = keras.layers.PReLU(name = 'PRe42742', )(Res45271)
+Con43208 = keras.layers.Conv3D(4, (1, 1, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con43208', )(PRe42742)
+Zer92043 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (0, 0)), name = 'Zer92043', )(Con43208)
+Min2240 = keras.layers.Minimum(name = 'Min2240', )([Con14139,Zer92043])
+model = tf.keras.models.Model(inputs=[in0PRe15360,in0Con14139,in0Sep59872], outputs=Min2240)
+w = model.get_layer('PRe15360').get_weights() 
+w[0] = np.array([[[[0.9694, 0.6401], [0.1292, 0.5208]], [[0.9203, 0.1415], [0.6526, 0.7193]]]])
+model.get_layer('PRe15360').set_weights(w) 
+w = model.get_layer('Sep59872').get_weights() 
+w[0] = np.array([[[[0.2236]]], [[[0.3333]]]])
+w[1] = np.array([[[[0.0645, 0.4035]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep59872').set_weights(w) 
+w = model.get_layer('PRe42742').get_weights() 
+w[0] = np.array([[[[0.1664], [0.8603]]]])
+model.get_layer('PRe42742').set_weights(w) 
+w = model.get_layer('Con43208').get_weights() 
+w[0] = np.array([[[[[0.0022, 0.1318, 0.5689, 0.571]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con43208').set_weights(w) 
+in0PRe15360 = tf.constant([[[[[0.8469, 0.6062], [0.2285, 0.5728]], [[0.6319, 0.7462], [0.1804, 0.332]]]]])
+in0Con14139 = tf.constant([[[[[0.6065, 0.5505], [0.3869, 0.2945]], [[0.7176, 0.8716], [0.3904, 0.05]]]]])
+in0Sep59872 = tf.constant([[[[0.5697]], [[0.3128]]]])
+print (np.array2string(model.predict([in0PRe15360,in0Con14139,in0Sep59872],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min2240.png')
+
+LPRe15360 = prelu_layer([[[[[0.8469, 0.6062], [0.2285, 0.5728]], [[0.6319, 0.7462], [0.1804, 0.332]]]]], [[[[0.9694, 0.6401], [0.1292, 0.5208]], [[0.9203, 0.1415], [0.6526, 0.7193]]]], PRe15360), 
+LCon14139 = concatenate_layer([PRe15360,[[[[[0.6065, 0.5505], [0.3869, 0.2945]], [[0.7176, 0.8716], [0.3904, 0.05]]]]]], 4, Con14139), 
+LSep59872 = separable_conv2D_layer([[[[0.5697]], [[0.3128]]]], 2, 1,[[[[[0.2236]]], [[[0.3333]]]],[[[[0.0645, 0.4035]]]]],[0, 0], 1, 1, false, Sep59872), 
+LRes45271 = reshape_layer(Sep59872, [1, 1, 2, 1], Res45271), 
+LPRe42742 = prelu_layer(Res45271, [[[[0.1664], [0.8603]]]], PRe42742), 
+LCon43208 = conv3D_layer(PRe42742, 1, 1, 1,[[[[[0.0022, 0.1318, 0.5689, 0.571]]]]],[0, 0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con43208), 
+LZer92043 = zero_padding3D_layer(Con43208, 0, 0, 1, 0, 0, 0, Zer92043), 
+LMin2240 = minimum_layer([Con14139,Zer92043], Min2240), 
+exec_layers([LPRe15360,LCon14139,LSep59872,LRes45271,LPRe42742,LCon43208,LZer92043,LMin2240],["PRe15360","Con14139","Sep59872","Res45271","PRe42742","Con43208","Zer92043","Min2240"],Min2240,"Min2240")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0000329, 0.0019692, 0.0084999, 0.0085312], [0.0002056, 0.0123190, 0.0531735, 0.0500000]]]]]
+
+Expected (Unparsed): [[[[[0,0,0,0],[0,0,0,0]],[[3.2869880604e-5,0.0019692046652759997,0.008499852307097999,0.008531228102219998],[0.000205627857732,0.012318978022308,0.053173494665334,0.05]]]]]
+
+Actual:   [[[[[0, 0, 0, 0], [0, 0, 0, 0]], [[0.0001, 0.002, 0.0085, 0.0086], [0.0003, 0.0124, 0.0532, 0.05]]]]]
+
+Expected: [[[[[0, 0, 0, 0], [0, 0, 0, 0]], [[0.0001, 0.002, 0.0085, 0.0086], [0.0003, 0.0124, 0.0532, 0.05]]]]]

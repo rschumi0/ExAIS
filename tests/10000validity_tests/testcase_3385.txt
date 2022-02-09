@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep50143 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Dep50143 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep50143', )(in0Dep50143)
+Dep31501 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='valid', name = 'Dep31501', )(Dep50143)
+Res27320 = keras.layers.Reshape((1, 1), name = 'Res27320', )(Dep31501)
+Sim58512 = keras.layers.SimpleRNN(3,name = 'Sim58512', )(Res27320)
+model = tf.keras.models.Model(inputs=[in0Dep50143], outputs=Sim58512)
+w = model.get_layer('Dep50143').get_weights() 
+w[0] = np.array([[[[0.1752]]]])
+w[1] = np.array([0])
+model.get_layer('Dep50143').set_weights(w) 
+w = model.get_layer('Dep31501').get_weights() 
+w[0] = np.array([[[[0.3802]]]])
+w[1] = np.array([0])
+model.get_layer('Dep31501').set_weights(w) 
+w = model.get_layer('Sim58512').get_weights() 
+w[0] = np.array([[6, 8, 2]])
+w[1] = np.array([[9, 8, 2], [8, 3, 10], [2, 5, 8]])
+w[2] = np.array([2, 2, 5])
+model.get_layer('Sim58512').set_weights(w) 
+in0Dep50143 = tf.constant([[[[0.5499]]]])
+print (np.array2string(model.predict([in0Dep50143],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim58512.png')
+
+LDep50143 = depthwise_conv2D_layer([[[[0.5499]]]], 1, 1,[[[[0.1752]]]],[0], 1, 1, true, Dep50143), 
+LDep31501 = depthwise_conv2D_layer(Dep50143, 1, 1,[[[[0.3802]]]],[0], 1, 1, false, Dep31501), 
+LRes27320 = reshape_layer(Dep31501, [1, 1], Res27320), 
+LSim58512 = simple_rnn_layer(Res27320,[[6, 8, 2]],[[9, 8, 2], [8, 3, 10], [2, 5, 8]],[2, 2, 5], Sim58512), 
+exec_layers([LDep50143,LDep31501,LRes27320,LSim58512],["Dep50143","Dep31501","Res27320","Sim58512"],Sim58512,"Sim58512")
+
+Actual (Unparsed): [[0.9766729, 0.9798200, 0.9999216]]
+
+Expected (Unparsed): [[0.976672861931778,0.979820027543345,0.9999215782836459]]
+
+Actual:   [[0.9767, 0.9799, 1]]
+
+Expected: [[0.9767, 0.9799, 1]]

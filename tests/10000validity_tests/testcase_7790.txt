@@ -1,0 +1,65 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max29314 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con26118 = tf.keras.layers.Input(shape=([2]))
+in0Sim48428 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con28130 = tf.keras.layers.Input(shape=([1]))
+in0ReL85254 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Max29314 = keras.layers.MaxPool1D(pool_size=(2), strides=(7), padding='same', name = 'Max29314', )(in0Max29314)
+Fla20465 = keras.layers.Flatten(name = 'Fla20465', )(Max29314)
+Con26118 = keras.layers.Concatenate(axis=1, name = 'Con26118', )([Fla20465,in0Con26118])
+Sim48428 = keras.layers.SimpleRNN(2,name = 'Sim48428', )(in0Sim48428)
+Con28130 = keras.layers.Concatenate(axis=1, name = 'Con28130', )([Sim48428,in0Con28130])
+ReL85254 = keras.layers.ReLU(max_value=9.766439398525593, negative_slope=5.970647773170253, threshold=5.494586518867286, name = 'ReL85254', input_shape=(2, 2, 1, 1))(in0ReL85254)
+Res81463 = keras.layers.Reshape((2, 2, 1), name = 'Res81463', )(ReL85254)
+Res22970 = keras.layers.Reshape((2, 2), name = 'Res22970', )(Res81463)
+Sim50136 = keras.layers.SimpleRNN(3,name = 'Sim50136', )(Res22970)
+Ave60625 = keras.layers.Average(name = 'Ave60625', )([Con28130,Sim50136])
+Mul50701 = keras.layers.Multiply(name = 'Mul50701', )([Con26118,Ave60625])
+ELU34607 = keras.layers.ELU(alpha=3.6169434734780666, name = 'ELU34607', )(Mul50701)
+model = tf.keras.models.Model(inputs=[in0Max29314,in0Con26118,in0Sim48428,in0Con28130,in0ReL85254], outputs=ELU34607)
+w = model.get_layer('Sim48428').get_weights() 
+w[0] = np.array([[8, 2], [3, 1], [7, 5]])
+w[1] = np.array([[5, 9], [7, 1]])
+w[2] = np.array([1, 4])
+model.get_layer('Sim48428').set_weights(w) 
+w = model.get_layer('Sim50136').get_weights() 
+w[0] = np.array([[4, 1, 2], [3, 2, 7]])
+w[1] = np.array([[10, 6, 6], [1, 3, 8], [8, 2, 2]])
+w[2] = np.array([8, 6, 2])
+model.get_layer('Sim50136').set_weights(w) 
+in0Max29314 = tf.constant([[[1.8217], [1.6435]]])
+in0Con26118 = tf.constant([[0.664, 0.1507]])
+in0Sim48428 = tf.constant([[[7, 1, 3], [5, 1, 5], [8, 1, 4]]])
+in0Con28130 = tf.constant([[0.1384]])
+in0ReL85254 = tf.constant([[[[[0.2596]], [[0.0436]]], [[[0.3133]], [[0.5196]]]]])
+print (np.array2string(model.predict([in0Max29314,in0Con26118,in0Sim48428,in0Con28130,in0ReL85254],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='ELU34607.png')
+
+LMax29314 = max_pool1D_layer([[[1.8217], [1.6435]]], 2, 7, true, Max29314), 
+LFla20465 = flatten_layer(Max29314, Fla20465), 
+LCon26118 = concatenate_layer([Fla20465,[[0.664, 0.1507]]], 1, Con26118), 
+LSim48428 = simple_rnn_layer([[[7, 1, 3], [5, 1, 5], [8, 1, 4]]],[[8, 2], [3, 1], [7, 5]],[[5, 9], [7, 1]],[1, 4], Sim48428), 
+LCon28130 = concatenate_layer([Sim48428,[[0.1384]]], 1, Con28130), 
+LReL85254 = relu_layer([[[[[0.2596]], [[0.0436]]], [[[0.3133]], [[0.5196]]]]], 9.766439398525593, 5.970647773170253, 5.494586518867286, ReL85254), 
+LRes81463 = reshape_layer(ReL85254, [2, 2, 1], Res81463), 
+LRes22970 = reshape_layer(Res81463, [2, 2], Res22970), 
+LSim50136 = simple_rnn_layer(Res22970,[[4, 1, 2], [3, 2, 7]],[[10, 6, 6], [1, 3, 8], [8, 2, 2]],[8, 6, 2], Sim50136), 
+LAve60625 = average_layer([Con28130,Sim50136], Ave60625), 
+LMul50701 = multiply_layer([Con26118,Ave60625], Mul50701), 
+LELU34607 = elu_layer(Mul50701, 3.6169434734780666, ELU34607), 
+exec_layers([LMax29314,LFla20465,LCon26118,LSim48428,LCon28130,LReL85254,LRes81463,LRes22970,LSim50136,LAve60625,LMul50701,LELU34607],["Max29314","Fla20465","Con26118","Sim48428","Con28130","ReL85254","Res81463","Res22970","Sim50136","Ave60625","Mul50701","ELU34607"],ELU34607,"ELU34607")
+
+Actual (Unparsed): [[0.0000000, 0.0000000, -0.2273576]]
+
+Expected (Unparsed): [[0.0,0.0,-0.227357558914888]]
+
+Actual:   [[0, 0, -0.2273]]
+
+Expected: [[0, 0, -0.2273]]

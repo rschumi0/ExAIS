@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat5514 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con5294 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave1885 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+in1Ave1885 = tf.keras.layers.Input(shape=([2, 1, 2, 1]))
+
+Bat5514 = keras.layers.BatchNormalization(axis=2, epsilon=0.15144336255073224,  name = 'Bat5514', )(in0Bat5514)
+Sim72007 = keras.layers.SimpleRNN(2,name = 'Sim72007', )(Bat5514)
+Res81665 = keras.layers.Reshape((2, 1), name = 'Res81665', )(Sim72007)
+Con5294 = keras.layers.Concatenate(axis=2, name = 'Con5294', )([Res81665,in0Con5294])
+Ave1885 = keras.layers.Average(name = 'Ave1885', )([in0Ave1885,in1Ave1885])
+Res9205 = keras.layers.Reshape((2, 1, 2), name = 'Res9205', )(Ave1885)
+Res24417 = keras.layers.Reshape((2, 2), name = 'Res24417', )(Res9205)
+Up_4864 = keras.layers.UpSampling1D(size=(1), name = 'Up_4864', )(Res24417)
+Max27 = keras.layers.Maximum(name = 'Max27', )([Con5294,Up_4864])
+model = tf.keras.models.Model(inputs=[in0Bat5514,in0Con5294,in0Ave1885,in1Ave1885], outputs=Max27)
+w = model.get_layer('Bat5514').get_weights() 
+w[0] = np.array([0.109, 0.3754, 0.5291])
+w[1] = np.array([0.9203, 0.333, 0.457])
+w[2] = np.array([0.951, 0.6807, 0.2325])
+w[3] = np.array([0.2291, 0.2647, 0.4343])
+model.get_layer('Bat5514').set_weights(w) 
+w = model.get_layer('Sim72007').get_weights() 
+w[0] = np.array([[7, 7], [5, 2], [1, 10]])
+w[1] = np.array([[8, 4], [6, 9]])
+w[2] = np.array([8, 3])
+model.get_layer('Sim72007').set_weights(w) 
+in0Bat5514 = tf.constant([[[1.8499, 1.4286, 1.5291], [1.4916, 1.1601, 1.4499], [1.4015, 1.5899, 1.7652]]])
+in0Con5294 = tf.constant([[[0.2059], [0.8321]]])
+in0Ave1885 = tf.constant([[[[[0.0483], [0.6758]]], [[[0.0544], [0.0807]]]]])
+in1Ave1885 = tf.constant([[[[[0.1156], [0.4836]]], [[[0.6924], [0.2604]]]]])
+print (np.array2string(model.predict([in0Bat5514,in0Con5294,in0Ave1885,in1Ave1885],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max27.png')
+
+LBat5514 = batch_normalization_layer([[[1.8499, 1.4286, 1.5291], [1.4916, 1.1601, 1.4499], [1.4015, 1.5899, 1.7652]]], 2, 0.15144336255073224, [0.109, 0.3754, 0.5291], [0.9203, 0.333, 0.457], [0.951, 0.6807, 0.2325], [0.2291, 0.2647, 0.4343], Bat5514), 
+LSim72007 = simple_rnn_layer(Bat5514,[[7, 7], [5, 2], [1, 10]],[[8, 4], [6, 9]],[8, 3], Sim72007), 
+LRes81665 = reshape_layer(Sim72007, [2, 1], Res81665), 
+LCon5294 = concatenate_layer([Res81665,[[[0.2059], [0.8321]]]], 2, Con5294), 
+LAve1885 = average_layer([[[[[[0.0483], [0.6758]]], [[[0.0544], [0.0807]]]]], [[[[[0.1156], [0.4836]]], [[[0.6924], [0.2604]]]]]], Ave1885), 
+LRes9205 = reshape_layer(Ave1885, [2, 1, 2], Res9205), 
+LRes24417 = reshape_layer(Res9205, [2, 2], Res24417), 
+LUp_4864 = up_sampling1D_layer(Res24417, 1, Up_4864), 
+LMax27 = maximum_layer([Con5294,Up_4864], Max27), 
+exec_layers([LBat5514,LSim72007,LRes81665,LCon5294,LAve1885,LRes9205,LRes24417,LUp_4864,LMax27],["Bat5514","Sim72007","Res81665","Con5294","Ave1885","Res9205","Res24417","Up_4864","Max27"],Max27,"Max27")
+
+Actual (Unparsed): [[[1.0000000, 0.5797000], [1.0000000, 0.8321000]]]
+
+Expected (Unparsed): [[[1.0,0.5797],[1.0,0.8321]]]
+
+Actual:   [[[1, 0.5797], [1, 0.8321]]]
+
+Expected: [[[1, 0.5797], [1, 0.8321]]]

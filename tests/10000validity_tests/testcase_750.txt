@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max2223 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Max2223 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in0Min7522 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min7522 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max2223 = keras.layers.Maximum(name = 'Max2223', )([in0Max2223,in1Max2223])
+Res96199 = keras.layers.Reshape((1, 1, 4), name = 'Res96199', )(Max2223)
+Min7522 = keras.layers.Minimum(name = 'Min7522', )([in0Min7522,in1Min7522])
+Res56363 = keras.layers.Reshape((1, 1, 4), name = 'Res56363', )(Min7522)
+Sub59947 = keras.layers.Subtract(name = 'Sub59947', )([Res96199,Res56363])
+PRe13349 = keras.layers.PReLU(name = 'PRe13349', )(Sub59947)
+model = tf.keras.models.Model(inputs=[in0Max2223,in1Max2223,in0Min7522,in1Min7522], outputs=PRe13349)
+w = model.get_layer('PRe13349').get_weights() 
+w[0] = np.array([[[0.8818, 0.7334, 0.0311, 0.2171]]])
+model.get_layer('PRe13349').set_weights(w) 
+in0Max2223 = tf.constant([[[[[0.6914, 0.1082], [0.5185, 0.6222]]]]])
+in1Max2223 = tf.constant([[[[[0.5713, 0.0154], [0.2203, 0.8859]]]]])
+in0Min7522 = tf.constant([[[0.6582, 0.3452], [0.2954, 0.1809]]])
+in1Min7522 = tf.constant([[[0.0013, 0.2032], [0.6852, 0.3567]]])
+print (np.array2string(model.predict([in0Max2223,in1Max2223,in0Min7522,in1Min7522],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='PRe13349.png')
+
+LMax2223 = maximum_layer([[[[[[0.6914, 0.1082], [0.5185, 0.6222]]]]], [[[[[0.5713, 0.0154], [0.2203, 0.8859]]]]]], Max2223), 
+LRes96199 = reshape_layer(Max2223, [1, 1, 4], Res96199), 
+LMin7522 = minimum_layer([[[[0.6582, 0.3452], [0.2954, 0.1809]]], [[[0.0013, 0.2032], [0.6852, 0.3567]]]], Min7522), 
+LRes56363 = reshape_layer(Min7522, [1, 1, 4], Res56363), 
+LSub59947 = subtract_layer(Res96199,Res56363, Sub59947), 
+LPRe13349 = prelu_layer(Sub59947, [[[0.8818, 0.7334, 0.0311, 0.2171]]], PRe13349), 
+exec_layers([LMax2223,LRes96199,LMin7522,LRes56363,LSub59947,LPRe13349],["Max2223","Res96199","Min7522","Res56363","Sub59947","PRe13349"],PRe13349,"PRe13349")
+
+Actual (Unparsed): [[[[0.6901000, -0.0696730, 0.2231000, 0.7050000]]]]
+
+Expected (Unparsed): [[[[0.6901,-0.069673,0.22309999999999997,0.7050000000000001]]]]
+
+Actual:   [[[[0.6901, -0.0696, 0.2231, 0.705]]]]
+
+Expected: [[[[0.6901, -0.0696, 0.2231, 0.7051]]]]

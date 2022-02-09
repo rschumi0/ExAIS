@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave66025 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Ave66025 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Min54322 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Min54322 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con28516 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Add90985 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Add90985 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Ave66025 = keras.layers.Average(name = 'Ave66025', )([in0Ave66025,in1Ave66025])
+Zer76487 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer76487', )(Ave66025)
+Min54322 = keras.layers.Minimum(name = 'Min54322', )([in0Min54322,in1Min54322])
+Con28516 = keras.layers.Concatenate(axis=3, name = 'Con28516', )([Min54322,in0Con28516])
+Add90985 = keras.layers.Add(name = 'Add90985', )([in0Add90985,in1Add90985])
+Lay53234 = keras.layers.LayerNormalization(axis=1, epsilon=1.5536948516064824, name = 'Lay53234', )(Add90985)
+Zer55246 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer55246', )(Lay53234)
+Max5868 = keras.layers.Maximum(name = 'Max5868', )([Con28516,Zer55246])
+Min86361 = keras.layers.Minimum(name = 'Min86361', )([Zer76487,Max5868])
+model = tf.keras.models.Model(inputs=[in0Ave66025,in1Ave66025,in0Min54322,in1Min54322,in0Con28516,in0Add90985,in1Add90985], outputs=Min86361)
+in0Ave66025 = tf.constant([[[[0.7871, 0.732]]]])
+in1Ave66025 = tf.constant([[[[0.273, 0.5798]]]])
+in0Min54322 = tf.constant([[[[0.123], [0.1331]], [[0.2553], [0.7077]]]])
+in1Min54322 = tf.constant([[[[0.8581], [0.5402]], [[0.1102], [0.3267]]]])
+in0Con28516 = tf.constant([[[[0.0679], [0.2121]], [[0.0615], [0.9401]]]])
+in0Add90985 = tf.constant([[[[0.1372, 0.8395]]]])
+in1Add90985 = tf.constant([[[[0.4152, 0.3802]]]])
+print (np.array2string(model.predict([in0Ave66025,in1Ave66025,in0Min54322,in1Min54322,in0Con28516,in0Add90985,in1Add90985],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min86361.png')
+
+LAve66025 = average_layer([[[[[0.7871, 0.732]]]], [[[[0.273, 0.5798]]]]], Ave66025), 
+LZer76487 = zero_padding2D_layer(Ave66025, 1, 0, 1, 0, Zer76487), 
+LMin54322 = minimum_layer([[[[[0.123], [0.1331]], [[0.2553], [0.7077]]]], [[[[0.8581], [0.5402]], [[0.1102], [0.3267]]]]], Min54322), 
+LCon28516 = concatenate_layer([Min54322,[[[[0.0679], [0.2121]], [[0.0615], [0.9401]]]]], 3, Con28516), 
+LAdd90985 = add_layer([[[[[0.1372, 0.8395]]]], [[[[0.4152, 0.3802]]]]], Add90985), 
+LLay53234 = layer_normalization_layer(Add90985, 1, 1.5536948516064824, Lay53234), 
+LZer55246 = zero_padding2D_layer(Lay53234, 1, 0, 1, 0, Zer55246), 
+LMax5868 = maximum_layer([Con28516,Zer55246], Max5868), 
+LMin86361 = minimum_layer([Zer76487,Max5868], Min86361), 
+exec_layers([LAve66025,LZer76487,LMin54322,LCon28516,LAdd90985,LLay53234,LZer55246,LMax5868,LMin86361],["Ave66025","Zer76487","Min54322","Con28516","Add90985","Lay53234","Zer55246","Max5868","Min86361"],Min86361,"Min86361")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.3267000, 0.6559000]]]]
+
+Expected (Unparsed): [[[[0,0],[0,0]],[[0,0],[0.3267,0.6558999999999999]]]]
+
+Actual:   [[[[0, 0], [0, 0]], [[0, 0], [0.3267, 0.6559]]]]
+
+Expected: [[[[0, 0], [0, 0]], [[0, 0], [0.3267, 0.6559]]]]

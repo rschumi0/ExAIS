@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro64450 = tf.keras.layers.Input(shape=([2, 4, 3, 2]))
+in0Con87499 = tf.keras.layers.Input(shape=([1, 4, 2]))
+in0Ave32571 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave32571 = tf.keras.layers.Input(shape=([2, 2]))
+
+Cro64450 = keras.layers.Cropping3D(cropping=((1, 0), (3, 0), (1, 1)), name = 'Cro64450', )(in0Cro64450)
+Res12596 = keras.layers.Reshape((1, 1, 2), name = 'Res12596', )(Cro64450)
+Res70072 = keras.layers.Reshape((1, 2), name = 'Res70072', )(Res12596)
+Loc24857 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc24857', )(Res70072)
+Res57381 = keras.layers.Reshape((1, 4, 1), name = 'Res57381', )(Loc24857)
+Con87499 = keras.layers.Concatenate(axis=3, name = 'Con87499', )([Res57381,in0Con87499])
+Ave32571 = keras.layers.Average(name = 'Ave32571', )([in0Ave32571,in1Ave32571])
+Per3409 = keras.layers.Permute((2,1), name = 'Per3409',)(Ave32571)
+Res58106 = keras.layers.Reshape((2, 2, 1), name = 'Res58106', )(Per3409)
+Loc13346 = keras.layers.LocallyConnected2D(3, (2, 2),strides=(2, 7), name = 'Loc13346', )(Res58106)
+Zer64114 = keras.layers.ZeroPadding2D(padding=((0, 0), (3, 0)), name = 'Zer64114', )(Loc13346)
+Min33636 = keras.layers.Minimum(name = 'Min33636', )([Con87499,Zer64114])
+model = tf.keras.models.Model(inputs=[in0Cro64450,in0Con87499,in0Ave32571,in1Ave32571], outputs=Min33636)
+w = model.get_layer('Loc24857').get_weights() 
+w[0] = np.array([[[0.7101, 0.3393, 0.2105, 0.3558], [0.6052, 0.9727, 0.8554, 0.941]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc24857').set_weights(w) 
+w = model.get_layer('Loc13346').get_weights() 
+w[0] = np.array([[[0.3895, 0.4269, 0.8395], [0.8707, 0.6688, 0.8851], [0.775, 0.8613, 0.1984], [0.7573, 0.491, 0.0472]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc13346').set_weights(w) 
+in0Cro64450 = tf.constant([[[[[1.0617, 1.1248], [1.16, 1.9987], [1.9592, 1.1342]], [[1.2798, 1.7147], [1.6944, 1.7019], [1.7846, 1.576]], [[1.131, 1.3818], [1.1384, 1.4992], [1.1457, 1.3617]], [[1.0342, 1.1839], [1.2259, 1.3581], [1.1099, 1.9307]]], [[[1.3264, 1.7487], [1.3059, 1.883], [1.0706, 1.5976]], [[1.6592, 1.8911], [1.9959, 1.8228], [1.455, 1.924]], [[1.4322, 1.868], [1.5648, 1.7156], [1.7756, 1.894]], [[1.488, 1.1188], [1.3752, 1.6822], [1.0821, 1.4655]]]]])
+in0Con87499 = tf.constant([[[[0.6759, 0.6435], [0.507, 0.7764], [0.4279, 0.605], [0.2583, 0.1575]]]])
+in0Ave32571 = tf.constant([[[0.9838, 0.1587], [0.2214, 0.08]]])
+in1Ave32571 = tf.constant([[[0.7407, 0.6867], [0.6516, 0.9792]]])
+print (np.array2string(model.predict([in0Cro64450,in0Con87499,in0Ave32571,in1Ave32571],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min33636.png')
+
+LCro64450 = cropping3D_layer([[[[[1.0617, 1.1248], [1.16, 1.9987], [1.9592, 1.1342]], [[1.2798, 1.7147], [1.6944, 1.7019], [1.7846, 1.576]], [[1.131, 1.3818], [1.1384, 1.4992], [1.1457, 1.3617]], [[1.0342, 1.1839], [1.2259, 1.3581], [1.1099, 1.9307]]], [[[1.3264, 1.7487], [1.3059, 1.883], [1.0706, 1.5976]], [[1.6592, 1.8911], [1.9959, 1.8228], [1.455, 1.924]], [[1.4322, 1.868], [1.5648, 1.7156], [1.7756, 1.894]], [[1.488, 1.1188], [1.3752, 1.6822], [1.0821, 1.4655]]]]], 1, 0, 3, 0, 1, 1, Cro64450), 
+LRes12596 = reshape_layer(Cro64450, [1, 1, 2], Res12596), 
+LRes70072 = reshape_layer(Res12596, [1, 2], Res70072), 
+LLoc24857 = locally_connected1D_layer(Res70072, 1,[[[0.7101, 0.3393, 0.2105, 0.3558], [0.6052, 0.9727, 0.8554, 0.941]]],[[0, 0, 0, 0]], 1, Loc24857), 
+LRes57381 = reshape_layer(Loc24857, [1, 4, 1], Res57381), 
+LCon87499 = concatenate_layer([Res57381,[[[[0.6759, 0.6435], [0.507, 0.7764], [0.4279, 0.605], [0.2583, 0.1575]]]]], 3, Con87499), 
+LAve32571 = average_layer([[[[0.9838, 0.1587], [0.2214, 0.08]]], [[[0.7407, 0.6867], [0.6516, 0.9792]]]], Ave32571), 
+LPer3409 = permute_layer(Ave32571, 2,1, Per3409), 
+LRes58106 = reshape_layer(Per3409, [2, 2, 1], Res58106), 
+LLoc13346 = locally_connected2D_layer(Res58106, 2, 2,[[[0.3895, 0.4269, 0.8395], [0.8707, 0.6688, 0.8851], [0.775, 0.8613, 0.1984], [0.7573, 0.491, 0.0472]]],[[[0, 0, 0]]], 2, 7, Loc13346), 
+LZer64114 = zero_padding2D_layer(Loc13346, 0, 0, 3, 0, Zer64114), 
+LMin33636 = minimum_layer([Con87499,Zer64114], Min33636), 
+exec_layers([LCro64450,LRes12596,LRes70072,LLoc24857,LRes57381,LCon87499,LAve32571,LPer3409,LRes58106,LLoc13346,LZer64114,LMin33636],["Cro64450","Res12596","Res70072","Loc24857","Res57381","Con87499","Ave32571","Per3409","Res58106","Loc13346","Zer64114","Min33636"],Min33636,"Min33636")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000], [1.4445655, 0.2583000, 0.1575000]]]]
+
+Expected (Unparsed): [[[[0,0,0],[0,0,0],[0,0,0],[1.444565505,0.2583,0.1575]]]]
+
+Actual:   [[[[0, 0, 0], [0, 0, 0], [0, 0, 0], [1.4446, 0.2583, 0.1575]]]]
+
+Expected: [[[[0, 0, 0], [0, 0, 0], [0, 0, 0], [1.4446, 0.2583, 0.1575]]]]

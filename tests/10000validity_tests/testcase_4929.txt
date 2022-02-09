@@ -1,0 +1,72 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot52883 = tf.keras.layers.Input(shape=([2]))
+in1Dot52883 = tf.keras.layers.Input(shape=([2]))
+in0LST18332 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con42165 = tf.keras.layers.Input(shape=([3]))
+
+Dot52883 = keras.layers.Dot(axes=(1, 1), name = 'Dot52883', )([in0Dot52883,in1Dot52883])
+Res502 = keras.layers.Reshape((1, 1), name = 'Res502', )(Dot52883)
+Res63030 = keras.layers.Reshape((1, 1, 1), name = 'Res63030', )(Res502)
+Con51555 = keras.layers.Conv2D(4, (1, 1),strides=(1, 9), padding='same', dilation_rate=(1, 1), name = 'Con51555', )(Res63030)
+Den89019 = keras.layers.Dense(4,name = 'Den89019', )(Con51555)
+Res99305 = keras.layers.Reshape((1, 4), name = 'Res99305', )(Den89019)
+Fla30570 = keras.layers.Flatten(name = 'Fla30570', )(Res99305)
+LST18332 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST18332', )(in0LST18332)
+Res47562 = keras.layers.Reshape((2, 1), name = 'Res47562', )(LST18332)
+Res54989 = keras.layers.Reshape((2, 1, 1), name = 'Res54989', )(Res47562)
+Up_63628 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_63628', )(Res54989)
+Res48536 = keras.layers.Reshape((4, 1), name = 'Res48536', )(Up_63628)
+Glo55446 = keras.layers.GlobalMaxPool1D(name = 'Glo55446', )(Res48536)
+Con42165 = keras.layers.Concatenate(axis=1, name = 'Con42165', )([Glo55446,in0Con42165])
+Ave95394 = keras.layers.Average(name = 'Ave95394', )([Fla30570,Con42165])
+model = tf.keras.models.Model(inputs=[in0Dot52883,in1Dot52883,in0LST18332,in0Con42165], outputs=Ave95394)
+w = model.get_layer('Con51555').get_weights() 
+w[0] = np.array([[[[0.2901, 0.303, 0.2694, 0.2817]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con51555').set_weights(w) 
+w = model.get_layer('Den89019').get_weights() 
+w[0] = np.array([[0.2281, 0.8524, 0.9137, 0.0293], [0.7251, 0.4429, 0.8964, 0.3977], [0.0702, 0.5162, 0.9069, 0.9933], [0.3686, 0.1006, 0.6906, 0.754]])
+w[1] = np.array([0.7419, 0.3715, 0.0394, 0.1232])
+model.get_layer('Den89019').set_weights(w) 
+w = model.get_layer('LST18332').get_weights() 
+w[0] = np.array([[7, 5, 7, 4, 10, 1, 7, 3], [3, 4, 5, 2, 7, 10, 5, 1]])
+w[1] = np.array([[4, 3, 2, 2, 7, 5, 3, 6], [4, 10, 2, 5, 1, 2, 7, 3]])
+w[2] = np.array([7, 1, 7, 8, 4, 3, 7, 2])
+model.get_layer('LST18332').set_weights(w) 
+in0Dot52883 = tf.constant([[0.0774, 0.5963]])
+in1Dot52883 = tf.constant([[0.8718, 0.2859]])
+in0LST18332 = tf.constant([[[2, 10]]])
+in0Con42165 = tf.constant([[0.5221, 0.0161, 0.8669]])
+print (np.array2string(model.predict([in0Dot52883,in1Dot52883,in0LST18332,in0Con42165],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave95394.png')
+
+LDot52883 = dot_layer([[0.0774, 0.5963]], [[0.8718, 0.2859]], 1, 1, Dot52883), 
+LRes502 = reshape_layer(Dot52883, [1, 1], Res502), 
+LRes63030 = reshape_layer(Res502, [1, 1, 1], Res63030), 
+LCon51555 = conv2D_layer(Res63030, 1, 1,[[[[0.2901, 0.303, 0.2694, 0.2817]]]],[0, 0, 0, 0], 1, 9, true, 1, 1, Con51555), 
+LDen89019 = dense_layer(Con51555, [[0.2281, 0.8524, 0.9137, 0.0293], [0.7251, 0.4429, 0.8964, 0.3977], [0.0702, 0.5162, 0.9069, 0.9933], [0.3686, 0.1006, 0.6906, 0.754]],[0.7419, 0.3715, 0.0394, 0.1232], Den89019), 
+LRes99305 = reshape_layer(Den89019, [1, 4], Res99305), 
+LFla30570 = flatten_layer(Res99305, Fla30570), 
+LLST18332 = lstm_layer([[[2, 10]]],[[7, 5, 7, 4, 10, 1, 7, 3], [3, 4, 5, 2, 7, 10, 5, 1]],[[4, 3, 2, 2, 7, 5, 3, 6], [4, 10, 2, 5, 1, 2, 7, 3]],[7, 1, 7, 8, 4, 3, 7, 2], LST18332), 
+LRes47562 = reshape_layer(LST18332, [2, 1], Res47562), 
+LRes54989 = reshape_layer(Res47562, [2, 1, 1], Res54989), 
+LUp_63628 = up_sampling2D_layer(Res54989, 2, 1, Up_63628), 
+LRes48536 = reshape_layer(Up_63628, [4, 1], Res48536), 
+LGlo55446 = global_max_pool1D_layer(Res48536, Glo55446), 
+LCon42165 = concatenate_layer([Glo55446,[[0.5221, 0.0161, 0.8669]]], 1, Con42165), 
+LAve95394 = average_layer([Fla30570,Con42165], Ave95394), 
+exec_layers([LDot52883,LRes502,LRes63030,LCon51555,LDen89019,LRes99305,LFla30570,LLST18332,LRes47562,LRes54989,LUp_63628,LRes48536,LGlo55446,LCon42165,LAve95394],["Dot52883","Res502","Res63030","Con51555","Den89019","Res99305","Fla30570","LST18332","Res47562","Res54989","Up_63628","Res48536","Glo55446","Con42165","Ave95394"],Ave95394,"Ave95394")
+
+Actual (Unparsed): [[0.8003650, 0.5121060, 0.1438188, 0.5675087]]
+
+Expected (Unparsed): [[0.8003650108966618,0.5121059879299739,0.14381884009971524,0.5675086468580383]]
+
+Actual:   [[0.8004, 0.5122, 0.1439, 0.5676]]
+
+Expected: [[0.8004, 0.5122, 0.1439, 0.5676]]

@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Add87277 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in1Add87277 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con33968 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Loc87594 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Mas16543 = tf.keras.layers.Input(shape=([3, 1, 4]))
+
+Add87277 = keras.layers.Add(name = 'Add87277', )([in0Add87277,in1Add87277])
+Res87598 = keras.layers.Reshape((1, 2, 2), name = 'Res87598', )(Add87277)
+Max29615 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 2), padding='same', name = 'Max29615', )(Res87598)
+Con33968 = keras.layers.Concatenate(axis=3, name = 'Con33968', )([Max29615,in0Con33968])
+Loc87594 = keras.layers.LocallyConnected2D(4, (2, 1),strides=(1, 1), name = 'Loc87594', )(in0Loc87594)
+Sub60723 = keras.layers.Subtract(name = 'Sub60723', )([Con33968,Loc87594])
+Zer33098 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer33098', )(Sub60723)
+Mas16543 = keras.layers.Masking(mask_value=1, name = 'Mas16543', )(in0Mas16543)
+Ave62752 = keras.layers.Average(name = 'Ave62752', )([Zer33098,Mas16543])
+model = tf.keras.models.Model(inputs=[in0Add87277,in1Add87277,in0Con33968,in0Loc87594,in0Mas16543], outputs=Ave62752)
+w = model.get_layer('Loc87594').get_weights() 
+w[0] = np.array([[[0.7279, 0.9407, 0.4115, 0.2861], [0.4255, 0.8533, 0.7531, 0.7198], [0.4784, 0.7342, 0.4468, 0.6661], [0.6694, 0.432, 0.1365, 0.5726]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc87594').set_weights(w) 
+in0Add87277 = tf.constant([[[[[0.8153], [0.9136]], [[0.8736], [0.5727]]]]])
+in1Add87277 = tf.constant([[[[[0.0986], [0.724]], [[0.5051], [0.6499]]]]])
+in0Con33968 = tf.constant([[[[0.7233, 0.8235]]]])
+in0Loc87594 = tf.constant([[[[0.8876, 0.4852]], [[0.1513, 0.6297]]]])
+in0Mas16543 = tf.constant([[[[1.1916, 1.6028, 1.3816, 1.9667]], [[1.4285, 1.356, 1.6413, 1.4471]], [[1.3276, 1.6647, 1.1695, 1.6673]]]])
+print (np.array2string(model.predict([in0Add87277,in1Add87277,in0Con33968,in0Loc87594,in0Mas16543],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave62752.png')
+
+LAdd87277 = add_layer([[[[[[0.8153], [0.9136]], [[0.8736], [0.5727]]]]], [[[[[0.0986], [0.724]], [[0.5051], [0.6499]]]]]], Add87277), 
+LRes87598 = reshape_layer(Add87277, [1, 2, 2], Res87598), 
+LMax29615 = max_pool2D_layer(Res87598, 1, 1, 1, 2, true, Max29615), 
+LCon33968 = concatenate_layer([Max29615,[[[[0.7233, 0.8235]]]]], 3, Con33968), 
+LLoc87594 = locally_connected2D_layer([[[[0.8876, 0.4852]], [[0.1513, 0.6297]]]], 2, 1,[[[0.7279, 0.9407, 0.4115, 0.2861], [0.4255, 0.8533, 0.7531, 0.7198], [0.4784, 0.7342, 0.4468, 0.6661], [0.6694, 0.432, 0.1365, 0.5726]]],[[[0, 0, 0, 0]]], 1, 1, Loc87594), 
+LSub60723 = subtract_layer(Con33968,Loc87594, Sub60723), 
+LZer33098 = zero_padding2D_layer(Sub60723, 2, 0, 0, 0, Zer33098), 
+LMas16543 = masking_layer([[[[1.1916, 1.6028, 1.3816, 1.9667]], [[1.4285, 1.356, 1.6413, 1.4471]], [[1.3276, 1.6647, 1.1695, 1.6673]]]], 1, Mas16543), 
+LAve62752 = average_layer([Zer33098,Mas16543], Ave62752), 
+exec_layers([LAdd87277,LRes87598,LMax29615,LCon33968,LLoc87594,LSub60723,LZer33098,LMas16543,LAve62752],["Add87277","Res87598","Max29615","Con33968","Loc87594","Sub60723","Zer33098","Mas16543","Ave62752"],Ave62752,"Ave62752")
+
+Actual (Unparsed): [[[[0.5958000, 0.8014000, 0.6908000, 0.9833500]], [[0.7142500, 0.6780000, 0.8206500, 0.7235500]], [[0.4475301, 0.8350994, 0.5042968, 0.7131317]]]]
+
+Expected (Unparsed): [[[[0.5958,0.8014,0.6908,0.98335]],[[0.71425,0.678,0.82065,0.72355]],[[0.44753013,0.83509933,0.504296795,0.713131765]]]]
+
+Actual:   [[[[0.5958, 0.8014, 0.6908, 0.9834]], [[0.7143, 0.678, 0.8207, 0.7236]], [[0.4476, 0.8351, 0.5043, 0.7132]]]]
+
+Expected: [[[[0.5958, 0.8014, 0.6908, 0.9834]], [[0.7143, 0.678, 0.8207, 0.7236]], [[0.4476, 0.8351, 0.5043, 0.7132]]]]

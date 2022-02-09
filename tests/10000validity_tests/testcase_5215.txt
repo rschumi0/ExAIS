@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mas32321 = tf.keras.layers.Input(shape=([1, 1, 4]))
+in0Sep72268 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Max70015 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Con52648 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Mas32321 = keras.layers.Masking(mask_value=2, name = 'Mas32321', )(in0Mas32321)
+Zer84144 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer84144', )(Mas32321)
+Sep72268 = keras.layers.SeparableConv2D(4, (1, 1),strides=(1, 1), padding='same', name = 'Sep72268', )(in0Sep72268)
+Sub41273 = keras.layers.Subtract(name = 'Sub41273', )([Zer84144,Sep72268])
+Max70015 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(11, 1), padding='same', name = 'Max70015', )(in0Max70015)
+Zer93818 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer93818', )(Max70015)
+Con52648 = keras.layers.Concatenate(axis=3, name = 'Con52648', )([Zer93818,in0Con52648])
+Add24799 = keras.layers.Add(name = 'Add24799', )([Sub41273,Con52648])
+model = tf.keras.models.Model(inputs=[in0Mas32321,in0Sep72268,in0Max70015,in0Con52648], outputs=Add24799)
+w = model.get_layer('Sep72268').get_weights() 
+w[0] = np.array([[[[0.3394]]]])
+w[1] = np.array([[[[0.6064, 0.6379, 0.8145, 0.6678]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep72268').set_weights(w) 
+in0Mas32321 = tf.constant([[[[1.6394, 1.4036, 1.2294, 1.4489]]]])
+in0Sep72268 = tf.constant([[[[0.6785], [0.134]], [[0.6247], [0.2064]]]])
+in0Max70015 = tf.constant([[[[1.7269, 1.3468], [1.4655, 1.5957]]]])
+in0Con52648 = tf.constant([[[[0.065, 0.2051], [0.2809, 0.6524]], [[0.8626, 0.2512], [0.2818, 0.5315]]]])
+print (np.array2string(model.predict([in0Mas32321,in0Sep72268,in0Max70015,in0Con52648],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add24799.png')
+
+LMas32321 = masking_layer([[[[1.6394, 1.4036, 1.2294, 1.4489]]]], 2, Mas32321), 
+LZer84144 = zero_padding2D_layer(Mas32321, 1, 0, 1, 0, Zer84144), 
+LSep72268 = separable_conv2D_layer([[[[0.6785], [0.134]], [[0.6247], [0.2064]]]], 1, 1,[[[[[0.3394]]]],[[[[0.6064, 0.6379, 0.8145, 0.6678]]]]],[0, 0, 0, 0], 1, 1, true, Sep72268), 
+LSub41273 = subtract_layer(Zer84144,Sep72268, Sub41273), 
+LMax70015 = max_pool2D_layer([[[[1.7269, 1.3468], [1.4655, 1.5957]]]], 1, 1, 11, 1, true, Max70015), 
+LZer93818 = zero_padding2D_layer(Max70015, 1, 0, 0, 0, Zer93818), 
+LCon52648 = concatenate_layer([Zer93818,[[[[0.065, 0.2051], [0.2809, 0.6524]], [[0.8626, 0.2512], [0.2818, 0.5315]]]]], 3, Con52648), 
+LAdd24799 = add_layer([Sub41273,Con52648], Add24799), 
+exec_layers([LMas32321,LZer84144,LSep72268,LSub41273,LMax70015,LZer93818,LCon52648,LAdd24799],["Mas32321","Zer84144","Sep72268","Sub41273","Max70015","Zer93818","Con52648","Add24799"],Add24799,"Add24799")
+
+Actual (Unparsed): [[[[-0.1396435, -0.1468975, -0.1225654, 0.0513171], [-0.0275788, -0.0290114, 0.2438569, 0.6220287]], [[1.5983291, 1.2115504, 0.6899071, 0.1096109], [3.0624204, 2.9546137, 1.4541426, 1.9336191]]]]
+
+Expected (Unparsed): [[[[-0.13964355056,-0.14689746191,-0.12256542204999998,0.05131707938000002],[-0.027578829440000004,-0.02901143684,0.2438568658,0.62202872312]],[[1.598329143648,1.211550413478,0.68990711989,0.10961092039599998],[3.062420370176,2.9546137271359996,1.45414251568,1.933619167552]]]]
+
+Actual:   [[[[-0.1396, -0.1468, -0.1225, 0.0514], [-0.0275, -0.029, 0.2439, 0.6221]], [[1.5984, 1.2116, 0.69, 0.1097], [3.0625, 2.9547, 1.4542, 1.9337]]]]
+
+Expected: [[[[-0.1396, -0.1468, -0.1225, 0.0514], [-0.0275, -0.029, 0.2439, 0.6221]], [[1.5984, 1.2116, 0.69, 0.1097], [3.0625, 2.9547, 1.4542, 1.9337]]]]

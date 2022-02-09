@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Lay49520 = tf.keras.layers.Input(shape=([1]))
+in0Con92618 = tf.keras.layers.Input(shape=([1, 1]))
+in0Cro27186 = tf.keras.layers.Input(shape=([4, 2]))
+
+Lay49520 = keras.layers.LayerNormalization(axis=1, epsilon=1.7595165646803337, name = 'Lay49520', )(in0Lay49520)
+Res97499 = keras.layers.Reshape((1, 1), name = 'Res97499', )(Lay49520)
+Con92618 = keras.layers.Concatenate(axis=2, name = 'Con92618', )([Res97499,in0Con92618])
+Cro27186 = keras.layers.Cropping1D(cropping=((0, 3)), name = 'Cro27186', )(in0Cro27186)
+Sub84944 = keras.layers.Subtract(name = 'Sub84944', )([Con92618,Cro27186])
+Sep68220 = keras.layers.SeparableConv1D(2, (1),strides=(2), padding='same', name = 'Sep68220', )(Sub84944)
+model = tf.keras.models.Model(inputs=[in0Lay49520,in0Con92618,in0Cro27186], outputs=Sep68220)
+w = model.get_layer('Sep68220').get_weights() 
+w[0] = np.array([[[0.6657], [0.4395]]])
+w[1] = np.array([[[0.4641, 0.0864], [0.0153, 0.8594]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep68220').set_weights(w) 
+in0Lay49520 = tf.constant([[1.248]])
+in0Con92618 = tf.constant([[[0.8033]]])
+in0Cro27186 = tf.constant([[[1.1559, 1.6526], [1.2959, 1.4931], [1.8955, 1.3497], [1.4381, 1.8203]]])
+print (np.array2string(model.predict([in0Lay49520,in0Con92618,in0Cro27186],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep68220.png')
+
+LLay49520 = layer_normalization_layer([[1.248]], 1, 1.7595165646803337, Lay49520), 
+LRes97499 = reshape_layer(Lay49520, [1, 1], Res97499), 
+LCon92618 = concatenate_layer([Res97499,[[[0.8033]]]], 2, Con92618), 
+LCro27186 = cropping1D_layer([[[1.1559, 1.6526], [1.2959, 1.4931], [1.8955, 1.3497], [1.4381, 1.8203]]], 0, 3, Cro27186), 
+LSub84944 = subtract_layer(Con92618,Cro27186, Sub84944), 
+LSep68220 = separable_conv1D_layer(Sub84944, 1,[[[[0.6657], [0.4395]]],[[[0.4641, 0.0864], [0.0153, 0.8594]]]],[0, 0], 2, true, Sep68220), 
+exec_layers([LLay49520,LRes97499,LCon92618,LCro27186,LSub84944,LSep68220],["Lay49520","Res97499","Con92618","Cro27186","Sub84944","Sep68220"],Sep68220,"Sep68220")
+
+Actual (Unparsed): [[[-0.3628279, -0.3872693]]]
+
+Expected (Unparsed): [[[-0.362827879038,-0.3872692598220001]]]
+
+Actual:   [[[-0.3628, -0.3872]]]
+
+Expected: [[[-0.3628, -0.3872]]]

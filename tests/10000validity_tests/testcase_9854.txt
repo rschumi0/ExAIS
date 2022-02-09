@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot99272 = tf.keras.layers.Input(shape=([2]))
+in1Dot99272 = tf.keras.layers.Input(shape=([2]))
+in0Con17930 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sub97563 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub97563 = tf.keras.layers.Input(shape=([2, 3]))
+
+Dot99272 = keras.layers.Dot(axes=(1, 1), name = 'Dot99272', )([in0Dot99272,in1Dot99272])
+Res32049 = keras.layers.Reshape((1, 1), name = 'Res32049', )(Dot99272)
+Zer37961 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer37961', )(Res32049)
+Con17930 = keras.layers.Concatenate(axis=2, name = 'Con17930', )([Zer37961,in0Con17930])
+Sub97563 = keras.layers.Subtract(name = 'Sub97563', )([in0Sub97563,in1Sub97563])
+Ave76261 = keras.layers.Average(name = 'Ave76261', )([Con17930,Sub97563])
+Res67286 = keras.layers.Reshape((2, 3, 1), name = 'Res67286', )(Ave76261)
+Loc21010 = keras.layers.LocallyConnected2D(2, (2, 1),strides=(1, 1), name = 'Loc21010', )(Res67286)
+Res11407 = keras.layers.Reshape((1, 3, 2, 1), name = 'Res11407', )(Loc21010)
+Glo93715 = keras.layers.GlobalAveragePooling3D(name = 'Glo93715', )(Res11407)
+model = tf.keras.models.Model(inputs=[in0Dot99272,in1Dot99272,in0Con17930,in0Sub97563,in1Sub97563], outputs=Glo93715)
+w = model.get_layer('Loc21010').get_weights() 
+w[0] = np.array([[[0.943, 0.8148], [0.0789, 0.53]], [[0.7944, 0.6181], [0.0283, 0.0146]], [[0.3484, 0.1888], [0.6522, 0.904]]])
+w[1] = np.array([[[0, 0], [0, 0], [0, 0]]])
+model.get_layer('Loc21010').set_weights(w) 
+in0Dot99272 = tf.constant([[0.2995, 0.9342]])
+in1Dot99272 = tf.constant([[0.7121, 0.0098]])
+in0Con17930 = tf.constant([[[0.4992, 0.5382], [0.353, 0.0543]]])
+in0Sub97563 = tf.constant([[[0.5515, 0.4849, 0.715], [0.0891, 0.321, 0.4116]]])
+in1Sub97563 = tf.constant([[[0.8521, 0.2245, 0.0793], [0.3116, 0.8964, 0.4754]]])
+print (np.array2string(model.predict([in0Dot99272,in1Dot99272,in0Con17930,in0Sub97563,in1Sub97563],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo93715.png')
+
+LDot99272 = dot_layer([[0.2995, 0.9342]], [[0.7121, 0.0098]], 1, 1, Dot99272), 
+LRes32049 = reshape_layer(Dot99272, [1, 1], Res32049), 
+LZer37961 = zero_padding1D_layer(Res32049, 1, 0, Zer37961), 
+LCon17930 = concatenate_layer([Zer37961,[[[0.4992, 0.5382], [0.353, 0.0543]]]], 2, Con17930), 
+LSub97563 = subtract_layer([[[0.5515, 0.4849, 0.715], [0.0891, 0.321, 0.4116]]], [[[0.8521, 0.2245, 0.0793], [0.3116, 0.8964, 0.4754]]], Sub97563), 
+LAve76261 = average_layer([Con17930,Sub97563], Ave76261), 
+LRes67286 = reshape_layer(Ave76261, [2, 3, 1], Res67286), 
+LLoc21010 = locally_connected2D_layer(Res67286, 2, 1,[[[0.943, 0.8148], [0.0789, 0.53]], [[0.7944, 0.6181], [0.0283, 0.0146]], [[0.3484, 0.1888], [0.6522, 0.904]]],[[[0, 0], [0, 0], [0, 0]]], 1, 1, Loc21010), 
+LRes11407 = reshape_layer(Loc21010, [1, 3, 2, 1], Res11407), 
+LGlo93715 = global_average_pooling3D_layer(Res11407, Glo93715), 
+exec_layers([LDot99272,LRes32049,LZer37961,LCon17930,LSub97563,LAve76261,LRes67286,LLoc21010,LRes11407,LGlo93715],["Dot99272","Res32049","Zer37961","Con17930","Sub97563","Ave76261","Res67286","Loc21010","Res11407","Glo93715"],Glo93715,"Glo93715")
+
+Actual (Unparsed): [[0.0958993]]
+
+Expected (Unparsed): [[0.09589928125658333]]
+
+Actual:   [[0.0959]]
+
+Expected: [[0.0959]]

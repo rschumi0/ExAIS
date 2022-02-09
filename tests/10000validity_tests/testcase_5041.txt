@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con56279 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con65384 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Min53273 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min53273 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Con56279 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con56279', )(in0Con56279)
+Res62896 = keras.layers.Reshape((1, 4, 1), name = 'Res62896', )(Con56279)
+Res39506 = keras.layers.Reshape((1, 4, 1, 1), name = 'Res39506', )(Res62896)
+Cro23195 = keras.layers.Cropping3D(cropping=((0, 0), (1, 2), (0, 0)), name = 'Cro23195', )(Res39506)
+Res4077 = keras.layers.Reshape((1, 1, 1), name = 'Res4077', )(Cro23195)
+Zer27993 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer27993', )(Res4077)
+Con65384 = keras.layers.Concatenate(axis=3, name = 'Con65384', )([Zer27993,in0Con65384])
+Min53273 = keras.layers.Minimum(name = 'Min53273', )([in0Min53273,in1Min53273])
+Mul59306 = keras.layers.Multiply(name = 'Mul59306', )([Con65384,Min53273])
+model = tf.keras.models.Model(inputs=[in0Con56279,in0Con65384,in0Min53273,in1Min53273], outputs=Mul59306)
+w = model.get_layer('Con56279').get_weights() 
+w[0] = np.array([[[0.0223, 0.6536, 0.7591, 0.4796]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con56279').set_weights(w) 
+in0Con56279 = tf.constant([[[0.0616]]])
+in0Con65384 = tf.constant([[[[0.622], [0.7772]], [[0.4012], [0.6464]]]])
+in0Min53273 = tf.constant([[[[0.9103, 0.5409], [0.7336, 0.31]], [[0.0785, 0.5121], [0.6586, 0.5068]]]])
+in1Min53273 = tf.constant([[[[0.0989, 0.9699], [0.1135, 0.0947]], [[0.2979, 0.6146], [0.4419, 0.9053]]]])
+print (np.array2string(model.predict([in0Con56279,in0Con65384,in0Min53273,in1Min53273],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul59306.png')
+
+LCon56279 = conv1D_layer([[[0.0616]]], 1,[[[0.0223, 0.6536, 0.7591, 0.4796]]],[0, 0, 0, 0], 1, false, 1, Con56279), 
+LRes62896 = reshape_layer(Con56279, [1, 4, 1], Res62896), 
+LRes39506 = reshape_layer(Res62896, [1, 4, 1, 1], Res39506), 
+LCro23195 = cropping3D_layer(Res39506, 0, 0, 1, 2, 0, 0, Cro23195), 
+LRes4077 = reshape_layer(Cro23195, [1, 1, 1], Res4077), 
+LZer27993 = zero_padding2D_layer(Res4077, 1, 0, 1, 0, Zer27993), 
+LCon65384 = concatenate_layer([Zer27993,[[[[0.622], [0.7772]], [[0.4012], [0.6464]]]]], 3, Con65384), 
+LMin53273 = minimum_layer([[[[[0.9103, 0.5409], [0.7336, 0.31]], [[0.0785, 0.5121], [0.6586, 0.5068]]]], [[[[0.0989, 0.9699], [0.1135, 0.0947]], [[0.2979, 0.6146], [0.4419, 0.9053]]]]], Min53273), 
+LMul59306 = multiply_layer([Con65384,Min53273], Mul59306), 
+exec_layers([LCon56279,LRes62896,LRes39506,LCro23195,LRes4077,LZer27993,LCon65384,LMin53273,LMul59306],["Con56279","Res62896","Res39506","Cro23195","Res4077","Zer27993","Con65384","Min53273","Mul59306"],Mul59306,"Mul59306")
+
+Actual (Unparsed): [[[[0.0000000, 0.3364398], [0.0000000, 0.0736008]], [[0.0000000, 0.2054545], [0.0177917, 0.3275955]]]]
+
+Expected (Unparsed): [[[[0.0,0.3364398],[0.0,0.07360084]],[[0.0,0.20545452],[0.017791671744000002,0.32759552000000003]]]]
+
+Actual:   [[[[0, 0.3365], [0, 0.0737]], [[0, 0.2055], [0.0178, 0.3276]]]]
+
+Expected: [[[[0, 0.3365], [0, 0.0737]], [[0, 0.2055], [0.0178, 0.3276]]]]

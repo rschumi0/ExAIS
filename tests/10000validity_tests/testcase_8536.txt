@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_25946 = tf.keras.layers.Input(shape=([2, 4]))
+in0Ave35229 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con84672 = tf.keras.layers.Input(shape=([4, 3]))
+
+Up_25946 = keras.layers.UpSampling1D(size=(1), name = 'Up_25946', )(in0Up_25946)
+Up_95008 = keras.layers.UpSampling1D(size=(2), name = 'Up_95008', )(Up_25946)
+Ave35229 = keras.layers.AveragePooling1D(pool_size=(1), strides=(1), padding='same', name = 'Ave35229', )(in0Ave35229)
+Zer62954 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer62954', )(Ave35229)
+Con84672 = keras.layers.Concatenate(axis=2, name = 'Con84672', )([Zer62954,in0Con84672])
+Mul3133 = keras.layers.Multiply(name = 'Mul3133', )([Up_95008,Con84672])
+Glo67680 = keras.layers.GlobalAveragePooling1D(name = 'Glo67680', )(Mul3133)
+Res26263 = keras.layers.Reshape((4, 1), name = 'Res26263', )(Glo67680)
+Res97140 = keras.layers.Reshape((4, 1, 1), name = 'Res97140', )(Res26263)
+Sep23709 = keras.layers.SeparableConv2D(2, (4, 1),strides=(4, 4), padding='same', name = 'Sep23709', )(Res97140)
+model = tf.keras.models.Model(inputs=[in0Up_25946,in0Ave35229,in0Con84672], outputs=Sep23709)
+w = model.get_layer('Sep23709').get_weights() 
+w[0] = np.array([[[[0.806]]], [[[0.0933]]], [[[0.5154]]], [[[0.4745]]]])
+w[1] = np.array([[[[0.9918, 0.1149]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep23709').set_weights(w) 
+in0Up_25946 = tf.constant([[[1.0254, 1.3077, 1.823, 1.9923], [1.4676, 1.8808, 1.595, 1.8716]]])
+in0Ave35229 = tf.constant([[[1.6196]]])
+in0Con84672 = tf.constant([[[0.9168, 0.4021, 0.4437], [0.6812, 0.1957, 0.0729], [0.6351, 0.1388, 0.9603], [0.5602, 0.2639, 0.6262]]])
+print (np.array2string(model.predict([in0Up_25946,in0Ave35229,in0Con84672],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep23709.png')
+
+LUp_25946 = up_sampling1D_layer([[[1.0254, 1.3077, 1.823, 1.9923], [1.4676, 1.8808, 1.595, 1.8716]]], 1, Up_25946), 
+LUp_95008 = up_sampling1D_layer(Up_25946, 2, Up_95008), 
+LAve35229 = average_pooling1D_layer([[[1.6196]]], 1, 1, true, Ave35229), 
+LZer62954 = zero_padding1D_layer(Ave35229, 3, 0, Zer62954), 
+LCon84672 = concatenate_layer([Zer62954,[[[0.9168, 0.4021, 0.4437], [0.6812, 0.1957, 0.0729], [0.6351, 0.1388, 0.9603], [0.5602, 0.2639, 0.6262]]]], 2, Con84672), 
+LMul3133 = multiply_layer([Up_95008,Con84672], Mul3133), 
+LGlo67680 = global_average_pooling1D_layer(Mul3133, Glo67680), 
+LRes26263 = reshape_layer(Glo67680, [4, 1], Res26263), 
+LRes97140 = reshape_layer(Res26263, [4, 1, 1], Res97140), 
+LSep23709 = separable_conv2D_layer(Res97140, 4, 1,[[[[[0.806]]], [[[0.0933]]], [[[0.5154]]], [[[0.4745]]]],[[[[0.9918, 0.1149]]]]],[0, 0], 4, 4, true, Sep23709), 
+exec_layers([LUp_25946,LUp_95008,LAve35229,LZer62954,LCon84672,LMul3133,LGlo67680,LRes26263,LRes97140,LSep23709],["Up_25946","Up_95008","Ave35229","Zer62954","Con84672","Mul3133","Glo67680","Res26263","Res97140","Sep23709"],Sep23709,"Sep23709")
+
+Actual (Unparsed): [[[[1.2671580, 0.1468002]]]]
+
+Expected (Unparsed): [[[[1.267158007413451,0.14680021682980995]]]]
+
+Actual:   [[[[1.2672, 0.1469]]]]
+
+Expected: [[[[1.2672, 0.1469]]]]

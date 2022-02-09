@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot4075 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot4075 = tf.keras.layers.Input(shape=([2, 3]))
+in0Dot9989 = tf.keras.layers.Input(shape=([3]))
+in1Dot9989 = tf.keras.layers.Input(shape=([3]))
+
+Dot4075 = keras.layers.Dot(axes=(2, 2), name = 'Dot4075', )([in0Dot4075,in1Dot4075])
+Res22144 = keras.layers.Reshape((2, 2, 1), name = 'Res22144', )(Dot4075)
+Res44880 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res44880', )(Res22144)
+Glo31524 = keras.layers.GlobalMaxPool3D(name = 'Glo31524', )(Res44880)
+Den98400 = keras.layers.Dense(2,name = 'Den98400', )(Glo31524)
+Res52035 = keras.layers.Reshape((2, 1), name = 'Res52035', )(Den98400)
+Res99621 = keras.layers.Reshape((2, 1, 1), name = 'Res99621', )(Res52035)
+Res92632 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res92632', )(Res99621)
+Glo55385 = keras.layers.GlobalMaxPool3D(name = 'Glo55385', )(Res92632)
+Dot9989 = keras.layers.Dot(axes=(1, 1), name = 'Dot9989', )([in0Dot9989,in1Dot9989])
+Mul19228 = keras.layers.Multiply(name = 'Mul19228', )([Glo55385,Dot9989])
+model = tf.keras.models.Model(inputs=[in0Dot4075,in1Dot4075,in0Dot9989,in1Dot9989], outputs=Mul19228)
+w = model.get_layer('Den98400').get_weights() 
+w[0] = np.array([[0.2055, 0.281]])
+w[1] = np.array([0.8042, 0.8087])
+model.get_layer('Den98400').set_weights(w) 
+in0Dot4075 = tf.constant([[[0.6916, 0.4477, 0.3029], [0.0675, 0.1565, 0.6409]]])
+in1Dot4075 = tf.constant([[[0.933, 0.9537, 0.0003], [0.3761, 0.4636, 0.4502]]])
+in0Dot9989 = tf.constant([[0.1174, 0.6993, 0.8816]])
+in1Dot9989 = tf.constant([[0.8913, 0.4602, 0.8029]])
+print (np.array2string(model.predict([in0Dot4075,in1Dot4075,in0Dot9989,in1Dot9989],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul19228.png')
+
+LDot4075 = dot_layer([[[0.6916, 0.4477, 0.3029], [0.0675, 0.1565, 0.6409]]], [[[0.933, 0.9537, 0.0003], [0.3761, 0.4636, 0.4502]]], 2, 2, Dot4075), 
+LRes22144 = reshape_layer(Dot4075, [2, 2, 1], Res22144), 
+LRes44880 = reshape_layer(Res22144, [2, 2, 1, 1], Res44880), 
+LGlo31524 = global_max_pool3D_layer(Res44880, Glo31524), 
+LDen98400 = dense_layer(Glo31524, [[0.2055, 0.281]],[0.8042, 0.8087], Den98400), 
+LRes52035 = reshape_layer(Den98400, [2, 1], Res52035), 
+LRes99621 = reshape_layer(Res52035, [2, 1, 1], Res99621), 
+LRes92632 = reshape_layer(Res99621, [2, 1, 1, 1], Res92632), 
+LGlo55385 = global_max_pool3D_layer(Res92632, Glo55385), 
+LDot9989 = dot_layer([[0.1174, 0.6993, 0.8816]], [[0.8913, 0.4602, 0.8029]], 1, 1, Dot9989), 
+LMul19228 = multiply_layer([Glo55385,Dot9989], Mul19228), 
+exec_layers([LDot4075,LRes22144,LRes44880,LGlo31524,LDen98400,LRes52035,LRes99621,LRes92632,LGlo55385,LDot9989,LMul19228],["Dot4075","Res22144","Res44880","Glo31524","Den98400","Res52035","Res99621","Res92632","Glo55385","Dot9989","Mul19228"],Mul19228,"Mul19228")
+
+Actual (Unparsed): [[1.2590919]]
+
+Expected (Unparsed): [[1.2590918715848427]]
+
+Actual:   [[1.2591]]
+
+Expected: [[1.2591]]

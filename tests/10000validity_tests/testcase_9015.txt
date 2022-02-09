@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul86303 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul86303 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0PRe96124 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con65783 = tf.keras.layers.Input(shape=([1, 2]))
+in0Cro1963 = tf.keras.layers.Input(shape=([1, 3]))
+
+Mul86303 = keras.layers.Multiply(name = 'Mul86303', )([in0Mul86303,in1Mul86303])
+Res2700 = keras.layers.Reshape((1, 4), name = 'Res2700', )(Mul86303)
+PRe96124 = keras.layers.PReLU(name = 'PRe96124', input_shape=(1, 2))(in0PRe96124)
+Con65783 = keras.layers.Concatenate(axis=2, name = 'Con65783', )([PRe96124,in0Con65783])
+Cro1963 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro1963', )(in0Cro1963)
+Loc98931 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc98931', )(Cro1963)
+Mul94276 = keras.layers.Multiply(name = 'Mul94276', )([Con65783,Loc98931])
+Ave6600 = keras.layers.Average(name = 'Ave6600', )([Res2700,Mul94276])
+model = tf.keras.models.Model(inputs=[in0Mul86303,in1Mul86303,in0PRe96124,in0Con65783,in0Cro1963], outputs=Ave6600)
+w = model.get_layer('PRe96124').get_weights() 
+w[0] = np.array([[0.209, 0.5593]])
+model.get_layer('PRe96124').set_weights(w) 
+w = model.get_layer('Loc98931').get_weights() 
+w[0] = np.array([[[0.648, 0.3823, 0.6643, 0.0959], [0.3993, 0.6055, 0.5392, 0.9097], [0.69, 0.7015, 0.3026, 0.5609]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc98931').set_weights(w) 
+in0Mul86303 = tf.constant([[[[0.6185, 0.6847], [0.6859, 0.5264]]]])
+in1Mul86303 = tf.constant([[[[0.3098, 0.9135], [0.9967, 0.2484]]]])
+in0PRe96124 = tf.constant([[[0.7833, 0.7366]]])
+in0Con65783 = tf.constant([[[0.429, 0.0501]]])
+in0Cro1963 = tf.constant([[[1.56, 1.3883, 1.2003]]])
+print (np.array2string(model.predict([in0Mul86303,in1Mul86303,in0PRe96124,in0Con65783,in0Cro1963],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave6600.png')
+
+LMul86303 = multiply_layer([[[[[0.6185, 0.6847], [0.6859, 0.5264]]]], [[[[0.3098, 0.9135], [0.9967, 0.2484]]]]], Mul86303), 
+LRes2700 = reshape_layer(Mul86303, [1, 4], Res2700), 
+LPRe96124 = prelu_layer([[[0.7833, 0.7366]]], [[0.209, 0.5593]], PRe96124), 
+LCon65783 = concatenate_layer([PRe96124,[[[0.429, 0.0501]]]], 2, Con65783), 
+LCro1963 = cropping1D_layer([[[1.56, 1.3883, 1.2003]]], 0, 0, Cro1963), 
+LLoc98931 = locally_connected1D_layer(Cro1963, 1,[[[0.648, 0.3823, 0.6643, 0.0959], [0.3993, 0.6055, 0.5392, 0.9097], [0.69, 0.7015, 0.3026, 0.5609]]],[[0, 0, 0, 0]], 1, Loc98931), 
+LMul94276 = multiply_layer([Con65783,Loc98931], Mul94276), 
+LAve6600 = average_layer([Res2700,Mul94276], Ave6600), 
+exec_layers([LMul86303,LRes2700,LPRe96124,LCon65783,LCro1963,LLoc98931,LMul94276,LAve6600],["Mul86303","Res2700","PRe96124","Con65783","Cro1963","Loc98931","Mul94276","Ave6600"],Ave6600,"Ave6600")
+
+Actual (Unparsed): [[[1.0331945, 1.1520976, 0.8025836, 0.1176279]]]
+
+Expected (Unparsed): [[[1.0331945421635,1.1520976180300002,0.80258360003,0.117627888939]]]
+
+Actual:   [[[1.0332, 1.1521, 0.8026, 0.1177]]]
+
+Expected: [[[1.0332, 1.1521, 0.8026, 0.1177]]]

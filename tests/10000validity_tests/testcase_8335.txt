@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr86345 = tf.keras.layers.Input(shape=([1, 2]))
+in0Max17867 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max17867 = tf.keras.layers.Input(shape=([2, 2]))
+in0Min30959 = tf.keras.layers.Input(shape=([2, 1]))
+in1Min30959 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con52871 = tf.keras.layers.Input(shape=([2, 1]))
+
+Thr86345 = keras.layers.ThresholdedReLU(theta=2.097972075406318, name = 'Thr86345', input_shape=(1, 2))(in0Thr86345)
+Res11330 = keras.layers.Reshape((1, 2, 1), name = 'Res11330', )(Thr86345)
+Max17867 = keras.layers.Maximum(name = 'Max17867', )([in0Max17867,in1Max17867])
+ELU30657 = keras.layers.ELU(alpha=-1.5056567803232195, name = 'ELU30657', )(Max17867)
+Min30959 = keras.layers.Minimum(name = 'Min30959', )([in0Min30959,in1Min30959])
+Con52871 = keras.layers.Concatenate(axis=2, name = 'Con52871', )([Min30959,in0Con52871])
+Ave92824 = keras.layers.Average(name = 'Ave92824', )([ELU30657,Con52871])
+Res95905 = keras.layers.Reshape((2, 2, 1), name = 'Res95905', )(Ave92824)
+Ave28612 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(10, 2), padding='same', name = 'Ave28612', )(Res95905)
+Zer98438 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer98438', )(Ave28612)
+Ave55298 = keras.layers.Average(name = 'Ave55298', )([Res11330,Zer98438])
+model = tf.keras.models.Model(inputs=[in0Thr86345,in0Max17867,in1Max17867,in0Min30959,in1Min30959,in0Con52871], outputs=Ave55298)
+in0Thr86345 = tf.constant([[[0.411, 0.1951]]])
+in0Max17867 = tf.constant([[[0.5706, 0.4562], [0.5624, 0.3279]]])
+in1Max17867 = tf.constant([[[0.2251, 0.4998], [0.1626, 0.0104]]])
+in0Min30959 = tf.constant([[[0.9371], [0.5481]]])
+in1Min30959 = tf.constant([[[0.7464], [0.4697]]])
+in0Con52871 = tf.constant([[[0.792], [0.2077]]])
+print (np.array2string(model.predict([in0Thr86345,in0Max17867,in1Max17867,in0Min30959,in1Min30959,in0Con52871],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave55298.png')
+
+LThr86345 = thresholded_relu_layer([[[0.411, 0.1951]]], 2.097972075406318, Thr86345), 
+LRes11330 = reshape_layer(Thr86345, [1, 2, 1], Res11330), 
+LMax17867 = maximum_layer([[[[0.5706, 0.4562], [0.5624, 0.3279]]], [[[0.2251, 0.4998], [0.1626, 0.0104]]]], Max17867), 
+LELU30657 = elu_layer(Max17867, -1.5056567803232195, ELU30657), 
+LMin30959 = minimum_layer([[[[0.9371], [0.5481]]], [[[0.7464], [0.4697]]]], Min30959), 
+LCon52871 = concatenate_layer([Min30959,[[[0.792], [0.2077]]]], 2, Con52871), 
+LAve92824 = average_layer([ELU30657,Con52871], Ave92824), 
+LRes95905 = reshape_layer(Ave92824, [2, 2, 1], Res95905), 
+LAve28612 = average_pooling2D_layer(Res95905, 1, 1, 10, 2, true, Ave28612), 
+LZer98438 = zero_padding2D_layer(Ave28612, 0, 0, 1, 0, Zer98438), 
+LAve55298 = average_layer([Res11330,Zer98438], Ave55298), 
+exec_layers([LThr86345,LRes11330,LMax17867,LELU30657,LMin30959,LCon52871,LAve92824,LRes95905,LAve28612,LZer98438,LAve55298],["Thr86345","Res11330","Max17867","ELU30657","Min30959","Con52871","Ave92824","Res95905","Ave28612","Zer98438","Ave55298"],Ave55298,"Ave55298")
+
+Actual (Unparsed): [[[[0.0000000], [0.3292500]]]]
+
+Expected (Unparsed): [[[[0],[0.32925]]]]
+
+Actual:   [[[[0], [0.3293]]]]
+
+Expected: [[[[0], [0.3293]]]]

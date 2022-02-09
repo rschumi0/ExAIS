@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo47960 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Glo77224 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con89626 = tf.keras.layers.Input(shape=([2, 1]))
+in0Loc97886 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo47960 = keras.layers.GlobalAveragePooling3D(name = 'Glo47960', )(in0Glo47960)
+Res88172 = keras.layers.Reshape((1, 1), name = 'Res88172', )(Glo47960)
+Zer97934 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer97934', )(Res88172)
+Glo77224 = keras.layers.GlobalMaxPool2D(name = 'Glo77224', )(in0Glo77224)
+Res32132 = keras.layers.Reshape((1, 1), name = 'Res32132', )(Glo77224)
+Zer60618 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer60618', )(Res32132)
+Con89626 = keras.layers.Concatenate(axis=2, name = 'Con89626', )([Zer60618,in0Con89626])
+Loc97886 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc97886', )(in0Loc97886)
+Sub86158 = keras.layers.Subtract(name = 'Sub86158', )([Con89626,Loc97886])
+Dot10464 = keras.layers.Dot(axes=(1, 1), name = 'Dot10464', )([Zer97934,Sub86158])
+model = tf.keras.models.Model(inputs=[in0Glo47960,in0Glo77224,in0Con89626,in0Loc97886], outputs=Dot10464)
+w = model.get_layer('Loc97886').get_weights() 
+w[0] = np.array([[[0.4884, 0.3514], [0.0378, 0.1795]], [[0.4614, 0.4924], [0.7159, 0.0089]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc97886').set_weights(w) 
+in0Glo47960 = tf.constant([[[[[1.1085]], [[1.6073]]]]])
+in0Glo77224 = tf.constant([[[[1.6161]]]])
+in0Con89626 = tf.constant([[[0.7052], [0.46]]])
+in0Loc97886 = tf.constant([[[0.8991, 0.1803], [0.5277, 0.5162]]])
+print (np.array2string(model.predict([in0Glo47960,in0Glo77224,in0Con89626,in0Loc97886],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot10464.png')
+
+LGlo47960 = global_average_pooling3D_layer([[[[[1.1085]], [[1.6073]]]]], Glo47960), 
+LRes88172 = reshape_layer(Glo47960, [1, 1], Res88172), 
+LZer97934 = zero_padding1D_layer(Res88172, 1, 0, Zer97934), 
+LGlo77224 = global_max_pool2D_layer([[[[1.6161]]]], Glo77224), 
+LRes32132 = reshape_layer(Glo77224, [1, 1], Res32132), 
+LZer60618 = zero_padding1D_layer(Res32132, 1, 0, Zer60618), 
+LCon89626 = concatenate_layer([Zer60618,[[[0.7052], [0.46]]]], 2, Con89626), 
+LLoc97886 = locally_connected1D_layer([[[0.8991, 0.1803], [0.5277, 0.5162]]], 1,[[[0.4884, 0.3514], [0.0378, 0.1795]], [[0.4614, 0.4924], [0.7159, 0.0089]]],[[0, 0], [0, 0]], 1, Loc97886), 
+LSub86158 = subtract_layer(Con89626,Loc97886, Sub86158), 
+LDot10464 = dot_layer(Zer97934,Sub86158, 1, 1, Dot10464), 
+exec_layers([LGlo47960,LRes88172,LZer97934,LGlo77224,LRes32132,LZer60618,LCon89626,LLoc97886,LSub86158,LDot10464],["Glo47960","Res88172","Zer97934","Glo77224","Res32132","Zer60618","Con89626","Loc97886","Sub86158","Dot10464"],Dot10464,"Dot10464")
+
+Actual (Unparsed): [[[1.3620709, 0.2655595]]]
+
+Expected (Unparsed): [[[1.362070979956,0.26555953308600005]]]
+
+Actual:   [[[1.3621, 0.2656]]]
+
+Expected: [[[1.3621, 0.2656]]]

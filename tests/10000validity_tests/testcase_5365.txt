@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max31828 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Max31828 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con5290 = tf.keras.layers.Input(shape=([2]))
+in0Sim49562 = tf.keras.layers.Input(shape=([2, 1]))
+
+Max31828 = keras.layers.Maximum(name = 'Max31828', )([in0Max31828,in1Max31828])
+Res43663 = keras.layers.Reshape((1, 2), name = 'Res43663', )(Max31828)
+LST60430 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST60430', )(Res43663)
+Res5940 = keras.layers.Reshape((2, 1), name = 'Res5940', )(LST60430)
+Res65907 = keras.layers.Reshape((2, 1, 1), name = 'Res65907', )(Res5940)
+Res73685 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res73685', )(Res65907)
+Glo303 = keras.layers.GlobalMaxPool3D(name = 'Glo303', )(Res73685)
+Con5290 = keras.layers.Concatenate(axis=1, name = 'Con5290', )([Glo303,in0Con5290])
+Sim49562 = keras.layers.SimpleRNN(3,name = 'Sim49562', )(in0Sim49562)
+Fla2274 = keras.layers.Flatten(name = 'Fla2274', )(Sim49562)
+Sub82342 = keras.layers.Subtract(name = 'Sub82342', )([Con5290,Fla2274])
+model = tf.keras.models.Model(inputs=[in0Max31828,in1Max31828,in0Con5290,in0Sim49562], outputs=Sub82342)
+w = model.get_layer('LST60430').get_weights() 
+w[0] = np.array([[2, 2, 5, 10, 7, 4, 4, 8], [9, 2, 2, 8, 4, 8, 6, 2]])
+w[1] = np.array([[3, 9, 7, 9, 4, 6, 1, 8], [8, 7, 2, 4, 1, 8, 8, 3]])
+w[2] = np.array([7, 5, 7, 1, 5, 3, 1, 6])
+model.get_layer('LST60430').set_weights(w) 
+w = model.get_layer('Sim49562').get_weights() 
+w[0] = np.array([[8, 10, 8]])
+w[1] = np.array([[5, 6, 8], [7, 2, 4], [9, 6, 3]])
+w[2] = np.array([10, 9, 2])
+model.get_layer('Sim49562').set_weights(w) 
+in0Max31828 = tf.constant([[[[0.4484], [0.2291]]]])
+in1Max31828 = tf.constant([[[[0.4041], [0.2978]]]])
+in0Con5290 = tf.constant([[0.8677, 0.3185]])
+in0Sim49562 = tf.constant([[[7], [2]]])
+print (np.array2string(model.predict([in0Max31828,in1Max31828,in0Con5290,in0Sim49562],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub82342.png')
+
+LMax31828 = maximum_layer([[[[[0.4484], [0.2291]]]], [[[[0.4041], [0.2978]]]]], Max31828), 
+LRes43663 = reshape_layer(Max31828, [1, 2], Res43663), 
+LLST60430 = lstm_layer(Res43663,[[2, 2, 5, 10, 7, 4, 4, 8], [9, 2, 2, 8, 4, 8, 6, 2]],[[3, 9, 7, 9, 4, 6, 1, 8], [8, 7, 2, 4, 1, 8, 8, 3]],[7, 5, 7, 1, 5, 3, 1, 6], LST60430), 
+LRes5940 = reshape_layer(LST60430, [2, 1], Res5940), 
+LRes65907 = reshape_layer(Res5940, [2, 1, 1], Res65907), 
+LRes73685 = reshape_layer(Res65907, [2, 1, 1, 1], Res73685), 
+LGlo303 = global_max_pool3D_layer(Res73685, Glo303), 
+LCon5290 = concatenate_layer([Glo303,[[0.8677, 0.3185]]], 1, Con5290), 
+LSim49562 = simple_rnn_layer([[[7], [2]]],[[8, 10, 8]],[[5, 6, 8], [7, 2, 4], [9, 6, 3]],[10, 9, 2], Sim49562), 
+LFla2274 = flatten_layer(Sim49562, Fla2274), 
+LSub82342 = subtract_layer(Con5290,Fla2274, Sub82342), 
+exec_layers([LMax31828,LRes43663,LLST60430,LRes5940,LRes65907,LRes73685,LGlo303,LCon5290,LSim49562,LFla2274,LSub82342],["Max31828","Res43663","LST60430","Res5940","Res65907","Res73685","Glo303","Con5290","Sim49562","Fla2274","Sub82342"],Sub82342,"Sub82342")
+
+Actual (Unparsed): [[-0.2390711, -0.1323000, -0.6815000]]
+
+Expected (Unparsed): [[-0.2390711029623045,-0.13229999999999997,-0.6815]]
+
+Actual:   [[-0.239, -0.1323, -0.6815]]
+
+Expected: [[-0.239, -0.1322, -0.6815]]

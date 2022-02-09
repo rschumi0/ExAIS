@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max96451 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con14310 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+in0Con7312 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Max96451 = keras.layers.MaxPool1D(pool_size=(2), name = 'Max96451', )(in0Max96451)
+Thr94768 = keras.layers.ThresholdedReLU(theta=5.437837794442416, name = 'Thr94768', )(Max96451)
+Res64784 = keras.layers.Reshape((1, 2, 1), name = 'Res64784', )(Thr94768)
+Res79505 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res79505', )(Res64784)
+Zer22125 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer22125', )(Res79505)
+Con14310 = keras.layers.Concatenate(axis=4, name = 'Con14310', )([Zer22125,in0Con14310])
+Con7312 = keras.layers.Conv3DTranspose(3, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con7312', )(in0Con7312)
+Up_57986 = keras.layers.UpSampling3D(size=(1, 1, 2), name = 'Up_57986', )(Con7312)
+Ave81874 = keras.layers.Average(name = 'Ave81874', )([Con14310,Up_57986])
+model = tf.keras.models.Model(inputs=[in0Max96451,in0Con14310,in0Con7312], outputs=Ave81874)
+w = model.get_layer('Con7312').get_weights() 
+w[0] = np.array([[[[[0.1111], [0.8662], [0.4277]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con7312').set_weights(w) 
+in0Max96451 = tf.constant([[[1.2778, 1.7017], [1.2387, 1.6629]]])
+in0Con14310 = tf.constant([[[[[0.5672, 0.31], [0.1538, 0.818]], [[0.4858, 0.0773], [0.3373, 0.9121]]], [[[0.2607, 0.4099], [0.7795, 0.6029]], [[0.2994, 0.9878], [0.4181, 0.2956]]]]])
+in0Con7312 = tf.constant([[[[[0.7322]], [[0.7488]]], [[[0.1237]], [[0.2551]]]]])
+print (np.array2string(model.predict([in0Max96451,in0Con14310,in0Con7312],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave81874.png')
+
+LMax96451 = max_pool1D_layer([[[1.2778, 1.7017], [1.2387, 1.6629]]], 2, Max96451), 
+LThr94768 = thresholded_relu_layer(Max96451, 5.437837794442416, Thr94768), 
+LRes64784 = reshape_layer(Thr94768, [1, 2, 1], Res64784), 
+LRes79505 = reshape_layer(Res64784, [1, 2, 1, 1], Res79505), 
+LZer22125 = zero_padding3D_layer(Res79505, 1, 0, 0, 0, 1, 0, Zer22125), 
+LCon14310 = concatenate_layer([Zer22125,[[[[[0.5672, 0.31], [0.1538, 0.818]], [[0.4858, 0.0773], [0.3373, 0.9121]]], [[[0.2607, 0.4099], [0.7795, 0.6029]], [[0.2994, 0.9878], [0.4181, 0.2956]]]]]], 4, Con14310), 
+LCon7312 = conv3D_transpose_layer([[[[[0.7322]], [[0.7488]]], [[[0.1237]], [[0.2551]]]]], 1, 1, 1,[[[[[0.1111], [0.8662], [0.4277]]]]],[0, 0, 0], 1, 1, 1, true, Con7312), 
+LUp_57986 = up_sampling3D_layer(Con7312, 1, 1, 2, Up_57986), 
+LAve81874 = average_layer([Con14310,Up_57986], Ave81874), 
+exec_layers([LMax96451,LThr94768,LRes64784,LRes79505,LZer22125,LCon14310,LCon7312,LUp_57986,LAve81874],["Max96451","Thr94768","Res64784","Res79505","Zer22125","Con14310","Con7312","Up_57986","Ave81874"],Ave81874,"Ave81874")
+
+Actual (Unparsed): [[[[[0.0406737, 0.6007158, 0.3115810], [0.0406737, 0.3940158, 0.5655810]], [[0.0415958, 0.5672053, 0.1987809], [0.0415958, 0.4929553, 0.6161809]]], [[[0.0068715, 0.1839245, 0.2314032], [0.0068715, 0.4433245, 0.3279033]], [[0.0141708, 0.2601838, 0.5484531], [0.0141708, 0.3195338, 0.2023531]]]]]
+
+Expected (Unparsed): [[[[[0.04067371,0.60071582,0.31158097],[0.04067371,0.39401582,0.56558097]],[[0.04159584,0.56720528,0.19878088],[0.04159584,0.49295528,0.61618088]]],[[[0.006871535000000001,0.18392447,0.231403245],[0.006871535000000001,0.44332446999999997,0.327903245]],[[0.014170805,0.26018381,0.548453135],[0.014170805,0.31953381000000003,0.202353135]]]]]
+
+Actual:   [[[[[0.0407, 0.6008, 0.3116], [0.0407, 0.3941, 0.5656]], [[0.0416, 0.5673, 0.1988], [0.0416, 0.493, 0.6162]]], [[[0.0069, 0.184, 0.2315], [0.0069, 0.4434, 0.328]], [[0.0142, 0.2602, 0.5485], [0.0142, 0.3196, 0.2024]]]]]
+
+Expected: [[[[[0.0407, 0.6008, 0.3116], [0.0407, 0.3941, 0.5656]], [[0.0416, 0.5673, 0.1988], [0.0416, 0.493, 0.6162]]], [[[0.0069, 0.184, 0.2315], [0.0069, 0.4434, 0.328]], [[0.0142, 0.2602, 0.5485], [0.0142, 0.3196, 0.2024]]]]]

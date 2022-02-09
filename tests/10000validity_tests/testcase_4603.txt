@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul49460 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul49460 = tf.keras.layers.Input(shape=([2, 1]))
+in0Max44409 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Max44409 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con5567 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Mul49460 = keras.layers.Multiply(name = 'Mul49460', )([in0Mul49460,in1Mul49460])
+Res85667 = keras.layers.Reshape((2, 1, 1), name = 'Res85667', )(Mul49460)
+Sep77750 = keras.layers.SeparableConv2D(3, (2, 1),strides=(1, 1), padding='same', name = 'Sep77750', )(Res85667)
+Max44409 = keras.layers.Maximum(name = 'Max44409', )([in0Max44409,in1Max44409])
+Con5567 = keras.layers.Concatenate(axis=3, name = 'Con5567', )([Max44409,in0Con5567])
+Ave18857 = keras.layers.Average(name = 'Ave18857', )([Sep77750,Con5567])
+model = tf.keras.models.Model(inputs=[in0Mul49460,in1Mul49460,in0Max44409,in1Max44409,in0Con5567], outputs=Ave18857)
+w = model.get_layer('Sep77750').get_weights() 
+w[0] = np.array([[[[0.8486]]], [[[0.3503]]]])
+w[1] = np.array([[[[0.2631, 0.6611, 0.2032]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep77750').set_weights(w) 
+in0Mul49460 = tf.constant([[[0.3032], [0.2928]]])
+in1Mul49460 = tf.constant([[[0.6955], [0.0954]]])
+in0Max44409 = tf.constant([[[[0.5954]], [[0.8456]]]])
+in1Max44409 = tf.constant([[[[0.5616]], [[0.5608]]]])
+in0Con5567 = tf.constant([[[[0.6927, 0.4777]], [[0.3332, 0.6544]]]])
+print (np.array2string(model.predict([in0Mul49460,in1Mul49460,in0Max44409,in1Max44409,in0Con5567],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave18857.png')
+
+LMul49460 = multiply_layer([[[[0.3032], [0.2928]]], [[[0.6955], [0.0954]]]], Mul49460), 
+LRes85667 = reshape_layer(Mul49460, [2, 1, 1], Res85667), 
+LSep77750 = separable_conv2D_layer(Res85667, 2, 1,[[[[[0.8486]]], [[[0.3503]]]],[[[[0.2631, 0.6611, 0.2032]]]]],[0, 0, 0], 1, 1, true, Sep77750), 
+LMax44409 = maximum_layer([[[[[0.5954]], [[0.8456]]]], [[[[0.5616]], [[0.5608]]]]], Max44409), 
+LCon5567 = concatenate_layer([Max44409,[[[[0.6927, 0.4777]], [[0.3332, 0.6544]]]]], 3, Con5567), 
+LAve18857 = average_layer([Sep77750,Con5567], Ave18857), 
+exec_layers([LMul49460,LRes85667,LSep77750,LMax44409,LCon5567,LAve18857],["Mul49460","Res85667","Sep77750","Max44409","Con5567","Ave18857"],Ave18857,"Ave18857")
+
+Actual (Unparsed): [[[[0.3225279, 0.4087360, 0.2580254]], [[0.4259183, 0.1744354, 0.3296083]]]]
+
+Expected (Unparsed): [[[[0.32252795850192884,0.4087360257150328,0.25802537501935363]],[[0.4259182672028896,0.1744353722836576,0.3296083310362112]]]]
+
+Actual:   [[[[0.3226, 0.4088, 0.2581]], [[0.426, 0.1745, 0.3297]]]]
+
+Expected: [[[[0.3226, 0.4088, 0.2581]], [[0.426, 0.1745, 0.3297]]]]

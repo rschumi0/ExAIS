@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max83705 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Max83705 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Thr6191 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Con66664 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+
+Max83705 = keras.layers.Maximum(name = 'Max83705', )([in0Max83705,in1Max83705])
+Res24958 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res24958', )(Max83705)
+Con31241 = keras.layers.Conv3D(2, (1, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con31241', )(Res24958)
+Zer49513 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer49513', )(Con31241)
+Thr6191 = keras.layers.ThresholdedReLU(theta=8.060968003277347, name = 'Thr6191', input_shape=(2, 2, 1, 1))(in0Thr6191)
+Con66664 = keras.layers.Concatenate(axis=4, name = 'Con66664', )([Thr6191,in0Con66664])
+Sub26157 = keras.layers.Subtract(name = 'Sub26157', )([Zer49513,Con66664])
+model = tf.keras.models.Model(inputs=[in0Max83705,in1Max83705,in0Thr6191,in0Con66664], outputs=Sub26157)
+w = model.get_layer('Con31241').get_weights() 
+w[0] = np.array([[[[[0.6692, 0.1887]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con31241').set_weights(w) 
+in0Max83705 = tf.constant([[[[0.1107], [0.1766]]]])
+in1Max83705 = tf.constant([[[[0.8364], [0.7492]]]])
+in0Thr6191 = tf.constant([[[[[0.0769]], [[0.5794]]], [[[0.8349]], [[0.7173]]]]])
+in0Con66664 = tf.constant([[[[[0.2771]], [[0.4379]]], [[[0.1972]], [[0.0222]]]]])
+print (np.array2string(model.predict([in0Max83705,in1Max83705,in0Thr6191,in0Con66664],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub26157.png')
+
+LMax83705 = maximum_layer([[[[[0.1107], [0.1766]]]], [[[[0.8364], [0.7492]]]]], Max83705), 
+LRes24958 = reshape_layer(Max83705, [1, 2, 1, 1], Res24958), 
+LCon31241 = conv3D_layer(Res24958, 1, 1, 1,[[[[[0.6692, 0.1887]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con31241), 
+LZer49513 = zero_padding3D_layer(Con31241, 1, 0, 0, 0, 0, 0, Zer49513), 
+LThr6191 = thresholded_relu_layer([[[[[0.0769]], [[0.5794]]], [[[0.8349]], [[0.7173]]]]], 8.060968003277347, Thr6191), 
+LCon66664 = concatenate_layer([Thr6191,[[[[[0.2771]], [[0.4379]]], [[[0.1972]], [[0.0222]]]]]], 4, Con66664), 
+LSub26157 = subtract_layer(Zer49513,Con66664, Sub26157), 
+exec_layers([LMax83705,LRes24958,LCon31241,LZer49513,LThr6191,LCon66664,LSub26157],["Max83705","Res24958","Con31241","Zer49513","Thr6191","Con66664","Sub26157"],Sub26157,"Sub26157")
+
+Actual (Unparsed): [[[[[0.0000000, -0.2771000]], [[0.0000000, -0.4379000]]], [[[0.5597189, -0.0393713]], [[0.5013646, 0.1191740]]]]]
+
+Expected (Unparsed): [[[[[0,-0.2771]],[[0,-0.4379]]],[[[0.55971888,-0.03937131999999999]],[[0.50136464,0.11917404000000001]]]]]
+
+Actual:   [[[[[0, -0.2771]], [[0, -0.4379]]], [[[0.5598, -0.0393]], [[0.5014, 0.1192]]]]]
+
+Expected: [[[[[0, -0.2771]], [[0, -0.4379]]], [[[0.5598, -0.0393]], [[0.5014, 0.1192]]]]]

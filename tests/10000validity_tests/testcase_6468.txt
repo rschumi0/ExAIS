@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Bat97351 = tf.keras.layers.Input(shape=([1]))
+in0Add87367 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Add87367 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con27986 = tf.keras.layers.Input(shape=([1, 1, 1, 3]))
+
+Bat97351 = keras.layers.BatchNormalization(axis=1, epsilon=0.7326165888472708,  name = 'Bat97351', )(in0Bat97351)
+Res55378 = keras.layers.Reshape((1, 1), name = 'Res55378', )(Bat97351)
+Res16061 = keras.layers.Reshape((1, 1, 1), name = 'Res16061', )(Res55378)
+Glo90919 = keras.layers.GlobalAveragePooling2D(name = 'Glo90919', )(Res16061)
+Res99880 = keras.layers.Reshape((1, 1), name = 'Res99880', )(Glo90919)
+Res53841 = keras.layers.Reshape((1, 1, 1), name = 'Res53841', )(Res99880)
+Res69503 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res69503', )(Res53841)
+Con11734 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 1, 1), padding='same', name = 'Con11734', )(Res69503)
+Add87367 = keras.layers.Add(name = 'Add87367', )([in0Add87367,in1Add87367])
+Con27986 = keras.layers.Concatenate(axis=4, name = 'Con27986', )([Add87367,in0Con27986])
+Sub2775 = keras.layers.Subtract(name = 'Sub2775', )([Con11734,Con27986])
+model = tf.keras.models.Model(inputs=[in0Bat97351,in0Add87367,in1Add87367,in0Con27986], outputs=Sub2775)
+w = model.get_layer('Bat97351').get_weights() 
+w[0] = np.array([0.8877])
+w[1] = np.array([0.8793])
+w[2] = np.array([0.046])
+w[3] = np.array([0.9558])
+model.get_layer('Bat97351').set_weights(w) 
+w = model.get_layer('Con11734').get_weights() 
+w[0] = np.array([[[[[0.1837], [0.9396], [0.3621], [0.5516]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con11734').set_weights(w) 
+in0Bat97351 = tf.constant([[1.136]])
+in0Add87367 = tf.constant([[[[[0.8084]]]]])
+in1Add87367 = tf.constant([[[[[0.0792]]]]])
+in0Con27986 = tf.constant([[[[[0.3946, 0.2051, 0.0889]]]]])
+print (np.array2string(model.predict([in0Bat97351,in0Add87367,in1Add87367,in0Con27986],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub2775.png')
+
+LBat97351 = batch_normalization_layer([[1.136]], 1, 0.7326165888472708, [0.8877], [0.8793], [0.046], [0.9558], Bat97351), 
+LRes55378 = reshape_layer(Bat97351, [1, 1], Res55378), 
+LRes16061 = reshape_layer(Res55378, [1, 1, 1], Res16061), 
+LGlo90919 = global_average_pooling2D_layer(Res16061, Glo90919), 
+LRes99880 = reshape_layer(Glo90919, [1, 1], Res99880), 
+LRes53841 = reshape_layer(Res99880, [1, 1, 1], Res53841), 
+LRes69503 = reshape_layer(Res53841, [1, 1, 1, 1], Res69503), 
+LCon11734 = conv3D_transpose_layer(Res69503, 1, 1, 1,[[[[[0.1837], [0.9396], [0.3621], [0.5516]]]]],[0, 0, 0, 0], 1, 1, 1, true, Con11734), 
+LAdd87367 = add_layer([[[[[[0.8084]]]]], [[[[[0.0792]]]]]], Add87367), 
+LCon27986 = concatenate_layer([Add87367,[[[[[0.3946, 0.2051, 0.0889]]]]]], 4, Con27986), 
+LSub2775 = subtract_layer(Con11734,Con27986, Sub2775), 
+exec_layers([LBat97351,LRes55378,LRes16061,LGlo90919,LRes99880,LRes53841,LRes69503,LCon11734,LAdd87367,LCon27986,LSub2775],["Bat97351","Res55378","Res16061","Glo90919","Res99880","Res53841","Res69503","Con11734","Add87367","Con27986","Sub2775"],Sub2775,"Sub2775")
+
+Actual (Unparsed): [[[[[-0.5892801, 1.1312646, 0.3829328, 0.8068715]]]]]
+
+Expected (Unparsed): [[[[[-0.5892801586154814,1.1312645779253874,0.3829327412375296,0.8068714997697357]]]]]
+
+Actual:   [[[[[-0.5892, 1.1313, 0.383, 0.8069]]]]]
+
+Expected: [[[[[-0.5892, 1.1313, 0.383, 0.8069]]]]]

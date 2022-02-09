@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot71860 = tf.keras.layers.Input(shape=([2]))
+in1Dot71860 = tf.keras.layers.Input(shape=([2]))
+in0Cro71561 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con49693 = tf.keras.layers.Input(shape=([3, 2]))
+in0Sub20206 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub20206 = tf.keras.layers.Input(shape=([3, 3]))
+
+Dot71860 = keras.layers.Dot(axes=(1, 1), name = 'Dot71860', )([in0Dot71860,in1Dot71860])
+Cro71561 = keras.layers.Cropping2D(cropping=((1, 0), (0, 0)), name = 'Cro71561', )(in0Cro71561)
+Res15064 = keras.layers.Reshape((1, 1), name = 'Res15064', )(Cro71561)
+LST68583 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST68583', )(Res15064)
+Min28058 = keras.layers.Minimum(name = 'Min28058', )([Dot71860,LST68583])
+Res77549 = keras.layers.Reshape((1, 1), name = 'Res77549', )(Min28058)
+Zer2384 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer2384', )(Res77549)
+Con49693 = keras.layers.Concatenate(axis=2, name = 'Con49693', )([Zer2384,in0Con49693])
+Sub20206 = keras.layers.Subtract(name = 'Sub20206', )([in0Sub20206,in1Sub20206])
+Mul94243 = keras.layers.Multiply(name = 'Mul94243', )([Con49693,Sub20206])
+model = tf.keras.models.Model(inputs=[in0Dot71860,in1Dot71860,in0Cro71561,in0Con49693,in0Sub20206,in1Sub20206], outputs=Mul94243)
+w = model.get_layer('LST68583').get_weights() 
+w[0] = np.array([[4, 8, 6, 4]])
+w[1] = np.array([[4, 4, 2, 5]])
+w[2] = np.array([4, 8, 3, 2])
+model.get_layer('LST68583').set_weights(w) 
+in0Dot71860 = tf.constant([[0.7503, 0.1814]])
+in1Dot71860 = tf.constant([[0.3111, 0.9444]])
+in0Cro71561 = tf.constant([[[[1.845]], [[1.7884]]]])
+in0Con49693 = tf.constant([[[0.4169, 0.6966], [0.9618, 0.9347], [0.2264, 0.4624]]])
+in0Sub20206 = tf.constant([[[0.8007, 0.6339, 0.1636], [0.7974, 0.0341, 0.37], [0.2686, 0.2761, 0.4801]]])
+in1Sub20206 = tf.constant([[[0.6441, 0.5716, 0.2369], [0.6, 0.3372, 0.0582], [0.1021, 0.4114, 0.4]]])
+print (np.array2string(model.predict([in0Dot71860,in1Dot71860,in0Cro71561,in0Con49693,in0Sub20206,in1Sub20206],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul94243.png')
+
+LDot71860 = dot_layer([[0.7503, 0.1814]], [[0.3111, 0.9444]], 1, 1, Dot71860), 
+LCro71561 = cropping2D_layer([[[[1.845]], [[1.7884]]]], 1, 0, 0, 0, Cro71561), 
+LRes15064 = reshape_layer(Cro71561, [1, 1], Res15064), 
+LLST68583 = lstm_layer(Res15064,[[4, 8, 6, 4]],[[4, 4, 2, 5]],[4, 8, 3, 2], LST68583), 
+LMin28058 = minimum_layer([Dot71860,LST68583], Min28058), 
+LRes77549 = reshape_layer(Min28058, [1, 1], Res77549), 
+LZer2384 = zero_padding1D_layer(Res77549, 2, 0, Zer2384), 
+LCon49693 = concatenate_layer([Zer2384,[[[0.4169, 0.6966], [0.9618, 0.9347], [0.2264, 0.4624]]]], 2, Con49693), 
+LSub20206 = subtract_layer([[[0.8007, 0.6339, 0.1636], [0.7974, 0.0341, 0.37], [0.2686, 0.2761, 0.4801]]], [[[0.6441, 0.5716, 0.2369], [0.6, 0.3372, 0.0582], [0.1021, 0.4114, 0.4]]], Sub20206), 
+LMul94243 = multiply_layer([Con49693,Sub20206], Mul94243), 
+exec_layers([LDot71860,LCro71561,LRes15064,LLST68583,LMin28058,LRes77549,LZer2384,LCon49693,LSub20206,LMul94243],["Dot71860","Cro71561","Res15064","LST68583","Min28058","Res77549","Zer2384","Con49693","Sub20206","Mul94243"],Mul94243,"Mul94243")
+
+Actual (Unparsed): [[[0.0000000, 0.0259729, -0.0510608], [0.0000000, -0.2915216, 0.2914395], [0.0673880, -0.0306319, 0.0370382]]]
+
+Expected (Unparsed): [[[0.0,0.02597287000000001,-0.05106078],[0.0,-0.29152158,0.29143946],[0.067387959585,-0.030631919999999993,0.03703824]]]
+
+Actual:   [[[0, 0.026, -0.051], [0, -0.2915, 0.2915], [0.0674, -0.0306, 0.0371]]]
+
+Expected: [[[0, 0.026, -0.051], [0, -0.2915, 0.2915], [0.0674, -0.0306, 0.0371]]]

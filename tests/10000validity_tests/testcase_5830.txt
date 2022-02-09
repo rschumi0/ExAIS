@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0ELU17880 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Con34171 = tf.keras.layers.Input(shape=([1, 2, 2, 1]))
+in0Add53843 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in1Add53843 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Con8207 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con74274 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+ELU17880 = keras.layers.ELU(alpha=8.393853341521137, name = 'ELU17880', input_shape=(1, 2, 2, 1))(in0ELU17880)
+Con34171 = keras.layers.Concatenate(axis=4, name = 'Con34171', )([ELU17880,in0Con34171])
+Add53843 = keras.layers.Add(name = 'Add53843', )([in0Add53843,in1Add53843])
+Min42104 = keras.layers.Minimum(name = 'Min42104', )([Con34171,Add53843])
+Res72516 = keras.layers.Reshape((1, 2, 4), name = 'Res72516', )(Min42104)
+Con8207 = keras.layers.Conv2D(3, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con8207', )(in0Con8207)
+Den69387 = keras.layers.Dense(3,name = 'Den69387', )(Con8207)
+Zer85290 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer85290', )(Den69387)
+Con74274 = keras.layers.Concatenate(axis=3, name = 'Con74274', )([Zer85290,in0Con74274])
+Add45846 = keras.layers.Add(name = 'Add45846', )([Res72516,Con74274])
+model = tf.keras.models.Model(inputs=[in0ELU17880,in0Con34171,in0Add53843,in1Add53843,in0Con8207,in0Con74274], outputs=Add45846)
+w = model.get_layer('Con8207').get_weights() 
+w[0] = np.array([[[[0.0015, 0.2006, 0.4837], [0.6171, 0.2276, 0.99]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con8207').set_weights(w) 
+w = model.get_layer('Den69387').get_weights() 
+w[0] = np.array([[0.3024, 0.61, 0.6555], [0.9519, 0.8766, 0.1255], [0.9491, 0.1034, 0.8474]])
+w[1] = np.array([0.6614, 0.1241, 0.3712])
+model.get_layer('Den69387').set_weights(w) 
+in0ELU17880 = tf.constant([[[[[0.9111], [0.251]], [[0.9012], [0.0668]]]]])
+in0Con34171 = tf.constant([[[[[0.8444], [0.3682]], [[0.6471], [0.3415]]]]])
+in0Add53843 = tf.constant([[[[[0.3111, 0.4627], [0.02, 0.9615]], [[0.2832, 0.7199], [0.325, 0.0649]]]]])
+in1Add53843 = tf.constant([[[[[0.1692, 0.8249], [0.8793, 0.9943]], [[0.1518, 0.3275], [0.7333, 0.5681]]]]])
+in0Con8207 = tf.constant([[[[0.7487, 0.4071]]]])
+in0Con74274 = tf.constant([[[[0.5939], [0.0344]]]])
+print (np.array2string(model.predict([in0ELU17880,in0Con34171,in0Add53843,in1Add53843,in0Con8207,in0Con74274],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add45846.png')
+
+LELU17880 = elu_layer([[[[[0.9111], [0.251]], [[0.9012], [0.0668]]]]], 8.393853341521137, ELU17880), 
+LCon34171 = concatenate_layer([ELU17880,[[[[[0.8444], [0.3682]], [[0.6471], [0.3415]]]]]], 4, Con34171), 
+LAdd53843 = add_layer([[[[[[0.3111, 0.4627], [0.02, 0.9615]], [[0.2832, 0.7199], [0.325, 0.0649]]]]], [[[[[0.1692, 0.8249], [0.8793, 0.9943]], [[0.1518, 0.3275], [0.7333, 0.5681]]]]]], Add53843), 
+LMin42104 = minimum_layer([Con34171,Add53843], Min42104), 
+LRes72516 = reshape_layer(Min42104, [1, 2, 4], Res72516), 
+LCon8207 = conv2D_layer([[[[0.7487, 0.4071]]]], 1, 1,[[[[0.0015, 0.2006, 0.4837], [0.6171, 0.2276, 0.99]]]],[0, 0, 0], 1, 1, true, 1, 1, Con8207), 
+LDen69387 = dense_layer(Con8207, [[0.3024, 0.61, 0.6555], [0.9519, 0.8766, 0.1255], [0.9491, 0.1034, 0.8474]],[0.6614, 0.1241, 0.3712], Den69387), 
+LZer85290 = zero_padding2D_layer(Den69387, 0, 0, 1, 0, Zer85290), 
+LCon74274 = concatenate_layer([Zer85290,[[[[0.5939], [0.0344]]]]], 3, Con74274), 
+LAdd45846 = add_layer([Res72516,Con74274], Add45846), 
+exec_layers([LELU17880,LCon34171,LAdd53843,LMin42104,LRes72516,LCon8207,LDen69387,LZer85290,LCon74274,LAdd45846],["ELU17880","Con34171","Add53843","Min42104","Res72516","Con8207","Den69387","Zer85290","Con74274","Add45846"],Add45846,"Add45846")
+
+Actual (Unparsed): [[[[0.4803000, 0.8444000, 0.2510000, 0.9621000], [2.1301011, 1.2171273, 1.2822983, 0.3759000]]]]
+
+Expected (Unparsed): [[[[0.48029999999999995,0.8444,0.251,0.9621],[2.1301010643750002,1.217127320034,1.282298319626,0.3759]]]]
+
+Actual:   [[[[0.4803, 0.8444, 0.251, 0.9621], [2.1302, 1.2172, 1.2823, 0.3759]]]]
+
+Expected: [[[[0.4803, 0.8444, 0.251, 0.9621], [2.1302, 1.2172, 1.2823, 0.3759]]]]

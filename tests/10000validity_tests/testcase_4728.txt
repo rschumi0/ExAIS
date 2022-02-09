@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max33686 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max33686 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con43812 = tf.keras.layers.Input(shape=([2, 1]))
+in0ELU42174 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add14284 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add14284 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con73751 = tf.keras.layers.Input(shape=([1]))
+
+Max33686 = keras.layers.Maximum(name = 'Max33686', )([in0Max33686,in1Max33686])
+Zer80441 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer80441', )(Max33686)
+Con43812 = keras.layers.Concatenate(axis=2, name = 'Con43812', )([Zer80441,in0Con43812])
+ELU42174 = keras.layers.ELU(alpha=-0.1485106755296819, name = 'ELU42174', input_shape=(2, 2))(in0ELU42174)
+Min18949 = keras.layers.Minimum(name = 'Min18949', )([Con43812,ELU42174])
+Glo69865 = keras.layers.GlobalAveragePooling1D(name = 'Glo69865', )(Min18949)
+Add14284 = keras.layers.Add(name = 'Add14284', )([in0Add14284,in1Add14284])
+LST32698 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST32698', )(Add14284)
+Con73751 = keras.layers.Concatenate(axis=1, name = 'Con73751', )([LST32698,in0Con73751])
+Max58163 = keras.layers.Maximum(name = 'Max58163', )([Glo69865,Con73751])
+model = tf.keras.models.Model(inputs=[in0Max33686,in1Max33686,in0Con43812,in0ELU42174,in0Add14284,in1Add14284,in0Con73751], outputs=Max58163)
+w = model.get_layer('LST32698').get_weights() 
+w[0] = np.array([[6, 4, 10, 4]])
+w[1] = np.array([[1, 5, 8, 8]])
+w[2] = np.array([1, 10, 9, 8])
+model.get_layer('LST32698').set_weights(w) 
+in0Max33686 = tf.constant([[[0.5871]]])
+in1Max33686 = tf.constant([[[0.3387]]])
+in0Con43812 = tf.constant([[[0.0145], [0.6165]]])
+in0ELU42174 = tf.constant([[[0.8546, 0.0404], [0.3276, 0.4581]]])
+in0Add14284 = tf.constant([[[0.744], [0.6655]]])
+in1Add14284 = tf.constant([[[0.0429], [0.4554]]])
+in0Con73751 = tf.constant([[0.0848]])
+print (np.array2string(model.predict([in0Max33686,in1Max33686,in0Con43812,in0ELU42174,in0Add14284,in1Add14284,in0Con73751],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max58163.png')
+
+LMax33686 = maximum_layer([[[[0.5871]]], [[[0.3387]]]], Max33686), 
+LZer80441 = zero_padding1D_layer(Max33686, 1, 0, Zer80441), 
+LCon43812 = concatenate_layer([Zer80441,[[[0.0145], [0.6165]]]], 2, Con43812), 
+LELU42174 = elu_layer([[[0.8546, 0.0404], [0.3276, 0.4581]]], -0.1485106755296819, ELU42174), 
+LMin18949 = minimum_layer([Con43812,ELU42174], Min18949), 
+LGlo69865 = global_average_pooling1D_layer(Min18949, Glo69865), 
+LAdd14284 = add_layer([[[[0.744], [0.6655]]], [[[0.0429], [0.4554]]]], Add14284), 
+LLST32698 = lstm_layer(Add14284,[[6, 4, 10, 4]],[[1, 5, 8, 8]],[1, 10, 9, 8], LST32698), 
+LCon73751 = concatenate_layer([LST32698,[[0.0848]]], 1, Con73751), 
+LMax58163 = maximum_layer([Glo69865,Con73751], Max58163), 
+exec_layers([LMax33686,LZer80441,LCon43812,LELU42174,LMin18949,LGlo69865,LAdd14284,LLST32698,LCon73751,LMax58163],["Max33686","Zer80441","Con43812","ELU42174","Min18949","Glo69865","Add14284","LST32698","Con73751","Max58163"],Max58163,"Max58163")
+
+Actual (Unparsed): [[0.9637815, 0.2363000]]
+
+Expected (Unparsed): [[0.9637815333601505,0.2363]]
+
+Actual:   [[0.9638, 0.2363]]
+
+Expected: [[0.9638, 0.2363]]

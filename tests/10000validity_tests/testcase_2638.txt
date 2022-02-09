@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub94741 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub94741 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con86314 = tf.keras.layers.Input(shape=([3, 2, 1]))
+in0Min79661 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Min79661 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Sub94741 = keras.layers.Subtract(name = 'Sub94741', )([in0Sub94741,in1Sub94741])
+Mas4053 = keras.layers.Masking(mask_value=1, name = 'Mas4053', )(Sub94741)
+Res66002 = keras.layers.Reshape((3, 2, 1), name = 'Res66002', )(Mas4053)
+Con86314 = keras.layers.Concatenate(axis=3, name = 'Con86314', )([Res66002,in0Con86314])
+Min79661 = keras.layers.Minimum(name = 'Min79661', )([in0Min79661,in1Min79661])
+Zer35408 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer35408', )(Min79661)
+Mul19644 = keras.layers.Multiply(name = 'Mul19644', )([Con86314,Zer35408])
+model = tf.keras.models.Model(inputs=[in0Sub94741,in1Sub94741,in0Con86314,in0Min79661,in1Min79661], outputs=Mul19644)
+in0Sub94741 = tf.constant([[[0.7227, 0.2919], [0.7611, 0.8357], [0.641, 0.1013]]])
+in1Sub94741 = tf.constant([[[0.6397, 0.2374], [0.4311, 0.6864], [0.5741, 0.7373]]])
+in0Con86314 = tf.constant([[[[0.5392], [0.2073]], [[0.713], [0.7552]], [[0.1482], [0.4886]]]])
+in0Min79661 = tf.constant([[[[0.2324, 0.6357]]]])
+in1Min79661 = tf.constant([[[[0.5353, 0.6284]]]])
+print (np.array2string(model.predict([in0Sub94741,in1Sub94741,in0Con86314,in0Min79661,in1Min79661],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul19644.png')
+
+LSub94741 = subtract_layer([[[0.7227, 0.2919], [0.7611, 0.8357], [0.641, 0.1013]]], [[[0.6397, 0.2374], [0.4311, 0.6864], [0.5741, 0.7373]]], Sub94741), 
+LMas4053 = masking_layer(Sub94741, 1, Mas4053), 
+LRes66002 = reshape_layer(Mas4053, [3, 2, 1], Res66002), 
+LCon86314 = concatenate_layer([Res66002,[[[[0.5392], [0.2073]], [[0.713], [0.7552]], [[0.1482], [0.4886]]]]], 3, Con86314), 
+LMin79661 = minimum_layer([[[[[0.2324, 0.6357]]]], [[[[0.5353, 0.6284]]]]], Min79661), 
+LZer35408 = zero_padding2D_layer(Min79661, 2, 0, 1, 0, Zer35408), 
+LMul19644 = multiply_layer([Con86314,Zer35408], Mul19644), 
+exec_layers([LSub94741,LMas4053,LRes66002,LCon86314,LMin79661,LZer35408,LMul19644],["Sub94741","Mas4053","Res66002","Con86314","Min79661","Zer35408","Mul19644"],Mul19644,"Mul19644")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [0.0000000, 0.0000000]], [[0.0000000, 0.0000000], [-0.1478064, 0.3070362]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[0.0,0.0]],[[0.0,0.0],[0.0,0.0]],[[0.0,0.0],[-0.14780639999999998,0.30703623999999996]]]]
+
+Actual:   [[[[0, 0], [0, 0]], [[0, 0], [0, 0]], [[0, 0], [-0.1478, 0.3071]]]]
+
+Expected: [[[[0, 0], [0, 0]], [[0, 0], [0, 0]], [[0, 0], [-0.1478, 0.3071]]]]

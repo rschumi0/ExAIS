@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep23496 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Dep23496 = keras.layers.DepthwiseConv2D((2, 1),strides=(2, 2), padding='same', name = 'Dep23496', )(in0Dep23496)
+Res16439 = keras.layers.Reshape((1, 2), name = 'Res16439', )(Dep23496)
+Max70913 = keras.layers.MaxPool1D(pool_size=(1), strides=(1), padding='same', name = 'Max70913', )(Res16439)
+Res87127 = keras.layers.Reshape((1, 2, 1), name = 'Res87127', )(Max70913)
+Loc71696 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc71696', )(Res87127)
+model = tf.keras.models.Model(inputs=[in0Dep23496], outputs=Loc71696)
+w = model.get_layer('Dep23496').get_weights() 
+w[0] = np.array([[[[0.9334], [0.1942]]], [[[0.023], [0.5309]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep23496').set_weights(w) 
+w = model.get_layer('Loc71696').get_weights() 
+w[0] = np.array([[[0.5586, 0.1543, 0.026]], [[0.6888, 0.5266, 0.9063]]])
+w[1] = np.array([[[0, 0, 0], [0, 0, 0]]])
+model.get_layer('Loc71696').set_weights(w) 
+in0Dep23496 = tf.constant([[[[0.564, 0.1721], [0.8899, 0.9367]], [[0.1267, 0.144], [0.808, 0.0205]]]])
+print (np.array2string(model.predict([in0Dep23496],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc71696.png')
+
+LDep23496 = depthwise_conv2D_layer([[[[0.564, 0.1721], [0.8899, 0.9367]], [[0.1267, 0.144], [0.808, 0.0205]]]], 2, 1,[[[[0.9334], [0.1942]]], [[[0.023], [0.5309]]]],[0, 0], 2, 2, true, Dep23496), 
+LRes16439 = reshape_layer(Dep23496, [1, 2], Res16439), 
+LMax70913 = max_pool1D_layer(Res16439, 1, 1, true, Max70913), 
+LRes87127 = reshape_layer(Max70913, [1, 2, 1], Res87127), 
+LLoc71696 = locally_connected2D_layer(Res87127, 1, 1,[[[0.5586, 0.1543, 0.026]], [[0.6888, 0.5266, 0.9063]]],[[[0, 0, 0], [0, 0, 0]]], 1, 1, Loc71696), 
+exec_layers([LDep23496,LRes16439,LMax70913,LRes87127,LLoc71696],["Dep23496","Res16439","Max70913","Res87127","Loc71696"],Loc71696,"Loc71696")
+
+Actual (Unparsed): [[[[0.2956959, 0.0816790, 0.0137631], [0.0756794, 0.0578583, 0.0995765]]]]
+
+Expected (Unparsed): [[[[0.29569585962,0.08167896730999999,0.013763144199999999],[0.075679434096,0.057858289772,0.09957646794600002]]]]
+
+Actual:   [[[[0.2957, 0.0817, 0.0138], [0.0757, 0.0579, 0.0996]]]]
+
+Expected: [[[[0.2957, 0.0817, 0.0138], [0.0757, 0.0579, 0.0996]]]]

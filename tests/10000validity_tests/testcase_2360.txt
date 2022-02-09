@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave57928 = tf.keras.layers.Input(shape=([2, 2]))
+in1Ave57928 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con57366 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Add13021 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Add13021 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Ave57928 = keras.layers.Average(name = 'Ave57928', )([in0Ave57928,in1Ave57928])
+Res77153 = keras.layers.Reshape((2, 2, 1), name = 'Res77153', )(Ave57928)
+Con57366 = keras.layers.Concatenate(axis=3, name = 'Con57366', )([Res77153,in0Con57366])
+Add13021 = keras.layers.Add(name = 'Add13021', )([in0Add13021,in1Add13021])
+Max91196 = keras.layers.Maximum(name = 'Max91196', )([Con57366,Add13021])
+Sep33902 = keras.layers.SeparableConv2D(2, (2, 1),strides=(2, 2), padding='same', name = 'Sep33902', )(Max91196)
+Res46439 = keras.layers.Reshape((1, 2), name = 'Res46439', )(Sep33902)
+LST66851 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST66851', )(Res46439)
+Res9651 = keras.layers.Reshape((2, 1), name = 'Res9651', )(LST66851)
+Up_38844 = keras.layers.UpSampling1D(size=(1), name = 'Up_38844', )(Res9651)
+model = tf.keras.models.Model(inputs=[in0Ave57928,in1Ave57928,in0Con57366,in0Add13021,in1Add13021], outputs=Up_38844)
+w = model.get_layer('Sep33902').get_weights() 
+w[0] = np.array([[[[0.6685], [0.2804]]], [[[0.8855], [0.8209]]]])
+w[1] = np.array([[[[0.7788, 0.9881], [0.3416, 0.702]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep33902').set_weights(w) 
+w = model.get_layer('LST66851').get_weights() 
+w[0] = np.array([[8, 5, 10, 9, 2, 8, 4, 6], [9, 6, 1, 4, 10, 10, 10, 8]])
+w[1] = np.array([[1, 10, 3, 6, 6, 3, 10, 5], [10, 6, 6, 5, 2, 10, 1, 6]])
+w[2] = np.array([5, 2, 8, 8, 8, 2, 7, 7])
+model.get_layer('LST66851').set_weights(w) 
+in0Ave57928 = tf.constant([[[0.5006, 0.8041], [0.8929, 0.2915]]])
+in1Ave57928 = tf.constant([[[0.5871, 0.4603], [0.4735, 0.1021]]])
+in0Con57366 = tf.constant([[[[0.853], [0.4507]], [[0.2269], [0.5754]]]])
+in0Add13021 = tf.constant([[[[0.1117, 0.6615], [0.0167, 0.0448]], [[0.9414, 0.1267], [0.2717, 0.6354]]]])
+in1Add13021 = tf.constant([[[[0.9455, 0.0354], [0.5407, 0.7194]], [[0.1961, 0.0562], [0.8669, 0.7394]]]])
+print (np.array2string(model.predict([in0Ave57928,in1Ave57928,in0Con57366,in0Add13021,in1Add13021],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_38844.png')
+
+LAve57928 = average_layer([[[[0.5006, 0.8041], [0.8929, 0.2915]]], [[[0.5871, 0.4603], [0.4735, 0.1021]]]], Ave57928), 
+LRes77153 = reshape_layer(Ave57928, [2, 2, 1], Res77153), 
+LCon57366 = concatenate_layer([Res77153,[[[[0.853], [0.4507]], [[0.2269], [0.5754]]]]], 3, Con57366), 
+LAdd13021 = add_layer([[[[[0.1117, 0.6615], [0.0167, 0.0448]], [[0.9414, 0.1267], [0.2717, 0.6354]]]], [[[[0.9455, 0.0354], [0.5407, 0.7194]], [[0.1961, 0.0562], [0.8669, 0.7394]]]]], Add13021), 
+LMax91196 = maximum_layer([Con57366,Add13021], Max91196), 
+LSep33902 = separable_conv2D_layer(Max91196, 2, 1,[[[[[0.6685], [0.2804]]], [[[0.8855], [0.8209]]]],[[[[0.7788, 0.9881], [0.3416, 0.702]]]]],[0, 0], 2, 2, true, Sep33902), 
+LRes46439 = reshape_layer(Sep33902, [1, 2], Res46439), 
+LLST66851 = lstm_layer(Res46439,[[8, 5, 10, 9, 2, 8, 4, 6], [9, 6, 1, 4, 10, 10, 10, 8]],[[1, 10, 3, 6, 6, 3, 10, 5], [10, 6, 6, 5, 2, 10, 1, 6]],[5, 2, 8, 8, 8, 2, 7, 7], LST66851), 
+LRes9651 = reshape_layer(LST66851, [2, 1], Res9651), 
+LUp_38844 = up_sampling1D_layer(Res9651, 1, Up_38844), 
+exec_layers([LAve57928,LRes77153,LCon57366,LAdd13021,LMax91196,LSep33902,LRes46439,LLST66851,LRes9651,LUp_38844],["Ave57928","Res77153","Con57366","Add13021","Max91196","Sep33902","Res46439","LST66851","Res9651","Up_38844"],Up_38844,"Up_38844")
+
+Actual (Unparsed): [[[0.7615942], [0.7615942]]]
+
+Expected (Unparsed): [[[0.7615941559557604],[0.761594155732356]]]
+
+Actual:   [[[0.7616], [0.7616]]]
+
+Expected: [[[0.7616], [0.7616]]]

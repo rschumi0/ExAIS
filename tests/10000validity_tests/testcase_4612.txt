@@ -1,0 +1,64 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave9550 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in1Ave9550 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Con51712 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Add59049 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Add59049 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+
+Ave9550 = keras.layers.Average(name = 'Ave9550', )([in0Ave9550,in1Ave9550])
+Res14352 = keras.layers.Reshape((2, 2), name = 'Res14352', )(Ave9550)
+Per47751 = keras.layers.Permute((1,2), name = 'Per47751',)(Res14352)
+Res73664 = keras.layers.Reshape((2, 2, 1), name = 'Res73664', )(Per47751)
+Con51712 = keras.layers.Concatenate(axis=3, name = 'Con51712', )([Res73664,in0Con51712])
+Add59049 = keras.layers.Add(name = 'Add59049', )([in0Add59049,in1Add59049])
+Res44684 = keras.layers.Reshape((1, 1, 1), name = 'Res44684', )(Add59049)
+Loc21445 = keras.layers.LocallyConnected2D(3, (1, 1),strides=(1, 1), name = 'Loc21445', )(Res44684)
+Zer14433 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer14433', )(Loc21445)
+Ave13492 = keras.layers.Average(name = 'Ave13492', )([Con51712,Zer14433])
+Res10403 = keras.layers.Reshape((2, 6), name = 'Res10403', )(Ave13492)
+Sim34810 = keras.layers.SimpleRNN(3,name = 'Sim34810', )(Res10403)
+model = tf.keras.models.Model(inputs=[in0Ave9550,in1Ave9550,in0Con51712,in0Add59049,in1Add59049], outputs=Sim34810)
+w = model.get_layer('Loc21445').get_weights() 
+w[0] = np.array([[[0.1753, 0.3152, 0.9156]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc21445').set_weights(w) 
+w = model.get_layer('Sim34810').get_weights() 
+w[0] = np.array([[10, 8, 3], [8, 9, 6], [3, 3, 5], [10, 9, 2], [2, 8, 6], [8, 6, 4]])
+w[1] = np.array([[2, 5, 2], [3, 3, 3], [3, 6, 2]])
+w[2] = np.array([8, 8, 3])
+model.get_layer('Sim34810').set_weights(w) 
+in0Ave9550 = tf.constant([[[[0.3343], [0.6687]], [[0.5114], [0.4487]]]])
+in1Ave9550 = tf.constant([[[[0.756], [0.0608]], [[0.5249], [0.8683]]]])
+in0Con51712 = tf.constant([[[[0.4337, 0.7279], [0.9426, 0.3531]], [[0.3906, 0.0147], [0.1546, 0.9303]]]])
+in0Add59049 = tf.constant([[[[[0.9555]]]]])
+in1Add59049 = tf.constant([[[[[0.8217]]]]])
+print (np.array2string(model.predict([in0Ave9550,in1Ave9550,in0Con51712,in0Add59049,in1Add59049],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sim34810.png')
+
+LAve9550 = average_layer([[[[[0.3343], [0.6687]], [[0.5114], [0.4487]]]], [[[[0.756], [0.0608]], [[0.5249], [0.8683]]]]], Ave9550), 
+LRes14352 = reshape_layer(Ave9550, [2, 2], Res14352), 
+LPer47751 = permute_layer(Res14352, 1,2, Per47751), 
+LRes73664 = reshape_layer(Per47751, [2, 2, 1], Res73664), 
+LCon51712 = concatenate_layer([Res73664,[[[[0.4337, 0.7279], [0.9426, 0.3531]], [[0.3906, 0.0147], [0.1546, 0.9303]]]]], 3, Con51712), 
+LAdd59049 = add_layer([[[[[[0.9555]]]]], [[[[[0.8217]]]]]], Add59049), 
+LRes44684 = reshape_layer(Add59049, [1, 1, 1], Res44684), 
+LLoc21445 = locally_connected2D_layer(Res44684, 1, 1,[[[0.1753, 0.3152, 0.9156]]],[[[0, 0, 0]]], 1, 1, Loc21445), 
+LZer14433 = zero_padding2D_layer(Loc21445, 1, 0, 1, 0, Zer14433), 
+LAve13492 = average_layer([Con51712,Zer14433], Ave13492), 
+LRes10403 = reshape_layer(Ave13492, [2, 6], Res10403), 
+LSim34810 = simple_rnn_layer(Res10403,[[10, 8, 3], [8, 9, 6], [3, 3, 5], [10, 9, 2], [2, 8, 6], [8, 6, 4]],[[2, 5, 2], [3, 3, 3], [3, 6, 2]],[8, 8, 3], Sim34810), 
+exec_layers([LAve9550,LRes14352,LPer47751,LRes73664,LCon51712,LAdd59049,LRes44684,LLoc21445,LZer14433,LAve13492,LRes10403,LSim34810],["Ave9550","Res14352","Per47751","Res73664","Con51712","Add59049","Res44684","Loc21445","Zer14433","Ave13492","Res10403","Sim34810"],Sim34810,"Sim34810")
+
+Actual (Unparsed): [[1.0000000, 1.0000000, 1.0000000]]
+
+Expected (Unparsed): [[1.0,1.0,1.0]]
+
+Actual:   [[1, 1, 1]]
+
+Expected: [[1, 1, 1]]

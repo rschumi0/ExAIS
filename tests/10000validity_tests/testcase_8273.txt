@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc56817 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Add86253 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Add86253 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Loc56817 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc56817', )(in0Loc56817)
+Fla2817 = keras.layers.Flatten(name = 'Fla2817', )(Loc56817)
+Res89075 = keras.layers.Reshape((4, 1), name = 'Res89075', )(Fla2817)
+Add86253 = keras.layers.Add(name = 'Add86253', )([in0Add86253,in1Add86253])
+Res4888 = keras.layers.Reshape((4, 1), name = 'Res4888', )(Add86253)
+Mul49290 = keras.layers.Multiply(name = 'Mul49290', )([Res89075,Res4888])
+model = tf.keras.models.Model(inputs=[in0Loc56817,in0Add86253,in1Add86253], outputs=Mul49290)
+w = model.get_layer('Loc56817').get_weights() 
+w[0] = np.array([[[0.0565, 0.9141], [0.8742, 0.3481]], [[0.9461, 0.6582], [0.1672, 0.9684]]])
+w[1] = np.array([[[0, 0], [0, 0]]])
+model.get_layer('Loc56817').set_weights(w) 
+in0Loc56817 = tf.constant([[[[0.6506, 0.7429], [0.4369, 0.8366]]]])
+in0Add86253 = tf.constant([[[[[0.4924, 0.8895]]], [[[0.6526, 0.9307]]]]])
+in1Add86253 = tf.constant([[[[[0.3333, 0.4001]]], [[[0.7746, 0.3759]]]]])
+print (np.array2string(model.predict([in0Loc56817,in0Add86253,in1Add86253],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul49290.png')
+
+LLoc56817 = locally_connected2D_layer([[[[0.6506, 0.7429], [0.4369, 0.8366]]]], 1, 1,[[[0.0565, 0.9141], [0.8742, 0.3481]], [[0.9461, 0.6582], [0.1672, 0.9684]]],[[[0, 0], [0, 0]]], 1, 1, Loc56817), 
+LFla2817 = flatten_layer(Loc56817, Fla2817), 
+LRes89075 = reshape_layer(Fla2817, [4, 1], Res89075), 
+LAdd86253 = add_layer([[[[[[0.4924, 0.8895]]], [[[0.6526, 0.9307]]]]], [[[[[0.3333, 0.4001]]], [[[0.7746, 0.3759]]]]]], Add86253), 
+LRes4888 = reshape_layer(Add86253, [4, 1], Res4888), 
+LMul49290 = multiply_layer([Res89075,Res4888], Mul49290), 
+exec_layers([LLoc56817,LFla2817,LRes89075,LAdd86253,LRes4888,LMul49290],["Loc56817","Fla2817","Res89075","Add86253","Res4888","Mul49290"],Mul49290,"Mul49290")
+
+Actual (Unparsed): [[[0.5665971], [1.1004376], [0.7895707], [1.4342954]]]
+
+Expected (Unparsed): [[[0.5665970574560001],[1.10043753872],[0.789570726592],[1.4342953507320002]]]
+
+Actual:   [[[0.5666], [1.1005], [0.7896], [1.4343]]]
+
+Expected: [[[0.5666], [1.1005], [0.7896], [1.4343]]]

@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot16414 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot16414 = tf.keras.layers.Input(shape=([2, 2]))
+in0Thr96588 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con76628 = tf.keras.layers.Input(shape=([3]))
+
+Dot16414 = keras.layers.Dot(axes=(1, 2), name = 'Dot16414', )([in0Dot16414,in1Dot16414])
+Max50064 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max50064', )(Dot16414)
+Fla27049 = keras.layers.Flatten(name = 'Fla27049', )(Max50064)
+Thr96588 = keras.layers.ThresholdedReLU(theta=0.6939482254958819, name = 'Thr96588', input_shape=(2, 1))(in0Thr96588)
+GRU68174 = keras.layers.GRU(1,reset_after=True, recurrent_activation='sigmoid', name = 'GRU68174', )(Thr96588)
+Con76628 = keras.layers.Concatenate(axis=1, name = 'Con76628', )([GRU68174,in0Con76628])
+Max49644 = keras.layers.Maximum(name = 'Max49644', )([Fla27049,Con76628])
+Res60076 = keras.layers.Reshape((4, 1), name = 'Res60076', )(Max49644)
+Res2648 = keras.layers.Reshape((4, 1, 1), name = 'Res2648', )(Res60076)
+Up_78747 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_78747', )(Res2648)
+model = tf.keras.models.Model(inputs=[in0Dot16414,in1Dot16414,in0Thr96588,in0Con76628], outputs=Up_78747)
+w = model.get_layer('GRU68174').get_weights() 
+w[0] = np.array([[8, 6, 4]])
+w[1] = np.array([[10, 10, 3]])
+w[2] = np.array([[6, 10, 6], [7, 3, 6]])
+model.get_layer('GRU68174').set_weights(w) 
+in0Dot16414 = tf.constant([[[0.0689, 0.736], [0.3855, 0.6589]]])
+in1Dot16414 = tf.constant([[[0.6607, 0.7592], [0.6925, 0.1234]]])
+in0Thr96588 = tf.constant([[[0.7284], [0.3617]]])
+in0Con76628 = tf.constant([[0.3792, 0.971, 0.2566]])
+print (np.array2string(model.predict([in0Dot16414,in1Dot16414,in0Thr96588,in0Con76628],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_78747.png')
+
+LDot16414 = dot_layer([[[0.0689, 0.736], [0.3855, 0.6589]]], [[[0.6607, 0.7592], [0.6925, 0.1234]]], 1, 2, Dot16414), 
+LMax50064 = max_pool1D_layer(Dot16414, 1, Max50064), 
+LFla27049 = flatten_layer(Max50064, Fla27049), 
+LThr96588 = thresholded_relu_layer([[[0.7284], [0.3617]]], 0.6939482254958819, Thr96588), 
+LGRU68174 = gru_layer(Thr96588,[[8, 6, 4]],[[10, 10, 3]],[[6, 10, 6], [7, 3, 6]], true, GRU68174), 
+LCon76628 = concatenate_layer([GRU68174,[[0.3792, 0.971, 0.2566]]], 1, Con76628), 
+LMax49644 = maximum_layer([Fla27049,Con76628], Max49644), 
+LRes60076 = reshape_layer(Max49644, [4, 1], Res60076), 
+LRes2648 = reshape_layer(Res60076, [4, 1, 1], Res2648), 
+LUp_78747 = up_sampling2D_layer(Res2648, 1, 2, Up_78747), 
+exec_layers([LDot16414,LMax50064,LFla27049,LThr96588,LGRU68174,LCon76628,LMax49644,LRes60076,LRes2648,LUp_78747],["Dot16414","Max50064","Fla27049","Thr96588","GRU68174","Con76628","Max49644","Res60076","Res2648","Up_78747"],Up_78747,"Up_78747")
+
+Actual (Unparsed): [[[[0.3381938], [0.3381938]], [[0.3792000], [0.3792000]], [[0.9865121], [0.9865121]], [[0.5909883], [0.5909883]]]]
+
+Expected (Unparsed): [[[[0.33819383],[0.33819383]],[[0.3792],[0.3792]],[[0.98651208],[0.98651208]],[[0.59098826],[0.59098826]]]]
+
+Actual:   [[[[0.3382], [0.3382]], [[0.3792], [0.3792]], [[0.9866], [0.9866]], [[0.591], [0.591]]]]
+
+Expected: [[[[0.3382], [0.3382]], [[0.3792], [0.3792]], [[0.9866], [0.9866]], [[0.591], [0.591]]]]

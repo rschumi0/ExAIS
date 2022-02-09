@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul55265 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Mul55265 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con13310 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Dot76706 = tf.keras.layers.Input(shape=([2]))
+in1Dot76706 = tf.keras.layers.Input(shape=([2]))
+
+Mul55265 = keras.layers.Multiply(name = 'Mul55265', )([in0Mul55265,in1Mul55265])
+Con13310 = keras.layers.Concatenate(axis=3, name = 'Con13310', )([Mul55265,in0Con13310])
+Dot76706 = keras.layers.Dot(axes=(1, 1), name = 'Dot76706', )([in0Dot76706,in1Dot76706])
+Res56435 = keras.layers.Reshape((1, 1), name = 'Res56435', )(Dot76706)
+Res11424 = keras.layers.Reshape((1, 1, 1), name = 'Res11424', )(Res56435)
+Sep74917 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='same', name = 'Sep74917', )(Res11424)
+Sub18381 = keras.layers.Subtract(name = 'Sub18381', )([Con13310,Sep74917])
+Cro99640 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro99640', )(Sub18381)
+model = tf.keras.models.Model(inputs=[in0Mul55265,in1Mul55265,in0Con13310,in0Dot76706,in1Dot76706], outputs=Cro99640)
+w = model.get_layer('Sep74917').get_weights() 
+w[0] = np.array([[[[0.5277]]]])
+w[1] = np.array([[[[0.1152, 0.466, 0.6494]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep74917').set_weights(w) 
+in0Mul55265 = tf.constant([[[[0.9627, 0.262]]]])
+in1Mul55265 = tf.constant([[[[0.5267, 0.1062]]]])
+in0Con13310 = tf.constant([[[[0.0411]]]])
+in0Dot76706 = tf.constant([[0.6462, 0.1379]])
+in1Dot76706 = tf.constant([[0.8994, 0.6997]])
+print (np.array2string(model.predict([in0Mul55265,in1Mul55265,in0Con13310,in0Dot76706,in1Dot76706],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Cro99640.png')
+
+LMul55265 = multiply_layer([[[[[0.9627, 0.262]]]], [[[[0.5267, 0.1062]]]]], Mul55265), 
+LCon13310 = concatenate_layer([Mul55265,[[[[0.0411]]]]], 3, Con13310), 
+LDot76706 = dot_layer([[0.6462, 0.1379]], [[0.8994, 0.6997]], 1, 1, Dot76706), 
+LRes56435 = reshape_layer(Dot76706, [1, 1], Res56435), 
+LRes11424 = reshape_layer(Res56435, [1, 1, 1], Res11424), 
+LSep74917 = separable_conv2D_layer(Res11424, 1, 1,[[[[[0.5277]]]],[[[[0.1152, 0.466, 0.6494]]]]],[0, 0, 0], 1, 1, true, Sep74917), 
+LSub18381 = subtract_layer(Con13310,Sep74917, Sub18381), 
+LCro99640 = cropping2D_layer(Sub18381, 0, 0, 0, 0, Cro99640), 
+exec_layers([LMul55265,LCon13310,LDot76706,LRes56435,LRes11424,LSep74917,LSub18381,LCro99640],["Mul55265","Con13310","Dot76706","Res56435","Res11424","Sep74917","Sub18381","Cro99640"],Cro99640,"Cro99640")
+
+Actual (Unparsed): [[[[0.4658572, -0.1388229, -0.1911334]]]]
+
+Expected (Unparsed): [[[[0.4658571626929535,-0.13882289275246198,-0.19113337320482576]]]]
+
+Actual:   [[[[0.4659, -0.1388, -0.1911]]]]
+
+Expected: [[[[0.4659, -0.1388, -0.1911]]]]

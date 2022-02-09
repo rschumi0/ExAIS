@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_41860 = tf.keras.layers.Input(shape=([1, 1]))
+in0Glo65098 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con82737 = tf.keras.layers.Input(shape=([7]))
+
+Up_41860 = keras.layers.UpSampling1D(size=(2), name = 'Up_41860', )(in0Up_41860)
+Res92281 = keras.layers.Reshape((2, 1, 1), name = 'Res92281', )(Up_41860)
+Con24943 = keras.layers.Conv2D(4, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con24943', )(Res92281)
+Res76984 = keras.layers.Reshape((2, 4), name = 'Res76984', )(Con24943)
+Fla82380 = keras.layers.Flatten(name = 'Fla82380', )(Res76984)
+Glo65098 = keras.layers.GlobalAveragePooling1D(name = 'Glo65098', )(in0Glo65098)
+Con82737 = keras.layers.Concatenate(axis=1, name = 'Con82737', )([Glo65098,in0Con82737])
+Sub28637 = keras.layers.Subtract(name = 'Sub28637', )([Fla82380,Con82737])
+Res39449 = keras.layers.Reshape((8, 1), name = 'Res39449', )(Sub28637)
+Up_51740 = keras.layers.UpSampling1D(size=(2), name = 'Up_51740', )(Res39449)
+Res50514 = keras.layers.Reshape((16, 1, 1), name = 'Res50514', )(Up_51740)
+Up_13480 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_13480', )(Res50514)
+model = tf.keras.models.Model(inputs=[in0Up_41860,in0Glo65098,in0Con82737], outputs=Up_13480)
+w = model.get_layer('Con24943').get_weights() 
+w[0] = np.array([[[[0.1363, 0.0018, 0.6702, 0.4601]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con24943').set_weights(w) 
+in0Up_41860 = tf.constant([[[1.9167]]])
+in0Glo65098 = tf.constant([[[1.6074], [1.949]]])
+in0Con82737 = tf.constant([[0.8071, 0.1543, 0.4908, 0.3033, 0.6684, 0.7885, 0.8772]])
+print (np.array2string(model.predict([in0Up_41860,in0Glo65098,in0Con82737],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_13480.png')
+
+LUp_41860 = up_sampling1D_layer([[[1.9167]]], 2, Up_41860), 
+LRes92281 = reshape_layer(Up_41860, [2, 1, 1], Res92281), 
+LCon24943 = conv2D_layer(Res92281, 1, 1,[[[[0.1363, 0.0018, 0.6702, 0.4601]]]],[0, 0, 0, 0], 1, 1, true, 1, 1, Con24943), 
+LRes76984 = reshape_layer(Con24943, [2, 4], Res76984), 
+LFla82380 = flatten_layer(Res76984, Fla82380), 
+LGlo65098 = global_average_pooling1D_layer([[[1.6074], [1.949]]], Glo65098), 
+LCon82737 = concatenate_layer([Glo65098,[[0.8071, 0.1543, 0.4908, 0.3033, 0.6684, 0.7885, 0.8772]]], 1, Con82737), 
+LSub28637 = subtract_layer(Fla82380,Con82737, Sub28637), 
+LRes39449 = reshape_layer(Sub28637, [8, 1], Res39449), 
+LUp_51740 = up_sampling1D_layer(Res39449, 2, Up_51740), 
+LRes50514 = reshape_layer(Up_51740, [16, 1, 1], Res50514), 
+LUp_13480 = up_sampling2D_layer(Res50514, 1, 1, Up_13480), 
+exec_layers([LUp_41860,LRes92281,LCon24943,LRes76984,LFla82380,LGlo65098,LCon82737,LSub28637,LRes39449,LUp_51740,LRes50514,LUp_13480],["Up_41860","Res92281","Con24943","Res76984","Fla82380","Glo65098","Con82737","Sub28637","Res39449","Up_51740","Res50514","Up_13480"],Up_13480,"Up_13480")
+
+Actual (Unparsed): [[[[-1.5169538]], [[-1.5169538]], [[-0.8036499]], [[-0.8036499]], [[1.1302723]], [[1.1302723]], [[0.3910737]], [[0.3910737]], [[-0.0420538]], [[-0.0420538]], [[-0.6649499]], [[-0.6649499]], [[0.4960723]], [[0.4960723]], [[0.0046737]], [[0.0046737]]]]
+
+Expected (Unparsed): [[[[-1.51695379]],[[-1.51695379]],[[-0.80364994]],[[-0.80364994]],[[1.1302723399999999]],[[1.1302723399999999]],[[0.39107367000000004]],[[0.39107367000000004]],[[-0.04205378999999998]],[[-0.04205378999999998]],[[-0.66494994]],[[-0.66494994]],[[0.49607234]],[[0.49607234]],[[0.004673670000000074]],[[0.004673670000000074]]]]
+
+Actual:   [[[[-1.5169]], [[-1.5169]], [[-0.8036]], [[-0.8036]], [[1.1303]], [[1.1303]], [[0.3911]], [[0.3911]], [[-0.042]], [[-0.042]], [[-0.6649]], [[-0.6649]], [[0.4961]], [[0.4961]], [[0.0047]], [[0.0047]]]]
+
+Expected: [[[[-1.5169]], [[-1.5169]], [[-0.8036]], [[-0.8036]], [[1.1303]], [[1.1303]], [[0.3911]], [[0.3911]], [[-0.042]], [[-0.042]], [[-0.6649]], [[-0.6649]], [[0.4961]], [[0.4961]], [[0.0047]], [[0.0047]]]]

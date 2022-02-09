@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot36784 = tf.keras.layers.Input(shape=([2]))
+in1Dot36784 = tf.keras.layers.Input(shape=([2]))
+in0Bat48315 = tf.keras.layers.Input(shape=([1]))
+
+Dot36784 = keras.layers.Dot(axes=(1, 1), name = 'Dot36784', )([in0Dot36784,in1Dot36784])
+Bat48315 = keras.layers.BatchNormalization(axis=1, epsilon=0.6013115123542857,  name = 'Bat48315', )(in0Bat48315)
+Sub87719 = keras.layers.Subtract(name = 'Sub87719', )([Dot36784,Bat48315])
+Res94929 = keras.layers.Reshape((1, 1), name = 'Res94929', )(Sub87719)
+GRU21482 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU21482', )(Res94929)
+model = tf.keras.models.Model(inputs=[in0Dot36784,in1Dot36784,in0Bat48315], outputs=GRU21482)
+w = model.get_layer('Bat48315').get_weights() 
+w[0] = np.array([0.2017])
+w[1] = np.array([0.1594])
+w[2] = np.array([0.347])
+w[3] = np.array([0.9016])
+model.get_layer('Bat48315').set_weights(w) 
+w = model.get_layer('GRU21482').get_weights() 
+w[0] = np.array([[2, 5, 5, 7, 8, 8, 2, 6, 4]])
+w[1] = np.array([[5, 5, 3, 9, 1, 5, 6, 4, 6], [9, 3, 4, 6, 5, 1, 2, 6, 7], [9, 10, 5, 9, 1, 10, 5, 2, 1]])
+w[2] = np.array([[4, 2, 9, 10, 7, 10, 10, 9, 5], [5, 5, 8, 5, 10, 4, 2, 1, 7]])
+model.get_layer('GRU21482').set_weights(w) 
+in0Dot36784 = tf.constant([[0.461, 0.8353]])
+in1Dot36784 = tf.constant([[0.1062, 0.1146]])
+in0Bat48315 = tf.constant([[1.6307]])
+print (np.array2string(model.predict([in0Dot36784,in1Dot36784,in0Bat48315],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU21482.png')
+
+LDot36784 = dot_layer([[0.461, 0.8353]], [[0.1062, 0.1146]], 1, 1, Dot36784), 
+LBat48315 = batch_normalization_layer([[1.6307]], 1, 0.6013115123542857, [0.2017], [0.1594], [0.347], [0.9016], Bat48315), 
+LSub87719 = subtract_layer(Dot36784,Bat48315, Sub87719), 
+LRes94929 = reshape_layer(Sub87719, [1, 1], Res94929), 
+LGRU21482 = gru_layer(Res94929,[[2, 5, 5, 7, 8, 8, 2, 6, 4]],[[5, 5, 3, 9, 1, 5, 6, 4, 6], [9, 3, 4, 6, 5, 1, 2, 6, 7], [9, 10, 5, 9, 1, 10, 5, 2, 1]],[[4, 2, 9, 10, 7, 10, 10, 9, 5], [5, 5, 8, 5, 10, 4, 2, 1, 7]], true, GRU21482), 
+exec_layers([LDot36784,LBat48315,LSub87719,LRes94929,LGRU21482],["Dot36784","Bat48315","Sub87719","Res94929","GRU21482"],GRU21482,"GRU21482")
+
+Actual (Unparsed): [[0.0001939, 0.0028138, 0.0000001]]
+
+Expected (Unparsed): [[0.0001938642347583705,0.002813814348986248,1.2810743593372729e-7]]
+
+Actual:   [[0.0002, 0.0029, 0]]
+
+Expected: [[0.0002, 0.0029, 0]]

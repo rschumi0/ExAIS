@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer24866 = tf.keras.layers.Input(shape=([3, 1]))
+in0Con26521 = tf.keras.layers.Input(shape=([5, 1, 2]))
+in0Ave56695 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Ave56695 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+
+Zer24866 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer24866', )(in0Zer24866)
+Res51133 = keras.layers.Reshape((5, 1, 1), name = 'Res51133', )(Zer24866)
+Con26521 = keras.layers.Concatenate(axis=3, name = 'Con26521', )([Res51133,in0Con26521])
+Ave56695 = keras.layers.Average(name = 'Ave56695', )([in0Ave56695,in1Ave56695])
+Res91221 = keras.layers.Reshape((1, 1, 2), name = 'Res91221', )(Ave56695)
+Con65857 = keras.layers.Conv2DTranspose(3, (1, 1),strides=(1, 1), padding='valid', name = 'Con65857', )(Res91221)
+Zer74324 = keras.layers.ZeroPadding2D(padding=((4, 0), (0, 0)), name = 'Zer74324', )(Con65857)
+Add65984 = keras.layers.Add(name = 'Add65984', )([Con26521,Zer74324])
+Res3573 = keras.layers.Reshape((5, 3), name = 'Res3573', )(Add65984)
+Glo23247 = keras.layers.GlobalMaxPool1D(name = 'Glo23247', )(Res3573)
+model = tf.keras.models.Model(inputs=[in0Zer24866,in0Con26521,in0Ave56695,in1Ave56695], outputs=Glo23247)
+w = model.get_layer('Con65857').get_weights() 
+w[0] = np.array([[[[0.2016, 0.5543], [0.7971, 0.1172], [0.5964, 0.9187]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con65857').set_weights(w) 
+in0Zer24866 = tf.constant([[[1.5667], [1.0363], [1.0251]]])
+in0Con26521 = tf.constant([[[[0.1085, 0.7189]], [[0.2685, 0.7513]], [[0.039, 0.7036]], [[0.3359, 0.1235]], [[0.3159, 0.7394]]]])
+in0Ave56695 = tf.constant([[[[[0.2856, 0.0072]]]]])
+in1Ave56695 = tf.constant([[[[[0.0093, 0.3096]]]]])
+print (np.array2string(model.predict([in0Zer24866,in0Con26521,in0Ave56695,in1Ave56695],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo23247.png')
+
+LZer24866 = zero_padding1D_layer([[[1.5667], [1.0363], [1.0251]]], 1, 1, Zer24866), 
+LRes51133 = reshape_layer(Zer24866, [5, 1, 1], Res51133), 
+LCon26521 = concatenate_layer([Res51133,[[[[0.1085, 0.7189]], [[0.2685, 0.7513]], [[0.039, 0.7036]], [[0.3359, 0.1235]], [[0.3159, 0.7394]]]]], 3, Con26521), 
+LAve56695 = average_layer([[[[[[0.2856, 0.0072]]]]], [[[[[0.0093, 0.3096]]]]]], Ave56695), 
+LRes91221 = reshape_layer(Ave56695, [1, 1, 2], Res91221), 
+LCon65857 = conv2D_transpose_layer(Res91221, 1, 1,[[[[0.2016, 0.5543], [0.7971, 0.1172], [0.5964, 0.9187]]]],[0, 0, 0], 1, 1, false, Con65857), 
+LZer74324 = zero_padding2D_layer(Con65857, 4, 0, 0, 0, Zer74324), 
+LAdd65984 = add_layer([Con26521,Zer74324], Add65984), 
+LRes3573 = reshape_layer(Add65984, [5, 3], Res3573), 
+LGlo23247 = global_max_pool1D_layer(Res3573, Glo23247), 
+exec_layers([LZer24866,LRes51133,LCon26521,LAve56695,LRes91221,LCon65857,LZer74324,LAdd65984,LRes3573,LGlo23247],["Zer24866","Res51133","Con26521","Ave56695","Res91221","Con65857","Zer74324","Add65984","Res3573","Glo23247"],Glo23247,"Glo23247")
+
+Actual (Unparsed): [[1.5667000, 0.4519969, 0.9728613]]
+
+Expected (Unparsed): [[1.5667,0.451996875,0.97286126]]
+
+Actual:   [[1.5667, 0.452, 0.9729]]
+
+Expected: [[1.5667, 0.452, 0.9729]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul23804 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul23804 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con29640 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Mul30061 = tf.keras.layers.Input(shape=([2, 1]))
+in1Mul30061 = tf.keras.layers.Input(shape=([2, 1]))
+
+Mul23804 = keras.layers.Multiply(name = 'Mul23804', )([in0Mul23804,in1Mul23804])
+Res9659 = keras.layers.Reshape((2, 2, 1), name = 'Res9659', )(Mul23804)
+Con29640 = keras.layers.Concatenate(axis=3, name = 'Con29640', )([Res9659,in0Con29640])
+Mul30061 = keras.layers.Multiply(name = 'Mul30061', )([in0Mul30061,in1Mul30061])
+Glo64585 = keras.layers.GlobalMaxPool1D(name = 'Glo64585', )(Mul30061)
+Res1085 = keras.layers.Reshape((1, 1), name = 'Res1085', )(Glo64585)
+Res30936 = keras.layers.Reshape((1, 1, 1), name = 'Res30936', )(Res1085)
+Sep84110 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='same', name = 'Sep84110', )(Res30936)
+Zer8753 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer8753', )(Sep84110)
+Min82796 = keras.layers.Minimum(name = 'Min82796', )([Con29640,Zer8753])
+model = tf.keras.models.Model(inputs=[in0Mul23804,in1Mul23804,in0Con29640,in0Mul30061,in1Mul30061], outputs=Min82796)
+w = model.get_layer('Sep84110').get_weights() 
+w[0] = np.array([[[[0.247]]]])
+w[1] = np.array([[[[0.2638, 0.3851, 0.3099]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep84110').set_weights(w) 
+in0Mul23804 = tf.constant([[[0.9119, 0.2097], [0.6784, 0.2529]]])
+in1Mul23804 = tf.constant([[[0.6638, 0.6909], [0.1697, 0.9882]]])
+in0Con29640 = tf.constant([[[[0.217, 0.5907], [0.4517, 0.367]], [[0.4194, 0.9039], [0.1551, 0.9691]]]])
+in0Mul30061 = tf.constant([[[0.1538], [0.0564]]])
+in1Mul30061 = tf.constant([[[0.0539], [0.3281]]])
+print (np.array2string(model.predict([in0Mul23804,in1Mul23804,in0Con29640,in0Mul30061,in1Mul30061],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min82796.png')
+
+LMul23804 = multiply_layer([[[[0.9119, 0.2097], [0.6784, 0.2529]]], [[[0.6638, 0.6909], [0.1697, 0.9882]]]], Mul23804), 
+LRes9659 = reshape_layer(Mul23804, [2, 2, 1], Res9659), 
+LCon29640 = concatenate_layer([Res9659,[[[[0.217, 0.5907], [0.4517, 0.367]], [[0.4194, 0.9039], [0.1551, 0.9691]]]]], 3, Con29640), 
+LMul30061 = multiply_layer([[[[0.1538], [0.0564]]], [[[0.0539], [0.3281]]]], Mul30061), 
+LGlo64585 = global_max_pool1D_layer(Mul30061, Glo64585), 
+LRes1085 = reshape_layer(Glo64585, [1, 1], Res1085), 
+LRes30936 = reshape_layer(Res1085, [1, 1, 1], Res30936), 
+LSep84110 = separable_conv2D_layer(Res30936, 1, 1,[[[[[0.247]]]],[[[[0.2638, 0.3851, 0.3099]]]]],[0, 0, 0], 1, 1, true, Sep84110), 
+LZer8753 = zero_padding2D_layer(Sep84110, 1, 0, 1, 0, Zer8753), 
+LMin82796 = minimum_layer([Con29640,Zer8753], Min82796), 
+exec_layers([LMul23804,LRes9659,LCon29640,LMul30061,LGlo64585,LRes1085,LRes30936,LSep84110,LZer8753,LMin82796],["Mul23804","Res9659","Con29640","Mul30061","Glo64585","Res1085","Res30936","Sep84110","Zer8753","Min82796"],Min82796,"Min82796")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000], [0.0012057, 0.0017602, 0.0014165]]]]
+
+Expected (Unparsed): [[[[0,0,0],[0,0,0]],[[0,0,0],[0.0012057494676239997,0.0017601748293479998,0.0014164585292519999]]]]
+
+Actual:   [[[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0.0013, 0.0018, 0.0015]]]]
+
+Expected: [[[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0.0013, 0.0018, 0.0015]]]]

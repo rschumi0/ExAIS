@@ -1,0 +1,74 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul34131 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul34131 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con61764 = tf.keras.layers.Input(shape=([2]))
+in0GRU17005 = tf.keras.layers.Input(shape=([1, 2]))
+in0Glo9241 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0Con39581 = tf.keras.layers.Input(shape=([1]))
+in0Max42781 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con19576 = tf.keras.layers.Input(shape=([2]))
+
+Mul34131 = keras.layers.Multiply(name = 'Mul34131', )([in0Mul34131,in1Mul34131])
+Res76762 = keras.layers.Reshape((1, 2), name = 'Res76762', )(Mul34131)
+Fla56770 = keras.layers.Flatten(name = 'Fla56770', )(Res76762)
+Con61764 = keras.layers.Concatenate(axis=1, name = 'Con61764', )([Fla56770,in0Con61764])
+GRU17005 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU17005', )(in0GRU17005)
+Den80178 = keras.layers.Dense(4,name = 'Den80178', )(GRU17005)
+Min64151 = keras.layers.Minimum(name = 'Min64151', )([Con61764,Den80178])
+Glo9241 = keras.layers.GlobalAveragePooling3D(name = 'Glo9241', )(in0Glo9241)
+Con39581 = keras.layers.Concatenate(axis=1, name = 'Con39581', )([Glo9241,in0Con39581])
+Max42781 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max42781', )(in0Max42781)
+Fla84808 = keras.layers.Flatten(name = 'Fla84808', )(Max42781)
+Min83743 = keras.layers.Minimum(name = 'Min83743', )([Con39581,Fla84808])
+Con19576 = keras.layers.Concatenate(axis=1, name = 'Con19576', )([Min83743,in0Con19576])
+Add30978 = keras.layers.Add(name = 'Add30978', )([Min64151,Con19576])
+model = tf.keras.models.Model(inputs=[in0Mul34131,in1Mul34131,in0Con61764,in0GRU17005,in0Glo9241,in0Con39581,in0Max42781,in0Con19576], outputs=Add30978)
+w = model.get_layer('GRU17005').get_weights() 
+w[0] = np.array([[5, 1, 1, 5, 1, 7], [1, 3, 3, 4, 4, 1]])
+w[1] = np.array([[10, 7, 5, 4, 6, 8], [4, 8, 9, 1, 5, 10]])
+w[2] = np.array([[6, 6, 5, 7, 9, 8], [10, 1, 2, 3, 10, 7]])
+model.get_layer('GRU17005').set_weights(w) 
+w = model.get_layer('Den80178').get_weights() 
+w[0] = np.array([[0.6418, 0.8034, 0.6462, 0.3724], [0.5439, 0.118, 0.113, 0.4179]])
+w[1] = np.array([0.0226, 0.5492, 0.1378, 0.6815])
+model.get_layer('Den80178').set_weights(w) 
+in0Mul34131 = tf.constant([[[[0.9088], [0.0225]]]])
+in1Mul34131 = tf.constant([[[[0.1003], [0.1845]]]])
+in0Con61764 = tf.constant([[0.8223, 0.6375]])
+in0GRU17005 = tf.constant([[[5, 5]]])
+in0Glo9241 = tf.constant([[[[[1.5332]]]]])
+in0Con39581 = tf.constant([[0.8887]])
+in0Max42781 = tf.constant([[[[1.0639, 1.1107]]]])
+in0Con19576 = tf.constant([[0.5783, 0.7307]])
+print (np.array2string(model.predict([in0Mul34131,in1Mul34131,in0Con61764,in0GRU17005,in0Glo9241,in0Con39581,in0Max42781,in0Con19576],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add30978.png')
+
+LMul34131 = multiply_layer([[[[[0.9088], [0.0225]]]], [[[[0.1003], [0.1845]]]]], Mul34131), 
+LRes76762 = reshape_layer(Mul34131, [1, 2], Res76762), 
+LFla56770 = flatten_layer(Res76762, Fla56770), 
+LCon61764 = concatenate_layer([Fla56770,[[0.8223, 0.6375]]], 1, Con61764), 
+LGRU17005 = gru_layer([[[5, 5]]],[[5, 1, 1, 5, 1, 7], [1, 3, 3, 4, 4, 1]],[[10, 7, 5, 4, 6, 8], [4, 8, 9, 1, 5, 10]],[[6, 6, 5, 7, 9, 8], [10, 1, 2, 3, 10, 7]], true, GRU17005), 
+LDen80178 = dense_layer(GRU17005, [[0.6418, 0.8034, 0.6462, 0.3724], [0.5439, 0.118, 0.113, 0.4179]],[0.0226, 0.5492, 0.1378, 0.6815], Den80178), 
+LMin64151 = minimum_layer([Con61764,Den80178], Min64151), 
+LGlo9241 = global_average_pooling3D_layer([[[[[1.5332]]]]], Glo9241), 
+LCon39581 = concatenate_layer([Glo9241,[[0.8887]]], 1, Con39581), 
+LMax42781 = max_pool2D_layer([[[[1.0639, 1.1107]]]], 1, 1, Max42781), 
+LFla84808 = flatten_layer(Max42781, Fla84808), 
+LMin83743 = minimum_layer([Con39581,Fla84808], Min83743), 
+LCon19576 = concatenate_layer([Min83743,[[0.5783, 0.7307]]], 1, Con19576), 
+LAdd30978 = add_layer([Min64151,Con19576], Add30978), 
+exec_layers([LMul34131,LRes76762,LFla56770,LCon61764,LGRU17005,LDen80178,LMin64151,LGlo9241,LCon39581,LMax42781,LFla84808,LMin83743,LCon19576,LAdd30978],["Mul34131","Res76762","Fla56770","Con61764","GRU17005","Den80178","Min64151","Glo9241","Con39581","Max42781","Fla84808","Min83743","Con19576","Add30978"],Add30978,"Add30978")
+
+Actual (Unparsed): [[1.0865000, 0.8928513, 0.7161000, 1.3682000]]
+
+Expected (Unparsed): [[1.0865000000010223,0.8928512500000001,0.7161000000002125,1.3681999999999999]]
+
+Actual:   [[1.0865, 0.8929, 0.7161, 1.3682]]
+
+Expected: [[1.0866, 0.8929, 0.7162, 1.3682]]

@@ -1,0 +1,69 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot52426 = tf.keras.layers.Input(shape=([2]))
+in1Dot52426 = tf.keras.layers.Input(shape=([2]))
+in0Glo61391 = tf.keras.layers.Input(shape=([2, 1]))
+
+Dot52426 = keras.layers.Dot(axes=(1, 1), name = 'Dot52426', )([in0Dot52426,in1Dot52426])
+Res33563 = keras.layers.Reshape((1, 1), name = 'Res33563', )(Dot52426)
+Res41440 = keras.layers.Reshape((1, 1, 1), name = 'Res41440', )(Res33563)
+Loc39972 = keras.layers.LocallyConnected2D(4, (1, 1),strides=(1, 1), name = 'Loc39972', )(Res41440)
+Res99187 = keras.layers.Reshape((1, 1, 4, 1), name = 'Res99187', )(Loc39972)
+Zer91885 = keras.layers.ZeroPadding3D(padding=((1, 0), (5, 0), (2, 0)), name = 'Zer91885', )(Res99187)
+Glo61391 = keras.layers.GlobalMaxPool1D(name = 'Glo61391', )(in0Glo61391)
+Res50798 = keras.layers.Reshape((1, 1), name = 'Res50798', )(Glo61391)
+Res45818 = keras.layers.Reshape((1, 1, 1), name = 'Res45818', )(Res50798)
+Glo34937 = keras.layers.GlobalMaxPool2D(name = 'Glo34937', )(Res45818)
+Res3534 = keras.layers.Reshape((1, 1), name = 'Res3534', )(Glo34937)
+Loc2078 = keras.layers.LocallyConnected1D(3, (1),strides=(1), name = 'Loc2078', )(Res3534)
+Res17588 = keras.layers.Reshape((1, 3, 1), name = 'Res17588', )(Loc2078)
+Res99025 = keras.layers.Reshape((1, 3, 1, 1), name = 'Res99025', )(Res17588)
+Up_81211 = keras.layers.UpSampling3D(size=(2, 2, 2), name = 'Up_81211', )(Res99025)
+Zer78321 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (4, 0)), name = 'Zer78321', )(Up_81211)
+Mul73217 = keras.layers.Multiply(name = 'Mul73217', )([Zer91885,Zer78321])
+model = tf.keras.models.Model(inputs=[in0Dot52426,in1Dot52426,in0Glo61391], outputs=Mul73217)
+w = model.get_layer('Loc39972').get_weights() 
+w[0] = np.array([[[0.8933, 0.1345, 0.0979, 0.3776]]])
+w[1] = np.array([[[0, 0, 0, 0]]])
+model.get_layer('Loc39972').set_weights(w) 
+w = model.get_layer('Loc2078').get_weights() 
+w[0] = np.array([[[0.9369, 0.7169, 0.9769]]])
+w[1] = np.array([[0, 0, 0]])
+model.get_layer('Loc2078').set_weights(w) 
+in0Dot52426 = tf.constant([[0.227, 0.3675]])
+in1Dot52426 = tf.constant([[0.041, 0.3404]])
+in0Glo61391 = tf.constant([[[1.3386], [1.2116]]])
+print (np.array2string(model.predict([in0Dot52426,in1Dot52426,in0Glo61391],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul73217.png')
+
+LDot52426 = dot_layer([[0.227, 0.3675]], [[0.041, 0.3404]], 1, 1, Dot52426), 
+LRes33563 = reshape_layer(Dot52426, [1, 1], Res33563), 
+LRes41440 = reshape_layer(Res33563, [1, 1, 1], Res41440), 
+LLoc39972 = locally_connected2D_layer(Res41440, 1, 1,[[[0.8933, 0.1345, 0.0979, 0.3776]]],[[[0, 0, 0, 0]]], 1, 1, Loc39972), 
+LRes99187 = reshape_layer(Loc39972, [1, 1, 4, 1], Res99187), 
+LZer91885 = zero_padding3D_layer(Res99187, 1, 0, 5, 0, 2, 0, Zer91885), 
+LGlo61391 = global_max_pool1D_layer([[[1.3386], [1.2116]]], Glo61391), 
+LRes50798 = reshape_layer(Glo61391, [1, 1], Res50798), 
+LRes45818 = reshape_layer(Res50798, [1, 1, 1], Res45818), 
+LGlo34937 = global_max_pool2D_layer(Res45818, Glo34937), 
+LRes3534 = reshape_layer(Glo34937, [1, 1], Res3534), 
+LLoc2078 = locally_connected1D_layer(Res3534, 1,[[[0.9369, 0.7169, 0.9769]]],[[0, 0, 0]], 1, Loc2078), 
+LRes17588 = reshape_layer(Loc2078, [1, 3, 1], Res17588), 
+LRes99025 = reshape_layer(Res17588, [1, 3, 1, 1], Res99025), 
+LUp_81211 = up_sampling3D_layer(Res99025, 2, 2, 2, Up_81211), 
+LZer78321 = zero_padding3D_layer(Up_81211, 0, 0, 0, 0, 4, 0, Zer78321), 
+LMul73217 = multiply_layer([Zer91885,Zer78321], Mul73217), 
+exec_layers([LDot52426,LRes33563,LRes41440,LLoc39972,LRes99187,LZer91885,LGlo61391,LRes50798,LRes45818,LGlo34937,LRes3534,LLoc2078,LRes17588,LRes99025,LUp_81211,LZer78321,LMul73217],["Dot52426","Res33563","Res41440","Loc39972","Res99187","Zer91885","Glo61391","Res50798","Res45818","Glo34937","Res3534","Loc2078","Res17588","Res99025","Up_81211","Zer78321","Mul73217"],Mul73217,"Mul73217")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000], [0.0000000], [0.0172066], [0.0663659]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]]],[[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0],[0],[0.0],[0.0]],[[0],[0],[0.0],[0.0],[0.017206629841756343],[0.06636591857249433]]]]]
+
+Actual:   [[[[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]]], [[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0.0173], [0.0664]]]]]
+
+Expected: [[[[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]]], [[[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0], [0]], [[0], [0], [0], [0], [0.0173], [0.0664]]]]]

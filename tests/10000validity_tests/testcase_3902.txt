@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc70847 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con19986 = tf.keras.layers.Input(shape=([3, 1]))
+in0Min9701 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min9701 = tf.keras.layers.Input(shape=([1, 2]))
+
+Loc70847 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc70847', )(in0Loc70847)
+Sim4548 = keras.layers.SimpleRNN(3,name = 'Sim4548', )(Loc70847)
+Res42866 = keras.layers.Reshape((3, 1), name = 'Res42866', )(Sim4548)
+Con19986 = keras.layers.Concatenate(axis=2, name = 'Con19986', )([Res42866,in0Con19986])
+Min9701 = keras.layers.Minimum(name = 'Min9701', )([in0Min9701,in1Min9701])
+Zer21007 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer21007', )(Min9701)
+Min34673 = keras.layers.Minimum(name = 'Min34673', )([Con19986,Zer21007])
+Bat20438 = keras.layers.BatchNormalization(axis=1, epsilon=0.6175727930558876,  name = 'Bat20438', )(Min34673)
+model = tf.keras.models.Model(inputs=[in0Loc70847,in0Con19986,in0Min9701,in1Min9701], outputs=Bat20438)
+w = model.get_layer('Loc70847').get_weights() 
+w[0] = np.array([[[0.6448, 0.4995, 0.7578, 0.6034], [0.1362, 0.6962, 0.3097, 0.0543]], [[0.9861, 0.6998, 0.9103, 0.8408], [0.6657, 0.9711, 0.4668, 0.6443]]])
+w[1] = np.array([[0, 0, 0, 0], [0, 0, 0, 0]])
+model.get_layer('Loc70847').set_weights(w) 
+w = model.get_layer('Sim4548').get_weights() 
+w[0] = np.array([[4, 1, 2], [7, 10, 10], [6, 5, 6], [8, 4, 8]])
+w[1] = np.array([[8, 8, 9], [4, 1, 8], [9, 1, 6]])
+w[2] = np.array([4, 9, 5])
+model.get_layer('Sim4548').set_weights(w) 
+w = model.get_layer('Bat20438').get_weights() 
+w[0] = np.array([0.9975, 0.8353, 0.9532])
+w[1] = np.array([0.1981, 0.0375, 0.4766])
+w[2] = np.array([0.079, 0.0737, 0.7879])
+w[3] = np.array([0.7989, 0.7855, 0.9714])
+model.get_layer('Bat20438').set_weights(w) 
+in0Loc70847 = tf.constant([[[0.5348, 0.8821], [0.6109, 0.6679]]])
+in0Con19986 = tf.constant([[[0.1612], [0.4111], [0.0702]]])
+in0Min9701 = tf.constant([[[0.7427, 0.4323]]])
+in1Min9701 = tf.constant([[[0.4693, 0.5223]]])
+print (np.array2string(model.predict([in0Loc70847,in0Con19986,in0Min9701,in1Min9701],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Bat20438.png')
+
+LLoc70847 = locally_connected1D_layer([[[0.5348, 0.8821], [0.6109, 0.6679]]], 1,[[[0.6448, 0.4995, 0.7578, 0.6034], [0.1362, 0.6962, 0.3097, 0.0543]], [[0.9861, 0.6998, 0.9103, 0.8408], [0.6657, 0.9711, 0.4668, 0.6443]]],[[0, 0, 0, 0], [0, 0, 0, 0]], 1, Loc70847), 
+LSim4548 = simple_rnn_layer(Loc70847,[[4, 1, 2], [7, 10, 10], [6, 5, 6], [8, 4, 8]],[[8, 8, 9], [4, 1, 8], [9, 1, 6]],[4, 9, 5], Sim4548), 
+LRes42866 = reshape_layer(Sim4548, [3, 1], Res42866), 
+LCon19986 = concatenate_layer([Res42866,[[[0.1612], [0.4111], [0.0702]]]], 2, Con19986), 
+LMin9701 = minimum_layer([[[[0.7427, 0.4323]]], [[[0.4693, 0.5223]]]], Min9701), 
+LZer21007 = zero_padding1D_layer(Min9701, 2, 0, Zer21007), 
+LMin34673 = minimum_layer([Con19986,Zer21007], Min34673), 
+LBat20438 = batch_normalization_layer(Min34673, 1, 0.6175727930558876, [0.9975, 0.8353, 0.9532], [0.1981, 0.0375, 0.4766], [0.079, 0.0737, 0.7879], [0.7989, 0.7855, 0.9714], Bat20438), 
+exec_layers([LLoc70847,LSim4548,LRes42866,LCon19986,LMin9701,LZer21007,LMin34673,LBat20438],["Loc70847","Sim4548","Res42866","Con19986","Min9701","Zer21007","Min34673","Bat20438"],Bat20438,"Bat20438")
+
+Actual (Unparsed): [[[0.1318881, 0.1318881], [-0.0144721, -0.0144721], [0.2356807, -0.0661112]]]
+
+Expected (Unparsed): [[[0.13188812643965905,0.13188812643965905],[-0.014472052394933682,-0.014472052394933682],[0.2356807100224826,-0.06611115636178355]]]
+
+Actual:   [[[0.1319, 0.1319], [-0.0144, -0.0144], [0.2357, -0.0661]]]
+
+Expected: [[[0.1319, 0.1319], [-0.0144, -0.0144], [0.2357, -0.0661]]]

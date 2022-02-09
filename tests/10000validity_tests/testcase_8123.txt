@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub7040 = tf.keras.layers.Input(shape=([3]))
+in1Sub7040 = tf.keras.layers.Input(shape=([3]))
+in0Con18239 = tf.keras.layers.Input(shape=([3, 1, 1, 1]))
+in0Ave24699 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Ave24699 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Sub7040 = keras.layers.Subtract(name = 'Sub7040', )([in0Sub7040,in1Sub7040])
+Res11818 = keras.layers.Reshape((3, 1), name = 'Res11818', )(Sub7040)
+Res5341 = keras.layers.Reshape((3, 1, 1), name = 'Res5341', )(Res11818)
+Res61859 = keras.layers.Reshape((3, 1, 1, 1), name = 'Res61859', )(Res5341)
+Con18239 = keras.layers.Concatenate(axis=4, name = 'Con18239', )([Res61859,in0Con18239])
+Ave24699 = keras.layers.Average(name = 'Ave24699', )([in0Ave24699,in1Ave24699])
+Zer41511 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer41511', )(Ave24699)
+Min34016 = keras.layers.Minimum(name = 'Min34016', )([Con18239,Zer41511])
+Res75687 = keras.layers.Reshape((3, 1, 2), name = 'Res75687', )(Min34016)
+Up_46078 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_46078', )(Res75687)
+Fla65023 = keras.layers.Flatten(name = 'Fla65023', )(Up_46078)
+model = tf.keras.models.Model(inputs=[in0Sub7040,in1Sub7040,in0Con18239,in0Ave24699,in1Ave24699], outputs=Fla65023)
+in0Sub7040 = tf.constant([[0.873, 0.9775, 0.539]])
+in1Sub7040 = tf.constant([[1, 0.8662, 0.5074]])
+in0Con18239 = tf.constant([[[[[0.67]]], [[[0.3217]]], [[[0.3199]]]]])
+in0Ave24699 = tf.constant([[[[[0.1375, 0.174]]], [[[0.5068, 0.3529]]]]])
+in1Ave24699 = tf.constant([[[[[0.3825, 0.3402]]], [[[0.2776, 0.9831]]]]])
+print (np.array2string(model.predict([in0Sub7040,in1Sub7040,in0Con18239,in0Ave24699,in1Ave24699],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla65023.png')
+
+LSub7040 = subtract_layer([[0.873, 0.9775, 0.539]], [[1, 0.8662, 0.5074]], Sub7040), 
+LRes11818 = reshape_layer(Sub7040, [3, 1], Res11818), 
+LRes5341 = reshape_layer(Res11818, [3, 1, 1], Res5341), 
+LRes61859 = reshape_layer(Res5341, [3, 1, 1, 1], Res61859), 
+LCon18239 = concatenate_layer([Res61859,[[[[[0.67]]], [[[0.3217]]], [[[0.3199]]]]]], 4, Con18239), 
+LAve24699 = average_layer([[[[[[0.1375, 0.174]]], [[[0.5068, 0.3529]]]]], [[[[[0.3825, 0.3402]]], [[[0.2776, 0.9831]]]]]], Ave24699), 
+LZer41511 = zero_padding3D_layer(Ave24699, 1, 0, 0, 0, 0, 0, Zer41511), 
+LMin34016 = minimum_layer([Con18239,Zer41511], Min34016), 
+LRes75687 = reshape_layer(Min34016, [3, 1, 2], Res75687), 
+LUp_46078 = up_sampling2D_layer(Res75687, 1, 2, Up_46078), 
+LFla65023 = flatten_layer(Up_46078, Fla65023), 
+exec_layers([LSub7040,LRes11818,LRes5341,LRes61859,LCon18239,LAve24699,LZer41511,LMin34016,LRes75687,LUp_46078,LFla65023],["Sub7040","Res11818","Res5341","Res61859","Con18239","Ave24699","Zer41511","Min34016","Res75687","Up_46078","Fla65023"],Fla65023,"Fla65023")
+
+Actual (Unparsed): [[-0.1270000, 0.0000000, -0.1270000, 0.0000000, 0.1113001, 0.2571000, 0.1113001, 0.2571000, 0.0316000, 0.3199000, 0.0316000, 0.3199000]]
+
+Expected (Unparsed): [[-0.127,0,-0.127,0,0.11130000000000007,0.2571,0.11130000000000007,0.2571,0.03160000000000007,0.3199,0.03160000000000007,0.3199]]
+
+Actual:   [[-0.127, 0, -0.127, 0, 0.1114, 0.2571, 0.1114, 0.2571, 0.0316, 0.3199, 0.0316, 0.3199]]
+
+Expected: [[-0.127, 0, -0.127, 0, 0.1114, 0.2571, 0.1114, 0.2571, 0.0317, 0.3199, 0.0317, 0.3199]]

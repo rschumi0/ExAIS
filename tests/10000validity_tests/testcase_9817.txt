@@ -1,0 +1,40 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_60203 = tf.keras.layers.Input(shape=([4, 2]))
+
+Up_60203 = keras.layers.UpSampling1D(size=(1), name = 'Up_60203', )(in0Up_60203)
+PRe54450 = keras.layers.PReLU(name = 'PRe54450', )(Up_60203)
+Res49026 = keras.layers.Reshape((4, 2, 1), name = 'Res49026', )(PRe54450)
+Ave18941 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 2), padding='same', name = 'Ave18941', )(Res49026)
+Dep58995 = keras.layers.DepthwiseConv2D((4, 1),strides=(3, 3), padding='valid', name = 'Dep58995', )(Ave18941)
+model = tf.keras.models.Model(inputs=[in0Up_60203], outputs=Dep58995)
+w = model.get_layer('PRe54450').get_weights() 
+w[0] = np.array([[0.7426, 0.8513], [0.9461, 0.7091], [0.4641, 0.7035], [0.313, 0.0299]])
+model.get_layer('PRe54450').set_weights(w) 
+w = model.get_layer('Dep58995').get_weights() 
+w[0] = np.array([[[[0.3801]]], [[[0.7309]]], [[[0.3925]]], [[[0.2641]]]])
+w[1] = np.array([0])
+model.get_layer('Dep58995').set_weights(w) 
+in0Up_60203 = tf.constant([[[1.7642, 1.4231], [1.7009, 1.3676], [1.0301, 1.6783], [1.6705, 1.7123]]])
+print (np.array2string(model.predict([in0Up_60203],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep58995.png')
+
+LUp_60203 = up_sampling1D_layer([[[1.7642, 1.4231], [1.7009, 1.3676], [1.0301, 1.6783], [1.6705, 1.7123]]], 1, Up_60203), 
+LPRe54450 = prelu_layer(Up_60203, [[0.7426, 0.8513], [0.9461, 0.7091], [0.4641, 0.7035], [0.313, 0.0299]], PRe54450), 
+LRes49026 = reshape_layer(PRe54450, [4, 2, 1], Res49026), 
+LAve18941 = average_pooling2D_layer(Res49026, 1, 1, 1, 2, true, Ave18941), 
+LDep58995 = depthwise_conv2D_layer(Ave18941, 4, 1,[[[[0.3801]]], [[[0.7309]]], [[[0.3925]]], [[[0.2641]]]],[0], 3, 3, false, Dep58995), 
+exec_layers([LUp_60203,LPRe54450,LRes49026,LAve18941,LDep58995],["Up_60203","PRe54450","Res49026","Ave18941","Dep58995"],Dep58995,"Dep58995")
+
+Actual (Unparsed): [[[[2.7592535]]]]
+
+Expected (Unparsed): [[[[2.75925353]]]]
+
+Actual:   [[[[2.7593]]]]
+
+Expected: [[[[2.7593]]]]

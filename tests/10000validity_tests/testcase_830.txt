@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep90731 = tf.keras.layers.Input(shape=([1, 2]))
+
+Sep90731 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep90731', )(in0Sep90731)
+Res28519 = keras.layers.Reshape((1, 2, 1), name = 'Res28519', )(Sep90731)
+Sep75972 = keras.layers.SeparableConv2D(2, (1, 1),strides=(1, 1), padding='same', name = 'Sep75972', )(Res28519)
+Res42695 = keras.layers.Reshape((1, 4), name = 'Res42695', )(Sep75972)
+GRU79145 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU79145', )(Res42695)
+model = tf.keras.models.Model(inputs=[in0Sep90731], outputs=GRU79145)
+w = model.get_layer('Sep90731').get_weights() 
+w[0] = np.array([[[0.4513], [0.031]]])
+w[1] = np.array([[[0.624, 0.6381], [0.3722, 0.1993]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep90731').set_weights(w) 
+w = model.get_layer('Sep75972').get_weights() 
+w[0] = np.array([[[[0.1643]]]])
+w[1] = np.array([[[[0.7104, 0.3013]]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep75972').set_weights(w) 
+w = model.get_layer('GRU79145').get_weights() 
+w[0] = np.array([[9, 7, 5, 5, 3, 5], [4, 3, 1, 1, 4, 10], [3, 9, 6, 1, 2, 2], [1, 7, 6, 8, 7, 3]])
+w[1] = np.array([[7, 9, 10, 4, 9, 7], [10, 6, 8, 7, 6, 6]])
+w[2] = np.array([4, 10, 2, 7, 6, 8])
+model.get_layer('GRU79145').set_weights(w) 
+in0Sep90731 = tf.constant([[[0.9234, 0.6955]]])
+print (np.array2string(model.predict([in0Sep90731],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU79145.png')
+
+LSep90731 = separable_conv1D_layer([[[0.9234, 0.6955]]], 1,[[[[0.4513], [0.031]]],[[[0.624, 0.6381], [0.3722, 0.1993]]]],[0, 0], 1, true, Sep90731), 
+LRes28519 = reshape_layer(Sep90731, [1, 2, 1], Res28519), 
+LSep75972 = separable_conv2D_layer(Res28519, 1, 1,[[[[[0.1643]]]],[[[[0.7104, 0.3013]]]]],[0, 0], 1, 1, true, Sep75972), 
+LRes42695 = reshape_layer(Sep75972, [1, 4], Res42695), 
+LGRU79145 = gru_layer(Res42695,[[9, 7, 5, 5, 3, 5], [4, 3, 1, 1, 4, 10], [3, 9, 6, 1, 2, 2], [1, 7, 6, 8, 7, 3]],[[7, 9, 10, 4, 9, 7], [10, 6, 8, 7, 6, 6]],[4, 10, 2, 7, 6, 8], false, GRU79145), 
+exec_layers([LSep90731,LRes28519,LSep75972,LRes42695,LGRU79145],["Sep90731","Res28519","Sep75972","Res42695","GRU79145"],GRU79145,"GRU79145")
+
+Actual (Unparsed): [[0.0116276, 0.0000240]]
+
+Expected (Unparsed): [[0.011627646025645453,2.4026885906788253e-5]]
+
+Actual:   [[0.0117, 0.0001]]
+
+Expected: [[0.0117, 0.0001]]

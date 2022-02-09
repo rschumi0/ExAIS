@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max21136 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Max21136 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Ave14130 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Ave14130 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Mul34294 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Mul34294 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Max21136 = keras.layers.Maximum(name = 'Max21136', )([in0Max21136,in1Max21136])
+Res72704 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res72704', )(Max21136)
+Zer10610 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (1, 0)), name = 'Zer10610', )(Res72704)
+Ave14130 = keras.layers.Average(name = 'Ave14130', )([in0Ave14130,in1Ave14130])
+Zer82173 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer82173', )(Ave14130)
+Ave16072 = keras.layers.Average(name = 'Ave16072', )([Zer10610,Zer82173])
+Res15294 = keras.layers.Reshape((2, 1, 3), name = 'Res15294', )(Ave16072)
+Res36947 = keras.layers.Reshape((2, 3), name = 'Res36947', )(Res15294)
+Mul34294 = keras.layers.Multiply(name = 'Mul34294', )([in0Mul34294,in1Mul34294])
+Res58129 = keras.layers.Reshape((2, 1), name = 'Res58129', )(Mul34294)
+Dot3367 = keras.layers.Dot(axes=(1, 1), name = 'Dot3367', )([Res36947,Res58129])
+Zer542 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer542', )(Dot3367)
+model = tf.keras.models.Model(inputs=[in0Max21136,in1Max21136,in0Ave14130,in1Ave14130,in0Mul34294,in1Mul34294], outputs=Zer542)
+in0Max21136 = tf.constant([[[[0.0231, 0.9759]]]])
+in1Max21136 = tf.constant([[[[0.8726, 0.8571]]]])
+in0Ave14130 = tf.constant([[[[[0.8089]]], [[[0.4544]]]]])
+in1Ave14130 = tf.constant([[[[[0.2714]]], [[[0.3968]]]]])
+in0Mul34294 = tf.constant([[[[0.6653]], [[0.917]]]])
+in1Mul34294 = tf.constant([[[[0.6354]], [[0.7168]]]])
+print (np.array2string(model.predict([in0Max21136,in1Max21136,in0Ave14130,in1Ave14130,in0Mul34294,in1Mul34294],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer542.png')
+
+LMax21136 = maximum_layer([[[[[0.0231, 0.9759]]]], [[[[0.8726, 0.8571]]]]], Max21136), 
+LRes72704 = reshape_layer(Max21136, [1, 1, 2, 1], Res72704), 
+LZer10610 = zero_padding3D_layer(Res72704, 1, 0, 0, 0, 1, 0, Zer10610), 
+LAve14130 = average_layer([[[[[[0.8089]]], [[[0.4544]]]]], [[[[[0.2714]]], [[[0.3968]]]]]], Ave14130), 
+LZer82173 = zero_padding3D_layer(Ave14130, 0, 0, 0, 0, 2, 0, Zer82173), 
+LAve16072 = average_layer([Zer10610,Zer82173], Ave16072), 
+LRes15294 = reshape_layer(Ave16072, [2, 1, 3], Res15294), 
+LRes36947 = reshape_layer(Res15294, [2, 3], Res36947), 
+LMul34294 = multiply_layer([[[[[0.6653]], [[0.917]]]], [[[[0.6354]], [[0.7168]]]]], Mul34294), 
+LRes58129 = reshape_layer(Mul34294, [2, 1], Res58129), 
+LDot3367 = dot_layer(Res36947,Res58129, 1, 1, Dot3367), 
+LZer542 = zero_padding1D_layer(Dot3367, 1, 1, Zer542), 
+exec_layers([LMax21136,LRes72704,LZer10610,LAve14130,LZer82173,LAve16072,LRes15294,LRes36947,LMul34294,LRes58129,LDot3367,LZer542],["Max21136","Res72704","Zer10610","Ave14130","Zer82173","Ave16072","Res15294","Res36947","Mul34294","Res58129","Dot3367","Zer542"],Zer542,"Zer542")
+
+Actual (Unparsed): [[[0.0000000], [0.0000000], [0.2867824], [0.5747761], [0.0000000]]]
+
+Expected (Unparsed): [[[0],[0.0],[0.28678243328],[0.5747761414715],[0]]]
+
+Actual:   [[[0], [0], [0.2868], [0.5748], [0]]]
+
+Expected: [[[0], [0], [0.2868], [0.5748], [0]]]

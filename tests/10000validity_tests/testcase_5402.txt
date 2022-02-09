@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave80082 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Ave80082 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0GRU75863 = tf.keras.layers.Input(shape=([3, 1]))
+
+Ave80082 = keras.layers.Average(name = 'Ave80082', )([in0Ave80082,in1Ave80082])
+Res37200 = keras.layers.Reshape((1, 2), name = 'Res37200', )(Ave80082)
+Zer80673 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer80673', )(Res37200)
+GRU75863 = keras.layers.GRU(3,reset_after=False, recurrent_activation='sigmoid', name = 'GRU75863', )(in0GRU75863)
+Res9207 = keras.layers.Reshape((3, 1), name = 'Res9207', )(GRU75863)
+Con4176 = keras.layers.Conv1D(2, (3),strides=(1), padding='valid', dilation_rate=(1), name = 'Con4176', )(Res9207)
+Zer92925 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer92925', )(Con4176)
+Add70569 = keras.layers.Add(name = 'Add70569', )([Zer80673,Zer92925])
+Sof32937 = keras.layers.Softmax(axis=1, name = 'Sof32937', )(Add70569)
+model = tf.keras.models.Model(inputs=[in0Ave80082,in1Ave80082,in0GRU75863], outputs=Sof32937)
+w = model.get_layer('GRU75863').get_weights() 
+w[0] = np.array([[4, 4, 4, 6, 7, 3, 8, 7, 3]])
+w[1] = np.array([[2, 4, 2, 7, 4, 1, 5, 9, 2], [3, 6, 4, 8, 5, 8, 5, 2, 1], [9, 3, 5, 8, 7, 4, 2, 3, 7]])
+w[2] = np.array([3, 2, 8, 6, 1, 4, 4, 5, 7])
+model.get_layer('GRU75863').set_weights(w) 
+w = model.get_layer('Con4176').get_weights() 
+w[0] = np.array([[[0.1261, 0.8588]], [[0.677, 0.4497]], [[0.8088, 0.4353]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con4176').set_weights(w) 
+in0Ave80082 = tf.constant([[[[0.2269], [0.6405]]]])
+in1Ave80082 = tf.constant([[[[0.0091], [0.1579]]]])
+in0GRU75863 = tf.constant([[[3], [9], [10]]])
+print (np.array2string(model.predict([in0Ave80082,in1Ave80082,in0GRU75863],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sof32937.png')
+
+LAve80082 = average_layer([[[[[0.2269], [0.6405]]]], [[[[0.0091], [0.1579]]]]], Ave80082), 
+LRes37200 = reshape_layer(Ave80082, [1, 2], Res37200), 
+LZer80673 = zero_padding1D_layer(Res37200, 2, 0, Zer80673), 
+LGRU75863 = gru_layer([[[3], [9], [10]]],[[4, 4, 4, 6, 7, 3, 8, 7, 3]],[[2, 4, 2, 7, 4, 1, 5, 9, 2], [3, 6, 4, 8, 5, 8, 5, 2, 1], [9, 3, 5, 8, 7, 4, 2, 3, 7]],[3, 2, 8, 6, 1, 4, 4, 5, 7], false, GRU75863), 
+LRes9207 = reshape_layer(GRU75863, [3, 1], Res9207), 
+LCon4176 = conv1D_layer(Res9207, 3,[[[0.1261, 0.8588]], [[0.677, 0.4497]], [[0.8088, 0.4353]]],[0, 0], 1, false, 1, Con4176), 
+LZer92925 = zero_padding1D_layer(Con4176, 1, 1, Zer92925), 
+LAdd70569 = add_layer([Zer80673,Zer92925], Add70569), 
+LSof32937 = softmax_layer(Add70569, 1, Sof32937), 
+exec_layers([LAve80082,LRes37200,LZer80673,LGRU75863,LRes9207,LCon4176,LZer92925,LAdd70569,LSof32937],["Ave80082","Res37200","Zer80673","GRU75863","Res9207","Con4176","Zer92925","Add70569","Sof32937"],Sof32937,"Sof32937")
+
+Actual (Unparsed): [[[0.3199749, 0.2864810], [0.3199751, 0.2864812], [0.3600499, 0.4270377]]]
+
+Expected (Unparsed): [[[0.3199749431919039,0.28648104382319994],[0.31997513619630635,0.28648122646758806],[0.36004992061178975,0.42703772970921205]]]
+
+Actual:   [[[0.32, 0.2865], [0.32, 0.2865], [0.3601, 0.4271]]]
+
+Expected: [[[0.32, 0.2865], [0.32, 0.2865], [0.3601, 0.4271]]]

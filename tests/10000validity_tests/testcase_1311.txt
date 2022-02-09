@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min73803 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Min73803 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Up_62561 = tf.keras.layers.Input(shape=([4, 2, 1]))
+in0Con72707 = tf.keras.layers.Input(shape=([1]))
+
+Min73803 = keras.layers.Minimum(name = 'Min73803', )([in0Min73803,in1Min73803])
+Res75454 = keras.layers.Reshape((2, 1), name = 'Res75454', )(Min73803)
+Fla34566 = keras.layers.Flatten(name = 'Fla34566', )(Res75454)
+Up_62561 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_62561', )(in0Up_62561)
+Res2236 = keras.layers.Reshape((4, 4), name = 'Res2236', )(Up_62561)
+Sim34824 = keras.layers.SimpleRNN(1,name = 'Sim34824', )(Res2236)
+Con72707 = keras.layers.Concatenate(axis=1, name = 'Con72707', )([Sim34824,in0Con72707])
+Add59057 = keras.layers.Add(name = 'Add59057', )([Fla34566,Con72707])
+Res88487 = keras.layers.Reshape((2, 1), name = 'Res88487', )(Add59057)
+Zer94764 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer94764', )(Res88487)
+model = tf.keras.models.Model(inputs=[in0Min73803,in1Min73803,in0Up_62561,in0Con72707], outputs=Zer94764)
+w = model.get_layer('Sim34824').get_weights() 
+w[0] = np.array([[8], [5], [3], [3]])
+w[1] = np.array([[10]])
+w[2] = np.array([3])
+model.get_layer('Sim34824').set_weights(w) 
+in0Min73803 = tf.constant([[[[0.3976]], [[0.6266]]]])
+in1Min73803 = tf.constant([[[[0.1551]], [[0.9925]]]])
+in0Up_62561 = tf.constant([[[[1.1078], [1.6753]], [[1.6674], [1.2411]], [[1.1193], [1.18]], [[1.2519], [1.0637]]]])
+in0Con72707 = tf.constant([[0.1996]])
+print (np.array2string(model.predict([in0Min73803,in1Min73803,in0Up_62561,in0Con72707],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer94764.png')
+
+LMin73803 = minimum_layer([[[[[0.3976]], [[0.6266]]]], [[[[0.1551]], [[0.9925]]]]], Min73803), 
+LRes75454 = reshape_layer(Min73803, [2, 1], Res75454), 
+LFla34566 = flatten_layer(Res75454, Fla34566), 
+LUp_62561 = up_sampling2D_layer([[[[1.1078], [1.6753]], [[1.6674], [1.2411]], [[1.1193], [1.18]], [[1.2519], [1.0637]]]], 1, 2, Up_62561), 
+LRes2236 = reshape_layer(Up_62561, [4, 4], Res2236), 
+LSim34824 = simple_rnn_layer(Res2236,[[8], [5], [3], [3]],[[10]],[3], Sim34824), 
+LCon72707 = concatenate_layer([Sim34824,[[0.1996]]], 1, Con72707), 
+LAdd59057 = add_layer([Fla34566,Con72707], Add59057), 
+LRes88487 = reshape_layer(Add59057, [2, 1], Res88487), 
+LZer94764 = zero_padding1D_layer(Res88487, 1, 1, Zer94764), 
+exec_layers([LMin73803,LRes75454,LFla34566,LUp_62561,LRes2236,LSim34824,LCon72707,LAdd59057,LRes88487,LZer94764],["Min73803","Res75454","Fla34566","Up_62561","Res2236","Sim34824","Con72707","Add59057","Res88487","Zer94764"],Zer94764,"Zer94764")
+
+Actual (Unparsed): [[[0.0000000], [1.1551000], [0.8262000], [0.0000000]]]
+
+Expected (Unparsed): [[[0],[1.1551],[0.8262],[0]]]
+
+Actual:   [[[0], [1.1551], [0.8262], [0]]]
+
+Expected: [[[0], [1.1551], [0.8262], [0]]]

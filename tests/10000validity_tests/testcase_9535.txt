@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo88341 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con29599 = tf.keras.layers.Input(shape=([2, 2, 1, 1]))
+in0Con3517 = tf.keras.layers.Input(shape=([2, 2, 2, 2]))
+
+Glo88341 = keras.layers.GlobalAveragePooling1D(name = 'Glo88341', )(in0Glo88341)
+Res19239 = keras.layers.Reshape((1, 1), name = 'Res19239', )(Glo88341)
+Res62396 = keras.layers.Reshape((1, 1, 1), name = 'Res62396', )(Res19239)
+Res90184 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res90184', )(Res62396)
+Zer7243 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (0, 0)), name = 'Zer7243', )(Res90184)
+Con29599 = keras.layers.Concatenate(axis=4, name = 'Con29599', )([Zer7243,in0Con29599])
+Con3517 = keras.layers.Conv3D(2, (1, 1, 2),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con3517', )(in0Con3517)
+Sub58151 = keras.layers.Subtract(name = 'Sub58151', )([Con29599,Con3517])
+Sof35730 = keras.layers.Softmax(axis=1, name = 'Sof35730', )(Sub58151)
+model = tf.keras.models.Model(inputs=[in0Glo88341,in0Con29599,in0Con3517], outputs=Sof35730)
+w = model.get_layer('Con3517').get_weights() 
+w[0] = np.array([[[[[0.7044, 0.7353], [0.5708, 0.5069]], [[0.6909, 0.3091], [0.0392, 0.3516]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con3517').set_weights(w) 
+in0Glo88341 = tf.constant([[[1.5352], [1.4402]]])
+in0Con29599 = tf.constant([[[[[0.6833]], [[0.1187]]], [[[0.0097]], [[0.0572]]]]])
+in0Con3517 = tf.constant([[[[[0.2527, 0.841], [0.1506, 0.2232]], [[0.5771, 0.5767], [0.8142, 0.977]]], [[[0.3066, 0.2256], [0.2144, 0.5232]], [[0.6692, 0.2387], [0.0215, 0.8312]]]]])
+print (np.array2string(model.predict([in0Glo88341,in0Con29599,in0Con3517],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sof35730.png')
+
+LGlo88341 = global_average_pooling1D_layer([[[1.5352], [1.4402]]], Glo88341), 
+LRes19239 = reshape_layer(Glo88341, [1, 1], Res19239), 
+LRes62396 = reshape_layer(Res19239, [1, 1, 1], Res62396), 
+LRes90184 = reshape_layer(Res62396, [1, 1, 1, 1], Res90184), 
+LZer7243 = zero_padding3D_layer(Res90184, 1, 0, 1, 0, 0, 0, Zer7243), 
+LCon29599 = concatenate_layer([Zer7243,[[[[[0.6833]], [[0.1187]]], [[[0.0097]], [[0.0572]]]]]], 4, Con29599), 
+LCon3517 = conv3D_layer([[[[[0.2527, 0.841], [0.1506, 0.2232]], [[0.5771, 0.5767], [0.8142, 0.977]]], [[[0.3066, 0.2256], [0.2144, 0.5232]], [[0.6692, 0.2387], [0.0215, 0.8312]]]]], 1, 1, 2,[[[[[0.7044, 0.7353], [0.5708, 0.5069]], [[0.6909, 0.3091], [0.0392, 0.3516]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con3517), 
+LSub58151 = subtract_layer(Con29599,Con3517, Sub58151), 
+LSof35730 = softmax_layer(Sub58151, 1, Sof35730), 
+exec_layers([LGlo88341,LRes19239,LRes62396,LRes90184,LZer7243,LCon29599,LCon3517,LSub58151,LSof35730],["Glo88341","Res19239","Res62396","Res90184","Zer7243","Con29599","Con3517","Sub58151","Sof35730"],Sof35730,"Sof35730")
+
+Actual (Unparsed): [[[[[0.4359873, 0.6286634]], [[0.1025555, 0.4161987]]], [[[0.5640127, 0.3713366]], [[0.8974445, 0.5838013]]]]]
+
+Expected (Unparsed): [[[[[0.43598727897303785,0.6286633861283039]],[[0.1025555197472393,0.4161986938651122]]],[[[0.5640127210269621,0.3713366138716961]],[[0.8974444802527607,0.5838013061348878]]]]]
+
+Actual:   [[[[[0.436, 0.6287]], [[0.1026, 0.4162]]], [[[0.5641, 0.3714]], [[0.8975, 0.5839]]]]]
+
+Expected: [[[[[0.436, 0.6287]], [[0.1026, 0.4162]]], [[[0.5641, 0.3714]], [[0.8975, 0.5839]]]]]

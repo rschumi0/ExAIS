@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den68438 = tf.keras.layers.Input(shape=([3, 4]))
+in0Glo8915 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in0Thr10530 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con112 = tf.keras.layers.Input(shape=([3, 1]))
+
+Den68438 = keras.layers.Dense(2,name = 'Den68438', )(in0Den68438)
+Glo8915 = keras.layers.GlobalAveragePooling3D(name = 'Glo8915', )(in0Glo8915)
+Res95335 = keras.layers.Reshape((1, 1), name = 'Res95335', )(Glo8915)
+Thr10530 = keras.layers.ThresholdedReLU(theta=0.1318117027338903, name = 'Thr10530', input_shape=(2, 1))(in0Thr10530)
+Res12635 = keras.layers.Reshape((2, 1, 1), name = 'Res12635', )(Thr10530)
+Cro58013 = keras.layers.Cropping2D(cropping=((0, 1), (0, 0)), name = 'Cro58013', )(Res12635)
+ReL25383 = keras.layers.ReLU(max_value=6.711346954859762, negative_slope=4.55428128313716, threshold=6.567984506137159, name = 'ReL25383', )(Cro58013)
+Res43805 = keras.layers.Reshape((1, 1), name = 'Res43805', )(ReL25383)
+Add80433 = keras.layers.Add(name = 'Add80433', )([Res95335,Res43805])
+Zer4284 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer4284', )(Add80433)
+Con112 = keras.layers.Concatenate(axis=2, name = 'Con112', )([Zer4284,in0Con112])
+Min8627 = keras.layers.Minimum(name = 'Min8627', )([Den68438,Con112])
+model = tf.keras.models.Model(inputs=[in0Den68438,in0Glo8915,in0Thr10530,in0Con112], outputs=Min8627)
+w = model.get_layer('Den68438').get_weights() 
+w[0] = np.array([[0.9886, 0.8216], [0.7135, 0.1076], [0.8417, 0.0244], [0.7424, 0.2824]])
+w[1] = np.array([0.1849, 0.3963])
+model.get_layer('Den68438').set_weights(w) 
+in0Den68438 = tf.constant([[[0.1555, 0.3816, 0.1793, 0.6084], [0.8794, 0.1434, 0.4336, 0.2317], [0.0603, 0.4612, 0.4782, 0.2586]]])
+in0Glo8915 = tf.constant([[[[[1.2733]], [[1.5462]]]]])
+in0Thr10530 = tf.constant([[[0.9156], [0.1643]]])
+in0Con112 = tf.constant([[[0.8749], [0.6695], [0.8864]]])
+print (np.array2string(model.predict([in0Den68438,in0Glo8915,in0Thr10530,in0Con112],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min8627.png')
+
+LDen68438 = dense_layer([[[0.1555, 0.3816, 0.1793, 0.6084], [0.8794, 0.1434, 0.4336, 0.2317], [0.0603, 0.4612, 0.4782, 0.2586]]], [[0.9886, 0.8216], [0.7135, 0.1076], [0.8417, 0.0244], [0.7424, 0.2824]],[0.1849, 0.3963], Den68438), 
+LGlo8915 = global_average_pooling3D_layer([[[[[1.2733]], [[1.5462]]]]], Glo8915), 
+LRes95335 = reshape_layer(Glo8915, [1, 1], Res95335), 
+LThr10530 = thresholded_relu_layer([[[0.9156], [0.1643]]], 0.1318117027338903, Thr10530), 
+LRes12635 = reshape_layer(Thr10530, [2, 1, 1], Res12635), 
+LCro58013 = cropping2D_layer(Res12635, 0, 1, 0, 0, Cro58013), 
+LReL25383 = relu_layer(Cro58013, 6.711346954859762, 4.55428128313716, 6.567984506137159, ReL25383), 
+LRes43805 = reshape_layer(ReL25383, [1, 1], Res43805), 
+LAdd80433 = add_layer([Res95335,Res43805], Add80433), 
+LZer4284 = zero_padding1D_layer(Add80433, 2, 0, Zer4284), 
+LCon112 = concatenate_layer([Zer4284,[[[0.8749], [0.6695], [0.8864]]]], 2, Con112), 
+LMin8627 = minimum_layer([Den68438,Con112], Min8627), 
+exec_layers([LDen68438,LGlo8915,LRes95335,LThr10530,LRes12635,LCro58013,LReL25383,LRes43805,LAdd80433,LZer4284,LCon112,LMin8627],["Den68438","Glo8915","Res95335","Thr10530","Res12635","Cro58013","ReL25383","Res43805","Add80433","Zer4284","Con112","Min8627"],Min8627,"Min8627")
+
+Actual (Unparsed): [[[0.0000000, 0.7413060], [0.0000000, 0.6695000], [-24.3327989, 0.5801643]]]
+
+Expected (Unparsed): [[[0,0.7413060399999999],[0,0.6695],[-24.332798961394946,0.58016432]]]
+
+Actual:   [[[0, 0.7414], [0, 0.6695], [-24.3327, 0.5802]]]
+
+Expected: [[[0, 0.7414], [0, 0.6695], [-24.3327, 0.5802]]]

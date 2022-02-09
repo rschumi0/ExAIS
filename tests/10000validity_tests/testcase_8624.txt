@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave12923 = tf.keras.layers.Input(shape=([1, 1]))
+in1Ave12923 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con35159 = tf.keras.layers.Input(shape=([1, 1]))
+in0Add28511 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in1Add28511 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Ave12923 = keras.layers.Average(name = 'Ave12923', )([in0Ave12923,in1Ave12923])
+Con35159 = keras.layers.Concatenate(axis=2, name = 'Con35159', )([Ave12923,in0Con35159])
+Add28511 = keras.layers.Add(name = 'Add28511', )([in0Add28511,in1Add28511])
+Res32751 = keras.layers.Reshape((1, 2), name = 'Res32751', )(Add28511)
+Dot46402 = keras.layers.Dot(axes=(1, 1), name = 'Dot46402', )([Con35159,Res32751])
+PRe64402 = keras.layers.PReLU(name = 'PRe64402', )(Dot46402)
+Res31723 = keras.layers.Reshape((2, 2, 1), name = 'Res31723', )(PRe64402)
+Res62434 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res62434', )(Res31723)
+Zer32522 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer32522', )(Res62434)
+model = tf.keras.models.Model(inputs=[in0Ave12923,in1Ave12923,in0Con35159,in0Add28511,in1Add28511], outputs=Zer32522)
+w = model.get_layer('PRe64402').get_weights() 
+w[0] = np.array([[0.8802, 0.7146], [0.1473, 0.0952]])
+model.get_layer('PRe64402').set_weights(w) 
+in0Ave12923 = tf.constant([[[0.541]]])
+in1Ave12923 = tf.constant([[[0.3966]]])
+in0Con35159 = tf.constant([[[0.8335]]])
+in0Add28511 = tf.constant([[[[0.446, 0.0801]]]])
+in1Add28511 = tf.constant([[[[0.9278, 0.5632]]]])
+print (np.array2string(model.predict([in0Ave12923,in1Ave12923,in0Con35159,in0Add28511,in1Add28511],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Zer32522.png')
+
+LAve12923 = average_layer([[[[0.541]]], [[[0.3966]]]], Ave12923), 
+LCon35159 = concatenate_layer([Ave12923,[[[0.8335]]]], 2, Con35159), 
+LAdd28511 = add_layer([[[[[0.446, 0.0801]]]], [[[[0.9278, 0.5632]]]]], Add28511), 
+LRes32751 = reshape_layer(Add28511, [1, 2], Res32751), 
+LDot46402 = dot_layer(Con35159,Res32751, 1, 1, Dot46402), 
+LPRe64402 = prelu_layer(Dot46402, [[0.8802, 0.7146], [0.1473, 0.0952]], PRe64402), 
+LRes31723 = reshape_layer(PRe64402, [2, 2, 1], Res31723), 
+LRes62434 = reshape_layer(Res31723, [2, 2, 1, 1], Res62434), 
+LZer32522 = zero_padding3D_layer(Res62434, 1, 1, 1, 1, 1, 1, Zer32522), 
+exec_layers([LAve12923,LCon35159,LAdd28511,LRes32751,LDot46402,LPRe64402,LRes31723,LRes62434,LZer32522],["Ave12923","Con35159","Add28511","Res32751","Dot46402","PRe64402","Res31723","Res62434","Zer32522"],Zer32522,"Zer32522")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.6440375], [0.0000000]], [[0.0000000], [0.3015790], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [1.1450623], [0.0000000]], [[0.0000000], [0.5361906], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0.64403744],[0]],[[0],[0.30157903999999996],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[1.1450623],[0]],[[0],[0.53619055],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.6441], [0]], [[0], [0.3016], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [1.1451], [0]], [[0], [0.5362], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0.6441], [0]], [[0], [0.3016], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [1.1451], [0]], [[0], [0.5362], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]]]]

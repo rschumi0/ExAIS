@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo91524 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con89484 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Max8941 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Max8941 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Glo91524 = keras.layers.GlobalMaxPool1D(name = 'Glo91524', )(in0Glo91524)
+Res25032 = keras.layers.Reshape((2, 1), name = 'Res25032', )(Glo91524)
+Res37028 = keras.layers.Reshape((2, 1, 1), name = 'Res37028', )(Res25032)
+Res8694 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res8694', )(Res37028)
+Con89484 = keras.layers.Concatenate(axis=4, name = 'Con89484', )([Res8694,in0Con89484])
+Max8941 = keras.layers.Maximum(name = 'Max8941', )([in0Max8941,in1Max8941])
+Ave40963 = keras.layers.Average(name = 'Ave40963', )([Con89484,Max8941])
+model = tf.keras.models.Model(inputs=[in0Glo91524,in0Con89484,in0Max8941,in1Max8941], outputs=Ave40963)
+in0Glo91524 = tf.constant([[[1.4231, 1.5127], [1.3598, 1.3449]]])
+in0Con89484 = tf.constant([[[[[0.6343]]], [[[0.0434]]]]])
+in0Max8941 = tf.constant([[[[[0.6694, 0.6629]]], [[[0.6823, 0.8506]]]]])
+in1Max8941 = tf.constant([[[[[0.7868, 0.428]]], [[[0.7181, 0.0274]]]]])
+print (np.array2string(model.predict([in0Glo91524,in0Con89484,in0Max8941,in1Max8941],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave40963.png')
+
+LGlo91524 = global_max_pool1D_layer([[[1.4231, 1.5127], [1.3598, 1.3449]]], Glo91524), 
+LRes25032 = reshape_layer(Glo91524, [2, 1], Res25032), 
+LRes37028 = reshape_layer(Res25032, [2, 1, 1], Res37028), 
+LRes8694 = reshape_layer(Res37028, [2, 1, 1, 1], Res8694), 
+LCon89484 = concatenate_layer([Res8694,[[[[[0.6343]]], [[[0.0434]]]]]], 4, Con89484), 
+LMax8941 = maximum_layer([[[[[[0.6694, 0.6629]]], [[[0.6823, 0.8506]]]]], [[[[[0.7868, 0.428]]], [[[0.7181, 0.0274]]]]]], Max8941), 
+LAve40963 = average_layer([Con89484,Max8941], Ave40963), 
+exec_layers([LGlo91524,LRes25032,LRes37028,LRes8694,LCon89484,LMax8941,LAve40963],["Glo91524","Res25032","Res37028","Res8694","Con89484","Max8941","Ave40963"],Ave40963,"Ave40963")
+
+Actual (Unparsed): [[[[[1.1049500, 0.6486000]]], [[[1.1154000, 0.4470000]]]]]
+
+Expected (Unparsed): [[[[[1.10495,0.6486000000000001]]],[[[1.1154,0.447]]]]]
+
+Actual:   [[[[[1.105, 0.6486]]], [[[1.1154, 0.447]]]]]
+
+Expected: [[[[[1.105, 0.6487]]], [[[1.1154, 0.447]]]]]

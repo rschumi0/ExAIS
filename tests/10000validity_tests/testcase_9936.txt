@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub26394 = tf.keras.layers.Input(shape=([2, 3]))
+in1Sub26394 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con76982 = tf.keras.layers.Input(shape=([6, 1]))
+in0Min42309 = tf.keras.layers.Input(shape=([2, 2]))
+in1Min42309 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sub26394 = keras.layers.Subtract(name = 'Sub26394', )([in0Sub26394,in1Sub26394])
+Fla3045 = keras.layers.Flatten(name = 'Fla3045', )(Sub26394)
+Res40078 = keras.layers.Reshape((6, 1), name = 'Res40078', )(Fla3045)
+Res92039 = keras.layers.Reshape((6, 1, 1), name = 'Res92039', )(Res40078)
+Up_10147 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_10147', )(Res92039)
+Mas19939 = keras.layers.Masking(mask_value=2, name = 'Mas19939', )(Up_10147)
+Res93670 = keras.layers.Reshape((6, 1), name = 'Res93670', )(Mas19939)
+Con76982 = keras.layers.Concatenate(axis=2, name = 'Con76982', )([Res93670,in0Con76982])
+Min42309 = keras.layers.Minimum(name = 'Min42309', )([in0Min42309,in1Min42309])
+Zer3534 = keras.layers.ZeroPadding1D(padding=((4, 0)), name = 'Zer3534', )(Min42309)
+Min7654 = keras.layers.Minimum(name = 'Min7654', )([Con76982,Zer3534])
+model = tf.keras.models.Model(inputs=[in0Sub26394,in1Sub26394,in0Con76982,in0Min42309,in1Min42309], outputs=Min7654)
+in0Sub26394 = tf.constant([[[0.3417, 0.7704, 0.9171], [0.466, 0.6678, 0.7084]]])
+in1Sub26394 = tf.constant([[[0.0045, 0.8988, 0.451], [0.4856, 0.4552, 0.8896]]])
+in0Con76982 = tf.constant([[[0.6521], [0.7327], [0.1255], [0.9957], [0.549], [0.6084]]])
+in0Min42309 = tf.constant([[[0.9095, 0.1044], [0.1182, 0.0128]]])
+in1Min42309 = tf.constant([[[0.8177, 0.8397], [0.7267, 0.5678]]])
+print (np.array2string(model.predict([in0Sub26394,in1Sub26394,in0Con76982,in0Min42309,in1Min42309],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min7654.png')
+
+LSub26394 = subtract_layer([[[0.3417, 0.7704, 0.9171], [0.466, 0.6678, 0.7084]]], [[[0.0045, 0.8988, 0.451], [0.4856, 0.4552, 0.8896]]], Sub26394), 
+LFla3045 = flatten_layer(Sub26394, Fla3045), 
+LRes40078 = reshape_layer(Fla3045, [6, 1], Res40078), 
+LRes92039 = reshape_layer(Res40078, [6, 1, 1], Res92039), 
+LUp_10147 = up_sampling2D_layer(Res92039, 1, 1, Up_10147), 
+LMas19939 = masking_layer(Up_10147, 2, Mas19939), 
+LRes93670 = reshape_layer(Mas19939, [6, 1], Res93670), 
+LCon76982 = concatenate_layer([Res93670,[[[0.6521], [0.7327], [0.1255], [0.9957], [0.549], [0.6084]]]], 2, Con76982), 
+LMin42309 = minimum_layer([[[[0.9095, 0.1044], [0.1182, 0.0128]]], [[[0.8177, 0.8397], [0.7267, 0.5678]]]], Min42309), 
+LZer3534 = zero_padding1D_layer(Min42309, 4, 0, Zer3534), 
+LMin7654 = minimum_layer([Con76982,Zer3534], Min7654), 
+exec_layers([LSub26394,LFla3045,LRes40078,LRes92039,LUp_10147,LMas19939,LRes93670,LCon76982,LMin42309,LZer3534,LMin7654],["Sub26394","Fla3045","Res40078","Res92039","Up_10147","Mas19939","Res93670","Con76982","Min42309","Zer3534","Min7654"],Min7654,"Min7654")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000], [-0.1284000, 0.0000000], [0.0000000, 0.0000000], [-0.0196000, 0.0000000], [0.2126000, 0.1044000], [-0.1812000, 0.0128000]]]
+
+Expected (Unparsed): [[[0,0],[-0.12840000000000007,0],[0,0],[-0.01959999999999995,0],[0.21259999999999996,0.1044],[-0.18119999999999992,0.0128]]]
+
+Actual:   [[[0, 0], [-0.1284, 0], [0, 0], [-0.0196, 0], [0.2126, 0.1044], [-0.1812, 0.0128]]]
+
+Expected: [[[0, 0], [-0.1284, 0], [0, 0], [-0.0195, 0], [0.2126, 0.1044], [-0.1811, 0.0128]]]

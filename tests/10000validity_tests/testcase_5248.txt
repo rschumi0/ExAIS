@@ -1,0 +1,72 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min63793 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in1Min63793 = tf.keras.layers.Input(shape=([2, 1, 2, 2]))
+in0GRU36039 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con58610 = tf.keras.layers.Input(shape=([7]))
+
+Min63793 = keras.layers.Minimum(name = 'Min63793', )([in0Min63793,in1Min63793])
+Res98879 = keras.layers.Reshape((2, 1, 4), name = 'Res98879', )(Min63793)
+Res78275 = keras.layers.Reshape((2, 4), name = 'Res78275', )(Res98879)
+Fla42780 = keras.layers.Flatten(name = 'Fla42780', )(Res78275)
+GRU36039 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU36039', )(in0GRU36039)
+Res30743 = keras.layers.Reshape((3, 1), name = 'Res30743', )(GRU36039)
+Con4075 = keras.layers.Conv1D(4, (2),strides=(5), padding='same', dilation_rate=(1), name = 'Con4075', )(Res30743)
+LST32272 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST32272', )(Con4075)
+Res73749 = keras.layers.Reshape((1, 1), name = 'Res73749', )(LST32272)
+Sim76435 = keras.layers.SimpleRNN(1,name = 'Sim76435', )(Res73749)
+Con58610 = keras.layers.Concatenate(axis=1, name = 'Con58610', )([Sim76435,in0Con58610])
+Mul87882 = keras.layers.Multiply(name = 'Mul87882', )([Fla42780,Con58610])
+model = tf.keras.models.Model(inputs=[in0Min63793,in1Min63793,in0GRU36039,in0Con58610], outputs=Mul87882)
+w = model.get_layer('GRU36039').get_weights() 
+w[0] = np.array([[6, 7, 4, 3, 10, 7, 5, 8, 5]])
+w[1] = np.array([[6, 3, 6, 3, 8, 10, 7, 1, 6], [8, 10, 5, 9, 7, 9, 10, 2, 10], [3, 10, 9, 3, 8, 4, 10, 4, 9]])
+w[2] = np.array([[3, 6, 5, 9, 6, 2, 3, 5, 5], [7, 7, 9, 8, 4, 10, 2, 4, 5]])
+model.get_layer('GRU36039').set_weights(w) 
+w = model.get_layer('Con4075').get_weights() 
+w[0] = np.array([[[0.3127, 0.9006, 0.3956, 0.351]], [[0.3573, 0.3311, 0.936, 0.6739]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con4075').set_weights(w) 
+w = model.get_layer('LST32272').get_weights() 
+w[0] = np.array([[5, 1, 8, 6], [5, 4, 4, 3], [6, 5, 1, 8], [3, 5, 3, 6]])
+w[1] = np.array([[1, 1, 9, 6]])
+w[2] = np.array([8, 3, 2, 2])
+model.get_layer('LST32272').set_weights(w) 
+w = model.get_layer('Sim76435').get_weights() 
+w[0] = np.array([[7]])
+w[1] = np.array([[2]])
+w[2] = np.array([3])
+model.get_layer('Sim76435').set_weights(w) 
+in0Min63793 = tf.constant([[[[[0.825, 0.3155], [0.6224, 0.1917]]], [[[0.6769, 0.8261], [0.8884, 0.6458]]]]])
+in1Min63793 = tf.constant([[[[[0.3543, 0.2718], [0.5511, 0.0912]]], [[[0.5847, 0.3246], [0.9051, 0.6219]]]]])
+in0GRU36039 = tf.constant([[[5], [7]]])
+in0Con58610 = tf.constant([[0.2939, 0.8435, 0.2467, 0.946, 0.5374, 0.5157, 0.8713]])
+print (np.array2string(model.predict([in0Min63793,in1Min63793,in0GRU36039,in0Con58610],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul87882.png')
+
+LMin63793 = minimum_layer([[[[[[0.825, 0.3155], [0.6224, 0.1917]]], [[[0.6769, 0.8261], [0.8884, 0.6458]]]]], [[[[[0.3543, 0.2718], [0.5511, 0.0912]]], [[[0.5847, 0.3246], [0.9051, 0.6219]]]]]], Min63793), 
+LRes98879 = reshape_layer(Min63793, [2, 1, 4], Res98879), 
+LRes78275 = reshape_layer(Res98879, [2, 4], Res78275), 
+LFla42780 = flatten_layer(Res78275, Fla42780), 
+LGRU36039 = gru_layer([[[5], [7]]],[[6, 7, 4, 3, 10, 7, 5, 8, 5]],[[6, 3, 6, 3, 8, 10, 7, 1, 6], [8, 10, 5, 9, 7, 9, 10, 2, 10], [3, 10, 9, 3, 8, 4, 10, 4, 9]],[[3, 6, 5, 9, 6, 2, 3, 5, 5], [7, 7, 9, 8, 4, 10, 2, 4, 5]], true, GRU36039), 
+LRes30743 = reshape_layer(GRU36039, [3, 1], Res30743), 
+LCon4075 = conv1D_layer(Res30743, 2,[[[0.3127, 0.9006, 0.3956, 0.351]], [[0.3573, 0.3311, 0.936, 0.6739]]],[0, 0, 0, 0], 5, true, 1, Con4075), 
+LLST32272 = lstm_layer(Con4075,[[5, 1, 8, 6], [5, 4, 4, 3], [6, 5, 1, 8], [3, 5, 3, 6]],[[1, 1, 9, 6]],[8, 3, 2, 2], LST32272), 
+LRes73749 = reshape_layer(LST32272, [1, 1], Res73749), 
+LSim76435 = simple_rnn_layer(Res73749,[[7]],[[2]],[3], Sim76435), 
+LCon58610 = concatenate_layer([Sim76435,[[0.2939, 0.8435, 0.2467, 0.946, 0.5374, 0.5157, 0.8713]]], 1, Con58610), 
+LMul87882 = multiply_layer([Fla42780,Con58610], Mul87882), 
+exec_layers([LMin63793,LRes98879,LRes78275,LFla42780,LGRU36039,LRes30743,LCon4075,LLST32272,LRes73749,LSim76435,LCon58610,LMul87882],["Min63793","Res98879","Res78275","Fla42780","GRU36039","Res30743","Con4075","LST32272","Res73749","Sim76435","Con58610","Mul87882"],Mul87882,"Mul87882")
+
+Actual (Unparsed): [[0.3542998, 0.0798820, 0.4648529, 0.0224990, 0.5531262, 0.1744400, 0.4581479, 0.5418615]]
+
+Expected (Unparsed): [[0.3542998221952055,0.07988202,0.46485285000000004,0.02249904,0.5531262,0.17444004,0.45814788,0.54186147]]
+
+Actual:   [[0.3543, 0.0799, 0.4649, 0.0225, 0.5532, 0.1745, 0.4582, 0.5419]]
+
+Expected: [[0.3543, 0.0799, 0.4649, 0.0225, 0.5532, 0.1745, 0.4582, 0.5419]]

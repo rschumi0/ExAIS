@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub1061 = tf.keras.layers.Input(shape=([2]))
+in1Sub1061 = tf.keras.layers.Input(shape=([2]))
+in0Con99520 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot53829 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot53829 = tf.keras.layers.Input(shape=([2, 3]))
+
+Sub1061 = keras.layers.Subtract(name = 'Sub1061', )([in0Sub1061,in1Sub1061])
+Res39078 = keras.layers.Reshape((2, 1), name = 'Res39078', )(Sub1061)
+Zer41041 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer41041', )(Res39078)
+Con99520 = keras.layers.Concatenate(axis=2, name = 'Con99520', )([Zer41041,in0Con99520])
+Dot53829 = keras.layers.Dot(axes=(1, 1), name = 'Dot53829', )([in0Dot53829,in1Dot53829])
+Min23772 = keras.layers.Minimum(name = 'Min23772', )([Con99520,Dot53829])
+Res38316 = keras.layers.Reshape((3, 3, 1), name = 'Res38316', )(Min23772)
+Dep5453 = keras.layers.DepthwiseConv2D((2, 1),strides=(1, 1), padding='valid', name = 'Dep5453', )(Res38316)
+model = tf.keras.models.Model(inputs=[in0Sub1061,in1Sub1061,in0Con99520,in0Dot53829,in1Dot53829], outputs=Dep5453)
+w = model.get_layer('Dep5453').get_weights() 
+w[0] = np.array([[[[0.7013]]], [[[0.3469]]]])
+w[1] = np.array([0])
+model.get_layer('Dep5453').set_weights(w) 
+in0Sub1061 = tf.constant([[0.9246, 0.5612]])
+in1Sub1061 = tf.constant([[0.4527, 0.7884]])
+in0Con99520 = tf.constant([[[0.0722, 0.1816], [0.0397, 0.8975], [0.9099, 0.1058]]])
+in0Dot53829 = tf.constant([[[0.8735, 0.8141, 0.1417], [0.0581, 0.6364, 0.0957]]])
+in1Dot53829 = tf.constant([[[0.1065, 0.319, 0.6975], [0.8553, 0.9497, 0.1447]]])
+print (np.array2string(model.predict([in0Sub1061,in1Sub1061,in0Con99520,in0Dot53829,in1Dot53829],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dep5453.png')
+
+LSub1061 = subtract_layer([[0.9246, 0.5612]], [[0.4527, 0.7884]], Sub1061), 
+LRes39078 = reshape_layer(Sub1061, [2, 1], Res39078), 
+LZer41041 = zero_padding1D_layer(Res39078, 1, 0, Zer41041), 
+LCon99520 = concatenate_layer([Zer41041,[[[0.0722, 0.1816], [0.0397, 0.8975], [0.9099, 0.1058]]]], 2, Con99520), 
+LDot53829 = dot_layer([[[0.8735, 0.8141, 0.1417], [0.0581, 0.6364, 0.0957]]], [[[0.1065, 0.319, 0.6975], [0.8553, 0.9497, 0.1447]]], 1, 1, Dot53829), 
+LMin23772 = minimum_layer([Con99520,Dot53829], Min23772), 
+LRes38316 = reshape_layer(Min23772, [3, 3, 1], Res38316), 
+LDep5453 = depthwise_conv2D_layer(Res38316, 2, 1,[[[[0.7013]]], [[[0.3469]]]],[0], 1, 1, false, Dep5453), 
+exec_layers([LSub1061,LRes39078,LZer41041,LCon99520,LDot53829,LMin23772,LRes38316,LDep5453],["Sub1061","Res39078","Zer41041","Con99520","Dot53829","Min23772","Res38316","Dep5453"],Dep5453,"Dep5453")
+
+Actual (Unparsed): [[[[0.1637021], [0.0644058], [0.3562830]], [[0.2521278], [0.0750507], [0.4995052]]]]
+
+Expected (Unparsed): [[[[0.16370210999999998],[0.06440579],[0.356282962827]],[[0.25212779],[0.075050741871],[0.49950519937900006]]]]
+
+Actual:   [[[[0.1638], [0.0645], [0.3563]], [[0.2522], [0.0751], [0.4996]]]]
+
+Expected: [[[[0.1638], [0.0645], [0.3563]], [[0.2522], [0.0751], [0.4996]]]]

@@ -1,0 +1,44 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min10305 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min10305 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Min10305 = keras.layers.Minimum(name = 'Min10305', )([in0Min10305,in1Min10305])
+Res57192 = keras.layers.Reshape((1, 4), name = 'Res57192', )(Min10305)
+Sim61155 = keras.layers.SimpleRNN(3,name = 'Sim61155', )(Res57192)
+Res74954 = keras.layers.Reshape((3, 1), name = 'Res74954', )(Sim61155)
+Res64137 = keras.layers.Reshape((3, 1, 1), name = 'Res64137', )(Res74954)
+Max18808 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(1, 10), padding='valid', name = 'Max18808', )(Res64137)
+Lea23942 = keras.layers.LeakyReLU(alpha=1.6415404960011568, name = 'Lea23942', )(Max18808)
+model = tf.keras.models.Model(inputs=[in0Min10305,in1Min10305], outputs=Lea23942)
+w = model.get_layer('Sim61155').get_weights() 
+w[0] = np.array([[10, 4, 6], [10, 9, 6], [9, 4, 2], [2, 8, 10]])
+w[1] = np.array([[9, 2, 5], [2, 5, 10], [8, 9, 2]])
+w[2] = np.array([7, 3, 8])
+model.get_layer('Sim61155').set_weights(w) 
+in0Min10305 = tf.constant([[[[0.243, 0.3848], [0.9706, 0.3504]]]])
+in1Min10305 = tf.constant([[[[0.0648, 0.3728], [0.4626, 0.7669]]]])
+print (np.array2string(model.predict([in0Min10305,in1Min10305],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Lea23942.png')
+
+LMin10305 = minimum_layer([[[[[0.243, 0.3848], [0.9706, 0.3504]]]], [[[[0.0648, 0.3728], [0.4626, 0.7669]]]]], Min10305), 
+LRes57192 = reshape_layer(Min10305, [1, 4], Res57192), 
+LSim61155 = simple_rnn_layer(Res57192,[[10, 4, 6], [10, 9, 6], [9, 4, 2], [2, 8, 10]],[[9, 2, 5], [2, 5, 10], [8, 9, 2]],[7, 3, 8], Sim61155), 
+LRes74954 = reshape_layer(Sim61155, [3, 1], Res74954), 
+LRes64137 = reshape_layer(Res74954, [3, 1, 1], Res64137), 
+LMax18808 = max_pool2D_layer(Res64137, 1, 1, 1, 10, false, Max18808), 
+LLea23942 = leaky_relu_layer(Max18808, 1.6415404960011568, Lea23942), 
+exec_layers([LMin10305,LRes57192,LSim61155,LRes74954,LRes64137,LMax18808,LLea23942],["Min10305","Res57192","Sim61155","Res74954","Res64137","Max18808","Lea23942"],Lea23942,"Lea23942")
+
+Actual (Unparsed): [[[[1.0000000]], [[1.0000000]], [[1.0000000]]]]
+
+Expected (Unparsed): [[[[0.9999999999999843]],[[0.9999999996735854]],[[0.9999999999998322]]]]
+
+Actual:   [[[[1]], [[1]], [[1]]]]
+
+Expected: [[[[1]], [[1]], [[1]]]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo22600 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add981 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add981 = tf.keras.layers.Input(shape=([2, 2]))
+in0Ave88962 = tf.keras.layers.Input(shape=([2, 1, 1]))
+
+Glo22600 = keras.layers.GlobalMaxPool1D(name = 'Glo22600', )(in0Glo22600)
+Res38932 = keras.layers.Reshape((2, 1), name = 'Res38932', )(Glo22600)
+Res30862 = keras.layers.Reshape((2, 1, 1), name = 'Res30862', )(Res38932)
+Zer88621 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer88621', )(Res30862)
+Add981 = keras.layers.Add(name = 'Add981', )([in0Add981,in1Add981])
+Sep83147 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='same', name = 'Sep83147', )(Add981)
+Res45700 = keras.layers.Reshape((2, 2, 1), name = 'Res45700', )(Sep83147)
+Ave88962 = keras.layers.AveragePooling2D(pool_size=(2, 1), name = 'Ave88962', )(in0Ave88962)
+Zer75283 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer75283', )(Ave88962)
+Add96139 = keras.layers.Add(name = 'Add96139', )([Res45700,Zer75283])
+Max10442 = keras.layers.Maximum(name = 'Max10442', )([Zer88621,Add96139])
+model = tf.keras.models.Model(inputs=[in0Glo22600,in0Add981,in1Add981,in0Ave88962], outputs=Max10442)
+w = model.get_layer('Sep83147').get_weights() 
+w[0] = np.array([[[0.2576], [0.476]]])
+w[1] = np.array([[[0.1913, 0.1213], [0.0202, 0.1757]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep83147').set_weights(w) 
+in0Glo22600 = tf.constant([[[1.8179, 1.9708], [1.0008, 1.4394]]])
+in0Add981 = tf.constant([[[0.3945, 0.1597], [0.8147, 0.1256]]])
+in1Add981 = tf.constant([[[0.6083, 0.5932], [0.7443, 0.9751]]])
+in0Ave88962 = tf.constant([[[[1.0945]], [[1.9573]]]])
+print (np.array2string(model.predict([in0Glo22600,in0Add981,in1Add981,in0Ave88962],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max10442.png')
+
+LGlo22600 = global_max_pool1D_layer([[[1.8179, 1.9708], [1.0008, 1.4394]]], Glo22600), 
+LRes38932 = reshape_layer(Glo22600, [2, 1], Res38932), 
+LRes30862 = reshape_layer(Res38932, [2, 1, 1], Res30862), 
+LZer88621 = zero_padding2D_layer(Res30862, 0, 0, 1, 0, Zer88621), 
+LAdd981 = add_layer([[[[0.3945, 0.1597], [0.8147, 0.1256]]], [[[0.6083, 0.5932], [0.7443, 0.9751]]]], Add981), 
+LSep83147 = separable_conv1D_layer(Add981, 1,[[[[0.2576], [0.476]]],[[[0.1913, 0.1213], [0.0202, 0.1757]]]],[0, 0], 1, true, Sep83147), 
+LRes45700 = reshape_layer(Sep83147, [2, 2, 1], Res45700), 
+LAve88962 = average_pooling2D_layer([[[[1.0945]], [[1.9573]]]], 2, 1, Ave88962), 
+LZer75283 = zero_padding2D_layer(Ave88962, 1, 0, 1, 0, Zer75283), 
+LAdd96139 = add_layer([Res45700,Zer75283], Add96139), 
+LMax10442 = maximum_layer([Zer88621,Add96139], Max10442), 
+exec_layers([LGlo22600,LRes38932,LRes30862,LZer88621,LAdd981,LSep83147,LRes45700,LAve88962,LZer75283,LAdd96139,LMax10442],["Glo22600","Res38932","Res30862","Zer88621","Add981","Sep83147","Res45700","Ave88962","Zer75283","Add96139","Max10442"],Max10442,"Max10442")
+
+Actual (Unparsed): [[[[0.0566561], [1.8178999]], [[0.0874092], [1.9708000]]]]
+
+Expected (Unparsed): [[[[0.056656144943999995],[1.8179]],[[0.08740922456],[1.9708]]]]
+
+Actual:   [[[[0.0567], [1.8179]], [[0.0875], [1.9708]]]]
+
+Expected: [[[[0.0567], [1.8179]], [[0.0875], [1.9708]]]]

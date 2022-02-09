@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot78168 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot78168 = tf.keras.layers.Input(shape=([2, 3]))
+in0Mul74243 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Mul74243 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Dot78168 = keras.layers.Dot(axes=(2, 2), name = 'Dot78168', )([in0Dot78168,in1Dot78168])
+Bat98700 = keras.layers.BatchNormalization(axis=1, epsilon=0.5318596313980992,  name = 'Bat98700', )(Dot78168)
+Res41260 = keras.layers.Reshape((2, 2, 1), name = 'Res41260', )(Bat98700)
+Mul74243 = keras.layers.Multiply(name = 'Mul74243', )([in0Mul74243,in1Mul74243])
+Zer51365 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer51365', )(Mul74243)
+Ave88586 = keras.layers.Average(name = 'Ave88586', )([Res41260,Zer51365])
+Con7400 = keras.layers.Conv2D(2, (1, 1),strides=(1, 1), padding='same', dilation_rate=(1, 1), name = 'Con7400', )(Ave88586)
+model = tf.keras.models.Model(inputs=[in0Dot78168,in1Dot78168,in0Mul74243,in1Mul74243], outputs=Con7400)
+w = model.get_layer('Bat98700').get_weights() 
+w[0] = np.array([0.225, 0.2271])
+w[1] = np.array([0.2217, 0.4319])
+w[2] = np.array([0.0142, 0.5216])
+w[3] = np.array([0.6912, 0.5845])
+model.get_layer('Bat98700').set_weights(w) 
+w = model.get_layer('Con7400').get_weights() 
+w[0] = np.array([[[[0.422, 0.4948]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con7400').set_weights(w) 
+in0Dot78168 = tf.constant([[[0.3396, 0.8656, 0.6627], [0.555, 0.0777, 0.5707]]])
+in1Dot78168 = tf.constant([[[0.5329, 0.271, 0.5104], [0.8137, 0.4025, 0.1216]]])
+in0Mul74243 = tf.constant([[[[0.4687]]]])
+in1Mul74243 = tf.constant([[[[0.025]]]])
+print (np.array2string(model.predict([in0Dot78168,in1Dot78168,in0Mul74243,in1Mul74243],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con7400.png')
+
+LDot78168 = dot_layer([[[0.3396, 0.8656, 0.6627], [0.555, 0.0777, 0.5707]]], [[[0.5329, 0.271, 0.5104], [0.8137, 0.4025, 0.1216]]], 2, 2, Dot78168), 
+LBat98700 = batch_normalization_layer(Dot78168, 1, 0.5318596313980992, [0.225, 0.2271], [0.2217, 0.4319], [0.0142, 0.5216], [0.6912, 0.5845], Bat98700), 
+LRes41260 = reshape_layer(Bat98700, [2, 2, 1], Res41260), 
+LMul74243 = multiply_layer([[[[[0.4687]]]], [[[[0.025]]]]], Mul74243), 
+LZer51365 = zero_padding2D_layer(Mul74243, 1, 0, 1, 0, Zer51365), 
+LAve88586 = average_layer([Res41260,Zer51365], Ave88586), 
+LCon7400 = conv2D_layer(Ave88586, 1, 1,[[[[0.422, 0.4948]]]],[0, 0], 1, 1, true, 1, 1, Con7400), 
+exec_layers([LDot78168,LBat98700,LRes41260,LMul74243,LZer51365,LAve88586,LCon7400],["Dot78168","Bat98700","Res41260","Mul74243","Zer51365","Ave88586","Con7400"],Con7400,"Con7400")
+
+Actual (Unparsed): [[[[0.0785280, 0.0920750], [0.0764472, 0.0896352]], [[0.0950539, 0.1114519], [0.0949945, 0.1113821]]]]
+
+Expected (Unparsed): [[[[0.07852796440411837,0.09207496868994733],[0.07644716971945632,0.08963521226821562]],[[0.09505392491039066,0.11145185318877085],[0.09499446267573566,0.11138213301410903]]]]
+
+Actual:   [[[[0.0786, 0.0921], [0.0765, 0.0897]], [[0.0951, 0.1115], [0.095, 0.1114]]]]
+
+Expected: [[[[0.0786, 0.0921], [0.0765, 0.0897]], [[0.0951, 0.1115], [0.095, 0.1114]]]]

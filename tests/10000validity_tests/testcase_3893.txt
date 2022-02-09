@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep88203 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Dot7581 = tf.keras.layers.Input(shape=([2, 2]))
+in1Dot7581 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo74810 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Dep88203 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep88203', )(in0Dep88203)
+Res65879 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res65879', )(Dep88203)
+Dot7581 = keras.layers.Dot(axes=(1, 1), name = 'Dot7581', )([in0Dot7581,in1Dot7581])
+Res13912 = keras.layers.Reshape((2, 2, 1), name = 'Res13912', )(Dot7581)
+Res10054 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res10054', )(Res13912)
+Cro26076 = keras.layers.Cropping3D(cropping=((1, 0), (0, 1), (0, 0)), name = 'Cro26076', )(Res10054)
+Zer30862 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer30862', )(Cro26076)
+Ave41141 = keras.layers.Average(name = 'Ave41141', )([Res65879,Zer30862])
+Res84972 = keras.layers.Reshape((1, 1, 2), name = 'Res84972', )(Ave41141)
+Glo74810 = keras.layers.GlobalAveragePooling2D(name = 'Glo74810', )(in0Glo74810)
+Res53910 = keras.layers.Reshape((1, 1, 2), name = 'Res53910', )(Glo74810)
+Sub56688 = keras.layers.Subtract(name = 'Sub56688', )([Res84972,Res53910])
+model = tf.keras.models.Model(inputs=[in0Dep88203,in0Dot7581,in1Dot7581,in0Glo74810], outputs=Sub56688)
+w = model.get_layer('Dep88203').get_weights() 
+w[0] = np.array([[[[0.5868], [0.3481]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Dep88203').set_weights(w) 
+in0Dep88203 = tf.constant([[[[0.8026, 0.9554]]]])
+in0Dot7581 = tf.constant([[[0.0052, 0.9345], [0.2378, 0.4046]]])
+in1Dot7581 = tf.constant([[[0.5496, 0.4444], [0.3583, 0.48]]])
+in0Glo74810 = tf.constant([[[[1.9779, 1.9325], [1.9207, 1.4111]], [[1.218, 1.2843], [1.8631, 1.8608]]]])
+print (np.array2string(model.predict([in0Dep88203,in0Dot7581,in1Dot7581,in0Glo74810],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub56688.png')
+
+LDep88203 = depthwise_conv2D_layer([[[[0.8026, 0.9554]]]], 1, 1,[[[[0.5868], [0.3481]]]],[0, 0], 1, 1, true, Dep88203), 
+LRes65879 = reshape_layer(Dep88203, [1, 1, 2, 1], Res65879), 
+LDot7581 = dot_layer([[[0.0052, 0.9345], [0.2378, 0.4046]]], [[[0.5496, 0.4444], [0.3583, 0.48]]], 1, 1, Dot7581), 
+LRes13912 = reshape_layer(Dot7581, [2, 2, 1], Res13912), 
+LRes10054 = reshape_layer(Res13912, [2, 2, 1, 1], Res10054), 
+LCro26076 = cropping3D_layer(Res10054, 1, 0, 0, 1, 0, 0, Cro26076), 
+LZer30862 = zero_padding3D_layer(Cro26076, 0, 0, 0, 0, 1, 0, Zer30862), 
+LAve41141 = average_layer([Res65879,Zer30862], Ave41141), 
+LRes84972 = reshape_layer(Ave41141, [1, 1, 2], Res84972), 
+LGlo74810 = global_average_pooling2D_layer([[[[1.9779, 1.9325], [1.9207, 1.4111]], [[1.218, 1.2843], [1.8631, 1.8608]]]], Glo74810), 
+LRes53910 = reshape_layer(Glo74810, [1, 1, 2], Res53910), 
+LSub56688 = subtract_layer(Res84972,Res53910, Sub56688), 
+exec_layers([LDep88203,LRes65879,LDot7581,LRes13912,LRes10054,LCro26076,LZer30862,LAve41141,LRes84972,LGlo74810,LRes53910,LSub56688],["Dep88203","Res65879","Dot7581","Res13912","Res10054","Cro26076","Zer30862","Ave41141","Res84972","Glo74810","Res53910","Sub56688"],Sub56688,"Sub56688")
+
+Actual (Unparsed): [[[[-1.5094422, -1.1266030]]]]
+
+Expected (Unparsed): [[[[-1.50944216,-1.1266029400000002]]]]
+
+Actual:   [[[[-1.5094, -1.1266]]]]
+
+Expected: [[[[-1.5094, -1.1266]]]]

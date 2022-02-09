@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub68678 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub68678 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con72735 = tf.keras.layers.Input(shape=([1]))
+in0Glo11031 = tf.keras.layers.Input(shape=([2, 2]))
+in0Glo1622 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con3773 = tf.keras.layers.Input(shape=([1]))
+
+Sub68678 = keras.layers.Subtract(name = 'Sub68678', )([in0Sub68678,in1Sub68678])
+Res38765 = keras.layers.Reshape((3, 2, 1), name = 'Res38765', )(Sub68678)
+Glo71797 = keras.layers.GlobalAveragePooling2D(name = 'Glo71797', )(Res38765)
+Con72735 = keras.layers.Concatenate(axis=1, name = 'Con72735', )([Glo71797,in0Con72735])
+Glo11031 = keras.layers.GlobalAveragePooling1D(name = 'Glo11031', )(in0Glo11031)
+Glo1622 = keras.layers.GlobalAveragePooling1D(name = 'Glo1622', )(in0Glo1622)
+Con3773 = keras.layers.Concatenate(axis=1, name = 'Con3773', )([Glo1622,in0Con3773])
+Sub8718 = keras.layers.Subtract(name = 'Sub8718', )([Glo11031,Con3773])
+Mul7914 = keras.layers.Multiply(name = 'Mul7914', )([Con72735,Sub8718])
+Res23359 = keras.layers.Reshape((2, 1), name = 'Res23359', )(Mul7914)
+Sep91125 = keras.layers.SeparableConv1D(3, (2),strides=(1), padding='valid', name = 'Sep91125', )(Res23359)
+model = tf.keras.models.Model(inputs=[in0Sub68678,in1Sub68678,in0Con72735,in0Glo11031,in0Glo1622,in0Con3773], outputs=Sep91125)
+w = model.get_layer('Sep91125').get_weights() 
+w[0] = np.array([[[0.3382]], [[0.5281]]])
+w[1] = np.array([[[0.5104, 0.9535, 0.1078]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep91125').set_weights(w) 
+in0Sub68678 = tf.constant([[[0.6593, 0.7239], [0.404, 0.0266], [0.3335, 0.7246]]])
+in1Sub68678 = tf.constant([[[0.5313, 0.948], [0.9125, 0.5407], [0.6831, 0.7801]]])
+in0Con72735 = tf.constant([[0.3394]])
+in0Glo11031 = tf.constant([[[1.1718, 1.6835], [1.9911, 1.7007]]])
+in0Glo1622 = tf.constant([[[1.1107], [1.8403]]])
+in0Con3773 = tf.constant([[0.293]])
+print (np.array2string(model.predict([in0Sub68678,in1Sub68678,in0Con72735,in0Glo11031,in0Glo1622,in0Con3773],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep91125.png')
+
+LSub68678 = subtract_layer([[[0.6593, 0.7239], [0.404, 0.0266], [0.3335, 0.7246]]], [[[0.5313, 0.948], [0.9125, 0.5407], [0.6831, 0.7801]]], Sub68678), 
+LRes38765 = reshape_layer(Sub68678, [3, 2, 1], Res38765), 
+LGlo71797 = global_average_pooling2D_layer(Res38765, Glo71797), 
+LCon72735 = concatenate_layer([Glo71797,[[0.3394]]], 1, Con72735), 
+LGlo11031 = global_average_pooling1D_layer([[[1.1718, 1.6835], [1.9911, 1.7007]]], Glo11031), 
+LGlo1622 = global_average_pooling1D_layer([[[1.1107], [1.8403]]], Glo1622), 
+LCon3773 = concatenate_layer([Glo1622,[[0.293]]], 1, Con3773), 
+LSub8718 = subtract_layer(Glo11031,Con3773, Sub8718), 
+LMul7914 = multiply_layer([Con72735,Sub8718], Mul7914), 
+LRes23359 = reshape_layer(Mul7914, [2, 1], Res23359), 
+LSep91125 = separable_conv1D_layer(Res23359, 2,[[[[0.3382]], [[0.5281]]],[[[0.5104, 0.9535, 0.1078]]]],[0, 0, 0], 1, false, Sep91125), 
+exec_layers([LSub68678,LRes38765,LGlo71797,LCon72735,LGlo11031,LGlo1622,LCon3773,LSub8718,LMul7914,LRes23359,LSep91125],["Sub68678","Res38765","Glo71797","Con72735","Glo11031","Glo1622","Con3773","Sub8718","Mul7914","Res23359","Sep91125"],Sep91125,"Sep91125")
+
+Actual (Unparsed): [[[0.1233486, 0.2304328, 0.0260521]]]
+
+Expected (Unparsed): [[[0.12334861060519946,0.23043279822111618,0.026052077239891266]]]
+
+Actual:   [[[0.1234, 0.2305, 0.0261]]]
+
+Expected: [[[0.1234, 0.2305, 0.0261]]]

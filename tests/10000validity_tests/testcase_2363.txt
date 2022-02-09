@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0GRU96231 = tf.keras.layers.Input(shape=([2, 3]))
+in0Per35289 = tf.keras.layers.Input(shape=([3, 1]))
+in0Max19434 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con73729 = tf.keras.layers.Input(shape=([3, 3]))
+
+GRU96231 = keras.layers.GRU(3,reset_after=True, recurrent_activation='sigmoid', name = 'GRU96231', )(in0GRU96231)
+Res30387 = keras.layers.Reshape((3, 1), name = 'Res30387', )(GRU96231)
+Con41097 = keras.layers.Conv1D(4, (3),strides=(1), padding='same', dilation_rate=(1), name = 'Con41097', )(Res30387)
+Per35289 = keras.layers.Permute((1,2), name = 'Per35289',)(in0Per35289)
+Max19434 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max19434', )(in0Max19434)
+Dot17351 = keras.layers.Dot(axes=(2, 2), name = 'Dot17351', )([Per35289,Max19434])
+Con73729 = keras.layers.Concatenate(axis=2, name = 'Con73729', )([Dot17351,in0Con73729])
+Add56153 = keras.layers.Add(name = 'Add56153', )([Con41097,Con73729])
+model = tf.keras.models.Model(inputs=[in0GRU96231,in0Per35289,in0Max19434,in0Con73729], outputs=Add56153)
+w = model.get_layer('GRU96231').get_weights() 
+w[0] = np.array([[1, 8, 6, 6, 10, 8, 7, 7, 2], [5, 3, 8, 10, 2, 8, 3, 10, 10], [9, 2, 10, 2, 1, 4, 1, 5, 9]])
+w[1] = np.array([[10, 8, 4, 2, 10, 3, 8, 2, 7], [5, 9, 10, 10, 1, 7, 3, 4, 9], [2, 5, 8, 4, 2, 6, 5, 6, 1]])
+w[2] = np.array([[2, 1, 3, 5, 7, 9, 10, 7, 5], [3, 1, 1, 4, 4, 1, 5, 4, 7]])
+model.get_layer('GRU96231').set_weights(w) 
+w = model.get_layer('Con41097').get_weights() 
+w[0] = np.array([[[0.132, 0.8823, 0.869, 0.6986]], [[0.4839, 0.3652, 0.4056, 0.8826]], [[0.4936, 0.3178, 0.9156, 0.4237]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con41097').set_weights(w) 
+in0GRU96231 = tf.constant([[[7, 7, 7], [4, 6, 7]]])
+in0Per35289 = tf.constant([[[1.7833], [1.9024], [1.8204]]])
+in0Max19434 = tf.constant([[[1.2713]]])
+in0Con73729 = tf.constant([[[0.1596, 0.7812, 0.918], [0.9128, 0.0177, 0.8376], [0.4779, 0.2593, 0.2138]]])
+print (np.array2string(model.predict([in0GRU96231,in0Per35289,in0Max19434,in0Con73729],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add56153.png')
+
+LGRU96231 = gru_layer([[[7, 7, 7], [4, 6, 7]]],[[1, 8, 6, 6, 10, 8, 7, 7, 2], [5, 3, 8, 10, 2, 8, 3, 10, 10], [9, 2, 10, 2, 1, 4, 1, 5, 9]],[[10, 8, 4, 2, 10, 3, 8, 2, 7], [5, 9, 10, 10, 1, 7, 3, 4, 9], [2, 5, 8, 4, 2, 6, 5, 6, 1]],[[2, 1, 3, 5, 7, 9, 10, 7, 5], [3, 1, 1, 4, 4, 1, 5, 4, 7]], true, GRU96231), 
+LRes30387 = reshape_layer(GRU96231, [3, 1], Res30387), 
+LCon41097 = conv1D_layer(Res30387, 3,[[[0.132, 0.8823, 0.869, 0.6986]], [[0.4839, 0.3652, 0.4056, 0.8826]], [[0.4936, 0.3178, 0.9156, 0.4237]]],[0, 0, 0, 0], 1, true, 1, Con41097), 
+LPer35289 = permute_layer([[[1.7833], [1.9024], [1.8204]]], 1,2, Per35289), 
+LMax19434 = max_pool1D_layer([[[1.2713]]], 1, Max19434), 
+LDot17351 = dot_layer(Per35289,Max19434, 2, 2, Dot17351), 
+LCon73729 = concatenate_layer([Dot17351,[[[0.1596, 0.7812, 0.918], [0.9128, 0.0177, 0.8376], [0.4779, 0.2593, 0.2138]]]], 2, Con73729), 
+LAdd56153 = add_layer([Con41097,Con73729], Add56153), 
+exec_layers([LGRU96231,LRes30387,LCon41097,LPer35289,LMax19434,LDot17351,LCon73729,LAdd56153],["GRU96231","Res30387","Con41097","Per35289","Max19434","Dot17351","Con73729","Add56153"],Add56153,"Add56153")
+
+Actual (Unparsed): [[[2.2671093, 0.1596000, 0.7812000, 0.9180000], [2.4185211, 0.9128000, 0.0177000, 0.8376000], [2.3142744, 0.4779000, 0.2593000, 0.2138000]]]
+
+Expected (Unparsed): [[[2.2671092900000005,0.1596,0.7812,0.918],[2.4185211200000003,0.9128,0.0177,0.8376],[2.31427452,0.4779,0.2593,0.2138]]]
+
+Actual:   [[[2.2672, 0.1596, 0.7812, 0.918], [2.4186, 0.9128, 0.0177, 0.8376], [2.3143, 0.4779, 0.2593, 0.2138]]]
+
+Expected: [[[2.2672, 0.1596, 0.7812, 0.918], [2.4186, 0.9128, 0.0177, 0.8376], [2.3143, 0.4779, 0.2593, 0.2138]]]

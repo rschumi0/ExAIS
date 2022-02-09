@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul89682 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Mul89682 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Ave22671 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con65326 = tf.keras.layers.Input(shape=([3, 2, 1]))
+in0Sub83966 = tf.keras.layers.Input(shape=([3, 2, 2]))
+in1Sub83966 = tf.keras.layers.Input(shape=([3, 2, 2]))
+
+Mul89682 = keras.layers.Multiply(name = 'Mul89682', )([in0Mul89682,in1Mul89682])
+Zer2428 = keras.layers.ZeroPadding2D(padding=((2, 0), (0, 0)), name = 'Zer2428', )(Mul89682)
+Ave22671 = keras.layers.AveragePooling1D(pool_size=(1), name = 'Ave22671', )(in0Ave22671)
+Res22926 = keras.layers.Reshape((1, 1, 1), name = 'Res22926', )(Ave22671)
+Zer44639 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer44639', )(Res22926)
+Con65326 = keras.layers.Concatenate(axis=3, name = 'Con65326', )([Zer44639,in0Con65326])
+Sub83966 = keras.layers.Subtract(name = 'Sub83966', )([in0Sub83966,in1Sub83966])
+Add60634 = keras.layers.Add(name = 'Add60634', )([Con65326,Sub83966])
+Sub49510 = keras.layers.Subtract(name = 'Sub49510', )([Zer2428,Add60634])
+model = tf.keras.models.Model(inputs=[in0Mul89682,in1Mul89682,in0Ave22671,in0Con65326,in0Sub83966,in1Sub83966], outputs=Sub49510)
+in0Mul89682 = tf.constant([[[[0.038, 0.6435], [0.4639, 0.2297]]]])
+in1Mul89682 = tf.constant([[[[0.5498, 0.0956], [0.6828, 0.4176]]]])
+in0Ave22671 = tf.constant([[[1.9846]]])
+in0Con65326 = tf.constant([[[[0.7385], [0.6365]], [[0.5067], [0.7498]], [[0.4514], [0.5579]]]])
+in0Sub83966 = tf.constant([[[[0.3939, 0.6742], [0.7477, 0.4787]], [[0.3422, 0.6284], [0.9207, 0.3623]], [[0.0477, 0.941], [0.5459, 0.7163]]]])
+in1Sub83966 = tf.constant([[[[0.7331, 0.8719], [0.0925, 0.6058]], [[0.3132, 0.0883], [0.9868, 0.8552]], [[0.3184, 0.9865], [0.6113, 0.6084]]]])
+print (np.array2string(model.predict([in0Mul89682,in1Mul89682,in0Ave22671,in0Con65326,in0Sub83966,in1Sub83966],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub49510.png')
+
+LMul89682 = multiply_layer([[[[[0.038, 0.6435], [0.4639, 0.2297]]]], [[[[0.5498, 0.0956], [0.6828, 0.4176]]]]], Mul89682), 
+LZer2428 = zero_padding2D_layer(Mul89682, 2, 0, 0, 0, Zer2428), 
+LAve22671 = average_pooling1D_layer([[[1.9846]]], 1, Ave22671), 
+LRes22926 = reshape_layer(Ave22671, [1, 1, 1], Res22926), 
+LZer44639 = zero_padding2D_layer(Res22926, 2, 0, 1, 0, Zer44639), 
+LCon65326 = concatenate_layer([Zer44639,[[[[0.7385], [0.6365]], [[0.5067], [0.7498]], [[0.4514], [0.5579]]]]], 3, Con65326), 
+LSub83966 = subtract_layer([[[[0.3939, 0.6742], [0.7477, 0.4787]], [[0.3422, 0.6284], [0.9207, 0.3623]], [[0.0477, 0.941], [0.5459, 0.7163]]]], [[[[0.7331, 0.8719], [0.0925, 0.6058]], [[0.3132, 0.0883], [0.9868, 0.8552]], [[0.3184, 0.9865], [0.6113, 0.6084]]]], Sub83966), 
+LAdd60634 = add_layer([Con65326,Sub83966], Add60634), 
+LSub49510 = subtract_layer(Zer2428,Add60634, Sub49510), 
+exec_layers([LMul89682,LZer2428,LAve22671,LRes22926,LZer44639,LCon65326,LSub83966,LAdd60634,LSub49510],["Mul89682","Zer2428","Ave22671","Res22926","Zer44639","Con65326","Sub83966","Add60634","Sub49510"],Sub49510,"Sub49510")
+
+Actual (Unparsed): [[[[0.3392000, -0.5408000], [-0.6552000, -0.5094000]], [[-0.0290000, -1.0468000], [0.0661000, -0.2569000]], [[0.2915924, -0.3443814], [-1.6024490, -0.5698773]]]]
+
+Expected (Unparsed): [[[[0.3392,-0.5408000000000001],[-0.6552,-0.5094]],[[-0.029000000000000026,-1.0468],[0.06610000000000005,-0.2569000000000001]],[[0.2915924,-0.34438139999999995],[-1.60244908,-0.5698772799999999]]]]
+
+Actual:   [[[[0.3392, -0.5408], [-0.6552, -0.5094]], [[-0.029, -1.0468], [0.0661, -0.2569]], [[0.2916, -0.3443], [-1.6024, -0.5698]]]]
+
+Expected: [[[[0.3392, -0.5408], [-0.6552, -0.5094]], [[-0.029, -1.0468], [0.0662, -0.2569]], [[0.2916, -0.3443], [-1.6024, -0.5698]]]]

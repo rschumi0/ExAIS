@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min81902 = tf.keras.layers.Input(shape=([1, 2]))
+in1Min81902 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave43164 = tf.keras.layers.Input(shape=([2, 1]))
+in1Ave43164 = tf.keras.layers.Input(shape=([2, 1]))
+in0Ave61847 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Min81902 = keras.layers.Minimum(name = 'Min81902', )([in0Min81902,in1Min81902])
+Res42360 = keras.layers.Reshape((1, 2, 1), name = 'Res42360', )(Min81902)
+Zer12030 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer12030', )(Res42360)
+Ave43164 = keras.layers.Average(name = 'Ave43164', )([in0Ave43164,in1Ave43164])
+Res32511 = keras.layers.Reshape((2, 1, 1), name = 'Res32511', )(Ave43164)
+Ave61847 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave61847', )(in0Ave61847)
+Zer32659 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer32659', )(Ave61847)
+Sub2533 = keras.layers.Subtract(name = 'Sub2533', )([Res32511,Zer32659])
+Zer48277 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer48277', )(Sub2533)
+Max35915 = keras.layers.Maximum(name = 'Max35915', )([Zer12030,Zer48277])
+Glo62071 = keras.layers.GlobalAveragePooling2D(name = 'Glo62071', )(Max35915)
+model = tf.keras.models.Model(inputs=[in0Min81902,in1Min81902,in0Ave43164,in1Ave43164,in0Ave61847], outputs=Glo62071)
+in0Min81902 = tf.constant([[[0.5934, 0.6315]]])
+in1Min81902 = tf.constant([[[0.6766, 0.4476]]])
+in0Ave43164 = tf.constant([[[0.6043], [0.2387]]])
+in1Ave43164 = tf.constant([[[0.885], [0.9029]]])
+in0Ave61847 = tf.constant([[[[1.9691]]]])
+print (np.array2string(model.predict([in0Min81902,in1Min81902,in0Ave43164,in1Ave43164,in0Ave61847],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo62071.png')
+
+LMin81902 = minimum_layer([[[[0.5934, 0.6315]]], [[[0.6766, 0.4476]]]], Min81902), 
+LRes42360 = reshape_layer(Min81902, [1, 2, 1], Res42360), 
+LZer12030 = zero_padding2D_layer(Res42360, 1, 0, 1, 0, Zer12030), 
+LAve43164 = average_layer([[[[0.6043], [0.2387]]], [[[0.885], [0.9029]]]], Ave43164), 
+LRes32511 = reshape_layer(Ave43164, [2, 1, 1], Res32511), 
+LAve61847 = average_pooling2D_layer([[[[1.9691]]]], 1, 1, Ave61847), 
+LZer32659 = zero_padding2D_layer(Ave61847, 1, 0, 0, 0, Zer32659), 
+LSub2533 = subtract_layer(Res32511,Zer32659, Sub2533), 
+LZer48277 = zero_padding2D_layer(Sub2533, 0, 0, 2, 0, Zer48277), 
+LMax35915 = maximum_layer([Zer12030,Zer48277], Max35915), 
+LGlo62071 = global_average_pooling2D_layer(Max35915, Glo62071), 
+exec_layers([LMin81902,LRes42360,LZer12030,LAve43164,LRes32511,LAve61847,LZer32659,LSub2533,LZer48277,LMax35915,LGlo62071],["Min81902","Res42360","Zer12030","Ave43164","Res32511","Ave61847","Zer32659","Sub2533","Zer48277","Max35915","Glo62071"],Glo62071,"Glo62071")
+
+Actual (Unparsed): [[0.2976083]]
+
+Expected (Unparsed): [[0.2976083333333333]]
+
+Actual:   [[0.2977]]
+
+Expected: [[0.2977]]

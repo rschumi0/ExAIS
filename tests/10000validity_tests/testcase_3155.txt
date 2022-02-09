@@ -1,0 +1,79 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max43000 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Max43000 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con41292 = tf.keras.layers.Input(shape=([1, 18]))
+in0Dot57441 = tf.keras.layers.Input(shape=([3]))
+in1Dot57441 = tf.keras.layers.Input(shape=([3]))
+in0Mul23009 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in1Mul23009 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Con8374 = tf.keras.layers.Input(shape=([1, 17]))
+
+Max43000 = keras.layers.Maximum(name = 'Max43000', )([in0Max43000,in1Max43000])
+Res50456 = keras.layers.Reshape((1, 2), name = 'Res50456', )(Max43000)
+Con41292 = keras.layers.Concatenate(axis=2, name = 'Con41292', )([Res50456,in0Con41292])
+Dot57441 = keras.layers.Dot(axes=(1, 1), name = 'Dot57441', )([in0Dot57441,in1Dot57441])
+Res91287 = keras.layers.Reshape((1, 1), name = 'Res91287', )(Dot57441)
+Res47095 = keras.layers.Reshape((1, 1, 1), name = 'Res47095', )(Res91287)
+Res74975 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res74975', )(Res47095)
+Con14572 = keras.layers.Conv3DTranspose(4, (1, 1, 1),strides=(1, 5, 1), padding='same', name = 'Con14572', )(Res74975)
+Lea73739 = keras.layers.LeakyReLU(alpha=5.702445569759009, name = 'Lea73739', )(Con14572)
+Res61401 = keras.layers.Reshape((1, 5, 4), name = 'Res61401', )(Lea73739)
+Res89288 = keras.layers.Reshape((1, 20), name = 'Res89288', )(Res61401)
+Mul23009 = keras.layers.Multiply(name = 'Mul23009', )([in0Mul23009,in1Mul23009])
+Res56233 = keras.layers.Reshape((2, 1), name = 'Res56233', )(Mul23009)
+Con42059 = keras.layers.Conv1D(3, (2),strides=(1), padding='valid', dilation_rate=(1), name = 'Con42059', )(Res56233)
+Con8374 = keras.layers.Concatenate(axis=2, name = 'Con8374', )([Con42059,in0Con8374])
+Min9082 = keras.layers.Minimum(name = 'Min9082', )([Res89288,Con8374])
+Max27806 = keras.layers.Maximum(name = 'Max27806', )([Con41292,Min9082])
+model = tf.keras.models.Model(inputs=[in0Max43000,in1Max43000,in0Con41292,in0Dot57441,in1Dot57441,in0Mul23009,in1Mul23009,in0Con8374], outputs=Max27806)
+w = model.get_layer('Con14572').get_weights() 
+w[0] = np.array([[[[[0.8064], [0.8794], [0.072], [0.5297]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con14572').set_weights(w) 
+w = model.get_layer('Con42059').get_weights() 
+w[0] = np.array([[[0.8254, 0.3254, 0.5803]], [[0.7785, 0.4982, 0.4419]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con42059').set_weights(w) 
+in0Max43000 = tf.constant([[[[0.3907], [0.96]]]])
+in1Max43000 = tf.constant([[[[0.5953], [0.2156]]]])
+in0Con41292 = tf.constant([[[0.9773, 0.5834, 0.2249, 0.6221, 0.615, 0.6016, 0.1802, 0.4771, 0.7531, 0.1808, 0.5127, 0.6876, 0.0143, 0.1925, 0.4489, 0.1685, 0.3087, 0.4503]]])
+in0Dot57441 = tf.constant([[0.7711, 0.043, 0.0774]])
+in1Dot57441 = tf.constant([[0.3666, 0.373, 0.8368]])
+in0Mul23009 = tf.constant([[[[0.2243]], [[0.7532]]]])
+in1Mul23009 = tf.constant([[[[0.0437]], [[0.8452]]]])
+in0Con8374 = tf.constant([[[0.0976, 0.3536, 0.251, 0.8559, 0.3111, 0.7037, 0.7236, 0.1881, 0.177, 0.7804, 0.2193, 0.562, 0.8763, 0.318, 0.5277, 0.0587, 0.1391]]])
+print (np.array2string(model.predict([in0Max43000,in1Max43000,in0Con41292,in0Dot57441,in1Dot57441,in0Mul23009,in1Mul23009,in0Con8374],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max27806.png')
+
+LMax43000 = maximum_layer([[[[[0.3907], [0.96]]]], [[[[0.5953], [0.2156]]]]], Max43000), 
+LRes50456 = reshape_layer(Max43000, [1, 2], Res50456), 
+LCon41292 = concatenate_layer([Res50456,[[[0.9773, 0.5834, 0.2249, 0.6221, 0.615, 0.6016, 0.1802, 0.4771, 0.7531, 0.1808, 0.5127, 0.6876, 0.0143, 0.1925, 0.4489, 0.1685, 0.3087, 0.4503]]]], 2, Con41292), 
+LDot57441 = dot_layer([[0.7711, 0.043, 0.0774]], [[0.3666, 0.373, 0.8368]], 1, 1, Dot57441), 
+LRes91287 = reshape_layer(Dot57441, [1, 1], Res91287), 
+LRes47095 = reshape_layer(Res91287, [1, 1, 1], Res47095), 
+LRes74975 = reshape_layer(Res47095, [1, 1, 1, 1], Res74975), 
+LCon14572 = conv3D_transpose_layer(Res74975, 1, 1, 1,[[[[[0.8064], [0.8794], [0.072], [0.5297]]]]],[0, 0, 0, 0], 1, 5, 1, true, Con14572), 
+LLea73739 = leaky_relu_layer(Con14572, 5.702445569759009, Lea73739), 
+LRes61401 = reshape_layer(Lea73739, [1, 5, 4], Res61401), 
+LRes89288 = reshape_layer(Res61401, [1, 20], Res89288), 
+LMul23009 = multiply_layer([[[[[0.2243]], [[0.7532]]]], [[[[0.0437]], [[0.8452]]]]], Mul23009), 
+LRes56233 = reshape_layer(Mul23009, [2, 1], Res56233), 
+LCon42059 = conv1D_layer(Res56233, 2,[[[0.8254, 0.3254, 0.5803]], [[0.7785, 0.4982, 0.4419]]],[0, 0, 0], 1, false, 1, Con42059), 
+LCon8374 = concatenate_layer([Con42059,[[[0.0976, 0.3536, 0.251, 0.8559, 0.3111, 0.7037, 0.7236, 0.1881, 0.177, 0.7804, 0.2193, 0.562, 0.8763, 0.318, 0.5277, 0.0587, 0.1391]]]], 2, Con8374), 
+LMin9082 = minimum_layer([Res89288,Con8374], Min9082), 
+LMax27806 = maximum_layer([Con41292,Min9082], Max27806), 
+exec_layers([LMax43000,LRes50456,LCon41292,LDot57441,LRes91287,LRes47095,LRes74975,LCon14572,LLea73739,LRes61401,LRes89288,LMul23009,LRes56233,LCon42059,LCon8374,LMin9082,LMax27806],["Max43000","Res50456","Con41292","Dot57441","Res91287","Res47095","Res74975","Con14572","Lea73739","Res61401","Res89288","Mul23009","Res56233","Con42059","Con8374","Min9082","Max27806"],Max27806,"Max27806")
+
+Actual (Unparsed): [[[0.5953000, 0.9600000, 0.9773000, 0.5834000, 0.2249000, 0.6221000, 0.6150000, 0.6016000, 0.1802000, 0.4771000, 0.7531000, 0.1808000, 0.5127000, 0.6876000, 0.0143000, 0.1925000, 0.4489000, 0.1685000, 0.3087000, 0.4503000]]]
+
+Expected (Unparsed): [[[0.5953,0.96,0.9773,0.5834,0.2249,0.6221,0.615,0.6016,0.1802,0.4771,0.7531,0.1808,0.5127,0.6876,0.0143,0.1925,0.4489,0.1685,0.3087,0.4503]]]
+
+Actual:   [[[0.5953, 0.96, 0.9773, 0.5834, 0.2249, 0.6221, 0.615, 0.6016, 0.1802, 0.4771, 0.7531, 0.1808, 0.5127, 0.6876, 0.0143, 0.1925, 0.4489, 0.1685, 0.3087, 0.4503]]]
+
+Expected: [[[0.5953, 0.96, 0.9773, 0.5834, 0.2249, 0.6221, 0.615, 0.6016, 0.1802, 0.4771, 0.7531, 0.1808, 0.5127, 0.6876, 0.0143, 0.1925, 0.4489, 0.1685, 0.3087, 0.4503]]]

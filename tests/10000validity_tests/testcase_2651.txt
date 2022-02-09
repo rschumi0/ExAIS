@@ -1,0 +1,73 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min39726 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Min39726 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con34294 = tf.keras.layers.Input(shape=([3, 3, 2]))
+in0PRe35598 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in0Glo1169 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Con91028 = tf.keras.layers.Input(shape=([24]))
+
+Min39726 = keras.layers.Minimum(name = 'Min39726', )([in0Min39726,in1Min39726])
+Zer65585 = keras.layers.ZeroPadding2D(padding=((2, 0), (1, 0)), name = 'Zer65585', )(Min39726)
+Con34294 = keras.layers.Concatenate(axis=3, name = 'Con34294', )([Zer65585,in0Con34294])
+PRe35598 = keras.layers.PReLU(name = 'PRe35598', input_shape=(2, 1, 2))(in0PRe35598)
+Con62716 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='valid', name = 'Con62716', )(PRe35598)
+Zer55096 = keras.layers.ZeroPadding2D(padding=((0, 0), (2, 0)), name = 'Zer55096', )(Con62716)
+Max50030 = keras.layers.Maximum(name = 'Max50030', )([Con34294,Zer55096])
+Res54557 = keras.layers.Reshape((3, 9), name = 'Res54557', )(Max50030)
+Fla35398 = keras.layers.Flatten(name = 'Fla35398', )(Res54557)
+Glo1169 = keras.layers.GlobalMaxPool2D(name = 'Glo1169', )(in0Glo1169)
+Res73647 = keras.layers.Reshape((1, 1), name = 'Res73647', )(Glo1169)
+Sim68615 = keras.layers.SimpleRNN(3,name = 'Sim68615', )(Res73647)
+Con91028 = keras.layers.Concatenate(axis=1, name = 'Con91028', )([Sim68615,in0Con91028])
+Ave82618 = keras.layers.Average(name = 'Ave82618', )([Fla35398,Con91028])
+model = tf.keras.models.Model(inputs=[in0Min39726,in1Min39726,in0Con34294,in0PRe35598,in0Glo1169,in0Con91028], outputs=Ave82618)
+w = model.get_layer('PRe35598').get_weights() 
+w[0] = np.array([[[0.416, 0.4616]], [[0.7798, 0.4369]]])
+model.get_layer('PRe35598').set_weights(w) 
+w = model.get_layer('Con62716').get_weights() 
+w[0] = np.array([[[[0.2137, 0.959], [0.9819, 0.2796], [0.2912, 0.3619]]], [[[0.3112, 0.2295], [0.5645, 0.5065], [0.2448, 0.8833]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con62716').set_weights(w) 
+w = model.get_layer('Sim68615').get_weights() 
+w[0] = np.array([[6, 6, 1]])
+w[1] = np.array([[8, 10, 4], [3, 5, 5], [9, 5, 8]])
+w[2] = np.array([5, 8, 6])
+model.get_layer('Sim68615').set_weights(w) 
+in0Min39726 = tf.constant([[[[0.3811], [0.4597]]]])
+in1Min39726 = tf.constant([[[[0.5386], [0.6657]]]])
+in0Con34294 = tf.constant([[[[0.3104, 0.1763], [0.5906, 0.6307], [0.9807, 0.6978]], [[0.2044, 0.1557], [0.4339, 0.3408], [0.3091, 0.1971]], [[0.2261, 0.7178], [0.1222, 0.043], [0.6689, 0.3157]]]])
+in0PRe35598 = tf.constant([[[[0.9098, 0.7394]], [[0.1078, 0.0561]]]])
+in0Glo1169 = tf.constant([[[[1.0325]]]])
+in0Con91028 = tf.constant([[0.228, 0.6517, 0.0263, 0.0476, 0.489, 0.86, 0.037, 0.625, 0.4674, 0.5693, 0.6683, 0.9877, 0.6599, 0.8811, 0.497, 0.3236, 0.1363, 0.0705, 0.1671, 0.4142, 0.0154, 0.8393, 0.4547, 0.76]])
+print (np.array2string(model.predict([in0Min39726,in1Min39726,in0Con34294,in0PRe35598,in0Glo1169,in0Con91028],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave82618.png')
+
+LMin39726 = minimum_layer([[[[[0.3811], [0.4597]]]], [[[[0.5386], [0.6657]]]]], Min39726), 
+LZer65585 = zero_padding2D_layer(Min39726, 2, 0, 1, 0, Zer65585), 
+LCon34294 = concatenate_layer([Zer65585,[[[[0.3104, 0.1763], [0.5906, 0.6307], [0.9807, 0.6978]], [[0.2044, 0.1557], [0.4339, 0.3408], [0.3091, 0.1971]], [[0.2261, 0.7178], [0.1222, 0.043], [0.6689, 0.3157]]]]], 3, Con34294), 
+LPRe35598 = prelu_layer([[[[0.9098, 0.7394]], [[0.1078, 0.0561]]]], [[[0.416, 0.4616]], [[0.7798, 0.4369]]], PRe35598), 
+LCon62716 = conv2D_transpose_layer(PRe35598, 2, 1,[[[[0.2137, 0.959], [0.9819, 0.2796], [0.2912, 0.3619]]], [[[0.3112, 0.2295], [0.5645, 0.5065], [0.2448, 0.8833]]]],[0, 0, 0], 1, 1, false, Con62716), 
+LZer55096 = zero_padding2D_layer(Con62716, 0, 0, 2, 0, Zer55096), 
+LMax50030 = maximum_layer([Con34294,Zer55096], Max50030), 
+LRes54557 = reshape_layer(Max50030, [3, 9], Res54557), 
+LFla35398 = flatten_layer(Res54557, Fla35398), 
+LGlo1169 = global_max_pool2D_layer([[[[1.0325]]]], Glo1169), 
+LRes73647 = reshape_layer(Glo1169, [1, 1], Res73647), 
+LSim68615 = simple_rnn_layer(Res73647,[[6, 6, 1]],[[8, 10, 4], [3, 5, 5], [9, 5, 8]],[5, 8, 6], Sim68615), 
+LCon91028 = concatenate_layer([Sim68615,[[0.228, 0.6517, 0.0263, 0.0476, 0.489, 0.86, 0.037, 0.625, 0.4674, 0.5693, 0.6683, 0.9877, 0.6599, 0.8811, 0.497, 0.3236, 0.1363, 0.0705, 0.1671, 0.4142, 0.0154, 0.8393, 0.4547, 0.76]]], 1, Con91028), 
+LAve82618 = average_layer([Fla35398,Con91028], Ave82618), 
+exec_layers([LMin39726,LZer65585,LCon34294,LPRe35598,LCon62716,LZer55096,LMax50030,LRes54557,LFla35398,LGlo1169,LRes73647,LSim68615,LCon91028,LAve82618],["Min39726","Zer65585","Con34294","PRe35598","Con62716","Zer55096","Max50030","Res54557","Fla35398","Glo1169","Res73647","Sim68615","Con91028","Ave82618"],Ave82618,"Ave82618")
+
+Actual (Unparsed): [[0.5000000, 0.6552000, 0.5881492, 0.1140000, 0.6211500, 0.3285000, 0.4755544, 0.7945344, 0.7789000, 0.0185000, 0.4147000, 0.3115500, 0.2846500, 0.5511000, 0.6642500, 0.5947794, 0.9453613, 0.7122625, 0.1618000, 0.1812000, 0.3941500, 0.2741000, 0.2682000, 0.0292000, 0.6495000, 0.5618000, 0.5378500]]
+
+Expected (Unparsed): [[0.49999999981113713,0.6551999999995319,0.5881492208020996,0.114,0.62115,0.3285,0.47555443,0.7945344299999999,0.7788999999999999,0.0185,0.4147,0.31155,0.28465,0.5511,0.66425,0.59477941,0.94536129,0.712262505,0.1618,0.1812,0.39415,0.2741,0.2682,0.029199999999999997,0.6495,0.5618000000000001,0.5378499999999999]]
+
+Actual:   [[0.5, 0.6552, 0.5882, 0.114, 0.6212, 0.3285, 0.4756, 0.7946, 0.7789, 0.0185, 0.4147, 0.3116, 0.2847, 0.5511, 0.6643, 0.5948, 0.9454, 0.7123, 0.1618, 0.1812, 0.3942, 0.2741, 0.2682, 0.0292, 0.6495, 0.5618, 0.5379]]
+
+Expected: [[0.5, 0.6552, 0.5882, 0.114, 0.6212, 0.3285, 0.4756, 0.7946, 0.7789, 0.0185, 0.4147, 0.3116, 0.2847, 0.5511, 0.6643, 0.5948, 0.9454, 0.7123, 0.1618, 0.1812, 0.3942, 0.2741, 0.2682, 0.0292, 0.6495, 0.5619, 0.5379]]

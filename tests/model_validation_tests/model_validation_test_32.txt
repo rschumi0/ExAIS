@@ -1,0 +1,51 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Zer85723 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Sub84658 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in1Sub84658 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Con16281 = tf.keras.layers.Input(shape=([4, 4, 1]))
+
+Zer85723 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer85723',  input_shape=(2, 2, 2, 1))(in0Zer85723)
+Res79485 = keras.layers.Reshape((4, 4, 4), name = 'Res79485', )(Zer85723)
+Sub84658 = keras.layers.Subtract(name = 'Sub84658', )([in0Sub84658,in1Sub84658])
+Zer46269 = keras.layers.ZeroPadding2D(padding=((2, 0), (2, 0)), name = 'Zer46269', )(Sub84658)
+Con16281 = keras.layers.Concatenate(axis=3, name = 'Con16281', )([Zer46269,in0Con16281])
+Add78557 = keras.layers.Add(name = 'Add78557', )([Res79485,Con16281])
+Sep31505 = keras.layers.SeparableConv1D(4, (2),strides=(2), padding='valid', name = 'Sep31505', )(Add78557)
+model = tf.keras.models.Model(inputs=[in0Zer85723,in0Sub84658,in1Sub84658,in0Con16281], outputs=Sep31505)
+w = model.get_layer('Sep31505').get_weights() 
+w[0] = np.array([[[0.0196]], [[0.835]]])
+w[1] = np.array([[[0.1845, 0.4207, 0.3392, 0.1916]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep31505').set_weights(w) 
+in0Zer85723 = tf.constant([[[[[1.0046], [1.0542]], [[1.1648], [1.6742]]], [[[1.2956], [1.5816]], [[1.8192], [1.7687]]]]])
+in0Sub84658 = tf.constant([[[[0.7443, 0.8414, 0.3275], [0.4501, 0.7037, 0.7972]], [[0.547, 0.1668, 0.5961], [0.213, 0.9634, 0.5139]]]])
+in1Sub84658 = tf.constant([[[[0.8673, 0.0802, 0.8528], [0.89, 0.8014, 0.5651]], [[0.4271, 0.3345, 0.3967], [0.9359, 0.3317, 0.9415]]]])
+in0Con16281 = tf.constant([[[[0.8239], [0.8621], [0.9135], [0.5228]], [[0.3559], [0.9779], [0.9936], [0.1294]], [[0.6324], [0.3722], [0.7604], [0.4372]], [[0.6952], [0.3112], [0.8202], [0.6137]]]])
+print (np.array2string(model.predict([in0Zer85723,in0Sub84658,in1Sub84658,in0Con16281],steps=1), separator=', '))
+
+
+LZer85723 = zero_padding3D_layer([[[[[1.0046], [1.0542]], [[1.1648], [1.6742]]], [[[1.2956], [1.5816]], [[1.8192], [1.7687]]]]], 1, 1, 1, 1, 1, 1, Zer85723), 
+LRes79485 = reshape_layer(Zer85723, [4, 4, 4], Res79485), 
+LSub84658 = subtract_layer([[[[0.7443, 0.8414, 0.3275], [0.4501, 0.7037, 0.7972]], [[0.547, 0.1668, 0.5961], [0.213, 0.9634, 0.5139]]]], [[[[0.8673, 0.0802, 0.8528], [0.89, 0.8014, 0.5651]], [[0.4271, 0.3345, 0.3967], [0.9359, 0.3317, 0.9415]]]], Sub84658), 
+LZer46269 = zero_padding2D_layer(Sub84658, 2, 0, 2, 0, Zer46269), 
+LCon16281 = concatenate_layer([Zer46269,[[[[0.8239], [0.8621], [0.9135], [0.5228]], [[0.3559], [0.9779], [0.9936], [0.1294]], [[0.6324], [0.3722], [0.7604], [0.4372]], [[0.6952], [0.3112], [0.8202], [0.6137]]]]], 3, Con16281), 
+LAdd78557 = add_layer([Res79485,Con16281], Add78557), 
+LSep31505 = separable_conv1D_layer(Add78557, 2,[[[[0.0196]], [[0.835]]],[[[0.1845, 0.4207, 0.3392, 0.1916]]]],[0, 0, 0, 0], 2, false, Sep31505), 
+exec_layers([LZer85723,LRes79485,LSub84658,LZer46269,LCon16281,LAdd78557,LSep31505],["Zer85723","Res79485","Sub84658","Zer46269","Con16281","Add78557","Sep31505"],Sep31505,"Sep31505")
+
+Actual (Unparsed): 
+ ValueError(str(e))ValueError: Shape must be rank 4 but is rank 5 for '{{node Sep31505/separable_conv2d/depthwise}} = DepthwiseConv2dNative[T=DT_DOUBLE, data_format="NHWC", dilations=[1, 1, 1, 1], explicit_paddings=[], padding="VALID", strides=[1, 2, 2, 1]](Sep31505/ExpandDims, Sep31505/ExpandDims_1)' with input shapes: [?,1,4,4,4], [1,2,4,1].
+
+Expected (Unparsed): 
+Sep31505: Dimension error, Input Shape [1,4,4,4]
+
+Actual:   
+
+Expected: 

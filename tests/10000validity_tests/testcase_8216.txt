@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul72705 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in1Mul72705 = tf.keras.layers.Input(shape=([1, 1, 1]))
+in0Glo64338 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+
+Mul72705 = keras.layers.Multiply(name = 'Mul72705', )([in0Mul72705,in1Mul72705])
+Glo64338 = keras.layers.GlobalMaxPool3D(name = 'Glo64338', )(in0Glo64338)
+Res84194 = keras.layers.Reshape((1, 1), name = 'Res84194', )(Glo64338)
+Res71486 = keras.layers.Reshape((1, 1, 1), name = 'Res71486', )(Res84194)
+Dep26177 = keras.layers.DepthwiseConv2D((1, 1),strides=(1, 1), padding='same', name = 'Dep26177', )(Res71486)
+Mul37542 = keras.layers.Multiply(name = 'Mul37542', )([Mul72705,Dep26177])
+Res37669 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res37669', )(Mul37542)
+Con69942 = keras.layers.Conv3D(4, (1, 1, 1),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con69942', )(Res37669)
+model = tf.keras.models.Model(inputs=[in0Mul72705,in1Mul72705,in0Glo64338], outputs=Con69942)
+w = model.get_layer('Dep26177').get_weights() 
+w[0] = np.array([[[[0.0997]]]])
+w[1] = np.array([0])
+model.get_layer('Dep26177').set_weights(w) 
+w = model.get_layer('Con69942').get_weights() 
+w[0] = np.array([[[[[0.3592, 0.1776, 0.3028, 0.4812]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con69942').set_weights(w) 
+in0Mul72705 = tf.constant([[[[0.8829]]]])
+in1Mul72705 = tf.constant([[[[0.2282]]]])
+in0Glo64338 = tf.constant([[[[[1.4243], [1.1444]], [[1.0772], [1.3079]]], [[[1.2731], [1.6451]], [[1.5978], [1.9355]]]]])
+print (np.array2string(model.predict([in0Mul72705,in1Mul72705,in0Glo64338],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con69942.png')
+
+LMul72705 = multiply_layer([[[[[0.8829]]]], [[[[0.2282]]]]], Mul72705), 
+LGlo64338 = global_max_pool3D_layer([[[[[1.4243], [1.1444]], [[1.0772], [1.3079]]], [[[1.2731], [1.6451]], [[1.5978], [1.9355]]]]], Glo64338), 
+LRes84194 = reshape_layer(Glo64338, [1, 1], Res84194), 
+LRes71486 = reshape_layer(Res84194, [1, 1, 1], Res71486), 
+LDep26177 = depthwise_conv2D_layer(Res71486, 1, 1,[[[[0.0997]]]],[0], 1, 1, true, Dep26177), 
+LMul37542 = multiply_layer([Mul72705,Dep26177], Mul37542), 
+LRes37669 = reshape_layer(Mul37542, [1, 1, 1, 1], Res37669), 
+LCon69942 = conv3D_layer(Res37669, 1, 1, 1,[[[[[0.3592, 0.1776, 0.3028, 0.4812]]]]],[0, 0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con69942), 
+exec_layers([LMul72705,LGlo64338,LRes84194,LRes71486,LDep26177,LMul37542,LRes37669,LCon69942],["Mul72705","Glo64338","Res84194","Res71486","Dep26177","Mul37542","Res37669","Con69942"],Con69942,"Con69942")
+
+Actual (Unparsed): [[[[[0.0139654, 0.0069049, 0.0117726, 0.0187086]]]]]
+
+Expected (Unparsed): [[[[[0.013965349819578645,0.006904916837297236,0.01177257217530182,0.018708592241595892]]]]]
+
+Actual:   [[[[[0.014, 0.007, 0.0118, 0.0188]]]]]
+
+Expected: [[[[[0.014, 0.007, 0.0118, 0.0188]]]]]

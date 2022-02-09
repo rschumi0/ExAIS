@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub86255 = tf.keras.layers.Input(shape=([3, 2]))
+in1Sub86255 = tf.keras.layers.Input(shape=([3, 2]))
+in0Con77217 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+
+Sub86255 = keras.layers.Subtract(name = 'Sub86255', )([in0Sub86255,in1Sub86255])
+Res85012 = keras.layers.Reshape((3, 2, 1), name = 'Res85012', )(Sub86255)
+Con77217 = keras.layers.Conv3D(3, (1, 1, 2),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con77217', )(in0Con77217)
+Res19985 = keras.layers.Reshape((3, 2, 1), name = 'Res19985', )(Con77217)
+Min20569 = keras.layers.Minimum(name = 'Min20569', )([Res85012,Res19985])
+model = tf.keras.models.Model(inputs=[in0Sub86255,in1Sub86255,in0Con77217], outputs=Min20569)
+w = model.get_layer('Con77217').get_weights() 
+w[0] = np.array([[[[[0.1548, 0.7718, 0.7598]], [[0.6264, 0.9143, 0.1526]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con77217').set_weights(w) 
+in0Sub86255 = tf.constant([[[0.6857, 0.1398], [0.3638, 0.1063], [0.3525, 0.0496]]])
+in1Sub86255 = tf.constant([[[0.6017, 0.6189], [0.059, 0.6089], [0.9126, 0.871]]])
+in0Con77217 = tf.constant([[[[[0.3884], [0.2138]]]]])
+print (np.array2string(model.predict([in0Sub86255,in1Sub86255,in0Con77217],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min20569.png')
+
+LSub86255 = subtract_layer([[[0.6857, 0.1398], [0.3638, 0.1063], [0.3525, 0.0496]]], [[[0.6017, 0.6189], [0.059, 0.6089], [0.9126, 0.871]]], Sub86255), 
+LRes85012 = reshape_layer(Sub86255, [3, 2, 1], Res85012), 
+LCon77217 = conv3D_layer([[[[[0.3884], [0.2138]]]]], 1, 1, 2,[[[[[0.1548, 0.7718, 0.7598]], [[0.6264, 0.9143, 0.1526]]]]],[0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con77217), 
+LRes19985 = reshape_layer(Con77217, [3, 2, 1], Res19985), 
+LMin20569 = minimum_layer([Res85012,Res19985], Min20569), 
+exec_layers([LSub86255,LRes85012,LCon77217,LRes19985,LMin20569],["Sub86255","Res85012","Con77217","Res19985","Min20569"],Min20569,"Min20569")
+
+Actual (Unparsed): [[[[0.0840000], [-0.4791000]], [[0.3048000], [-0.5026000]], [[-0.5601000], [-0.8214000]]]]
+
+Expected (Unparsed): [[[[0.08399999999999996],[-0.47909999999999997]],[[0.3048],[-0.5025999999999999]],[[-0.5601],[-0.8214]]]]
+
+Actual:   [[[[0.084], [-0.4791]], [[0.3048], [-0.5026]], [[-0.5601], [-0.8214]]]]
+
+Expected: [[[[0.084], [-0.479]], [[0.3048], [-0.5025]], [[-0.5601], [-0.8214]]]]

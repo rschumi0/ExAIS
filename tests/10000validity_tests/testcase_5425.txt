@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Lay40689 = tf.keras.layers.Input(shape=([2]))
+in0Con39494 = tf.keras.layers.Input(shape=([3, 2]))
+in0Dot92985 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot92985 = tf.keras.layers.Input(shape=([3, 3]))
+
+Lay40689 = keras.layers.LayerNormalization(axis=1, epsilon=2.7120448710171945, name = 'Lay40689', )(in0Lay40689)
+Res81733 = keras.layers.Reshape((2, 1), name = 'Res81733', )(Lay40689)
+PRe74550 = keras.layers.PReLU(name = 'PRe74550', )(Res81733)
+GRU13596 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU13596', )(PRe74550)
+Res78849 = keras.layers.Reshape((2, 1), name = 'Res78849', )(GRU13596)
+Zer48908 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer48908', )(Res78849)
+Con39494 = keras.layers.Concatenate(axis=2, name = 'Con39494', )([Zer48908,in0Con39494])
+Dot92985 = keras.layers.Dot(axes=(1, 1), name = 'Dot92985', )([in0Dot92985,in1Dot92985])
+Sub96160 = keras.layers.Subtract(name = 'Sub96160', )([Con39494,Dot92985])
+model = tf.keras.models.Model(inputs=[in0Lay40689,in0Con39494,in0Dot92985,in1Dot92985], outputs=Sub96160)
+w = model.get_layer('PRe74550').get_weights() 
+w[0] = np.array([[0.7539], [0.3854]])
+model.get_layer('PRe74550').set_weights(w) 
+w = model.get_layer('GRU13596').get_weights() 
+w[0] = np.array([[8, 1, 6, 9, 6, 1]])
+w[1] = np.array([[4, 2, 9, 3, 4, 5], [4, 3, 2, 6, 10, 2]])
+w[2] = np.array([[4, 3, 3, 4, 2, 8], [6, 10, 7, 7, 3, 9]])
+model.get_layer('GRU13596').set_weights(w) 
+in0Lay40689 = tf.constant([[1.3543, 1.3751]])
+in0Con39494 = tf.constant([[[0.037, 0.5813], [0.4168, 0.1975], [0.7359, 0.0987]]])
+in0Dot92985 = tf.constant([[[0.5829, 0.5238, 0.8189], [0.177, 0.1916, 0.7945], [0.23, 0.3131, 0.3519]]])
+in1Dot92985 = tf.constant([[[0.5224, 0.7874, 0.625], [0.8077, 0.9904, 0.5503], [0.1974, 0.1791, 0.5338]]])
+print (np.array2string(model.predict([in0Lay40689,in0Con39494,in0Dot92985,in1Dot92985],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub96160.png')
+
+LLay40689 = layer_normalization_layer([[1.3543, 1.3751]], 1, 2.7120448710171945, Lay40689), 
+LRes81733 = reshape_layer(Lay40689, [2, 1], Res81733), 
+LPRe74550 = prelu_layer(Res81733, [[0.7539], [0.3854]], PRe74550), 
+LGRU13596 = gru_layer(PRe74550,[[8, 1, 6, 9, 6, 1]],[[4, 2, 9, 3, 4, 5], [4, 3, 2, 6, 10, 2]],[[4, 3, 3, 4, 2, 8], [6, 10, 7, 7, 3, 9]], true, GRU13596), 
+LRes78849 = reshape_layer(GRU13596, [2, 1], Res78849), 
+LZer48908 = zero_padding1D_layer(Res78849, 1, 0, Zer48908), 
+LCon39494 = concatenate_layer([Zer48908,[[[0.037, 0.5813], [0.4168, 0.1975], [0.7359, 0.0987]]]], 2, Con39494), 
+LDot92985 = dot_layer([[[0.5829, 0.5238, 0.8189], [0.177, 0.1916, 0.7945], [0.23, 0.3131, 0.3519]]], [[[0.5224, 0.7874, 0.625], [0.8077, 0.9904, 0.5503], [0.1974, 0.1791, 0.5338]]], 1, 1, Dot92985), 
+LSub96160 = subtract_layer(Con39494,Dot92985, Sub96160), 
+exec_layers([LLay40689,LRes81733,LPRe74550,LGRU13596,LRes78849,LZer48908,LCon39494,LDot92985,LSub96160],["Lay40689","Res81733","PRe74550","GRU13596","Res78849","Zer48908","Con39494","Dot92985","Sub96160"],Sub96160,"Sub96160")
+
+Actual (Unparsed): [[[-0.4928719, -0.6384693, -0.0031896], [-0.4901041, -0.2414770, -0.4024453], [-1.1389715, -0.7588000, -1.0381701]]]
+
+Expected (Unparsed): [[[-0.49287186,-0.6384692599999999,-0.0031896000000000146],[-0.49010407709347525,-0.24147696999999996,-0.40244526],[-1.13897155302583,-0.7587999499999998,-1.03817007]]]
+
+Actual:   [[[-0.4928, -0.6384, -0.0031], [-0.4901, -0.2414, -0.4024], [-1.1389, -0.7588, -1.0381]]]
+
+Expected: [[[-0.4928, -0.6384, -0.0031], [-0.4901, -0.2414, -0.4024], [-1.1389, -0.7587, -1.0381]]]

@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim9956 = tf.keras.layers.Input(shape=([1, 1]))
+in0Sub89488 = tf.keras.layers.Input(shape=([2, 2, 2, 3]))
+in1Sub89488 = tf.keras.layers.Input(shape=([2, 2, 2, 3]))
+in0Con25573 = tf.keras.layers.Input(shape=([6]))
+
+Sim9956 = keras.layers.SimpleRNN(3,name = 'Sim9956', )(in0Sim9956)
+Res21411 = keras.layers.Reshape((3, 1), name = 'Res21411', )(Sim9956)
+Sep43846 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='same', name = 'Sep43846', )(Res21411)
+Fla94834 = keras.layers.Flatten(name = 'Fla94834', )(Sep43846)
+Sub89488 = keras.layers.Subtract(name = 'Sub89488', )([in0Sub89488,in1Sub89488])
+Sof73121 = keras.layers.Softmax(axis=1, name = 'Sof73121', )(Sub89488)
+Mas40275 = keras.layers.Masking(mask_value=1, name = 'Mas40275', )(Sof73121)
+Res51374 = keras.layers.Reshape((2, 2, 6), name = 'Res51374', )(Mas40275)
+Glo84267 = keras.layers.GlobalMaxPool2D(name = 'Glo84267', )(Res51374)
+Con25573 = keras.layers.Concatenate(axis=1, name = 'Con25573', )([Glo84267,in0Con25573])
+Max31011 = keras.layers.Maximum(name = 'Max31011', )([Fla94834,Con25573])
+model = tf.keras.models.Model(inputs=[in0Sim9956,in0Sub89488,in1Sub89488,in0Con25573], outputs=Max31011)
+w = model.get_layer('Sim9956').get_weights() 
+w[0] = np.array([[9, 8, 9]])
+w[1] = np.array([[10, 8, 7], [7, 3, 8], [5, 3, 8]])
+w[2] = np.array([7, 7, 6])
+model.get_layer('Sim9956').set_weights(w) 
+w = model.get_layer('Sep43846').get_weights() 
+w[0] = np.array([[[0.2696]]])
+w[1] = np.array([[[0.3552, 0.6703, 0.4178, 0.7357]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep43846').set_weights(w) 
+in0Sim9956 = tf.constant([[[6]]])
+in0Sub89488 = tf.constant([[[[[0.3612, 0.4695, 0.7806], [0.8633, 0.1489, 0.621]], [[0.9649, 0.2082, 0.317], [0.259, 0.6773, 0.9419]]], [[[0.6412, 0.8323, 0.8782], [0.9811, 0.2586, 0.4504]], [[0.136, 0.2976, 0.1041], [0.6445, 0.1713, 0.9946]]]]])
+in1Sub89488 = tf.constant([[[[[0.3794, 0.5823, 0.0593], [0.0869, 0.4828, 0.1534]], [[0.9236, 0.5631, 0.5565], [0.6399, 0.1425, 0.1876]]], [[[0.6974, 0.3994, 0.9284], [0.285, 0.9209, 0.0965]], [[0.6362, 0.4445, 0.1668], [0.5448, 0.3142, 0.6767]]]]])
+in0Con25573 = tf.constant([[0.1432, 0.1951, 0.894, 0.1243, 0.368, 0.7701]])
+print (np.array2string(model.predict([in0Sim9956,in0Sub89488,in1Sub89488,in0Con25573],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max31011.png')
+
+LSim9956 = simple_rnn_layer([[[6]]],[[9, 8, 9]],[[10, 8, 7], [7, 3, 8], [5, 3, 8]],[7, 7, 6], Sim9956), 
+LRes21411 = reshape_layer(Sim9956, [3, 1], Res21411), 
+LSep43846 = separable_conv1D_layer(Res21411, 1,[[[[0.2696]]],[[[0.3552, 0.6703, 0.4178, 0.7357]]]],[0, 0, 0, 0], 1, true, Sep43846), 
+LFla94834 = flatten_layer(Sep43846, Fla94834), 
+LSub89488 = subtract_layer([[[[[0.3612, 0.4695, 0.7806], [0.8633, 0.1489, 0.621]], [[0.9649, 0.2082, 0.317], [0.259, 0.6773, 0.9419]]], [[[0.6412, 0.8323, 0.8782], [0.9811, 0.2586, 0.4504]], [[0.136, 0.2976, 0.1041], [0.6445, 0.1713, 0.9946]]]]], [[[[[0.3794, 0.5823, 0.0593], [0.0869, 0.4828, 0.1534]], [[0.9236, 0.5631, 0.5565], [0.6399, 0.1425, 0.1876]]], [[[0.6974, 0.3994, 0.9284], [0.285, 0.9209, 0.0965]], [[0.6362, 0.4445, 0.1668], [0.5448, 0.3142, 0.6767]]]]], Sub89488), 
+LSof73121 = softmax_layer(Sub89488, 1, Sof73121), 
+LMas40275 = masking_layer(Sof73121, 1, Mas40275), 
+LRes51374 = reshape_layer(Mas40275, [2, 2, 6], Res51374), 
+LGlo84267 = global_max_pool2D_layer(Res51374, Glo84267), 
+LCon25573 = concatenate_layer([Glo84267,[[0.1432, 0.1951, 0.894, 0.1243, 0.368, 0.7701]]], 1, Con25573), 
+LMax31011 = maximum_layer([Fla94834,Con25573], Max31011), 
+exec_layers([LSim9956,LRes21411,LSep43846,LFla94834,LSub89488,LSof73121,LMas40275,LRes51374,LGlo84267,LCon25573,LMax31011],["Sim9956","Res21411","Sep43846","Fla94834","Sub89488","Sof73121","Mas40275","Res51374","Glo84267","Con25573","Max31011"],Max31011,"Max31011")
+
+Actual (Unparsed): [[0.6321613, 0.6331374, 0.6838453, 0.6178896, 0.6632252, 0.6074009, 0.1432000, 0.1983447, 0.8940000, 0.1807129, 0.3680000, 0.7701000]]
+
+Expected (Unparsed): [[0.6321612869225481,0.6331373839340934,0.6838452844991116,0.617889546018898,0.6632251680664599,0.6074008892915406,0.1432,0.19834472,0.894,0.18071288,0.368,0.7701]]
+
+Actual:   [[0.6322, 0.6332, 0.6839, 0.6179, 0.6633, 0.6075, 0.1432, 0.1984, 0.894, 0.1808, 0.368, 0.7701]]
+
+Expected: [[0.6322, 0.6332, 0.6839, 0.6179, 0.6633, 0.6075, 0.1432, 0.1984, 0.894, 0.1808, 0.368, 0.7701]]

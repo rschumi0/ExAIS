@@ -1,0 +1,68 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dep4605 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Loc28996 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con43291 = tf.keras.layers.Input(shape=([2, 2, 3]))
+in0Ave50279 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+in1Ave50279 = tf.keras.layers.Input(shape=([1, 1, 2, 2]))
+
+Dep4605 = keras.layers.DepthwiseConv2D((1, 2),strides=(1, 1), padding='same', name = 'Dep4605', )(in0Dep4605)
+Res57077 = keras.layers.Reshape((1, 2), name = 'Res57077', )(Dep4605)
+Zer63674 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer63674', )(Res57077)
+Loc28996 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc28996', )(in0Loc28996)
+Add64647 = keras.layers.Add(name = 'Add64647', )([Zer63674,Loc28996])
+Res91477 = keras.layers.Reshape((2, 2, 1), name = 'Res91477', )(Add64647)
+Con43291 = keras.layers.Concatenate(axis=3, name = 'Con43291', )([Res91477,in0Con43291])
+Ave50279 = keras.layers.Average(name = 'Ave50279', )([in0Ave50279,in1Ave50279])
+Res33614 = keras.layers.Reshape((1, 1, 4), name = 'Res33614', )(Ave50279)
+Sep13188 = keras.layers.SeparableConv2D(4, (1, 1),strides=(1, 1), padding='same', name = 'Sep13188', )(Res33614)
+Zer16557 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer16557', )(Sep13188)
+Min39417 = keras.layers.Minimum(name = 'Min39417', )([Con43291,Zer16557])
+model = tf.keras.models.Model(inputs=[in0Dep4605,in0Loc28996,in0Con43291,in0Ave50279,in1Ave50279], outputs=Min39417)
+w = model.get_layer('Dep4605').get_weights() 
+w[0] = np.array([[[[0.6149]], [[0.2932]]]])
+w[1] = np.array([0])
+model.get_layer('Dep4605').set_weights(w) 
+w = model.get_layer('Loc28996').get_weights() 
+w[0] = np.array([[[0.7407, 0.5539], [0.8514, 0.0641]], [[0.8645, 0.1279], [0.1467, 0.2484]]])
+w[1] = np.array([[0, 0], [0, 0]])
+model.get_layer('Loc28996').set_weights(w) 
+w = model.get_layer('Sep13188').get_weights() 
+w[0] = np.array([[[[0.0963], [0.2684], [0.901], [0.1998]]]])
+w[1] = np.array([[[[0.7606, 0.0048, 0.7558, 0.9572], [0.5956, 0.3224, 0.085, 0.2626], [0.8426, 0.512, 0.9331, 0.8201], [0.5901, 0.041, 0.85, 0.3219]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep13188').set_weights(w) 
+in0Dep4605 = tf.constant([[[[0.6238], [0.6351]]]])
+in0Loc28996 = tf.constant([[[0.9267, 0.4373], [0.0055, 0.465]]])
+in0Con43291 = tf.constant([[[[0.7589, 0.6364, 0.1174], [0.3304, 0.1381, 0.729]], [[0.8627, 0.7958, 0.6396], [0.6312, 0.6065, 0.639]]]])
+in0Ave50279 = tf.constant([[[[[0.6775, 0.3052], [0.4772, 0.2186]]]]])
+in1Ave50279 = tf.constant([[[[[0.118, 0.9087], [0.0006, 0.1032]]]]])
+print (np.array2string(model.predict([in0Dep4605,in0Loc28996,in0Con43291,in0Ave50279,in1Ave50279],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min39417.png')
+
+LDep4605 = depthwise_conv2D_layer([[[[0.6238], [0.6351]]]], 1, 2,[[[[0.6149]], [[0.2932]]]],[0], 1, 1, true, Dep4605), 
+LRes57077 = reshape_layer(Dep4605, [1, 2], Res57077), 
+LZer63674 = zero_padding1D_layer(Res57077, 1, 0, Zer63674), 
+LLoc28996 = locally_connected1D_layer([[[0.9267, 0.4373], [0.0055, 0.465]]], 1,[[[0.7407, 0.5539], [0.8514, 0.0641]], [[0.8645, 0.1279], [0.1467, 0.2484]]],[[0, 0], [0, 0]], 1, Loc28996), 
+LAdd64647 = add_layer([Zer63674,Loc28996], Add64647), 
+LRes91477 = reshape_layer(Add64647, [2, 2, 1], Res91477), 
+LCon43291 = concatenate_layer([Res91477,[[[[0.7589, 0.6364, 0.1174], [0.3304, 0.1381, 0.729]], [[0.8627, 0.7958, 0.6396], [0.6312, 0.6065, 0.639]]]]], 3, Con43291), 
+LAve50279 = average_layer([[[[[[0.6775, 0.3052], [0.4772, 0.2186]]]]], [[[[[0.118, 0.9087], [0.0006, 0.1032]]]]]], Ave50279), 
+LRes33614 = reshape_layer(Ave50279, [1, 1, 4], Res33614), 
+LSep13188 = separable_conv2D_layer(Res33614, 1, 1,[[[[[0.0963], [0.2684], [0.901], [0.1998]]]],[[[[0.7606, 0.0048, 0.7558, 0.9572], [0.5956, 0.3224, 0.085, 0.2626], [0.8426, 0.512, 0.9331, 0.8201], [0.5901, 0.041, 0.85, 0.3219]]]]],[0, 0, 0, 0], 1, 1, true, Sep13188), 
+LZer16557 = zero_padding2D_layer(Sep13188, 1, 0, 1, 0, Zer16557), 
+LMin39417 = minimum_layer([Con43291,Zer16557], Min39417), 
+exec_layers([LDep4605,LRes57077,LZer63674,LLoc28996,LAdd64647,LRes91477,LCon43291,LAve50279,LRes33614,LSep13188,LZer16557,LMin39417],["Dep4605","Res57077","Zer63674","Loc28996","Add64647","Res91477","Con43291","Ave50279","Res33614","Sep13188","Zer16557","Min39417"],Min39417,"Min39417")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]], [[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.3264991, 0.1642300, 0.2709710, 0.2663169]]]]
+
+Expected (Unparsed): [[[[0,0,0,0],[0,0,0,0]],[[0,0,0,0],[0.32649910504499996,0.16423004789200002,0.270971005925,0.2663169016260001]]]]
+
+Actual:   [[[[0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0.3265, 0.1643, 0.271, 0.2664]]]]
+
+Expected: [[[[0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0.3265, 0.1643, 0.271, 0.2664]]]]

@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul56850 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Mul56850 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Mul56850 = keras.layers.Multiply(name = 'Mul56850', )([in0Mul56850,in1Mul56850])
+Sof78545 = keras.layers.Softmax(axis=1, name = 'Sof78545', )(Mul56850)
+Res23327 = keras.layers.Reshape((1, 2, 1), name = 'Res23327', )(Sof78545)
+Res67 = keras.layers.Reshape((1, 2), name = 'Res67', )(Res23327)
+Con67836 = keras.layers.Conv1D(4, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con67836', )(Res67)
+Per67183 = keras.layers.Permute((2,1), name = 'Per67183',)(Con67836)
+Res69131 = keras.layers.Reshape((4, 1, 1), name = 'Res69131', )(Per67183)
+Max7142 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(2, 1), padding='same', name = 'Max7142', )(Res69131)
+model = tf.keras.models.Model(inputs=[in0Mul56850,in1Mul56850], outputs=Max7142)
+w = model.get_layer('Con67836').get_weights() 
+w[0] = np.array([[[0.2649, 0.0094, 0.9062, 0.7668], [0.5201, 0.7632, 0.2634, 0.6964]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con67836').set_weights(w) 
+in0Mul56850 = tf.constant([[[[[0.9836]], [[0.4299]]]]])
+in1Mul56850 = tf.constant([[[[[0.9786]], [[0.6638]]]]])
+print (np.array2string(model.predict([in0Mul56850,in1Mul56850],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max7142.png')
+
+LMul56850 = multiply_layer([[[[[[0.9836]], [[0.4299]]]]], [[[[[0.9786]], [[0.6638]]]]]], Mul56850), 
+LSof78545 = softmax_layer(Mul56850, 1, Sof78545), 
+LRes23327 = reshape_layer(Sof78545, [1, 2, 1], Res23327), 
+LRes67 = reshape_layer(Res23327, [1, 2], Res67), 
+LCon67836 = conv1D_layer(Res67, 1,[[[0.2649, 0.0094, 0.9062, 0.7668], [0.5201, 0.7632, 0.2634, 0.6964]]],[0, 0, 0, 0], 1, false, 1, Con67836), 
+LPer67183 = permute_layer(Con67836, 2,1, Per67183), 
+LRes69131 = reshape_layer(Per67183, [4, 1, 1], Res69131), 
+LMax7142 = max_pool2D_layer(Res69131, 1, 1, 2, 1, true, Max7142), 
+exec_layers([LMul56850,LSof78545,LRes23327,LRes67,LCon67836,LPer67183,LRes69131,LMax7142],["Mul56850","Sof78545","Res23327","Res67","Con67836","Per67183","Res69131","Max7142"],Max7142,"Max7142")
+
+Actual (Unparsed): [[[[0.7850000]], [[1.1696000]]]]
+
+Expected (Unparsed): [[[[0.785]],[[1.1696]]]]
+
+Actual:   [[[[0.785]], [[1.1696]]]]
+
+Expected: [[[[0.785]], [[1.1696]]]]

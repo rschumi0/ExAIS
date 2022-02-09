@@ -1,0 +1,57 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul31119 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul31119 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con60967 = tf.keras.layers.Input(shape=([1, 3]))
+in0Dot32079 = tf.keras.layers.Input(shape=([2]))
+in1Dot32079 = tf.keras.layers.Input(shape=([2]))
+
+Mul31119 = keras.layers.Multiply(name = 'Mul31119', )([in0Mul31119,in1Mul31119])
+Den43314 = keras.layers.Dense(2,name = 'Den43314', )(Mul31119)
+Res23656 = keras.layers.Reshape((1, 4), name = 'Res23656', )(Den43314)
+Con60967 = keras.layers.Concatenate(axis=2, name = 'Con60967', )([Res23656,in0Con60967])
+Dot32079 = keras.layers.Dot(axes=(1, 1), name = 'Dot32079', )([in0Dot32079,in1Dot32079])
+Res51656 = keras.layers.Reshape((1, 1), name = 'Res51656', )(Dot32079)
+Res87808 = keras.layers.Reshape((1, 1, 1), name = 'Res87808', )(Res51656)
+Cro23448 = keras.layers.Cropping2D(cropping=((0, 0), (0, 0)), name = 'Cro23448', )(Res87808)
+Max74328 = keras.layers.MaxPool2D(pool_size=(1, 1), name = 'Max74328', )(Cro23448)
+Res45904 = keras.layers.Reshape((1, 1), name = 'Res45904', )(Max74328)
+Dot87876 = keras.layers.Dot(axes=(1, 1), name = 'Dot87876', )([Con60967,Res45904])
+model = tf.keras.models.Model(inputs=[in0Mul31119,in1Mul31119,in0Con60967,in0Dot32079,in1Dot32079], outputs=Dot87876)
+w = model.get_layer('Den43314').get_weights() 
+w[0] = np.array([[0.5815, 0.7006]])
+w[1] = np.array([0.2244, 0.0748])
+model.get_layer('Den43314').set_weights(w) 
+in0Mul31119 = tf.constant([[[[0.1904], [0.0018]]]])
+in1Mul31119 = tf.constant([[[[0.3109], [0.5491]]]])
+in0Con60967 = tf.constant([[[0.1873, 0.7528, 0.7546]]])
+in0Dot32079 = tf.constant([[0.2038, 0.4002]])
+in1Dot32079 = tf.constant([[0.3804, 0.3221]])
+print (np.array2string(model.predict([in0Mul31119,in1Mul31119,in0Con60967,in0Dot32079,in1Dot32079],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot87876.png')
+
+LMul31119 = multiply_layer([[[[[0.1904], [0.0018]]]], [[[[0.3109], [0.5491]]]]], Mul31119), 
+LDen43314 = dense_layer(Mul31119, [[0.5815, 0.7006]],[0.2244, 0.0748], Den43314), 
+LRes23656 = reshape_layer(Den43314, [1, 4], Res23656), 
+LCon60967 = concatenate_layer([Res23656,[[[0.1873, 0.7528, 0.7546]]]], 2, Con60967), 
+LDot32079 = dot_layer([[0.2038, 0.4002]], [[0.3804, 0.3221]], 1, 1, Dot32079), 
+LRes51656 = reshape_layer(Dot32079, [1, 1], Res51656), 
+LRes87808 = reshape_layer(Res51656, [1, 1, 1], Res87808), 
+LCro23448 = cropping2D_layer(Res87808, 0, 0, 0, 0, Cro23448), 
+LMax74328 = max_pool2D_layer(Cro23448, 1, 1, Max74328), 
+LRes45904 = reshape_layer(Max74328, [1, 1], Res45904), 
+LDot87876 = dot_layer(Con60967,Res45904, 1, 1, Dot87876), 
+exec_layers([LMul31119,LDen43314,LRes23656,LCon60967,LDot32079,LRes51656,LRes87808,LCro23448,LMax74328,LRes45904,LDot87876],["Mul31119","Den43314","Res23656","Con60967","Dot32079","Res51656","Res87808","Cro23448","Max74328","Res45904","Dot87876"],Dot87876,"Dot87876")
+
+Actual (Unparsed): [[[0.0534286], [0.0240021], [0.0464415], [0.0155839], [0.0386643], [0.1554005], [0.1557720]]]
+
+Expected (Unparsed): [[[0.05342863095350508],[0.024002077557922726],[0.046441522692812515],[0.015583903787602497],[0.038664327761999996],[0.155400458832],[0.155772032724]]]
+
+Actual:   [[[0.0535], [0.0241], [0.0465], [0.0156], [0.0387], [0.1555], [0.1558]]]
+
+Expected: [[[0.0535], [0.0241], [0.0465], [0.0156], [0.0387], [0.1555], [0.1558]]]

@@ -1,0 +1,57 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub99211 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub99211 = tf.keras.layers.Input(shape=([2, 2]))
+in0Sep66705 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Sub82165 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub82165 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con35046 = tf.keras.layers.Input(shape=([2, 2]))
+
+Sub99211 = keras.layers.Subtract(name = 'Sub99211', )([in0Sub99211,in1Sub99211])
+Sep66705 = keras.layers.SeparableConv2D(4, (2, 1),strides=(2, 2), padding='valid', name = 'Sep66705', )(in0Sep66705)
+Res55583 = keras.layers.Reshape((1, 4), name = 'Res55583', )(Sep66705)
+Up_60975 = keras.layers.UpSampling1D(size=(2), name = 'Up_60975', )(Res55583)
+Sub82165 = keras.layers.Subtract(name = 'Sub82165', )([in0Sub82165,in1Sub82165])
+Con35046 = keras.layers.Concatenate(axis=2, name = 'Con35046', )([Sub82165,in0Con35046])
+Add59410 = keras.layers.Add(name = 'Add59410', )([Up_60975,Con35046])
+Mul78357 = keras.layers.Multiply(name = 'Mul78357', )([Sub99211,Add59410])
+model = tf.keras.models.Model(inputs=[in0Sub99211,in1Sub99211,in0Sep66705,in0Sub82165,in1Sub82165,in0Con35046], outputs=Mul78357)
+w = model.get_layer('Sep66705').get_weights() 
+w[0] = np.array([[[[0.0737]]], [[[0.8101]]]])
+w[1] = np.array([[[[0.1857, 0.7464, 0.8307, 0.4357]]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep66705').set_weights(w) 
+in0Sub99211 = tf.constant([[[0.7077, 0.4663], [0.2302, 0.1029]]])
+in1Sub99211 = tf.constant([[[0.5216, 0.3087], [0.816, 0.6416]]])
+in0Sep66705 = tf.constant([[[[0.3233], [0.155]], [[0.6899], [0.8889]]]])
+in0Sub82165 = tf.constant([[[0.8772, 0.3841], [0.4267, 0.0769]]])
+in1Sub82165 = tf.constant([[[0.6387, 0.9923], [0.2741, 0.3828]]])
+in0Con35046 = tf.constant([[[0.3831, 0.3512], [0.2863, 0.4916]]])
+print (np.array2string(model.predict([in0Sub99211,in1Sub99211,in0Sep66705,in0Sub82165,in1Sub82165,in0Con35046],steps=1), separator=', '))
+
+
+LSub99211 = subtract_layer([[[0.7077, 0.4663], [0.2302, 0.1029]]], [[[0.5216, 0.3087], [0.816, 0.6416]]], Sub99211), 
+LSep66705 = separable_conv2D_layer([[[[0.3233], [0.155]], [[0.6899], [0.8889]]]], 2, 1,[[[[[0.0737]]], [[[0.8101]]]],[[[[0.1857, 0.7464, 0.8307, 0.4357]]]]],[0, 0, 0, 0], 2, 2, false, Sep66705), 
+LRes55583 = reshape_layer(Sep66705, [1, 4], Res55583), 
+LUp_60975 = up_sampling1D_layer(Res55583, 2, Up_60975), 
+LSub82165 = subtract_layer([[[0.8772, 0.3841], [0.4267, 0.0769]]], [[[0.6387, 0.9923], [0.2741, 0.3828]]], Sub82165), 
+LCon35046 = concatenate_layer([Sub82165,[[[0.3831, 0.3512], [0.2863, 0.4916]]]], 2, Con35046), 
+LAdd59410 = add_layer([Up_60975,Con35046], Add59410), 
+LMul78357 = multiply_layer([Sub99211,Add59410], Mul78357), 
+exec_layers([LSub99211,LSep66705,LRes55583,LUp_60975,LSub82165,LCon35046,LAdd59410,LMul78357],["Sub99211","Sep66705","Res55583","Up_60975","Sub82165","Con35046","Add59410","Mul78357"],Mul78357,"Mul78357")
+
+Actual (Unparsed): 
+ ValueError(ValueError: Operands could not be broadcast together with shapes (2, 2) (2, 4)
+
+Expected (Unparsed): 
+Mul78357: Inconsistent Input Shapes, Input Shape [1,2,2]
+
+Actual:   
+
+Expected: 

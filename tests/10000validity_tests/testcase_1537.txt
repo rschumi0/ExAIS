@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max99895 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in1Max99895 = tf.keras.layers.Input(shape=([1, 1, 2, 1]))
+in0Min17542 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+in1Min17542 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Max99895 = keras.layers.Maximum(name = 'Max99895', )([in0Max99895,in1Max99895])
+Zer94886 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer94886', )(Max99895)
+Min17542 = keras.layers.Minimum(name = 'Min17542', )([in0Min17542,in1Min17542])
+Zer26529 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (2, 0)), name = 'Zer26529', )(Min17542)
+Mul77835 = keras.layers.Multiply(name = 'Mul77835', )([Zer94886,Zer26529])
+Res45556 = keras.layers.Reshape((1, 2, 3), name = 'Res45556', )(Mul77835)
+Res64270 = keras.layers.Reshape((1, 6), name = 'Res64270', )(Res45556)
+LST18535 = keras.layers.LSTM(2,recurrent_activation='sigmoid', name = 'LST18535', )(Res64270)
+model = tf.keras.models.Model(inputs=[in0Max99895,in1Max99895,in0Min17542,in1Min17542], outputs=LST18535)
+w = model.get_layer('LST18535').get_weights() 
+w[0] = np.array([[1, 6, 9, 10, 2, 3, 7, 9], [6, 5, 8, 2, 6, 5, 9, 6], [2, 10, 5, 5, 1, 4, 6, 10], [8, 2, 6, 4, 3, 4, 5, 6], [5, 3, 8, 5, 1, 9, 9, 1], [8, 2, 2, 6, 6, 4, 2, 6]])
+w[1] = np.array([[2, 6, 8, 7, 4, 6, 9, 1], [5, 3, 5, 1, 8, 7, 8, 3]])
+w[2] = np.array([8, 10, 5, 1, 5, 7, 6, 10])
+model.get_layer('LST18535').set_weights(w) 
+in0Max99895 = tf.constant([[[[[0.9176], [0.1825]]]]])
+in1Max99895 = tf.constant([[[[[0.6565], [0.6]]]]])
+in0Min17542 = tf.constant([[[[[0.4372]], [[0.7068]]]]])
+in1Min17542 = tf.constant([[[[[0.3564]], [[0.5359]]]]])
+print (np.array2string(model.predict([in0Max99895,in1Max99895,in0Min17542,in1Min17542],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='LST18535.png')
+
+LMax99895 = maximum_layer([[[[[[0.9176], [0.1825]]]]], [[[[[0.6565], [0.6]]]]]], Max99895), 
+LZer94886 = zero_padding3D_layer(Max99895, 0, 0, 1, 0, 1, 0, Zer94886), 
+LMin17542 = minimum_layer([[[[[[0.4372]], [[0.7068]]]]], [[[[[0.3564]], [[0.5359]]]]]], Min17542), 
+LZer26529 = zero_padding3D_layer(Min17542, 0, 0, 0, 0, 2, 0, Zer26529), 
+LMul77835 = multiply_layer([Zer94886,Zer26529], Mul77835), 
+LRes45556 = reshape_layer(Mul77835, [1, 2, 3], Res45556), 
+LRes64270 = reshape_layer(Res45556, [1, 6], Res64270), 
+LLST18535 = lstm_layer(Res64270,[[1, 6, 9, 10, 2, 3, 7, 9], [6, 5, 8, 2, 6, 5, 9, 6], [2, 10, 5, 5, 1, 4, 6, 10], [8, 2, 6, 4, 3, 4, 5, 6], [5, 3, 8, 5, 1, 9, 9, 1], [8, 2, 2, 6, 6, 4, 2, 6]],[[2, 6, 8, 7, 4, 6, 9, 1], [5, 3, 5, 1, 8, 7, 8, 3]],[8, 10, 5, 1, 5, 7, 6, 10], LST18535), 
+exec_layers([LMax99895,LZer94886,LMin17542,LZer26529,LMul77835,LRes45556,LRes64270,LLST18535],["Max99895","Zer94886","Min17542","Zer26529","Mul77835","Res45556","Res64270","LST18535"],LST18535,"LST18535")
+
+Actual (Unparsed): [[0.7605915, 0.7615791]]
+
+Expected (Unparsed): [[0.760591536912756,0.7615790574094479]]
+
+Actual:   [[0.7606, 0.7616]]
+
+Expected: [[0.7606, 0.7616]]

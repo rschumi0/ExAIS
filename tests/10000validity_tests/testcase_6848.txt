@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr57284 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con50327 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con11943 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Thr57284 = keras.layers.ThresholdedReLU(theta=9.468871562528612, name = 'Thr57284', input_shape=(1, 2))(in0Thr57284)
+Con50327 = keras.layers.Concatenate(axis=2, name = 'Con50327', )([Thr57284,in0Con50327])
+Con11943 = keras.layers.Conv2DTranspose(4, (1, 1),strides=(1, 1), padding='valid', name = 'Con11943', )(in0Con11943)
+Res45653 = keras.layers.Reshape((2, 4), name = 'Res45653', )(Con11943)
+Zer90551 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer90551', )(Res45653)
+Dot35385 = keras.layers.Dot(axes=(2, 2), name = 'Dot35385', )([Con50327,Zer90551])
+Lay48368 = keras.layers.LayerNormalization(axis=1, epsilon=2.784223385013555, name = 'Lay48368', )(Dot35385)
+Res76614 = keras.layers.Reshape((1, 3, 1), name = 'Res76614', )(Lay48368)
+Con39765 = keras.layers.Conv2DTranspose(2, (1, 3),strides=(1, 1), padding='same', name = 'Con39765', )(Res76614)
+model = tf.keras.models.Model(inputs=[in0Thr57284,in0Con50327,in0Con11943], outputs=Con39765)
+w = model.get_layer('Con11943').get_weights() 
+w[0] = np.array([[[[0.8299, 0.2589], [0.0267, 0.1293], [0.0287, 0.4849], [0.8523, 0.7998]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con11943').set_weights(w) 
+w = model.get_layer('Con39765').get_weights() 
+w[0] = np.array([[[[0.9061], [0.5653]], [[0.0468], [0.6728]], [[0.0429], [0.9504]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con39765').set_weights(w) 
+in0Thr57284 = tf.constant([[[0.7127, 0.1314]]])
+in0Con50327 = tf.constant([[[0.6884, 0.4096]]])
+in0Con11943 = tf.constant([[[[0.2924, 0.0919]], [[0.7172, 0.8626]]]])
+print (np.array2string(model.predict([in0Thr57284,in0Con50327,in0Con11943],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con39765.png')
+
+LThr57284 = thresholded_relu_layer([[[0.7127, 0.1314]]], 9.468871562528612, Thr57284), 
+LCon50327 = concatenate_layer([Thr57284,[[[0.6884, 0.4096]]]], 2, Con50327), 
+LCon11943 = conv2D_transpose_layer([[[[0.2924, 0.0919]], [[0.7172, 0.8626]]]], 1, 1,[[[[0.8299, 0.2589], [0.0267, 0.1293], [0.0287, 0.4849], [0.8523, 0.7998]]]],[0, 0, 0, 0], 1, 1, false, Con11943), 
+LRes45653 = reshape_layer(Con11943, [2, 4], Res45653), 
+LZer90551 = zero_padding1D_layer(Res45653, 1, 0, Zer90551), 
+LDot35385 = dot_layer(Con50327,Zer90551, 2, 2, Dot35385), 
+LLay48368 = layer_normalization_layer(Dot35385, 1, 2.784223385013555, Lay48368), 
+LRes76614 = reshape_layer(Lay48368, [1, 3, 1], Res76614), 
+LCon39765 = conv2D_transpose_layer(Res76614, 1, 3,[[[[0.9061], [0.5653]], [[0.0468], [0.6728]], [[0.0429], [0.9504]]]],[0, 0], 1, 1, true, Con39765), 
+exec_layers([LThr57284,LCon50327,LCon11943,LRes45653,LZer90551,LDot35385,LLay48368,LRes76614,LCon39765],["Thr57284","Con50327","Con11943","Res45653","Zer90551","Dot35385","Lay48368","Res76614","Con39765"],Con39765,"Con39765")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000], [0.0000000, 0.0000000], [0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0.0,0.0],[0.0,0.0],[0.0,0.0]]]]
+
+Actual:   [[[[0, 0], [0, 0], [0, 0]]]]
+
+Expected: [[[[0, 0], [0, 0], [0, 0]]]]

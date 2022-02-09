@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min88317 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Min88317 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con64667 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Loc6105 = tf.keras.layers.Input(shape=([2, 2, 1]))
+
+Min88317 = keras.layers.Minimum(name = 'Min88317', )([in0Min88317,in1Min88317])
+Res4841 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res4841', )(Min88317)
+Cro48965 = keras.layers.Cropping3D(cropping=((1, 0), (1, 0), (0, 1)), name = 'Cro48965', )(Res4841)
+Res64809 = keras.layers.Reshape((1, 1, 1), name = 'Res64809', )(Cro48965)
+Con64667 = keras.layers.Concatenate(axis=3, name = 'Con64667', )([Res64809,in0Con64667])
+Loc6105 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 1), name = 'Loc6105', )(in0Loc6105)
+Loc95601 = keras.layers.LocallyConnected2D(3, (2, 1),strides=(12, 3), name = 'Loc95601', )(Loc6105)
+Add65761 = keras.layers.Add(name = 'Add65761', )([Con64667,Loc95601])
+model = tf.keras.models.Model(inputs=[in0Min88317,in1Min88317,in0Con64667,in0Loc6105], outputs=Add65761)
+w = model.get_layer('Loc6105').get_weights() 
+w[0] = np.array([[[0.7885, 0.4128], [0.5382, 0.766]], [[0.8195, 0.7131], [0.7842, 0.6556]]])
+w[1] = np.array([[[0, 0]], [[0, 0]]])
+model.get_layer('Loc6105').set_weights(w) 
+w = model.get_layer('Loc95601').get_weights() 
+w[0] = np.array([[[0.7209, 0.7352, 0.3649], [0.3341, 0.8842, 0.1355], [0.0524, 0.4672, 0.1265], [0.8711, 0.1436, 0.6648]]])
+w[1] = np.array([[[0, 0, 0]]])
+model.get_layer('Loc95601').set_weights(w) 
+in0Min88317 = tf.constant([[[[0.9386, 0.8439], [0.3238, 0.661]], [[0.4822, 0.0802], [0.9116, 0.4094]]]])
+in1Min88317 = tf.constant([[[[0.9614, 0.8714], [0.7163, 0.8547]], [[0.2929, 0.5987], [0.3448, 0.0341]]]])
+in0Con64667 = tf.constant([[[[0.5387, 0.9283]]]])
+in0Loc6105 = tf.constant([[[[0.9648], [0.8621]], [[0.7119], [0.8533]]]])
+print (np.array2string(model.predict([in0Min88317,in1Min88317,in0Con64667,in0Loc6105],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add65761.png')
+
+LMin88317 = minimum_layer([[[[[0.9386, 0.8439], [0.3238, 0.661]], [[0.4822, 0.0802], [0.9116, 0.4094]]]], [[[[0.9614, 0.8714], [0.7163, 0.8547]], [[0.2929, 0.5987], [0.3448, 0.0341]]]]], Min88317), 
+LRes4841 = reshape_layer(Min88317, [2, 2, 2, 1], Res4841), 
+LCro48965 = cropping3D_layer(Res4841, 1, 0, 1, 0, 0, 1, Cro48965), 
+LRes64809 = reshape_layer(Cro48965, [1, 1, 1], Res64809), 
+LCon64667 = concatenate_layer([Res64809,[[[[0.5387, 0.9283]]]]], 3, Con64667), 
+LLoc6105 = locally_connected2D_layer([[[[0.9648], [0.8621]], [[0.7119], [0.8533]]]], 1, 2,[[[0.7885, 0.4128], [0.5382, 0.766]], [[0.8195, 0.7131], [0.7842, 0.6556]]],[[[0, 0]], [[0, 0]]], 1, 1, Loc6105), 
+LLoc95601 = locally_connected2D_layer(Loc6105, 2, 1,[[[0.7209, 0.7352, 0.3649], [0.3341, 0.8842, 0.1355], [0.0524, 0.4672, 0.1265], [0.8711, 0.1436, 0.6648]]],[[[0, 0, 0]]], 12, 3, Loc95601), 
+LAdd65761 = add_layer([Con64667,Loc95601], Add65761), 
+exec_layers([LMin88317,LRes4841,LCro48965,LRes64809,LCon64667,LLoc6105,LLoc95601,LAdd65761],["Min88317","Res4841","Cro48965","Res64809","Con64667","Loc6105","Loc95601","Add65761"],Add65761,"Add65761")
+
+Actual (Unparsed): [[[[2.5765636, 3.1135956, 2.3864915]]]]
+
+Expected (Unparsed): [[[[2.5765636563729997,3.1135956475559996,2.386491537809]]]]
+
+Actual:   [[[[2.5766, 3.1136, 2.3865]]]]
+
+Expected: [[[[2.5766, 3.1136, 2.3865]]]]

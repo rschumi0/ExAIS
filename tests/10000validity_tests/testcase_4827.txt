@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul52538 = tf.keras.layers.Input(shape=([2, 2]))
+in1Mul52538 = tf.keras.layers.Input(shape=([2, 2]))
+in0Max77878 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max77878 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con93543 = tf.keras.layers.Input(shape=([4, 1]))
+
+Mul52538 = keras.layers.Multiply(name = 'Mul52538', )([in0Mul52538,in1Mul52538])
+Up_31384 = keras.layers.UpSampling1D(size=(2), name = 'Up_31384', )(Mul52538)
+Max77878 = keras.layers.Maximum(name = 'Max77878', )([in0Max77878,in1Max77878])
+Zer98782 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer98782', )(Max77878)
+Con93543 = keras.layers.Concatenate(axis=2, name = 'Con93543', )([Zer98782,in0Con93543])
+Min24260 = keras.layers.Minimum(name = 'Min24260', )([Up_31384,Con93543])
+Sep60233 = keras.layers.SeparableConv1D(4, (1),strides=(1), padding='valid', name = 'Sep60233', )(Min24260)
+model = tf.keras.models.Model(inputs=[in0Mul52538,in1Mul52538,in0Max77878,in1Max77878,in0Con93543], outputs=Sep60233)
+w = model.get_layer('Sep60233').get_weights() 
+w[0] = np.array([[[0.5819], [0.2801]]])
+w[1] = np.array([[[0.017, 0.1973, 0.3552, 0.85], [0.0031, 0.7495, 0.3711, 0.6944]]])
+w[2] = np.array([0, 0, 0, 0])
+model.get_layer('Sep60233').set_weights(w) 
+in0Mul52538 = tf.constant([[[0.7695, 0.1046], [0.7586, 0.576]]])
+in1Mul52538 = tf.constant([[[0.4111, 0.2479], [0.5918, 0.5007]]])
+in0Max77878 = tf.constant([[[0.8467]]])
+in1Max77878 = tf.constant([[[0.3276]]])
+in0Con93543 = tf.constant([[[0.9105], [0.7723], [0.1328], [0.434]]])
+print (np.array2string(model.predict([in0Mul52538,in1Mul52538,in0Max77878,in1Max77878,in0Con93543],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep60233.png')
+
+LMul52538 = multiply_layer([[[[0.7695, 0.1046], [0.7586, 0.576]]], [[[0.4111, 0.2479], [0.5918, 0.5007]]]], Mul52538), 
+LUp_31384 = up_sampling1D_layer(Mul52538, 2, Up_31384), 
+LMax77878 = maximum_layer([[[[0.8467]]], [[[0.3276]]]], Max77878), 
+LZer98782 = zero_padding1D_layer(Max77878, 3, 0, Zer98782), 
+LCon93543 = concatenate_layer([Zer98782,[[[0.9105], [0.7723], [0.1328], [0.434]]]], 2, Con93543), 
+LMin24260 = minimum_layer([Up_31384,Con93543], Min24260), 
+LSep60233 = separable_conv1D_layer(Min24260, 1,[[[[0.5819], [0.2801]]],[[[0.017, 0.1973, 0.3552, 0.85], [0.0031, 0.7495, 0.3711, 0.6944]]]],[0, 0, 0, 0], 1, false, Sep60233), 
+exec_layers([LMul52538,LUp_31384,LMax77878,LZer98782,LCon93543,LMin24260,LSep60233],["Mul52538","Up_31384","Max77878","Zer98782","Con93543","Min24260","Sep60233"],Sep60233,"Sep60233")
+
+Actual (Unparsed): [[[0.0000225, 0.0054437, 0.0026953, 0.0050435], [0.0000225, 0.0054437, 0.0026953, 0.0050435], [0.0001153, 0.0278794, 0.0138039, 0.0258298], [0.0046915, 0.1120881, 0.1227698, 0.2781470]]]
+
+Expected (Unparsed): [[[2.25155735254e-5,0.005443684631383,0.0026953320436374,0.0050434884696896],[2.25155735254e-5,0.005443684631383,0.0026953320436374,0.0050434884696896],[0.00011531156799999999,0.02787936136,0.013803910607999998,0.025829791232],[0.004691467400596,0.11208814576902759,0.1227697985362944,0.27814703860080797]]]
+
+Actual:   [[[0.0001, 0.0055, 0.0027, 0.0051], [0.0001, 0.0055, 0.0027, 0.0051], [0.0002, 0.0279, 0.0139, 0.0259], [0.0047, 0.1121, 0.1228, 0.2782]]]
+
+Expected: [[[0.0001, 0.0055, 0.0027, 0.0051], [0.0001, 0.0055, 0.0027, 0.0051], [0.0002, 0.0279, 0.0139, 0.0259], [0.0047, 0.1121, 0.1228, 0.2782]]]

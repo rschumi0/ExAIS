@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub53062 = tf.keras.layers.Input(shape=([3, 3]))
+in1Sub53062 = tf.keras.layers.Input(shape=([3, 3]))
+in0Ave58289 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Sub53062 = keras.layers.Subtract(name = 'Sub53062', )([in0Sub53062,in1Sub53062])
+Con95544 = keras.layers.Conv1D(4, (1),strides=(8), padding='valid', dilation_rate=(1), name = 'Con95544', )(Sub53062)
+Ave58289 = keras.layers.AveragePooling2D(pool_size=(2, 1), name = 'Ave58289', )(in0Ave58289)
+Res7664 = keras.layers.Reshape((1, 2), name = 'Res7664', )(Ave58289)
+Dot61962 = keras.layers.Dot(axes=(1, 1), name = 'Dot61962', )([Con95544,Res7664])
+model = tf.keras.models.Model(inputs=[in0Sub53062,in1Sub53062,in0Ave58289], outputs=Dot61962)
+w = model.get_layer('Con95544').get_weights() 
+w[0] = np.array([[[0.7125, 0.2343, 0.6025, 0.8379], [0.4423, 0.0698, 0.3209, 0.3086], [0.9603, 0.3804, 0.6747, 0.2966]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con95544').set_weights(w) 
+in0Sub53062 = tf.constant([[[0.4876, 0.8288, 0.6867], [0.511, 0.3327, 0.8016], [0.5484, 0.0754, 0.9489]]])
+in1Sub53062 = tf.constant([[[0.5932, 0.4643, 0.7469], [0.3863, 0.9555, 0.9341], [0.3762, 0.9505, 0.8912]]])
+in0Ave58289 = tf.constant([[[[1.1803, 1.9129]], [[1.4101, 1.6983]]]])
+print (np.array2string(model.predict([in0Sub53062,in1Sub53062,in0Ave58289],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot61962.png')
+
+LSub53062 = subtract_layer([[[0.4876, 0.8288, 0.6867], [0.511, 0.3327, 0.8016], [0.5484, 0.0754, 0.9489]]], [[[0.5932, 0.4643, 0.7469], [0.3863, 0.9555, 0.9341], [0.3762, 0.9505, 0.8912]]], Sub53062), 
+LCon95544 = conv1D_layer(Sub53062, 1,[[[0.7125, 0.2343, 0.6025, 0.8379], [0.4423, 0.0698, 0.3209, 0.3086], [0.9603, 0.3804, 0.6747, 0.2966]]],[0, 0, 0, 0], 8, false, 1, Con95544), 
+LAve58289 = average_pooling2D_layer([[[[1.1803, 1.9129]], [[1.4101, 1.6983]]]], 2, 1, Ave58289), 
+LRes7664 = reshape_layer(Ave58289, [1, 2], Res7664), 
+LDot61962 = dot_layer(Con95544,Res7664, 1, 1, Dot61962), 
+exec_layers([LSub53062,LCon95544,LAve58289,LRes7664,LDot61962],["Sub53062","Con95544","Ave58289","Res7664","Dot61962"],Dot61962,"Dot61962")
+
+Actual (Unparsed): [[[0.0364835, 0.0508606], [-0.0287535, -0.0400845], [0.0164841, 0.0229800], [0.0079617, 0.0110992]]]
+
+Expected (Unparsed): [[[0.036483569207999986,0.05086066442399999],[-0.028753517712000007,-0.04008442833600002],[0.016484152872,0.022980069816000002],[0.007961775728000012,0.011099275984000017]]]
+
+Actual:   [[[0.0365, 0.0509], [-0.0287, -0.04], [0.0165, 0.023], [0.008, 0.0111]]]
+
+Expected: [[[0.0365, 0.0509], [-0.0287, -0.04], [0.0165, 0.023], [0.008, 0.0111]]]

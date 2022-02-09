@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo88823 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con91806 = tf.keras.layers.Input(shape=([1, 3]))
+in0ELU14773 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo88823 = keras.layers.GlobalMaxPool1D(name = 'Glo88823', )(in0Glo88823)
+Res64498 = keras.layers.Reshape((1, 1), name = 'Res64498', )(Glo88823)
+Con91806 = keras.layers.Concatenate(axis=2, name = 'Con91806', )([Res64498,in0Con91806])
+ELU14773 = keras.layers.ELU(alpha=1.980400803334387, name = 'ELU14773', input_shape=(2, 2))(in0ELU14773)
+Con50722 = keras.layers.Conv1D(4, (2),strides=(1), padding='valid', dilation_rate=(1), name = 'Con50722', )(ELU14773)
+Sub84642 = keras.layers.Subtract(name = 'Sub84642', )([Con91806,Con50722])
+Fla50032 = keras.layers.Flatten(name = 'Fla50032', )(Sub84642)
+model = tf.keras.models.Model(inputs=[in0Glo88823,in0Con91806,in0ELU14773], outputs=Fla50032)
+w = model.get_layer('Con50722').get_weights() 
+w[0] = np.array([[[0.5994, 0.8726, 0.1323, 0.765], [0.1611, 0.1812, 0.7497, 0.1143]], [[0.738, 0.6943, 0.3664, 0.7333], [0.1668, 0.7929, 0.9574, 0.8876]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con50722').set_weights(w) 
+in0Glo88823 = tf.constant([[[1.3441]]])
+in0Con91806 = tf.constant([[[0.4731, 0.5301, 0.7263]]])
+in0ELU14773 = tf.constant([[[0.8189, 0.0612], [0.203, 0.1164]]])
+print (np.array2string(model.predict([in0Glo88823,in0Con91806,in0ELU14773],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Fla50032.png')
+
+LGlo88823 = global_max_pool1D_layer([[[1.3441]]], Glo88823), 
+LRes64498 = reshape_layer(Glo88823, [1, 1], Res64498), 
+LCon91806 = concatenate_layer([Res64498,[[[0.4731, 0.5301, 0.7263]]]], 2, Con91806), 
+LELU14773 = elu_layer([[[0.8189, 0.0612], [0.203, 0.1164]]], 1.980400803334387, ELU14773), 
+LCon50722 = conv1D_layer(ELU14773, 2,[[[0.5994, 0.8726, 0.1323, 0.765], [0.1611, 0.1812, 0.7497, 0.1143]], [[0.738, 0.6943, 0.3664, 0.7333], [0.1668, 0.7929, 0.9574, 0.8876]]],[0, 0, 0, 0], 1, false, 1, Con50722), 
+LSub84642 = subtract_layer(Con91806,Con50722, Sub84642), 
+LFla50032 = flatten_layer(Sub84642, Fla50032), 
+exec_layers([LGlo88823,LRes64498,LCon91806,LELU14773,LCon50722,LSub84642,LFla50032],["Glo88823","Res64498","Con91806","ELU14773","Con50722","Sub84642","Fla50032"],Fla50032,"Fla50032")
+
+Actual (Unparsed): [[0.6741625, -0.4857980, 0.1900573, -0.1593302]]
+
+Expected (Unparsed): [[0.6741625,-0.48579804,0.19005733000000002,-0.15933019999999998]]
+
+Actual:   [[0.6742, -0.4857, 0.1901, -0.1593]]
+
+Expected: [[0.6742, -0.4857, 0.1901, -0.1593]]

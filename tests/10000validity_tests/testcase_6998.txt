@@ -1,0 +1,60 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con93259 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Glo40636 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Add21363 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Add21363 = tf.keras.layers.Input(shape=([1, 2, 1]))
+
+Con93259 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con93259', )(in0Con93259)
+Res37553 = keras.layers.Reshape((1, 2), name = 'Res37553', )(Con93259)
+Glo40636 = keras.layers.GlobalMaxPool2D(name = 'Glo40636', )(in0Glo40636)
+Thr27891 = keras.layers.ThresholdedReLU(theta=9.136775066875199, name = 'Thr27891', )(Glo40636)
+Res90658 = keras.layers.Reshape((1, 2), name = 'Res90658', )(Thr27891)
+Sub69884 = keras.layers.Subtract(name = 'Sub69884', )([Res37553,Res90658])
+Res71095 = keras.layers.Reshape((1, 2, 1), name = 'Res71095', )(Sub69884)
+Add21363 = keras.layers.Add(name = 'Add21363', )([in0Add21363,in1Add21363])
+Add83216 = keras.layers.Add(name = 'Add83216', )([Res71095,Add21363])
+Res54490 = keras.layers.Reshape((1, 2), name = 'Res54490', )(Add83216)
+LST64286 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST64286', )(Res54490)
+model = tf.keras.models.Model(inputs=[in0Con93259,in0Glo40636,in0Add21363,in1Add21363], outputs=LST64286)
+w = model.get_layer('Con93259').get_weights() 
+w[0] = np.array([[[[0.796, 0.5465], [0.9584, 0.3412]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con93259').set_weights(w) 
+w = model.get_layer('LST64286').get_weights() 
+w[0] = np.array([[4, 2, 1, 2], [8, 9, 1, 5]])
+w[1] = np.array([[8, 9, 10, 10]])
+w[2] = np.array([2, 9, 9, 2])
+model.get_layer('LST64286').set_weights(w) 
+in0Con93259 = tf.constant([[[[0.4261, 0.2843]]]])
+in0Glo40636 = tf.constant([[[[1.1653, 1.6076], [1.7805, 1.1078]]]])
+in0Add21363 = tf.constant([[[[0.7356], [0.1146]]]])
+in1Add21363 = tf.constant([[[[0.8777], [0.6506]]]])
+print (np.array2string(model.predict([in0Con93259,in0Glo40636,in0Add21363,in1Add21363],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='LST64286.png')
+
+LCon93259 = conv2D_transpose_layer([[[[0.4261, 0.2843]]]], 1, 1,[[[[0.796, 0.5465], [0.9584, 0.3412]]]],[0, 0], 1, 1, false, Con93259), 
+LRes37553 = reshape_layer(Con93259, [1, 2], Res37553), 
+LGlo40636 = global_max_pool2D_layer([[[[1.1653, 1.6076], [1.7805, 1.1078]]]], Glo40636), 
+LThr27891 = thresholded_relu_layer(Glo40636, 9.136775066875199, Thr27891), 
+LRes90658 = reshape_layer(Thr27891, [1, 2], Res90658), 
+LSub69884 = subtract_layer(Res37553,Res90658, Sub69884), 
+LRes71095 = reshape_layer(Sub69884, [1, 2, 1], Res71095), 
+LAdd21363 = add_layer([[[[[0.7356], [0.1146]]]], [[[[0.8777], [0.6506]]]]], Add21363), 
+LAdd83216 = add_layer([Res71095,Add21363], Add83216), 
+LRes54490 = reshape_layer(Add83216, [1, 2], Res54490), 
+LLST64286 = lstm_layer(Res54490,[[4, 2, 1, 2], [8, 9, 1, 5]],[[8, 9, 10, 10]],[2, 9, 9, 2], LST64286), 
+exec_layers([LCon93259,LRes37553,LGlo40636,LThr27891,LRes90658,LSub69884,LRes71095,LAdd21363,LAdd83216,LRes54490,LLST64286],["Con93259","Res37553","Glo40636","Thr27891","Res90658","Sub69884","Res71095","Add21363","Add83216","Res54490","LST64286"],LST64286,"LST64286")
+
+Actual (Unparsed): [[0.7615915]]
+
+Expected (Unparsed): [[0.7615915053900634]]
+
+Actual:   [[0.7616]]
+
+Expected: [[0.7616]]

@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den49836 = tf.keras.layers.Input(shape=([2, 4]))
+in0Add80880 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Add80880 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con47060 = tf.keras.layers.Input(shape=([1]))
+
+Den49836 = keras.layers.Dense(3,name = 'Den49836', )(in0Den49836)
+Cro62970 = keras.layers.Cropping1D(cropping=((1, 0)), name = 'Cro62970', )(Den49836)
+Fla55560 = keras.layers.Flatten(name = 'Fla55560', )(Cro62970)
+Add80880 = keras.layers.Add(name = 'Add80880', )([in0Add80880,in1Add80880])
+Res20942 = keras.layers.Reshape((2, 1, 1), name = 'Res20942', )(Add80880)
+Res73734 = keras.layers.Reshape((2, 1), name = 'Res73734', )(Res20942)
+Sim25025 = keras.layers.SimpleRNN(2,name = 'Sim25025', )(Res73734)
+Con47060 = keras.layers.Concatenate(axis=1, name = 'Con47060', )([Sim25025,in0Con47060])
+Min49256 = keras.layers.Minimum(name = 'Min49256', )([Fla55560,Con47060])
+model = tf.keras.models.Model(inputs=[in0Den49836,in0Add80880,in1Add80880,in0Con47060], outputs=Min49256)
+w = model.get_layer('Den49836').get_weights() 
+w[0] = np.array([[0.1734, 0.0575, 0.5839], [0.6606, 0.6451, 0.9577], [0.0402, 0.3378, 0.4488], [0.6252, 0.0328, 0.7761]])
+w[1] = np.array([0.5624, 0.061, 0.3387])
+model.get_layer('Den49836').set_weights(w) 
+w = model.get_layer('Sim25025').get_weights() 
+w[0] = np.array([[5, 5]])
+w[1] = np.array([[3, 6], [7, 1]])
+w[2] = np.array([2, 5])
+model.get_layer('Sim25025').set_weights(w) 
+in0Den49836 = tf.constant([[[0.7908, 0.7004, 0.1805, 0.8347], [0.2848, 0.1437, 0.74, 0.119]]])
+in0Add80880 = tf.constant([[[[[0.4097]]], [[[0.8897]]]]])
+in1Add80880 = tf.constant([[[[[0.0546]]], [[[0.5095]]]]])
+in0Con47060 = tf.constant([[0.5453]])
+print (np.array2string(model.predict([in0Den49836,in0Add80880,in1Add80880,in0Con47060],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min49256.png')
+
+LDen49836 = dense_layer([[[0.7908, 0.7004, 0.1805, 0.8347], [0.2848, 0.1437, 0.74, 0.119]]], [[0.1734, 0.0575, 0.5839], [0.6606, 0.6451, 0.9577], [0.0402, 0.3378, 0.4488], [0.6252, 0.0328, 0.7761]],[0.5624, 0.061, 0.3387], Den49836), 
+LCro62970 = cropping1D_layer(Den49836, 1, 0, Cro62970), 
+LFla55560 = flatten_layer(Cro62970, Fla55560), 
+LAdd80880 = add_layer([[[[[[0.4097]]], [[[0.8897]]]]], [[[[[0.0546]]], [[[0.5095]]]]]], Add80880), 
+LRes20942 = reshape_layer(Add80880, [2, 1, 1], Res20942), 
+LRes73734 = reshape_layer(Res20942, [2, 1], Res73734), 
+LSim25025 = simple_rnn_layer(Res73734,[[5, 5]],[[3, 6], [7, 1]],[2, 5], Sim25025), 
+LCon47060 = concatenate_layer([Sim25025,[[0.5453]]], 1, Con47060), 
+LMin49256 = minimum_layer([Fla55560,Con47060], Min49256), 
+exec_layers([LDen49836,LCro62970,LFla55560,LAdd80880,LRes20942,LRes73734,LSim25025,LCon47060,LMin49256],["Den49836","Cro62970","Fla55560","Add80880","Res20942","Res73734","Sim25025","Con47060","Min49256"],Min49256,"Min49256")
+
+Actual (Unparsed): [[0.8108593, 0.4239521, 0.5453000]]
+
+Expected (Unparsed): [[0.81085934,0.42395207,0.5453]]
+
+Actual:   [[0.8109, 0.424, 0.5453]]
+
+Expected: [[0.8109, 0.424, 0.5453]]

@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sub23922 = tf.keras.layers.Input(shape=([2, 2]))
+in1Sub23922 = tf.keras.layers.Input(shape=([2, 2]))
+in0Add17273 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add17273 = tf.keras.layers.Input(shape=([2, 2]))
+in0GRU9784 = tf.keras.layers.Input(shape=([3, 3]))
+in0Con28008 = tf.keras.layers.Input(shape=([2]))
+
+Sub23922 = keras.layers.Subtract(name = 'Sub23922', )([in0Sub23922,in1Sub23922])
+Add17273 = keras.layers.Add(name = 'Add17273', )([in0Add17273,in1Add17273])
+Ave37466 = keras.layers.Average(name = 'Ave37466', )([Sub23922,Add17273])
+Fla5724 = keras.layers.Flatten(name = 'Fla5724', )(Ave37466)
+GRU9784 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU9784', )(in0GRU9784)
+Con28008 = keras.layers.Concatenate(axis=1, name = 'Con28008', )([GRU9784,in0Con28008])
+Ave59527 = keras.layers.Average(name = 'Ave59527', )([Fla5724,Con28008])
+Res17329 = keras.layers.Reshape((4, 1), name = 'Res17329', )(Ave59527)
+Res11788 = keras.layers.Reshape((4, 1, 1), name = 'Res11788', )(Res17329)
+Ave5563 = keras.layers.AveragePooling2D(pool_size=(1, 1), name = 'Ave5563', )(Res11788)
+model = tf.keras.models.Model(inputs=[in0Sub23922,in1Sub23922,in0Add17273,in1Add17273,in0GRU9784,in0Con28008], outputs=Ave5563)
+w = model.get_layer('GRU9784').get_weights() 
+w[0] = np.array([[3, 9, 10, 9, 2, 9], [5, 9, 10, 4, 5, 6], [4, 4, 7, 5, 2, 3]])
+w[1] = np.array([[10, 6, 4, 9, 7, 7], [6, 10, 3, 5, 3, 4]])
+w[2] = np.array([[4, 4, 3, 5, 5, 2], [1, 1, 6, 5, 9, 1]])
+model.get_layer('GRU9784').set_weights(w) 
+in0Sub23922 = tf.constant([[[0.5662, 0.7778], [0.3306, 0.3703]]])
+in1Sub23922 = tf.constant([[[0.4791, 0.417], [0.4736, 0.0068]]])
+in0Add17273 = tf.constant([[[0.8424, 0.989], [0.314, 0.9607]]])
+in1Add17273 = tf.constant([[[0.3108, 0.7792], [0.4629, 0.2235]]])
+in0GRU9784 = tf.constant([[[1, 5, 2], [9, 5, 4], [5, 6, 5]]])
+in0Con28008 = tf.constant([[0.08, 0.7036]])
+print (np.array2string(model.predict([in0Sub23922,in1Sub23922,in0Add17273,in1Add17273,in0GRU9784,in0Con28008],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave5563.png')
+
+LSub23922 = subtract_layer([[[0.5662, 0.7778], [0.3306, 0.3703]]], [[[0.4791, 0.417], [0.4736, 0.0068]]], Sub23922), 
+LAdd17273 = add_layer([[[[0.8424, 0.989], [0.314, 0.9607]]], [[[0.3108, 0.7792], [0.4629, 0.2235]]]], Add17273), 
+LAve37466 = average_layer([Sub23922,Add17273], Ave37466), 
+LFla5724 = flatten_layer(Ave37466, Fla5724), 
+LGRU9784 = gru_layer([[[1, 5, 2], [9, 5, 4], [5, 6, 5]]],[[3, 9, 10, 9, 2, 9], [5, 9, 10, 4, 5, 6], [4, 4, 7, 5, 2, 3]],[[10, 6, 4, 9, 7, 7], [6, 10, 3, 5, 3, 4]],[[4, 4, 3, 5, 5, 2], [1, 1, 6, 5, 9, 1]], true, GRU9784), 
+LCon28008 = concatenate_layer([GRU9784,[[0.08, 0.7036]]], 1, Con28008), 
+LAve59527 = average_layer([Fla5724,Con28008], Ave59527), 
+LRes17329 = reshape_layer(Ave59527, [4, 1], Res17329), 
+LRes11788 = reshape_layer(Res17329, [4, 1, 1], Res11788), 
+LAve5563 = average_pooling2D_layer(Res11788, 1, 1, Ave5563), 
+exec_layers([LSub23922,LAdd17273,LAve37466,LFla5724,LGRU9784,LCon28008,LAve59527,LRes17329,LRes11788,LAve5563],["Sub23922","Add17273","Ave37466","Fla5724","GRU9784","Con28008","Ave59527","Res17329","Res11788","Ave5563"],Ave5563,"Ave5563")
+
+Actual (Unparsed): [[[[0.3100750]], [[0.5322500]], [[0.1984750]], [[0.7387250]]]]
+
+Expected (Unparsed): [[[[0.310075]],[[0.53225]],[[0.19847499999999998]],[[0.738725]]]]
+
+Actual:   [[[[0.3101]], [[0.5323]], [[0.1985]], [[0.7388]]]]
+
+Expected: [[[[0.3101]], [[0.5323]], [[0.1985]], [[0.7388]]]]

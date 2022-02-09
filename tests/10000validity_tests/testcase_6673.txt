@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot40382 = tf.keras.layers.Input(shape=([2, 3]))
+in1Dot40382 = tf.keras.layers.Input(shape=([2, 3]))
+in0Con71059 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Con83831 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Dot40382 = keras.layers.Dot(axes=(2, 2), name = 'Dot40382', )([in0Dot40382,in1Dot40382])
+Res11461 = keras.layers.Reshape((2, 2, 1), name = 'Res11461', )(Dot40382)
+Glo18638 = keras.layers.GlobalAveragePooling2D(name = 'Glo18638', )(Res11461)
+Res9305 = keras.layers.Reshape((1, 1), name = 'Res9305', )(Glo18638)
+Res81908 = keras.layers.Reshape((1, 1, 1), name = 'Res81908', )(Res9305)
+Con71059 = keras.layers.Concatenate(axis=3, name = 'Con71059', )([Res81908,in0Con71059])
+Con83831 = keras.layers.Conv2D(3, (1, 2),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con83831', )(in0Con83831)
+Min49388 = keras.layers.Minimum(name = 'Min49388', )([Con71059,Con83831])
+Thr58951 = keras.layers.ThresholdedReLU(theta=4.374535184773576, name = 'Thr58951', )(Min49388)
+model = tf.keras.models.Model(inputs=[in0Dot40382,in1Dot40382,in0Con71059,in0Con83831], outputs=Thr58951)
+w = model.get_layer('Con83831').get_weights() 
+w[0] = np.array([[[[0.8909, 0.9895, 0.6883], [0.9552, 0.0353, 0.9676]], [[0.0329, 0.1561, 0.8414], [0.9716, 0.8102, 0.031]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con83831').set_weights(w) 
+in0Dot40382 = tf.constant([[[0.3171, 0.7673, 0.2732], [0.5266, 0.3228, 0.3268]]])
+in1Dot40382 = tf.constant([[[0.4871, 0.5181, 0.8155], [0.4655, 0.7404, 0.4498]]])
+in0Con71059 = tf.constant([[[[0.5797, 0.882]]]])
+in0Con83831 = tf.constant([[[[0.6111, 0.457], [0.1729, 0.5423]]]])
+print (np.array2string(model.predict([in0Dot40382,in1Dot40382,in0Con71059,in0Con83831],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Thr58951.png')
+
+LDot40382 = dot_layer([[[0.3171, 0.7673, 0.2732], [0.5266, 0.3228, 0.3268]]], [[[0.4871, 0.5181, 0.8155], [0.4655, 0.7404, 0.4498]]], 2, 2, Dot40382), 
+LRes11461 = reshape_layer(Dot40382, [2, 2, 1], Res11461), 
+LGlo18638 = global_average_pooling2D_layer(Res11461, Glo18638), 
+LRes9305 = reshape_layer(Glo18638, [1, 1], Res9305), 
+LRes81908 = reshape_layer(Res9305, [1, 1, 1], Res81908), 
+LCon71059 = concatenate_layer([Res81908,[[[[0.5797, 0.882]]]]], 3, Con71059), 
+LCon83831 = conv2D_layer([[[[0.6111, 0.457], [0.1729, 0.5423]]]], 1, 2,[[[[0.8909, 0.9895, 0.6883], [0.9552, 0.0353, 0.9676]], [[0.0329, 0.1561, 0.8414], [0.9716, 0.8102, 0.031]]]],[0, 0, 0], 1, 1, false, 1, 1, Con83831), 
+LMin49388 = minimum_layer([Con71059,Con83831], Min49388), 
+LThr58951 = thresholded_relu_layer(Min49388, 4.374535184773576, Thr58951), 
+exec_layers([LDot40382,LRes11461,LGlo18638,LRes9305,LRes81908,LCon71059,LCon83831,LMin49388,LThr58951],["Dot40382","Res11461","Glo18638","Res9305","Res81908","Con71059","Con83831","Min49388","Thr58951"],Thr58951,"Thr58951")
+
+Actual (Unparsed): [[[[0.0000000, 0.0000000, 0.0000000]]]]
+
+Expected (Unparsed): [[[[0,0,0]]]]
+
+Actual:   [[[[0, 0, 0]]]]
+
+Expected: [[[[0, 0, 0]]]]

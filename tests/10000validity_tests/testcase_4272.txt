@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0LST53483 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave57746 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Ave57746 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+LST53483 = keras.layers.LSTM(3,recurrent_activation='sigmoid', name = 'LST53483', )(in0LST53483)
+Res44875 = keras.layers.Reshape((3, 1), name = 'Res44875', )(LST53483)
+Ave20051 = keras.layers.AveragePooling1D(pool_size=(3), name = 'Ave20051', )(Res44875)
+Res16244 = keras.layers.Reshape((1, 1, 1), name = 'Res16244', )(Ave20051)
+Res46062 = keras.layers.Reshape((1, 1, 1, 1), name = 'Res46062', )(Res16244)
+Zer42498 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer42498', )(Res46062)
+Ave57746 = keras.layers.Average(name = 'Ave57746', )([in0Ave57746,in1Ave57746])
+Sub83887 = keras.layers.Subtract(name = 'Sub83887', )([Zer42498,Ave57746])
+model = tf.keras.models.Model(inputs=[in0LST53483,in0Ave57746,in1Ave57746], outputs=Sub83887)
+w = model.get_layer('LST53483').get_weights() 
+w[0] = np.array([[10, 8, 8, 2, 1, 7, 10, 3, 8, 7, 10, 3], [1, 10, 10, 3, 3, 7, 6, 4, 9, 6, 3, 2]])
+w[1] = np.array([[3, 2, 2, 4, 3, 10, 9, 7, 8, 10, 9, 10], [7, 1, 2, 9, 9, 2, 7, 9, 7, 6, 2, 6], [9, 1, 1, 8, 1, 2, 1, 10, 3, 2, 2, 6]])
+w[2] = np.array([8, 3, 1, 6, 3, 10, 6, 10, 8, 8, 9, 1])
+model.get_layer('LST53483').set_weights(w) 
+in0LST53483 = tf.constant([[[1, 4]]])
+in0Ave57746 = tf.constant([[[[[0.849]]], [[[0.3441]]]]])
+in1Ave57746 = tf.constant([[[[[0.2013]]], [[[0.0923]]]]])
+print (np.array2string(model.predict([in0LST53483,in0Ave57746,in1Ave57746],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub83887.png')
+
+LLST53483 = lstm_layer([[[1, 4]]],[[10, 8, 8, 2, 1, 7, 10, 3, 8, 7, 10, 3], [1, 10, 10, 3, 3, 7, 6, 4, 9, 6, 3, 2]],[[3, 2, 2, 4, 3, 10, 9, 7, 8, 10, 9, 10], [7, 1, 2, 9, 9, 2, 7, 9, 7, 6, 2, 6], [9, 1, 1, 8, 1, 2, 1, 10, 3, 2, 2, 6]],[8, 3, 1, 6, 3, 10, 6, 10, 8, 8, 9, 1], LST53483), 
+LRes44875 = reshape_layer(LST53483, [3, 1], Res44875), 
+LAve20051 = average_pooling1D_layer(Res44875, 3, Ave20051), 
+LRes16244 = reshape_layer(Ave20051, [1, 1, 1], Res16244), 
+LRes46062 = reshape_layer(Res16244, [1, 1, 1, 1], Res46062), 
+LZer42498 = zero_padding3D_layer(Res46062, 1, 0, 0, 0, 0, 0, Zer42498), 
+LAve57746 = average_layer([[[[[[0.849]]], [[[0.3441]]]]], [[[[[0.2013]]], [[[0.0923]]]]]], Ave57746), 
+LSub83887 = subtract_layer(Zer42498,Ave57746, Sub83887), 
+exec_layers([LLST53483,LRes44875,LAve20051,LRes16244,LRes46062,LZer42498,LAve57746,LSub83887],["LST53483","Res44875","Ave20051","Res16244","Res46062","Zer42498","Ave57746","Sub83887"],Sub83887,"Sub83887")
+
+Actual (Unparsed): [[[[[-0.5251500]]], [[[0.5433926]]]]]
+
+Expected (Unparsed): [[[[[-0.52515]]],[[[0.543392596127549]]]]]
+
+Actual:   [[[[[-0.5251]]], [[[0.5434]]]]]
+
+Expected: [[[[[-0.5251]]], [[[0.5434]]]]]

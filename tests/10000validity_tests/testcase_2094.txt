@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo6118 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con89719 = tf.keras.layers.Input(shape=([3]))
+in0Mul14208 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in1Mul14208 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Min33358 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min33358 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0Con41946 = tf.keras.layers.Input(shape=([3]))
+
+Glo6118 = keras.layers.GlobalAveragePooling1D(name = 'Glo6118', )(in0Glo6118)
+Con89719 = keras.layers.Concatenate(axis=1, name = 'Con89719', )([Glo6118,in0Con89719])
+Mul14208 = keras.layers.Multiply(name = 'Mul14208', )([in0Mul14208,in1Mul14208])
+Res26048 = keras.layers.Reshape((2, 1, 2), name = 'Res26048', )(Mul14208)
+Res50637 = keras.layers.Reshape((2, 2), name = 'Res50637', )(Res26048)
+Fla96728 = keras.layers.Flatten(name = 'Fla96728', )(Res50637)
+Min33358 = keras.layers.Minimum(name = 'Min33358', )([in0Min33358,in1Min33358])
+Res94468 = keras.layers.Reshape((1, 1, 2), name = 'Res94468', )(Min33358)
+Res77382 = keras.layers.Reshape((1, 2), name = 'Res77382', )(Res94468)
+LST42195 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST42195', )(Res77382)
+Con41946 = keras.layers.Concatenate(axis=1, name = 'Con41946', )([LST42195,in0Con41946])
+Add73808 = keras.layers.Add(name = 'Add73808', )([Fla96728,Con41946])
+Mul52537 = keras.layers.Multiply(name = 'Mul52537', )([Con89719,Add73808])
+model = tf.keras.models.Model(inputs=[in0Glo6118,in0Con89719,in0Mul14208,in1Mul14208,in0Min33358,in1Min33358,in0Con41946], outputs=Mul52537)
+w = model.get_layer('LST42195').get_weights() 
+w[0] = np.array([[4, 2, 6, 4], [8, 6, 9, 4]])
+w[1] = np.array([[5, 6, 9, 8]])
+w[2] = np.array([6, 2, 5, 2])
+model.get_layer('LST42195').set_weights(w) 
+in0Glo6118 = tf.constant([[[1.681]]])
+in0Con89719 = tf.constant([[0.9121, 0.9197, 0.5436]])
+in0Mul14208 = tf.constant([[[[[0.8464, 0.2705]]], [[[0.1323, 0.1728]]]]])
+in1Mul14208 = tf.constant([[[[[0.7735, 0.0519]]], [[[0.9373, 0.7627]]]]])
+in0Min33358 = tf.constant([[[[[0.176, 0.1692]]]]])
+in1Min33358 = tf.constant([[[[[0.5213, 0.3884]]]]])
+in0Con41946 = tf.constant([[0.1416, 0.6506, 0.7642]])
+print (np.array2string(model.predict([in0Glo6118,in0Con89719,in0Mul14208,in1Mul14208,in0Min33358,in1Min33358,in0Con41946],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul52537.png')
+
+LGlo6118 = global_average_pooling1D_layer([[[1.681]]], Glo6118), 
+LCon89719 = concatenate_layer([Glo6118,[[0.9121, 0.9197, 0.5436]]], 1, Con89719), 
+LMul14208 = multiply_layer([[[[[[0.8464, 0.2705]]], [[[0.1323, 0.1728]]]]], [[[[[0.7735, 0.0519]]], [[[0.9373, 0.7627]]]]]], Mul14208), 
+LRes26048 = reshape_layer(Mul14208, [2, 1, 2], Res26048), 
+LRes50637 = reshape_layer(Res26048, [2, 2], Res50637), 
+LFla96728 = flatten_layer(Res50637, Fla96728), 
+LMin33358 = minimum_layer([[[[[[0.176, 0.1692]]]]], [[[[[0.5213, 0.3884]]]]]], Min33358), 
+LRes94468 = reshape_layer(Min33358, [1, 1, 2], Res94468), 
+LRes77382 = reshape_layer(Res94468, [1, 2], Res77382), 
+LLST42195 = lstm_layer(Res77382,[[4, 2, 6, 4], [8, 6, 9, 4]],[[5, 6, 9, 8]],[6, 2, 5, 2], LST42195), 
+LCon41946 = concatenate_layer([LST42195,[[0.1416, 0.6506, 0.7642]]], 1, Con41946), 
+LAdd73808 = add_layer([Fla96728,Con41946], Add73808), 
+LMul52537 = multiply_layer([Con89719,Add73808], Mul52537), 
+exec_layers([LGlo6118,LCon89719,LMul14208,LRes26048,LRes50637,LFla96728,LMin33358,LRes94468,LRes77382,LLST42195,LCon41946,LAdd73808,LMul52537],["Glo6118","Con89719","Mul14208","Res26048","Res50637","Fla96728","Min33358","Res94468","Res77382","LST42195","Con41946","Add73808","Mul52537"],Mul52537,"Mul52537")
+
+Actual (Unparsed): [[2.3384368, 0.1419583, 0.7124041, 0.4870627]]
+
+Expected (Unparsed): [[2.3384367009187907,0.141958286295,0.712404025363,0.487062642816]]
+
+Actual:   [[2.3385, 0.142, 0.7125, 0.4871]]
+
+Expected: [[2.3385, 0.142, 0.7125, 0.4871]]

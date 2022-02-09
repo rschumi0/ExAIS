@@ -1,0 +1,59 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max16884 = tf.keras.layers.Input(shape=([1, 2]))
+in1Max16884 = tf.keras.layers.Input(shape=([1, 2]))
+in0Ave29229 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Ave29229 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in0Min16015 = tf.keras.layers.Input(shape=([1, 2, 2]))
+in1Min16015 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Max16884 = keras.layers.Maximum(name = 'Max16884', )([in0Max16884,in1Max16884])
+Thr59662 = keras.layers.ThresholdedReLU(theta=5.464389091502796, name = 'Thr59662', )(Max16884)
+Ave29229 = keras.layers.Average(name = 'Ave29229', )([in0Ave29229,in1Ave29229])
+Res51417 = keras.layers.Reshape((1, 2, 2, 1), name = 'Res51417', )(Ave29229)
+Con49335 = keras.layers.Conv3D(2, (1, 2, 2),strides=(1, 5, 2), padding='same', dilation_rate=(1, 1, 1), name = 'Con49335', )(Res51417)
+Res51132 = keras.layers.Reshape((1, 1, 2), name = 'Res51132', )(Con49335)
+Zer28186 = keras.layers.ZeroPadding2D(padding=((0, 0), (1, 0)), name = 'Zer28186', )(Res51132)
+Min16015 = keras.layers.Minimum(name = 'Min16015', )([in0Min16015,in1Min16015])
+Add91956 = keras.layers.Add(name = 'Add91956', )([Zer28186,Min16015])
+Res62273 = keras.layers.Reshape((1, 4), name = 'Res62273', )(Add91956)
+Dot6274 = keras.layers.Dot(axes=(1, 1), name = 'Dot6274', )([Thr59662,Res62273])
+model = tf.keras.models.Model(inputs=[in0Max16884,in1Max16884,in0Ave29229,in1Ave29229,in0Min16015,in1Min16015], outputs=Dot6274)
+w = model.get_layer('Con49335').get_weights() 
+w[0] = np.array([[[[[0.1005, 0.5618]], [[0.2121, 0.9901]]], [[[0.1138, 0.3267]], [[0.2627, 0.6899]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con49335').set_weights(w) 
+in0Max16884 = tf.constant([[[0.5769, 0.9795]]])
+in1Max16884 = tf.constant([[[0.6997, 0.0275]]])
+in0Ave29229 = tf.constant([[[[0.6514, 0.1985], [0.1443, 0.9556]]]])
+in1Ave29229 = tf.constant([[[[0.5464, 0.9732], [0.8013, 0.8718]]]])
+in0Min16015 = tf.constant([[[[0.2419, 0.0378], [0.5125, 0.2472]]]])
+in1Min16015 = tf.constant([[[[0.5283, 0.3407], [0.6939, 0.9385]]]])
+print (np.array2string(model.predict([in0Max16884,in1Max16884,in0Ave29229,in1Ave29229,in0Min16015,in1Min16015],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot6274.png')
+
+LMax16884 = maximum_layer([[[[0.5769, 0.9795]]], [[[0.6997, 0.0275]]]], Max16884), 
+LThr59662 = thresholded_relu_layer(Max16884, 5.464389091502796, Thr59662), 
+LAve29229 = average_layer([[[[[0.6514, 0.1985], [0.1443, 0.9556]]]], [[[[0.5464, 0.9732], [0.8013, 0.8718]]]]], Ave29229), 
+LRes51417 = reshape_layer(Ave29229, [1, 2, 2, 1], Res51417), 
+LCon49335 = conv3D_layer(Res51417, 1, 2, 2,[[[[[0.1005, 0.5618]], [[0.2121, 0.9901]]], [[[0.1138, 0.3267]], [[0.2627, 0.6899]]]]],[0, 0], 1, 5, 2, true, 1, 1, 1, Con49335), 
+LRes51132 = reshape_layer(Con49335, [1, 1, 2], Res51132), 
+LZer28186 = zero_padding2D_layer(Res51132, 0, 0, 1, 0, Zer28186), 
+LMin16015 = minimum_layer([[[[[0.2419, 0.0378], [0.5125, 0.2472]]]], [[[[0.5283, 0.3407], [0.6939, 0.9385]]]]], Min16015), 
+LAdd91956 = add_layer([Zer28186,Min16015], Add91956), 
+LRes62273 = reshape_layer(Add91956, [1, 4], Res62273), 
+LDot6274 = dot_layer(Thr59662,Res62273, 1, 1, Dot6274), 
+exec_layers([LMax16884,LThr59662,LAve29229,LRes51417,LCon49335,LRes51132,LZer28186,LMin16015,LAdd91956,LRes62273,LDot6274],["Max16884","Thr59662","Ave29229","Res51417","Con49335","Res51132","Zer28186","Min16015","Add91956","Res62273","Dot6274"],Dot6274,"Dot6274")
+
+Actual (Unparsed): [[[0.0000000, 0.0000000, 0.0000000, 0.0000000], [0.0000000, 0.0000000, 0.0000000, 0.0000000]]]
+
+Expected (Unparsed): [[[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0]]]
+
+Actual:   [[[0, 0, 0, 0], [0, 0, 0, 0]]]
+
+Expected: [[[0, 0, 0, 0], [0, 0, 0, 0]]]

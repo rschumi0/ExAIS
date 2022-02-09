@@ -1,0 +1,51 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max22990 = tf.keras.layers.Input(shape=([2, 2]))
+in1Max22990 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con90196 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Lea91611 = tf.keras.layers.Input(shape=([2, 2]))
+
+Max22990 = keras.layers.Maximum(name = 'Max22990', )([in0Max22990,in1Max22990])
+Res73923 = keras.layers.Reshape((2, 2, 1), name = 'Res73923', )(Max22990)
+Con90196 = keras.layers.Concatenate(axis=3, name = 'Con90196', )([Res73923,in0Con90196])
+Lea91611 = keras.layers.LeakyReLU(alpha=1.9973717226687375, name = 'Lea91611', input_shape=(2, 2))(in0Lea91611)
+Res86720 = keras.layers.Reshape((2, 2, 1), name = 'Res86720', )(Lea91611)
+Con98394 = keras.layers.Conv2DTranspose(3, (2, 1),strides=(1, 1), padding='same', name = 'Con98394', )(Res86720)
+Mul76658 = keras.layers.Multiply(name = 'Mul76658', )([Con90196,Con98394])
+Res66355 = keras.layers.Reshape((2, 6), name = 'Res66355', )(Mul76658)
+Per82976 = keras.layers.Permute((2,1), name = 'Per82976',)(Res66355)
+model = tf.keras.models.Model(inputs=[in0Max22990,in1Max22990,in0Con90196,in0Lea91611], outputs=Per82976)
+w = model.get_layer('Con98394').get_weights() 
+w[0] = np.array([[[[0.2404], [0.7026], [0.535]]], [[[0.985], [0.3865], [0.6586]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con98394').set_weights(w) 
+in0Max22990 = tf.constant([[[0.4495, 0.7648], [0.0659, 0.8388]]])
+in1Max22990 = tf.constant([[[0.3734, 0.8484], [0.6674, 0.8861]]])
+in0Con90196 = tf.constant([[[[0.7331, 0.0416], [0.7086, 0.7438]], [[0.5098, 0.7706], [0.5967, 0.708]]]])
+in0Lea91611 = tf.constant([[[0.6176, 0.513], [0.989, 0.3332]]])
+print (np.array2string(model.predict([in0Max22990,in1Max22990,in0Con90196,in0Lea91611],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per82976.png')
+
+LMax22990 = maximum_layer([[[[0.4495, 0.7648], [0.0659, 0.8388]]], [[[0.3734, 0.8484], [0.6674, 0.8861]]]], Max22990), 
+LRes73923 = reshape_layer(Max22990, [2, 2, 1], Res73923), 
+LCon90196 = concatenate_layer([Res73923,[[[[0.7331, 0.0416], [0.7086, 0.7438]], [[0.5098, 0.7706], [0.5967, 0.708]]]]], 3, Con90196), 
+LLea91611 = leaky_relu_layer([[[0.6176, 0.513], [0.989, 0.3332]]], 1.9973717226687375, Lea91611), 
+LRes86720 = reshape_layer(Lea91611, [2, 2, 1], Res86720), 
+LCon98394 = conv2D_transpose_layer(Res86720, 2, 1,[[[[0.2404], [0.7026], [0.535]]], [[[0.985], [0.3865], [0.6586]]]],[0, 0, 0], 1, 1, true, Con98394), 
+LMul76658 = multiply_layer([Con90196,Con98394], Mul76658), 
+LRes66355 = reshape_layer(Mul76658, [2, 6], Res66355), 
+LPer82976 = permute_layer(Res66355, 2,1, Per82976), 
+exec_layers([LMax22990,LRes73923,LCon90196,LLea91611,LRes86720,LCon98394,LMul76658,LRes66355,LPer82976],["Max22990","Res73923","Con90196","Lea91611","Res86720","Con98394","Mul76658","Res66355","Per82976"],Per82976,"Per82976")
+
+Actual (Unparsed): [[[0.0667377, 0.5646816], [0.3181110, 0.4759360], [0.0137453, 0.7211787], [0.1046291, 0.5187285], [0.2554034, 0.2580016], [0.2041396, 0.3654157]]]
+
+Expected (Unparsed): [[[0.06673773248,0.5646815338400001],[0.318110974656,0.47593592324000006],[0.0137453056,0.721178617016],[0.10462909968000002,0.5187285047079999],[0.25540339068,0.258001635294],[0.20413962900000002,0.3654156504]]]
+
+Actual:   [[[0.0668, 0.5647], [0.3182, 0.476], [0.0138, 0.7212], [0.1047, 0.5188], [0.2555, 0.2581], [0.2042, 0.3655]]]
+
+Expected: [[[0.0668, 0.5647], [0.3182, 0.476], [0.0138, 0.7212], [0.1047, 0.5188], [0.2555, 0.2581], [0.2042, 0.3655]]]

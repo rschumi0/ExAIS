@@ -1,0 +1,41 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Cro20423 = tf.keras.layers.Input(shape=([2, 1, 1, 4]))
+in0Loc60137 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con50821 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Cro20423 = keras.layers.Cropping3D(cropping=((0, 1), (0, 0), (0, 0)), name = 'Cro20423', )(in0Cro20423)
+Res13180 = keras.layers.Reshape((1, 1, 4), name = 'Res13180', )(Cro20423)
+Loc60137 = keras.layers.LocallyConnected2D(2, (1, 2),strides=(1, 12), name = 'Loc60137', )(in0Loc60137)
+Con50821 = keras.layers.Concatenate(axis=3, name = 'Con50821', )([Loc60137,in0Con50821])
+Ave54983 = keras.layers.Average(name = 'Ave54983', )([Res13180,Con50821])
+model = tf.keras.models.Model(inputs=[in0Cro20423,in0Loc60137,in0Con50821], outputs=Ave54983)
+w = model.get_layer('Loc60137').get_weights() 
+w[0] = np.array([[[0.9822, 0.4296], [0.3341, 0.5178]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc60137').set_weights(w) 
+in0Cro20423 = tf.constant([[[[[1.1654, 1.0869, 1.1939, 1.9713]]], [[[1.6324, 1.498, 1.3842, 1.6693]]]]])
+in0Loc60137 = tf.constant([[[[0.984], [0.5282]]]])
+in0Con50821 = tf.constant([[[[0.979, 0.7202]]]])
+print (np.array2string(model.predict([in0Cro20423,in0Loc60137,in0Con50821],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Ave54983.png')
+
+LCro20423 = cropping3D_layer([[[[[1.1654, 1.0869, 1.1939, 1.9713]]], [[[1.6324, 1.498, 1.3842, 1.6693]]]]], 0, 1, 0, 0, 0, 0, Cro20423), 
+LRes13180 = reshape_layer(Cro20423, [1, 1, 4], Res13180), 
+LLoc60137 = locally_connected2D_layer([[[[0.984], [0.5282]]]], 1, 2,[[[0.9822, 0.4296], [0.3341, 0.5178]]],[[[0, 0]]], 1, 12, Loc60137), 
+LCon50821 = concatenate_layer([Loc60137,[[[[0.979, 0.7202]]]]], 3, Con50821), 
+LAve54983 = average_layer([Res13180,Con50821], Ave54983), 
+exec_layers([LCro20423,LRes13180,LLoc60137,LCon50821,LAve54983],["Cro20423","Res13180","Loc60137","Con50821","Ave54983"],Ave54983,"Ave54983")
+
+Actual (Unparsed): [[[[1.1541782, 0.8915642, 1.0864500, 1.3457500]]]]
+
+Expected (Unparsed): [[[[1.15417821,0.89156418,1.08645,1.34575]]]]
+
+Actual:   [[[[1.1542, 0.8916, 1.0865, 1.3458]]]]
+
+Expected: [[[[1.1542, 0.8916, 1.0865, 1.3458]]]]

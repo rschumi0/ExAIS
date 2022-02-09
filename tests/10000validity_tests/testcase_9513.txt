@@ -1,0 +1,40 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot8191 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot8191 = tf.keras.layers.Input(shape=([3, 2]))
+
+Dot8191 = keras.layers.Dot(axes=(2, 2), name = 'Dot8191', )([in0Dot8191,in1Dot8191])
+Res87449 = keras.layers.Reshape((3, 3, 1), name = 'Res87449', )(Dot8191)
+Zer21944 = keras.layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name = 'Zer21944', )(Res87449)
+Res42829 = keras.layers.Reshape((5, 5), name = 'Res42829', )(Zer21944)
+Sep48774 = keras.layers.SeparableConv1D(3, (3),strides=(1), padding='same', name = 'Sep48774', )(Res42829)
+model = tf.keras.models.Model(inputs=[in0Dot8191,in1Dot8191], outputs=Sep48774)
+w = model.get_layer('Sep48774').get_weights() 
+w[0] = np.array([[[0.9355], [0.7656], [0.9343], [0.873], [0.0983]], [[0.3747], [0.0853], [0.5549], [0.6562], [0.351]], [[0.2174], [0.0685], [0.4761], [0.7793], [0.4008]]])
+w[1] = np.array([[[0.3338, 0.2115, 0.0892], [0.6433, 0.3949, 0.1594], [0.3961, 0.6562, 0.7882], [0.0222, 0.6993, 0.7938], [0.8753, 0.5611, 0.4928]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep48774').set_weights(w) 
+in0Dot8191 = tf.constant([[[0.8204, 0.1159], [0.2273, 0.5187], [0.9545, 0.5357]]])
+in1Dot8191 = tf.constant([[[0.5232, 0.4484], [0.8878, 0.6722], [0.2364, 0.0788]]])
+print (np.array2string(model.predict([in0Dot8191,in1Dot8191],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep48774.png')
+
+LDot8191 = dot_layer([[[0.8204, 0.1159], [0.2273, 0.5187], [0.9545, 0.5357]]], [[[0.5232, 0.4484], [0.8878, 0.6722], [0.2364, 0.0788]]], 2, 2, Dot8191), 
+LRes87449 = reshape_layer(Dot8191, [3, 3, 1], Res87449), 
+LZer21944 = zero_padding2D_layer(Res87449, 1, 1, 1, 1, Zer21944), 
+LRes42829 = reshape_layer(Zer21944, [5, 5], Res42829), 
+LSep48774 = separable_conv1D_layer(Res42829, 3,[[[[0.9355], [0.7656], [0.9343], [0.873], [0.0983]], [[0.3747], [0.0853], [0.5549], [0.6562], [0.351]], [[0.2174], [0.0685], [0.4761], [0.7793], [0.4008]]],[[[0.3338, 0.2115, 0.0892], [0.6433, 0.3949, 0.1594], [0.3961, 0.6562, 0.7882], [0.0222, 0.6993, 0.7938], [0.8753, 0.5611, 0.4928]]]],[0, 0, 0], 1, true, Sep48774), 
+exec_layers([LDot8191,LRes87449,LZer21944,LRes42829,LSep48774],["Dot8191","Res87449","Zer21944","Res42829","Sep48774"],Sep48774,"Sep48774")
+
+Actual (Unparsed): [[[0.1767649, 0.3755747, 0.4334368], [0.3275112, 0.6360174, 0.7338908], [0.9459077, 1.5626839, 1.7149172], [0.6885606, 1.0890250, 1.1915397], [0.8163211, 1.1274367, 1.1651035]]]
+
+Expected (Unparsed): [[[0.17676493679601382,0.37557467911161324,0.4334368097765612],[0.32751123307081537,0.6360174292137484,0.7338907585082884],[0.9459077195200901,1.5626839297066066,1.7149172214062984],[0.6885606375812088,1.0890249439996669,1.1915396506137168],[0.8163211272571176,1.1274366496179695,1.1651034460561294]]]
+
+Actual:   [[[0.1768, 0.3756, 0.4335], [0.3276, 0.6361, 0.7339], [0.946, 1.5627, 1.715], [0.6886, 1.0891, 1.1916], [0.8164, 1.1275, 1.1652]]]
+
+Expected: [[[0.1768, 0.3756, 0.4335], [0.3276, 0.6361, 0.7339], [0.946, 1.5627, 1.715], [0.6886, 1.0891, 1.1916], [0.8164, 1.1275, 1.1652]]]

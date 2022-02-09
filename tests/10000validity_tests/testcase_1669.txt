@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Per4581 = tf.keras.layers.Input(shape=([1, 4]))
+in0Con10333 = tf.keras.layers.Input(shape=([1]))
+in0Max86294 = tf.keras.layers.Input(shape=([2, 1]))
+in0Add80265 = tf.keras.layers.Input(shape=([2, 1]))
+in1Add80265 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con39695 = tf.keras.layers.Input(shape=([1]))
+
+Per4581 = keras.layers.Permute((2,1), name = 'Per4581',)(in0Per4581)
+Max44654 = keras.layers.MaxPool1D(pool_size=(1), strides=(10), padding='valid', name = 'Max44654', )(Per4581)
+Fla5888 = keras.layers.Flatten(name = 'Fla5888', )(Max44654)
+Con10333 = keras.layers.Concatenate(axis=1, name = 'Con10333', )([Fla5888,in0Con10333])
+Max86294 = keras.layers.MaxPool1D(pool_size=(1), name = 'Max86294', )(in0Max86294)
+Fla39160 = keras.layers.Flatten(name = 'Fla39160', )(Max86294)
+Add80265 = keras.layers.Add(name = 'Add80265', )([in0Add80265,in1Add80265])
+Glo93609 = keras.layers.GlobalAveragePooling1D(name = 'Glo93609', )(Add80265)
+Con39695 = keras.layers.Concatenate(axis=1, name = 'Con39695', )([Glo93609,in0Con39695])
+Sub27095 = keras.layers.Subtract(name = 'Sub27095', )([Fla39160,Con39695])
+Mul20060 = keras.layers.Multiply(name = 'Mul20060', )([Con10333,Sub27095])
+model = tf.keras.models.Model(inputs=[in0Per4581,in0Con10333,in0Max86294,in0Add80265,in1Add80265,in0Con39695], outputs=Mul20060)
+in0Per4581 = tf.constant([[[1.8095, 1.9817, 1.7873, 1.1239]]])
+in0Con10333 = tf.constant([[0.1385]])
+in0Max86294 = tf.constant([[[1.4929], [1.5128]]])
+in0Add80265 = tf.constant([[[0.1827], [0.8453]]])
+in1Add80265 = tf.constant([[[0.3223], [0.2909]]])
+in0Con39695 = tf.constant([[0.0432]])
+print (np.array2string(model.predict([in0Per4581,in0Con10333,in0Max86294,in0Add80265,in1Add80265,in0Con39695],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul20060.png')
+
+LPer4581 = permute_layer([[[1.8095, 1.9817, 1.7873, 1.1239]]], 2,1, Per4581), 
+LMax44654 = max_pool1D_layer(Per4581, 1, 10, false, Max44654), 
+LFla5888 = flatten_layer(Max44654, Fla5888), 
+LCon10333 = concatenate_layer([Fla5888,[[0.1385]]], 1, Con10333), 
+LMax86294 = max_pool1D_layer([[[1.4929], [1.5128]]], 1, Max86294), 
+LFla39160 = flatten_layer(Max86294, Fla39160), 
+LAdd80265 = add_layer([[[[0.1827], [0.8453]]], [[[0.3223], [0.2909]]]], Add80265), 
+LGlo93609 = global_average_pooling1D_layer(Add80265, Glo93609), 
+LCon39695 = concatenate_layer([Glo93609,[[0.0432]]], 1, Con39695), 
+LSub27095 = subtract_layer(Fla39160,Con39695, Sub27095), 
+LMul20060 = multiply_layer([Con10333,Sub27095], Mul20060), 
+exec_layers([LPer4581,LMax44654,LFla5888,LCon10333,LMax86294,LFla39160,LAdd80265,LGlo93609,LCon39695,LSub27095,LMul20060],["Per4581","Max44654","Fla5888","Con10333","Max86294","Fla39160","Add80265","Glo93609","Con39695","Sub27095","Mul20060"],Mul20060,"Mul20060")
+
+Actual (Unparsed): [[1.2165269, 0.2035396]]
+
+Expected (Unparsed): [[1.21652685,0.20353960000000001]]
+
+Actual:   [[1.2166, 0.2036]]
+
+Expected: [[1.2166, 0.2036]]

@@ -1,0 +1,66 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot75910 = tf.keras.layers.Input(shape=([3]))
+in1Dot75910 = tf.keras.layers.Input(shape=([3]))
+in0Max24012 = tf.keras.layers.Input(shape=([1, 1]))
+in1Max24012 = tf.keras.layers.Input(shape=([1, 1]))
+
+Dot75910 = keras.layers.Dot(axes=(1, 1), name = 'Dot75910', )([in0Dot75910,in1Dot75910])
+Res23892 = keras.layers.Reshape((1, 1), name = 'Res23892', )(Dot75910)
+PRe58108 = keras.layers.PReLU(name = 'PRe58108', )(Res23892)
+Glo25783 = keras.layers.GlobalAveragePooling1D(name = 'Glo25783', )(PRe58108)
+Res44218 = keras.layers.Reshape((1, 1), name = 'Res44218', )(Glo25783)
+Res50209 = keras.layers.Reshape((1, 1, 1), name = 'Res50209', )(Res44218)
+Zer87666 = keras.layers.ZeroPadding2D(padding=((3, 0), (0, 0)), name = 'Zer87666', )(Res50209)
+Max24012 = keras.layers.Maximum(name = 'Max24012', )([in0Max24012,in1Max24012])
+Res70036 = keras.layers.Reshape((1, 1, 1), name = 'Res70036', )(Max24012)
+Loc83013 = keras.layers.LocallyConnected2D(2, (1, 1),strides=(1, 1), name = 'Loc83013', )(Res70036)
+Glo77246 = keras.layers.GlobalAveragePooling2D(name = 'Glo77246', )(Loc83013)
+Res40192 = keras.layers.Reshape((2, 1), name = 'Res40192', )(Glo77246)
+Res94193 = keras.layers.Reshape((2, 1, 1), name = 'Res94193', )(Res40192)
+Up_57287 = keras.layers.UpSampling2D(size=(2, 1), name = 'Up_57287', )(Res94193)
+Max15341 = keras.layers.Maximum(name = 'Max15341', )([Zer87666,Up_57287])
+model = tf.keras.models.Model(inputs=[in0Dot75910,in1Dot75910,in0Max24012,in1Max24012], outputs=Max15341)
+w = model.get_layer('PRe58108').get_weights() 
+w[0] = np.array([[0.9298]])
+model.get_layer('PRe58108').set_weights(w) 
+w = model.get_layer('Loc83013').get_weights() 
+w[0] = np.array([[[0.6973, 0.626]]])
+w[1] = np.array([[[0, 0]]])
+model.get_layer('Loc83013').set_weights(w) 
+in0Dot75910 = tf.constant([[0.6859, 0.1599, 0.6821]])
+in1Dot75910 = tf.constant([[0.8209, 0.4776, 0.3283]])
+in0Max24012 = tf.constant([[[0.6521]]])
+in1Max24012 = tf.constant([[[0.9141]]])
+print (np.array2string(model.predict([in0Dot75910,in1Dot75910,in0Max24012,in1Max24012],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max15341.png')
+
+LDot75910 = dot_layer([[0.6859, 0.1599, 0.6821]], [[0.8209, 0.4776, 0.3283]], 1, 1, Dot75910), 
+LRes23892 = reshape_layer(Dot75910, [1, 1], Res23892), 
+LPRe58108 = prelu_layer(Res23892, [[0.9298]], PRe58108), 
+LGlo25783 = global_average_pooling1D_layer(PRe58108, Glo25783), 
+LRes44218 = reshape_layer(Glo25783, [1, 1], Res44218), 
+LRes50209 = reshape_layer(Res44218, [1, 1, 1], Res50209), 
+LZer87666 = zero_padding2D_layer(Res50209, 3, 0, 0, 0, Zer87666), 
+LMax24012 = maximum_layer([[[[0.6521]]], [[[0.9141]]]], Max24012), 
+LRes70036 = reshape_layer(Max24012, [1, 1, 1], Res70036), 
+LLoc83013 = locally_connected2D_layer(Res70036, 1, 1,[[[0.6973, 0.626]]],[[[0, 0]]], 1, 1, Loc83013), 
+LGlo77246 = global_average_pooling2D_layer(Loc83013, Glo77246), 
+LRes40192 = reshape_layer(Glo77246, [2, 1], Res40192), 
+LRes94193 = reshape_layer(Res40192, [2, 1, 1], Res94193), 
+LUp_57287 = up_sampling2D_layer(Res94193, 2, 1, Up_57287), 
+LMax15341 = maximum_layer([Zer87666,Up_57287], Max15341), 
+exec_layers([LDot75910,LRes23892,LPRe58108,LGlo25783,LRes44218,LRes50209,LZer87666,LMax24012,LRes70036,LLoc83013,LGlo77246,LRes40192,LRes94193,LUp_57287,LMax15341],["Dot75910","Res23892","PRe58108","Glo25783","Res44218","Res50209","Zer87666","Max24012","Res70036","Loc83013","Glo77246","Res40192","Res94193","Up_57287","Max15341"],Max15341,"Max15341")
+
+Actual (Unparsed): [[[[0.6374019]], [[0.6374019]], [[0.5722266]], [[0.8633570]]]]
+
+Expected (Unparsed): [[[[0.63740193]],[[0.63740193]],[[0.5722266]],[[0.8633569799999999]]]]
+
+Actual:   [[[[0.6375]], [[0.6375]], [[0.5723]], [[0.8634]]]]
+
+Expected: [[[[0.6375]], [[0.6375]], [[0.5723]], [[0.8634]]]]

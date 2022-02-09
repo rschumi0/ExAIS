@@ -1,0 +1,52 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot90484 = tf.keras.layers.Input(shape=([3]))
+in1Dot90484 = tf.keras.layers.Input(shape=([3]))
+in0Con28989 = tf.keras.layers.Input(shape=([1]))
+in0Glo14418 = tf.keras.layers.Input(shape=([2, 2, 2]))
+
+Dot90484 = keras.layers.Dot(axes=(1, 1), name = 'Dot90484', )([in0Dot90484,in1Dot90484])
+Con28989 = keras.layers.Concatenate(axis=1, name = 'Con28989', )([Dot90484,in0Con28989])
+Glo14418 = keras.layers.GlobalMaxPool2D(name = 'Glo14418', )(in0Glo14418)
+Max74347 = keras.layers.Maximum(name = 'Max74347', )([Con28989,Glo14418])
+Den12775 = keras.layers.Dense(1,name = 'Den12775', )(Max74347)
+Res85963 = keras.layers.Reshape((1, 1), name = 'Res85963', )(Den12775)
+GRU72604 = keras.layers.GRU(2,reset_after=True, recurrent_activation='sigmoid', name = 'GRU72604', )(Res85963)
+model = tf.keras.models.Model(inputs=[in0Dot90484,in1Dot90484,in0Con28989,in0Glo14418], outputs=GRU72604)
+w = model.get_layer('Den12775').get_weights() 
+w[0] = np.array([[0.4712], [0.9949]])
+w[1] = np.array([0.1156])
+model.get_layer('Den12775').set_weights(w) 
+w = model.get_layer('GRU72604').get_weights() 
+w[0] = np.array([[5, 5, 9, 8, 7, 4]])
+w[1] = np.array([[1, 4, 6, 9, 6, 3], [1, 3, 10, 3, 4, 9]])
+w[2] = np.array([[8, 2, 3, 9, 3, 2], [7, 3, 8, 4, 3, 8]])
+model.get_layer('GRU72604').set_weights(w) 
+in0Dot90484 = tf.constant([[0.1974, 0.0013, 0.4325]])
+in1Dot90484 = tf.constant([[0.4626, 0.4771, 0.4065]])
+in0Con28989 = tf.constant([[0.4035]])
+in0Glo14418 = tf.constant([[[[1.4723, 1.1648], [1.1504, 1.1822]], [[1.4858, 1.5201], [1.3561, 1.9541]]]])
+print (np.array2string(model.predict([in0Dot90484,in1Dot90484,in0Con28989,in0Glo14418],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='GRU72604.png')
+
+LDot90484 = dot_layer([[0.1974, 0.0013, 0.4325]], [[0.4626, 0.4771, 0.4065]], 1, 1, Dot90484), 
+LCon28989 = concatenate_layer([Dot90484,[[0.4035]]], 1, Con28989), 
+LGlo14418 = global_max_pool2D_layer([[[[1.4723, 1.1648], [1.1504, 1.1822]], [[1.4858, 1.5201], [1.3561, 1.9541]]]], Glo14418), 
+LMax74347 = maximum_layer([Con28989,Glo14418], Max74347), 
+LDen12775 = dense_layer(Max74347, [[0.4712], [0.9949]],[0.1156], Den12775), 
+LRes85963 = reshape_layer(Den12775, [1, 1], Res85963), 
+LGRU72604 = gru_layer(Res85963,[[5, 5, 9, 8, 7, 4]],[[1, 4, 6, 9, 6, 3], [1, 3, 10, 3, 4, 9]],[[8, 2, 3, 9, 3, 2], [7, 3, 8, 4, 3, 8]], true, GRU72604), 
+exec_layers([LDot90484,LCon28989,LGlo14418,LMax74347,LDen12775,LRes85963,LGRU72604],["Dot90484","Con28989","Glo14418","Max74347","Den12775","Res85963","GRU72604"],GRU72604,"GRU72604")
+
+Actual (Unparsed): [[0.0000000, 0.0000000]]
+
+Expected (Unparsed): [[3.1086244689504383e-13,6.8486434301462396e-9]]
+
+Actual:   [[0, 0]]
+
+Expected: [[0, 0]]

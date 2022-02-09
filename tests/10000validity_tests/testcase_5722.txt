@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot84168 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot84168 = tf.keras.layers.Input(shape=([3, 3]))
+
+Dot84168 = keras.layers.Dot(axes=(1, 1), name = 'Dot84168', )([in0Dot84168,in1Dot84168])
+Res17859 = keras.layers.Reshape((3, 3, 1), name = 'Res17859', )(Dot84168)
+Res16936 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res16936', )(Res17859)
+Con35353 = keras.layers.Conv3D(3, (1, 3, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con35353', )(Res16936)
+Res83101 = keras.layers.Reshape((3, 1, 3), name = 'Res83101', )(Con35353)
+Max5721 = keras.layers.MaxPool2D(pool_size=(1, 1), strides=(2, 1), padding='same', name = 'Max5721', )(Res83101)
+Sof65674 = keras.layers.Softmax(axis=1, name = 'Sof65674', )(Max5721)
+model = tf.keras.models.Model(inputs=[in0Dot84168,in1Dot84168], outputs=Sof65674)
+w = model.get_layer('Con35353').get_weights() 
+w[0] = np.array([[[[[0.7863, 0.2279, 0.7364]]], [[[0.4947, 0.9127, 0.8206]]], [[[0.9205, 0.5955, 0.6065]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con35353').set_weights(w) 
+in0Dot84168 = tf.constant([[[0.75, 0.5361, 0.2402], [0.1721, 0.3078, 0.1596], [0.8706, 0.5667, 0.8989]]])
+in1Dot84168 = tf.constant([[[0.5961, 0.0843, 0.2199], [0.8224, 0.9847, 0.6062], [0.8263, 0.9575, 0.9196]]])
+print (np.array2string(model.predict([in0Dot84168,in1Dot84168],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sof65674.png')
+
+LDot84168 = dot_layer([[[0.75, 0.5361, 0.2402], [0.1721, 0.3078, 0.1596], [0.8706, 0.5667, 0.8989]]], [[[0.5961, 0.0843, 0.2199], [0.8224, 0.9847, 0.6062], [0.8263, 0.9575, 0.9196]]], 1, 1, Dot84168), 
+LRes17859 = reshape_layer(Dot84168, [3, 3, 1], Res17859), 
+LRes16936 = reshape_layer(Res17859, [3, 3, 1, 1], Res16936), 
+LCon35353 = conv3D_layer(Res16936, 1, 3, 1,[[[[[0.7863, 0.2279, 0.7364]]], [[[0.4947, 0.9127, 0.8206]]], [[[0.9205, 0.5955, 0.6065]]]]],[0, 0, 0], 1, 1, 1, false, 1, 1, 1, Con35353), 
+LRes83101 = reshape_layer(Con35353, [3, 1, 3], Res83101), 
+LMax5721 = max_pool2D_layer(Res83101, 1, 1, 2, 1, true, Max5721), 
+LSof65674 = softmax_layer(Max5721, 1, Sof65674), 
+exec_layers([LDot84168,LRes17859,LRes16936,LCon35353,LRes83101,LMax5721,LSof65674],["Dot84168","Res17859","Res16936","Con35353","Res83101","Max5721","Sof65674"],Sof65674,"Sof65674")
+
+Actual (Unparsed): [[[[0.5814680, 0.5368756, 0.5729923]], [[0.4185320, 0.4631244, 0.4270077]]]]
+
+Expected (Unparsed): [[[[0.5814680196714543,0.5368755656641517,0.5729922834244049]],[[0.41853198032854566,0.46312443433584827,0.427007716575595]]]]
+
+Actual:   [[[[0.5815, 0.5369, 0.573]], [[0.4186, 0.4632, 0.4271]]]]
+
+Expected: [[[[0.5815, 0.5369, 0.573]], [[0.4186, 0.4632, 0.4271]]]]

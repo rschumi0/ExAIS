@@ -1,0 +1,108 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Den65833 = tf.keras.layers.Input(shape=([3, 4, 3]))
+in0Sim85594 = tf.keras.layers.Input(shape=([2, 2]))
+in0Con31820 = tf.keras.layers.Input(shape=([22]))
+in0Con34016 = tf.keras.layers.Input(shape=([3, 4, 1]))
+in0Max74483 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in1Max74483 = tf.keras.layers.Input(shape=([2, 2, 2]))
+in0Con69700 = tf.keras.layers.Input(shape=([3, 4, 1]))
+in0Ave26768 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave26768 = tf.keras.layers.Input(shape=([1, 2]))
+
+Den65833 = keras.layers.Dense(2,name = 'Den65833', )(in0Den65833)
+Res70670 = keras.layers.Reshape((3, 8), name = 'Res70670', )(Den65833)
+Fla94448 = keras.layers.Flatten(name = 'Fla94448', )(Res70670)
+Sim85594 = keras.layers.SimpleRNN(2,name = 'Sim85594', )(in0Sim85594)
+Con31820 = keras.layers.Concatenate(axis=1, name = 'Con31820', )([Sim85594,in0Con31820])
+Mul46263 = keras.layers.Multiply(name = 'Mul46263', )([Fla94448,Con31820])
+Res76371 = keras.layers.Reshape((24, 1), name = 'Res76371', )(Mul46263)
+Res57872 = keras.layers.Reshape((24, 1, 1), name = 'Res57872', )(Res76371)
+Glo88256 = keras.layers.GlobalMaxPool2D(name = 'Glo88256', )(Res57872)
+Res83580 = keras.layers.Reshape((1, 1), name = 'Res83580', )(Glo88256)
+Res67969 = keras.layers.Reshape((1, 1, 1), name = 'Res67969', )(Res83580)
+Zer7919 = keras.layers.ZeroPadding2D(padding=((2, 0), (3, 0)), name = 'Zer7919', )(Res67969)
+Con34016 = keras.layers.Concatenate(axis=3, name = 'Con34016', )([Zer7919,in0Con34016])
+Max74483 = keras.layers.Maximum(name = 'Max74483', )([in0Max74483,in1Max74483])
+Res16999 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res16999', )(Max74483)
+Glo58691 = keras.layers.GlobalAveragePooling3D(name = 'Glo58691', )(Res16999)
+Res32874 = keras.layers.Reshape((1, 1), name = 'Res32874', )(Glo58691)
+Res2420 = keras.layers.Reshape((1, 1, 1), name = 'Res2420', )(Res32874)
+Zer62304 = keras.layers.ZeroPadding2D(padding=((2, 0), (3, 0)), name = 'Zer62304', )(Res2420)
+Con69700 = keras.layers.Concatenate(axis=3, name = 'Con69700', )([Zer62304,in0Con69700])
+Ave26768 = keras.layers.Average(name = 'Ave26768', )([in0Ave26768,in1Ave26768])
+Res66020 = keras.layers.Reshape((1, 2, 1), name = 'Res66020', )(Ave26768)
+Res22936 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res22936', )(Res66020)
+Zer35356 = keras.layers.ZeroPadding3D(padding=((1, 1), (1, 1), (1, 1)), name = 'Zer35356', )(Res22936)
+Res51308 = keras.layers.Reshape((3, 4, 3), name = 'Res51308', )(Zer35356)
+Con67372 = keras.layers.Conv2DTranspose(2, (3, 3),strides=(1, 1), padding='same', name = 'Con67372', )(Res51308)
+Mul60140 = keras.layers.Multiply(name = 'Mul60140', )([Con69700,Con67372])
+Add61613 = keras.layers.Add(name = 'Add61613', )([Con34016,Mul60140])
+model = tf.keras.models.Model(inputs=[in0Den65833,in0Sim85594,in0Con31820,in0Con34016,in0Max74483,in1Max74483,in0Con69700,in0Ave26768,in1Ave26768], outputs=Add61613)
+w = model.get_layer('Den65833').get_weights() 
+w[0] = np.array([[0.8407, 0.1642], [0.6761, 0.3519], [0.6849, 0.092]])
+w[1] = np.array([0.0936, 0.6023])
+model.get_layer('Den65833').set_weights(w) 
+w = model.get_layer('Sim85594').get_weights() 
+w[0] = np.array([[10, 5], [7, 10]])
+w[1] = np.array([[8, 9], [5, 10]])
+w[2] = np.array([1, 7])
+model.get_layer('Sim85594').set_weights(w) 
+w = model.get_layer('Con67372').get_weights() 
+w[0] = np.array([[[[0.0388, 0.14, 0.8654], [0.9913, 0.0574, 0.5653]], [[0.6154, 0.6972, 0.7041], [0.4502, 0.4471, 0.0842]], [[0.1211, 0.7257, 0.468], [0.0689, 0.4469, 0.4591]]], [[[0.8669, 0.6996, 0.6499], [0.4103, 0.2313, 0.0467]], [[0.8972, 0.9446, 0.8338], [0.4342, 0.828, 0.0253]], [[0.9685, 0.4783, 0.2481], [0.7827, 0.6405, 0.3798]]], [[[0.3152, 0.5953, 0.0428], [0.0549, 0.2397, 0.7062]], [[0.2917, 0.9834, 0.8926], [0.1482, 0.8315, 0.1018]], [[0.4806, 0.1498, 0.7709], [0.6787, 0.6273, 0.2599]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con67372').set_weights(w) 
+in0Den65833 = tf.constant([[[[0.6781, 0.1609, 0.3358], [0.8202, 0.4696, 0.3634], [0.4591, 0.0808, 0.1696], [0.4806, 0.2419, 0.1604]], [[0.6164, 0.5619, 0.7134], [0.1618, 0.6795, 0.9651], [0.8331, 0.1908, 0.5377], [0.0614, 0.9371, 0.1085]], [[0.3386, 0.3166, 0.1706], [0.3883, 0.8191, 0.0155], [0.8075, 0.076, 0.5818], [0.3933, 0.0477, 0.0455]]]])
+in0Sim85594 = tf.constant([[[8, 9], [6, 10]]])
+in0Con31820 = tf.constant([[0.07, 0.4414, 0.2775, 0.5001, 0.7273, 0.8777, 0.4571, 0.0977, 0.5063, 0.3119, 0.2009, 0.9288, 0.908, 0.255, 0.0586, 0.5327, 0.3073, 0.0259, 0.5173, 0.3457, 0.2084, 0.5939]])
+in0Con34016 = tf.constant([[[[0.6533], [0.805], [0.543], [0.5436]], [[0.4114], [0.1188], [0.1401], [0.668]], [[0.2141], [0.5323], [0.4155], [0.8247]]]])
+in0Max74483 = tf.constant([[[[0.4843, 0.1063], [0.6035, 0.66]], [[0.9358, 0.0247], [0.2872, 0.3151]]]])
+in1Max74483 = tf.constant([[[[0.7498, 0.1949], [0.1152, 0.2384]], [[0.0038, 0.5174], [0.5219, 0.5392]]]])
+in0Con69700 = tf.constant([[[[0.5491], [0.9095], [0.0463], [0.0878]], [[0.7931], [0.9496], [0.9637], [0.3078]], [[0.1927], [0.9109], [0.2875], [0.7931]]]])
+in0Ave26768 = tf.constant([[[0.2485, 0.0275]]])
+in1Ave26768 = tf.constant([[[0.9577, 0.3903]]])
+print (np.array2string(model.predict([in0Den65833,in0Sim85594,in0Con31820,in0Con34016,in0Max74483,in1Max74483,in0Con69700,in0Ave26768,in1Ave26768],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add61613.png')
+
+LDen65833 = dense_layer([[[[0.6781, 0.1609, 0.3358], [0.8202, 0.4696, 0.3634], [0.4591, 0.0808, 0.1696], [0.4806, 0.2419, 0.1604]], [[0.6164, 0.5619, 0.7134], [0.1618, 0.6795, 0.9651], [0.8331, 0.1908, 0.5377], [0.0614, 0.9371, 0.1085]], [[0.3386, 0.3166, 0.1706], [0.3883, 0.8191, 0.0155], [0.8075, 0.076, 0.5818], [0.3933, 0.0477, 0.0455]]]], [[0.8407, 0.1642], [0.6761, 0.3519], [0.6849, 0.092]],[0.0936, 0.6023], Den65833), 
+LRes70670 = reshape_layer(Den65833, [3, 8], Res70670), 
+LFla94448 = flatten_layer(Res70670, Fla94448), 
+LSim85594 = simple_rnn_layer([[[8, 9], [6, 10]]],[[10, 5], [7, 10]],[[8, 9], [5, 10]],[1, 7], Sim85594), 
+LCon31820 = concatenate_layer([Sim85594,[[0.07, 0.4414, 0.2775, 0.5001, 0.7273, 0.8777, 0.4571, 0.0977, 0.5063, 0.3119, 0.2009, 0.9288, 0.908, 0.255, 0.0586, 0.5327, 0.3073, 0.0259, 0.5173, 0.3457, 0.2084, 0.5939]]], 1, Con31820), 
+LMul46263 = multiply_layer([Fla94448,Con31820], Mul46263), 
+LRes76371 = reshape_layer(Mul46263, [24, 1], Res76371), 
+LRes57872 = reshape_layer(Res76371, [24, 1, 1], Res57872), 
+LGlo88256 = global_max_pool2D_layer(Res57872, Glo88256), 
+LRes83580 = reshape_layer(Glo88256, [1, 1], Res83580), 
+LRes67969 = reshape_layer(Res83580, [1, 1, 1], Res67969), 
+LZer7919 = zero_padding2D_layer(Res67969, 2, 0, 3, 0, Zer7919), 
+LCon34016 = concatenate_layer([Zer7919,[[[[0.6533], [0.805], [0.543], [0.5436]], [[0.4114], [0.1188], [0.1401], [0.668]], [[0.2141], [0.5323], [0.4155], [0.8247]]]]], 3, Con34016), 
+LMax74483 = maximum_layer([[[[[0.4843, 0.1063], [0.6035, 0.66]], [[0.9358, 0.0247], [0.2872, 0.3151]]]], [[[[0.7498, 0.1949], [0.1152, 0.2384]], [[0.0038, 0.5174], [0.5219, 0.5392]]]]], Max74483), 
+LRes16999 = reshape_layer(Max74483, [2, 2, 2, 1], Res16999), 
+LGlo58691 = global_average_pooling3D_layer(Res16999, Glo58691), 
+LRes32874 = reshape_layer(Glo58691, [1, 1], Res32874), 
+LRes2420 = reshape_layer(Res32874, [1, 1, 1], Res2420), 
+LZer62304 = zero_padding2D_layer(Res2420, 2, 0, 3, 0, Zer62304), 
+LCon69700 = concatenate_layer([Zer62304,[[[[0.5491], [0.9095], [0.0463], [0.0878]], [[0.7931], [0.9496], [0.9637], [0.3078]], [[0.1927], [0.9109], [0.2875], [0.7931]]]]], 3, Con69700), 
+LAve26768 = average_layer([[[[0.2485, 0.0275]]], [[[0.9577, 0.3903]]]], Ave26768), 
+LRes66020 = reshape_layer(Ave26768, [1, 2, 1], Res66020), 
+LRes22936 = reshape_layer(Res66020, [1, 2, 1, 1], Res22936), 
+LZer35356 = zero_padding3D_layer(Res22936, 1, 1, 1, 1, 1, 1, Zer35356), 
+LRes51308 = reshape_layer(Zer35356, [3, 4, 3], Res51308), 
+LCon67372 = conv2D_transpose_layer(Res51308, 3, 3,[[[[0.0388, 0.14, 0.8654], [0.9913, 0.0574, 0.5653]], [[0.6154, 0.6972, 0.7041], [0.4502, 0.4471, 0.0842]], [[0.1211, 0.7257, 0.468], [0.0689, 0.4469, 0.4591]]], [[[0.8669, 0.6996, 0.6499], [0.4103, 0.2313, 0.0467]], [[0.8972, 0.9446, 0.8338], [0.4342, 0.828, 0.0253]], [[0.9685, 0.4783, 0.2481], [0.7827, 0.6405, 0.3798]]], [[[0.3152, 0.5953, 0.0428], [0.0549, 0.2397, 0.7062]], [[0.2917, 0.9834, 0.8926], [0.1482, 0.8315, 0.1018]], [[0.4806, 0.1498, 0.7709], [0.6787, 0.6273, 0.2599]]]],[0, 0], 1, 1, true, Con67372), 
+LMul60140 = multiply_layer([Con69700,Con67372], Mul60140), 
+LAdd61613 = add_layer([Con34016,Mul60140], Add61613), 
+exec_layers([LDen65833,LRes70670,LFla94448,LSim85594,LCon31820,LMul46263,LRes76371,LRes57872,LGlo88256,LRes83580,LRes67969,LZer7919,LCon34016,LMax74483,LRes16999,LGlo58691,LRes32874,LRes2420,LZer62304,LCon69700,LAve26768,LRes66020,LRes22936,LZer35356,LRes51308,LCon67372,LMul60140,LAdd61613],["Den65833","Res70670","Fla94448","Sim85594","Con31820","Mul46263","Res76371","Res57872","Glo88256","Res83580","Res67969","Zer7919","Con34016","Max74483","Res16999","Glo58691","Res32874","Res2420","Zer62304","Con69700","Ave26768","Res66020","Res22936","Zer35356","Res51308","Con67372","Mul60140","Add61613"],Add61613,"Add61613")
+
+Actual (Unparsed): [[[[0.0000000, 0.6723087], [0.0000000, 1.0611487], [0.0000000, 0.5598034], [0.0000000, 0.5517968]], [[0.0000000, 0.5220351], [0.0000000, 0.6388820], [0.0000000, 0.6790538], [0.0000000, 0.7091838]], [[0.0000000, 0.2419573], [0.0000000, 1.0347078], [0.0000000, 0.5742072], [1.0209253, 0.9286302]]]]
+
+Expected (Unparsed): [[[[0.0,0.672308710854],[0.0,1.061148733265],[0.0,0.5598034080540001],[0.0,0.551796780598]],[[0.0,0.522035094493],[0.0,0.638882027352],[0.0,0.679053802575],[0.0,0.70918377851]],[[0.0,0.241957303589],[0.0,1.0347077876820001],[0.0,0.57420718175],[1.02092535893125,0.928630179507]]]]
+
+Actual:   [[[[0, 0.6724], [0, 1.0612], [0, 0.5599], [0, 0.5518]], [[0, 0.5221], [0, 0.6389], [0, 0.6791], [0, 0.7092]], [[0, 0.242], [0, 1.0348], [0, 0.5743], [1.021, 0.9287]]]]
+
+Expected: [[[[0, 0.6724], [0, 1.0612], [0, 0.5599], [0, 0.5518]], [[0, 0.5221], [0, 0.6389], [0, 0.6791], [0, 0.7092]], [[0, 0.242], [0, 1.0348], [0, 0.5743], [1.021, 0.9287]]]]

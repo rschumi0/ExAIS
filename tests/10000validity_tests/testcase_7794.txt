@@ -1,0 +1,56 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Loc99839 = tf.keras.layers.Input(shape=([2, 1]))
+in0ReL76925 = tf.keras.layers.Input(shape=([1, 2, 1, 1]))
+
+Loc99839 = keras.layers.LocallyConnected1D(4, (2),strides=(2), name = 'Loc99839', )(in0Loc99839)
+Res99178 = keras.layers.Reshape((1, 4, 1), name = 'Res99178', )(Loc99839)
+Res23370 = keras.layers.Reshape((1, 4, 1, 1), name = 'Res23370', )(Res99178)
+ReL76925 = keras.layers.ReLU(max_value=2.2825662596245246, negative_slope=8.871588836608122, threshold=1.224373832558987, name = 'ReL76925', input_shape=(1, 2, 1, 1))(in0ReL76925)
+Zer67011 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (0, 0)), name = 'Zer67011', )(ReL76925)
+Sub70448 = keras.layers.Subtract(name = 'Sub70448', )([Res23370,Zer67011])
+Res9820 = keras.layers.Reshape((1, 4, 1), name = 'Res9820', )(Sub70448)
+Max97550 = keras.layers.MaxPool2D(pool_size=(1, 2), strides=(1, 7), padding='valid', name = 'Max97550', )(Res9820)
+Res82094 = keras.layers.Reshape((1, 1), name = 'Res82094', )(Max97550)
+Res88586 = keras.layers.Reshape((1, 1, 1), name = 'Res88586', )(Res82094)
+Sep26724 = keras.layers.SeparableConv2D(3, (1, 1),strides=(1, 1), padding='same', name = 'Sep26724', )(Res88586)
+model = tf.keras.models.Model(inputs=[in0Loc99839,in0ReL76925], outputs=Sep26724)
+w = model.get_layer('Loc99839').get_weights() 
+w[0] = np.array([[[0.2838, 0.9517, 0.8908, 0.1445], [0.1607, 0.7419, 0.7291, 0.4711]]])
+w[1] = np.array([[0, 0, 0, 0]])
+model.get_layer('Loc99839').set_weights(w) 
+w = model.get_layer('Sep26724').get_weights() 
+w[0] = np.array([[[[0.4702]]]])
+w[1] = np.array([[[[0.3137, 0.7689, 0.7181]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep26724').set_weights(w) 
+in0Loc99839 = tf.constant([[[0.1163], [0.4388]]])
+in0ReL76925 = tf.constant([[[[[0.738]], [[0.2156]]]]])
+print (np.array2string(model.predict([in0Loc99839,in0ReL76925],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep26724.png')
+
+LLoc99839 = locally_connected1D_layer([[[0.1163], [0.4388]]], 2,[[[0.2838, 0.9517, 0.8908, 0.1445], [0.1607, 0.7419, 0.7291, 0.4711]]],[[0, 0, 0, 0]], 2, Loc99839), 
+LRes99178 = reshape_layer(Loc99839, [1, 4, 1], Res99178), 
+LRes23370 = reshape_layer(Res99178, [1, 4, 1, 1], Res23370), 
+LReL76925 = relu_layer([[[[[0.738]], [[0.2156]]]]], 2.2825662596245246, 8.871588836608122, 1.224373832558987, ReL76925), 
+LZer67011 = zero_padding3D_layer(ReL76925, 0, 0, 2, 0, 0, 0, Zer67011), 
+LSub70448 = subtract_layer(Res23370,Zer67011, Sub70448), 
+LRes9820 = reshape_layer(Sub70448, [1, 4, 1], Res9820), 
+LMax97550 = max_pool2D_layer(Res9820, 1, 2, 1, 7, false, Max97550), 
+LRes82094 = reshape_layer(Max97550, [1, 1], Res82094), 
+LRes88586 = reshape_layer(Res82094, [1, 1, 1], Res88586), 
+LSep26724 = separable_conv2D_layer(Res88586, 1, 1,[[[[[0.4702]]]],[[[[0.3137, 0.7689, 0.7181]]]]],[0, 0, 0], 1, 1, true, Sep26724), 
+exec_layers([LLoc99839,LRes99178,LRes23370,LReL76925,LZer67011,LSub70448,LRes9820,LMax97550,LRes82094,LRes88586,LSep26724],["Loc99839","Res99178","Res23370","ReL76925","Zer67011","Sub70448","Res9820","Max97550","Res82094","Res88586","Sep26724"],Sep26724,"Sep26724")
+
+Actual (Unparsed): [[[[0.0643445, 0.1577126, 0.1472928]]]]
+
+Expected (Unparsed): [[[[0.0643444524624682,0.15771262192665542,0.14729279985112662]]]]
+
+Actual:   [[[[0.0644, 0.1578, 0.1473]]]]
+
+Expected: [[[[0.0644, 0.1578, 0.1473]]]]

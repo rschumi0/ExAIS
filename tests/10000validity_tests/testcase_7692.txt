@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min16043 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in1Min16043 = tf.keras.layers.Input(shape=([1, 1, 1, 1]))
+in0ELU50403 = tf.keras.layers.Input(shape=([1, 1]))
+
+Min16043 = keras.layers.Minimum(name = 'Min16043', )([in0Min16043,in1Min16043])
+ELU17354 = keras.layers.ELU(alpha=4.692028947638464, name = 'ELU17354', )(Min16043)
+Res60405 = keras.layers.Reshape((1, 1, 1), name = 'Res60405', )(ELU17354)
+PRe57620 = keras.layers.PReLU(name = 'PRe57620', )(Res60405)
+Up_71294 = keras.layers.UpSampling2D(size=(1, 1), name = 'Up_71294', )(PRe57620)
+Res85213 = keras.layers.Reshape((1, 1), name = 'Res85213', )(Up_71294)
+ELU50403 = keras.layers.ELU(alpha=-1.0332021135584455, name = 'ELU50403', input_shape=(1, 1))(in0ELU50403)
+ELU30570 = keras.layers.ELU(alpha=1.6219506797466217, name = 'ELU30570', )(ELU50403)
+Up_39606 = keras.layers.UpSampling1D(size=(1), name = 'Up_39606', )(ELU30570)
+Sub48232 = keras.layers.Subtract(name = 'Sub48232', )([Res85213,Up_39606])
+model = tf.keras.models.Model(inputs=[in0Min16043,in1Min16043,in0ELU50403], outputs=Sub48232)
+w = model.get_layer('PRe57620').get_weights() 
+w[0] = np.array([[[0.5641]]])
+model.get_layer('PRe57620').set_weights(w) 
+in0Min16043 = tf.constant([[[[[0.6963]]]]])
+in1Min16043 = tf.constant([[[[[0.0493]]]]])
+in0ELU50403 = tf.constant([[[0.0939]]])
+print (np.array2string(model.predict([in0Min16043,in1Min16043,in0ELU50403],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub48232.png')
+
+LMin16043 = minimum_layer([[[[[[0.6963]]]]], [[[[[0.0493]]]]]], Min16043), 
+LELU17354 = elu_layer(Min16043, 4.692028947638464, ELU17354), 
+LRes60405 = reshape_layer(ELU17354, [1, 1, 1], Res60405), 
+LPRe57620 = prelu_layer(Res60405, [[[0.5641]]], PRe57620), 
+LUp_71294 = up_sampling2D_layer(PRe57620, 1, 1, Up_71294), 
+LRes85213 = reshape_layer(Up_71294, [1, 1], Res85213), 
+LELU50403 = elu_layer([[[0.0939]]], -1.0332021135584455, ELU50403), 
+LELU30570 = elu_layer(ELU50403, 1.6219506797466217, ELU30570), 
+LUp_39606 = up_sampling1D_layer(ELU30570, 1, Up_39606), 
+LSub48232 = subtract_layer(Res85213,Up_39606, Sub48232), 
+exec_layers([LMin16043,LELU17354,LRes60405,LPRe57620,LUp_71294,LRes85213,LELU50403,LELU30570,LUp_39606,LSub48232],["Min16043","ELU17354","Res60405","PRe57620","Up_71294","Res85213","ELU50403","ELU30570","Up_39606","Sub48232"],Sub48232,"Sub48232")
+
+Actual (Unparsed): [[[-0.0446000]]]
+
+Expected (Unparsed): [[[-0.0446]]]
+
+Actual:   [[[-0.0446]]]
+
+Expected: [[[-0.0446]]]

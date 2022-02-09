@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_86405 = tf.keras.layers.Input(shape=([2, 3]))
+in0Dot14924 = tf.keras.layers.Input(shape=([3]))
+in1Dot14924 = tf.keras.layers.Input(shape=([3]))
+in0Con1362 = tf.keras.layers.Input(shape=([2, 2]))
+in0Dot83311 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot83311 = tf.keras.layers.Input(shape=([3, 2]))
+
+Up_86405 = keras.layers.UpSampling1D(size=(2), name = 'Up_86405', )(in0Up_86405)
+Sim19810 = keras.layers.SimpleRNN(1,name = 'Sim19810', )(Up_86405)
+Fla22635 = keras.layers.Flatten(name = 'Fla22635', )(Sim19810)
+Dot14924 = keras.layers.Dot(axes=(1, 1), name = 'Dot14924', )([in0Dot14924,in1Dot14924])
+Sub39991 = keras.layers.Subtract(name = 'Sub39991', )([Fla22635,Dot14924])
+Res88599 = keras.layers.Reshape((1, 1), name = 'Res88599', )(Sub39991)
+Zer65602 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer65602', )(Res88599)
+Con1362 = keras.layers.Concatenate(axis=2, name = 'Con1362', )([Zer65602,in0Con1362])
+Dot83311 = keras.layers.Dot(axes=(2, 2), name = 'Dot83311', )([in0Dot83311,in1Dot83311])
+Lea41157 = keras.layers.LeakyReLU(alpha=7.248705678047621, name = 'Lea41157', )(Dot83311)
+Cro63813 = keras.layers.Cropping1D(cropping=((0, 1)), name = 'Cro63813', )(Lea41157)
+Mul55620 = keras.layers.Multiply(name = 'Mul55620', )([Con1362,Cro63813])
+model = tf.keras.models.Model(inputs=[in0Up_86405,in0Dot14924,in1Dot14924,in0Con1362,in0Dot83311,in1Dot83311], outputs=Mul55620)
+w = model.get_layer('Sim19810').get_weights() 
+w[0] = np.array([[2], [9], [3]])
+w[1] = np.array([[4]])
+w[2] = np.array([1])
+model.get_layer('Sim19810').set_weights(w) 
+in0Up_86405 = tf.constant([[[1.5134, 1.7069, 1.2878], [1.4776, 1.4913, 1.9717]]])
+in0Dot14924 = tf.constant([[0.1391, 0.6375, 0.9533]])
+in1Dot14924 = tf.constant([[0.3073, 0.9171, 0.1786]])
+in0Con1362 = tf.constant([[[0.3683, 0.1241], [0.1145, 0.2777]]])
+in0Dot83311 = tf.constant([[[0.3581, 0.4218], [0.6583, 0.1329], [0.6362, 0.6098]]])
+in1Dot83311 = tf.constant([[[0.0042, 0.8817], [0.3645, 0.5969], [0.5787, 0.7828]]])
+print (np.array2string(model.predict([in0Up_86405,in0Dot14924,in1Dot14924,in0Con1362,in0Dot83311,in1Dot83311],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul55620.png')
+
+LUp_86405 = up_sampling1D_layer([[[1.5134, 1.7069, 1.2878], [1.4776, 1.4913, 1.9717]]], 2, Up_86405), 
+LSim19810 = simple_rnn_layer(Up_86405,[[2], [9], [3]],[[4]],[1], Sim19810), 
+LFla22635 = flatten_layer(Sim19810, Fla22635), 
+LDot14924 = dot_layer([[0.1391, 0.6375, 0.9533]], [[0.3073, 0.9171, 0.1786]], 1, 1, Dot14924), 
+LSub39991 = subtract_layer(Fla22635,Dot14924, Sub39991), 
+LRes88599 = reshape_layer(Sub39991, [1, 1], Res88599), 
+LZer65602 = zero_padding1D_layer(Res88599, 1, 0, Zer65602), 
+LCon1362 = concatenate_layer([Zer65602,[[[0.3683, 0.1241], [0.1145, 0.2777]]]], 2, Con1362), 
+LDot83311 = dot_layer([[[0.3581, 0.4218], [0.6583, 0.1329], [0.6362, 0.6098]]], [[[0.0042, 0.8817], [0.3645, 0.5969], [0.5787, 0.7828]]], 2, 2, Dot83311), 
+LLea41157 = leaky_relu_layer(Dot83311, 7.248705678047621, Lea41157), 
+LCro63813 = cropping1D_layer(Lea41157, 0, 1, Cro63813), 
+LMul55620 = multiply_layer([Con1362,Cro63813], Mul55620), 
+exec_layers([LUp_86405,LSim19810,LFla22635,LDot14924,LSub39991,LRes88599,LZer65602,LCon1362,LDot83311,LLea41157,LCro63813,LMul55620],["Up_86405","Sim19810","Fla22635","Dot14924","Sub39991","Res88599","Zer65602","Con1362","Dot83311","Lea41157","Cro63813","Mul55620"],Mul55620,"Mul55620")
+
+Actual (Unparsed): [[[0.0000000, 0.1408010, 0.0666935], [0.0242697, 0.0365574, 0.1346824]]]
+
+Expected (Unparsed): [[[0.0,0.140801042121,0.066693512991],[0.024269696703192598,0.03655737222,0.134682370041]]]
+
+Actual:   [[[0, 0.1409, 0.0667], [0.0243, 0.0366, 0.1347]]]
+
+Expected: [[[0, 0.1409, 0.0667], [0.0243, 0.0366, 0.1347]]]

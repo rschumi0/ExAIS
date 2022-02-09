@@ -1,0 +1,45 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Max53357 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con15145 = tf.keras.layers.Input(shape=([2, 1, 1]))
+in0Mul38930 = tf.keras.layers.Input(shape=([2, 1, 2]))
+in1Mul38930 = tf.keras.layers.Input(shape=([2, 1, 2]))
+
+Max53357 = keras.layers.MaxPool1D(pool_size=(1), strides=(2), padding='same', name = 'Max53357', )(in0Max53357)
+Res31203 = keras.layers.Reshape((1, 1, 1), name = 'Res31203', )(Max53357)
+Zer46790 = keras.layers.ZeroPadding2D(padding=((1, 0), (0, 0)), name = 'Zer46790', )(Res31203)
+Con15145 = keras.layers.Concatenate(axis=3, name = 'Con15145', )([Zer46790,in0Con15145])
+Mul38930 = keras.layers.Multiply(name = 'Mul38930', )([in0Mul38930,in1Mul38930])
+Min54624 = keras.layers.Minimum(name = 'Min54624', )([Con15145,Mul38930])
+Res62203 = keras.layers.Reshape((2, 2), name = 'Res62203', )(Min54624)
+Up_72576 = keras.layers.UpSampling1D(size=(2), name = 'Up_72576', )(Res62203)
+model = tf.keras.models.Model(inputs=[in0Max53357,in0Con15145,in0Mul38930,in1Mul38930], outputs=Up_72576)
+in0Max53357 = tf.constant([[[1.7178], [1.0784]]])
+in0Con15145 = tf.constant([[[[0.8319]], [[0.4796]]]])
+in0Mul38930 = tf.constant([[[[0.0416, 0.4696]], [[0.5806, 0.5022]]]])
+in1Mul38930 = tf.constant([[[[0.013, 0.0163]], [[0.8188, 0.329]]]])
+print (np.array2string(model.predict([in0Max53357,in0Con15145,in0Mul38930,in1Mul38930],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Up_72576.png')
+
+LMax53357 = max_pool1D_layer([[[1.7178], [1.0784]]], 1, 2, true, Max53357), 
+LRes31203 = reshape_layer(Max53357, [1, 1, 1], Res31203), 
+LZer46790 = zero_padding2D_layer(Res31203, 1, 0, 0, 0, Zer46790), 
+LCon15145 = concatenate_layer([Zer46790,[[[[0.8319]], [[0.4796]]]]], 3, Con15145), 
+LMul38930 = multiply_layer([[[[[0.0416, 0.4696]], [[0.5806, 0.5022]]]], [[[[0.013, 0.0163]], [[0.8188, 0.329]]]]], Mul38930), 
+LMin54624 = minimum_layer([Con15145,Mul38930], Min54624), 
+LRes62203 = reshape_layer(Min54624, [2, 2], Res62203), 
+LUp_72576 = up_sampling1D_layer(Res62203, 2, Up_72576), 
+exec_layers([LMax53357,LRes31203,LZer46790,LCon15145,LMul38930,LMin54624,LRes62203,LUp_72576],["Max53357","Res31203","Zer46790","Con15145","Mul38930","Min54624","Res62203","Up_72576"],Up_72576,"Up_72576")
+
+Actual (Unparsed): [[[0.0000000, 0.0076545], [0.0000000, 0.0076545], [0.4753953, 0.1652238], [0.4753953, 0.1652238]]]
+
+Expected (Unparsed): [[[0,0.00765448],[0,0.00765448],[0.47539528,0.1652238],[0.47539528,0.1652238]]]
+
+Actual:   [[[0, 0.0077], [0, 0.0077], [0.4754, 0.1653], [0.4754, 0.1653]]]
+
+Expected: [[[0, 0.0077], [0, 0.0077], [0.4754, 0.1653], [0.4754, 0.1653]]]

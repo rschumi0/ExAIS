@@ -1,0 +1,53 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot40476 = tf.keras.layers.Input(shape=([3, 2]))
+in1Dot40476 = tf.keras.layers.Input(shape=([3, 2]))
+in0Min1823 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in1Min1823 = tf.keras.layers.Input(shape=([2, 2, 2, 1]))
+in0Add45023 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Add45023 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+
+Dot40476 = keras.layers.Dot(axes=(1, 1), name = 'Dot40476', )([in0Dot40476,in1Dot40476])
+Res55094 = keras.layers.Reshape((2, 2, 1), name = 'Res55094', )(Dot40476)
+Res39187 = keras.layers.Reshape((2, 2, 1, 1), name = 'Res39187', )(Res55094)
+Zer48364 = keras.layers.ZeroPadding3D(padding=((0, 0), (0, 0), (1, 0)), name = 'Zer48364', )(Res39187)
+Min1823 = keras.layers.Minimum(name = 'Min1823', )([in0Min1823,in1Min1823])
+Add45023 = keras.layers.Add(name = 'Add45023', )([in0Add45023,in1Add45023])
+ReL19177 = keras.layers.ReLU(max_value=8.829932118371964, negative_slope=1.7982387355614837, threshold=0.14175174596051665, name = 'ReL19177', )(Add45023)
+Zer99454 = keras.layers.ZeroPadding3D(padding=((0, 0), (1, 0), (1, 0)), name = 'Zer99454', )(ReL19177)
+Min52651 = keras.layers.Minimum(name = 'Min52651', )([Min1823,Zer99454])
+Max40354 = keras.layers.Maximum(name = 'Max40354', )([Zer48364,Min52651])
+model = tf.keras.models.Model(inputs=[in0Dot40476,in1Dot40476,in0Min1823,in1Min1823,in0Add45023,in1Add45023], outputs=Max40354)
+in0Dot40476 = tf.constant([[[0.775, 0.9577], [0.9679, 0.0663], [0.1691, 0.6619]]])
+in1Dot40476 = tf.constant([[[0.9349, 0.7938], [0.2877, 0.1286], [0.5854, 0.276]]])
+in0Min1823 = tf.constant([[[[[0.5703], [0.6975]], [[0.6655], [0.564]]], [[[0.4482], [0.7109]], [[0.8825], [0.9059]]]]])
+in1Min1823 = tf.constant([[[[[0.8271], [0.2469]], [[0.3397], [0.3046]]], [[[0.7592], [0.0335]], [[0.6768], [0.806]]]]])
+in0Add45023 = tf.constant([[[[[0.9754]]], [[[0.7504]]]]])
+in1Add45023 = tf.constant([[[[[0.7605]]], [[[0.8668]]]]])
+print (np.array2string(model.predict([in0Dot40476,in1Dot40476,in0Min1823,in1Min1823,in0Add45023,in1Add45023],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max40354.png')
+
+LDot40476 = dot_layer([[[0.775, 0.9577], [0.9679, 0.0663], [0.1691, 0.6619]]], [[[0.9349, 0.7938], [0.2877, 0.1286], [0.5854, 0.276]]], 1, 1, Dot40476), 
+LRes55094 = reshape_layer(Dot40476, [2, 2, 1], Res55094), 
+LRes39187 = reshape_layer(Res55094, [2, 2, 1, 1], Res39187), 
+LZer48364 = zero_padding3D_layer(Res39187, 0, 0, 0, 0, 1, 0, Zer48364), 
+LMin1823 = minimum_layer([[[[[[0.5703], [0.6975]], [[0.6655], [0.564]]], [[[0.4482], [0.7109]], [[0.8825], [0.9059]]]]], [[[[[0.8271], [0.2469]], [[0.3397], [0.3046]]], [[[0.7592], [0.0335]], [[0.6768], [0.806]]]]]], Min1823), 
+LAdd45023 = add_layer([[[[[[0.9754]]], [[[0.7504]]]]], [[[[[0.7605]]], [[[0.8668]]]]]], Add45023), 
+LReL19177 = relu_layer(Add45023, 8.829932118371964, 1.7982387355614837, 0.14175174596051665, ReL19177), 
+LZer99454 = zero_padding3D_layer(ReL19177, 0, 0, 1, 0, 1, 0, Zer99454), 
+LMin52651 = minimum_layer([Min1823,Zer99454], Min52651), 
+LMax40354 = maximum_layer([Zer48364,Min52651], Max40354), 
+exec_layers([LDot40476,LRes55094,LRes39187,LZer48364,LMin1823,LAdd45023,LReL19177,LZer99454,LMin52651,LMax40354],["Dot40476","Res55094","Res39187","Zer48364","Min1823","Add45023","ReL19177","Zer99454","Min52651","Max40354"],Max40354,"Max40354")
+
+Actual (Unparsed): [[[[[0.0000000], [1.1020034]], [[0.0000000], [0.7863385]]], [[[0.0000000], [1.3019045]], [[0.0000000], [0.9514328]]]]]
+
+Expected (Unparsed): [[[[[0],[1.10200347]],[[0],[0.7863385399999999]]],[[[0],[1.3019045]],[[0],[0.9514328400000001]]]]]
+
+Actual:   [[[[[0], [1.1021]], [[0], [0.7864]]], [[[0], [1.302]], [[0], [0.9515]]]]]
+
+Expected: [[[[[0], [1.1021]], [[0], [0.7864]]], [[[0], [1.302]], [[0], [0.9515]]]]]

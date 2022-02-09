@@ -1,0 +1,58 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot55899 = tf.keras.layers.Input(shape=([3]))
+in1Dot55899 = tf.keras.layers.Input(shape=([3]))
+in0Con35947 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+in0Con67252 = tf.keras.layers.Input(shape=([2, 1, 1, 2]))
+
+Dot55899 = keras.layers.Dot(axes=(1, 1), name = 'Dot55899', )([in0Dot55899,in1Dot55899])
+Res2159 = keras.layers.Reshape((1, 1), name = 'Res2159', )(Dot55899)
+GRU33292 = keras.layers.GRU(2,reset_after=False, recurrent_activation='sigmoid', name = 'GRU33292', )(Res2159)
+Res96362 = keras.layers.Reshape((2, 1), name = 'Res96362', )(GRU33292)
+Res90880 = keras.layers.Reshape((2, 1, 1), name = 'Res90880', )(Res96362)
+Res67372 = keras.layers.Reshape((2, 1, 1, 1), name = 'Res67372', )(Res90880)
+Con35947 = keras.layers.Concatenate(axis=4, name = 'Con35947', )([Res67372,in0Con35947])
+Con67252 = keras.layers.Conv3D(3, (2, 1, 1),strides=(1, 7, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con67252', )(in0Con67252)
+Zer89063 = keras.layers.ZeroPadding3D(padding=((1, 0), (0, 0), (0, 0)), name = 'Zer89063', )(Con67252)
+Min41863 = keras.layers.Minimum(name = 'Min41863', )([Con35947,Zer89063])
+model = tf.keras.models.Model(inputs=[in0Dot55899,in1Dot55899,in0Con35947,in0Con67252], outputs=Min41863)
+w = model.get_layer('GRU33292').get_weights() 
+w[0] = np.array([[3, 8, 9, 4, 6, 2]])
+w[1] = np.array([[8, 6, 9, 9, 10, 10], [1, 2, 1, 2, 1, 1]])
+w[2] = np.array([6, 8, 3, 8, 8, 2])
+model.get_layer('GRU33292').set_weights(w) 
+w = model.get_layer('Con67252').get_weights() 
+w[0] = np.array([[[[[0.4207, 0.419, 0.1863], [0.9204, 0.7166, 0.786]]]], [[[[0.4159, 0.2014, 0.281], [0.3031, 0.4738, 0.5692]]]]])
+w[1] = np.array([0, 0, 0])
+model.get_layer('Con67252').set_weights(w) 
+in0Dot55899 = tf.constant([[0.9545, 0.9056, 0.4067]])
+in1Dot55899 = tf.constant([[0.4382, 0.5135, 0.9593]])
+in0Con35947 = tf.constant([[[[[0.9835, 0.5895]]], [[[0.8035, 0.4011]]]]])
+in0Con67252 = tf.constant([[[[[0.7696, 0.5668]]], [[[0.2921, 0.6342]]]]])
+print (np.array2string(model.predict([in0Dot55899,in1Dot55899,in0Con35947,in0Con67252],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min41863.png')
+
+LDot55899 = dot_layer([[0.9545, 0.9056, 0.4067]], [[0.4382, 0.5135, 0.9593]], 1, 1, Dot55899), 
+LRes2159 = reshape_layer(Dot55899, [1, 1], Res2159), 
+LGRU33292 = gru_layer(Res2159,[[3, 8, 9, 4, 6, 2]],[[8, 6, 9, 9, 10, 10], [1, 2, 1, 2, 1, 1]],[6, 8, 3, 8, 8, 2], false, GRU33292), 
+LRes96362 = reshape_layer(GRU33292, [2, 1], Res96362), 
+LRes90880 = reshape_layer(Res96362, [2, 1, 1], Res90880), 
+LRes67372 = reshape_layer(Res90880, [2, 1, 1, 1], Res67372), 
+LCon35947 = concatenate_layer([Res67372,[[[[[0.9835, 0.5895]]], [[[0.8035, 0.4011]]]]]], 4, Con35947), 
+LCon67252 = conv3D_layer([[[[[0.7696, 0.5668]]], [[[0.2921, 0.6342]]]]], 2, 1, 1,[[[[[0.4207, 0.419, 0.1863], [0.9204, 0.7166, 0.786]]]], [[[[0.4159, 0.2014, 0.281], [0.3031, 0.4738, 0.5692]]]]],[0, 0, 0], 1, 7, 1, false, 1, 1, 1, Con67252), 
+LZer89063 = zero_padding3D_layer(Con67252, 1, 0, 0, 0, 0, 0, Zer89063), 
+LMin41863 = minimum_layer([Con35947,Zer89063], Min41863), 
+exec_layers([LDot55899,LRes2159,LGRU33292,LRes96362,LRes90880,LRes67372,LCon35947,LCon67252,LZer89063,LMin41863],["Dot55899","Res2159","GRU33292","Res96362","Res90880","Res67372","Con35947","Con67252","Zer89063","Min41863"],Min41863,"Min41863")
+
+Actual (Unparsed): [[[[[0.0000000, 0.0000000, 0.0000000]]], [[[0.0000000, 0.8035000, 0.4011000]]]]]
+
+Expected (Unparsed): [[[[[0,0,0]]],[[[1.2623531025928127e-8,0.8035,0.4011]]]]]
+
+Actual:   [[[[[0, 0, 0]]], [[[0, 0.8035, 0.4011]]]]]
+
+Expected: [[[[[0, 0, 0]]], [[[0, 0.8035, 0.4011]]]]]

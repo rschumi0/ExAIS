@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Up_32537 = tf.keras.layers.Input(shape=([4, 3]))
+in0Mul46628 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in1Mul46628 = tf.keras.layers.Input(shape=([1, 2, 1]))
+in0Con29369 = tf.keras.layers.Input(shape=([8, 1]))
+
+Up_32537 = keras.layers.UpSampling1D(size=(2), name = 'Up_32537', )(in0Up_32537)
+Mul46628 = keras.layers.Multiply(name = 'Mul46628', )([in0Mul46628,in1Mul46628])
+Res8172 = keras.layers.Reshape((1, 2, 1, 1), name = 'Res8172', )(Mul46628)
+Cro25296 = keras.layers.Cropping3D(cropping=((0, 0), (1, 0), (0, 0)), name = 'Cro25296', )(Res8172)
+Res66619 = keras.layers.Reshape((1, 1, 1), name = 'Res66619', )(Cro25296)
+Res48092 = keras.layers.Reshape((1, 1), name = 'Res48092', )(Res66619)
+Con46050 = keras.layers.Conv1D(2, (1),strides=(1), padding='valid', dilation_rate=(1), name = 'Con46050', )(Res48092)
+ELU73574 = keras.layers.ELU(alpha=-9.500457943702532, name = 'ELU73574', )(Con46050)
+Zer30773 = keras.layers.ZeroPadding1D(padding=((7, 0)), name = 'Zer30773', )(ELU73574)
+Con29369 = keras.layers.Concatenate(axis=2, name = 'Con29369', )([Zer30773,in0Con29369])
+Max27557 = keras.layers.Maximum(name = 'Max27557', )([Up_32537,Con29369])
+model = tf.keras.models.Model(inputs=[in0Up_32537,in0Mul46628,in1Mul46628,in0Con29369], outputs=Max27557)
+w = model.get_layer('Con46050').get_weights() 
+w[0] = np.array([[[0.4235, 0.3669]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con46050').set_weights(w) 
+in0Up_32537 = tf.constant([[[1.0694, 1.6039, 1.0497], [1.7797, 1.101, 1.9525], [1.3477, 1.0914, 1.2958], [1.2471, 1.2318, 1.8286]]])
+in0Mul46628 = tf.constant([[[[0.5758], [0.8837]]]])
+in1Mul46628 = tf.constant([[[[0.9829], [0.0807]]]])
+in0Con29369 = tf.constant([[[0.8861], [0.0578], [0.0898], [0.788], [0.9438], [0.894], [0.6777], [0.9608]]])
+print (np.array2string(model.predict([in0Up_32537,in0Mul46628,in1Mul46628,in0Con29369],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Max27557.png')
+
+LUp_32537 = up_sampling1D_layer([[[1.0694, 1.6039, 1.0497], [1.7797, 1.101, 1.9525], [1.3477, 1.0914, 1.2958], [1.2471, 1.2318, 1.8286]]], 2, Up_32537), 
+LMul46628 = multiply_layer([[[[[0.5758], [0.8837]]]], [[[[0.9829], [0.0807]]]]], Mul46628), 
+LRes8172 = reshape_layer(Mul46628, [1, 2, 1, 1], Res8172), 
+LCro25296 = cropping3D_layer(Res8172, 0, 0, 1, 0, 0, 0, Cro25296), 
+LRes66619 = reshape_layer(Cro25296, [1, 1, 1], Res66619), 
+LRes48092 = reshape_layer(Res66619, [1, 1], Res48092), 
+LCon46050 = conv1D_layer(Res48092, 1,[[[0.4235, 0.3669]]],[0, 0], 1, false, 1, Con46050), 
+LELU73574 = elu_layer(Con46050, -9.500457943702532, ELU73574), 
+LZer30773 = zero_padding1D_layer(ELU73574, 7, 0, Zer30773), 
+LCon29369 = concatenate_layer([Zer30773,[[[0.8861], [0.0578], [0.0898], [0.788], [0.9438], [0.894], [0.6777], [0.9608]]]], 2, Con29369), 
+LMax27557 = maximum_layer([Up_32537,Con29369], Max27557), 
+exec_layers([LUp_32537,LMul46628,LRes8172,LCro25296,LRes66619,LRes48092,LCon46050,LELU73574,LZer30773,LCon29369,LMax27557],["Up_32537","Mul46628","Res8172","Cro25296","Res66619","Res48092","Con46050","ELU73574","Zer30773","Con29369","Max27557"],Max27557,"Max27557")
+
+Actual (Unparsed): [[[1.0694000, 1.6039000, 1.0497000], [1.0694000, 1.6039000, 1.0497000], [1.7797000, 1.1010000, 1.9525000], [1.7797000, 1.1010000, 1.9525000], [1.3477000, 1.0914000, 1.2958000], [1.3477000, 1.0914000, 1.2958000], [1.2471000, 1.2318000, 1.8286000], [1.2471000, 1.2318000, 1.8286000]]]
+
+Expected (Unparsed): [[[1.0694,1.6039,1.0497],[1.0694,1.6039,1.0497],[1.7797,1.101,1.9525],[1.7797,1.101,1.9525],[1.3477,1.0914,1.2958],[1.3477,1.0914,1.2958],[1.2471,1.2318,1.8286],[1.2471,1.2318,1.8286]]]
+
+Actual:   [[[1.0694, 1.6039, 1.0497], [1.0694, 1.6039, 1.0497], [1.7797, 1.101, 1.9525], [1.7797, 1.101, 1.9525], [1.3477, 1.0914, 1.2958], [1.3477, 1.0914, 1.2958], [1.2471, 1.2318, 1.8286], [1.2471, 1.2318, 1.8286]]]
+
+Expected: [[[1.0694, 1.6039, 1.0497], [1.0694, 1.6039, 1.0497], [1.7797, 1.101, 1.9525], [1.7797, 1.101, 1.9525], [1.3477, 1.0914, 1.2958], [1.3477, 1.0914, 1.2958], [1.2471, 1.2318, 1.8286], [1.2471, 1.2318, 1.8286]]]

@@ -1,0 +1,47 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Mul98183 = tf.keras.layers.Input(shape=([1, 2]))
+in1Mul98183 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con73235 = tf.keras.layers.Input(shape=([3, 2]))
+in0Cro17703 = tf.keras.layers.Input(shape=([3, 4]))
+
+Mul98183 = keras.layers.Multiply(name = 'Mul98183', )([in0Mul98183,in1Mul98183])
+Zer38154 = keras.layers.ZeroPadding1D(padding=((2, 0)), name = 'Zer38154', )(Mul98183)
+Con73235 = keras.layers.Concatenate(axis=2, name = 'Con73235', )([Zer38154,in0Con73235])
+Cro17703 = keras.layers.Cropping1D(cropping=((0, 0)), name = 'Cro17703', )(in0Cro17703)
+Ave74627 = keras.layers.Average(name = 'Ave74627', )([Con73235,Cro17703])
+Res53552 = keras.layers.Reshape((3, 4, 1), name = 'Res53552', )(Ave74627)
+Con41504 = keras.layers.Conv2D(2, (1, 2),strides=(1, 1), padding='valid', dilation_rate=(1, 1), name = 'Con41504', )(Res53552)
+model = tf.keras.models.Model(inputs=[in0Mul98183,in1Mul98183,in0Con73235,in0Cro17703], outputs=Con41504)
+w = model.get_layer('Con41504').get_weights() 
+w[0] = np.array([[[[0.8303, 0.6168]], [[0.8491, 0.5827]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con41504').set_weights(w) 
+in0Mul98183 = tf.constant([[[0.9389, 0.0319]]])
+in1Mul98183 = tf.constant([[[0.1481, 0.5917]]])
+in0Con73235 = tf.constant([[[0.2011, 0.4089], [0.4311, 0.745], [0.6287, 0.026]]])
+in0Cro17703 = tf.constant([[[1.1826, 1.1806, 1.1668, 1.3001], [1.1666, 1.5578, 1.959, 1.5641], [1.762, 1.9374, 1.5167, 1.464]]])
+print (np.array2string(model.predict([in0Mul98183,in1Mul98183,in0Con73235,in0Cro17703],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Con41504.png')
+
+LMul98183 = multiply_layer([[[[0.9389, 0.0319]]], [[[0.1481, 0.5917]]]], Mul98183), 
+LZer38154 = zero_padding1D_layer(Mul98183, 2, 0, Zer38154), 
+LCon73235 = concatenate_layer([Zer38154,[[[0.2011, 0.4089], [0.4311, 0.745], [0.6287, 0.026]]]], 2, Con73235), 
+LCro17703 = cropping1D_layer([[[1.1826, 1.1806, 1.1668, 1.3001], [1.1666, 1.5578, 1.959, 1.5641], [1.762, 1.9374, 1.5167, 1.464]]], 0, 0, Cro17703), 
+LAve74627 = average_layer([Con73235,Cro17703], Ave74627), 
+LRes53552 = reshape_layer(Ave74627, [3, 4, 1], Res53552), 
+LCon41504 = conv2D_layer(Res53552, 1, 2,[[[[0.8303, 0.6168]], [[0.8491, 0.5827]]]],[0, 0], 1, 1, false, 1, 1, Con41504), 
+exec_layers([LMul98183,LZer38154,LCon73235,LCro17703,LAve74627,LRes53552,LCon41504],["Mul98183","Zer38154","Con73235","Cro17703","Ave74627","Res53552","Con41504"],Con41504,"Con41504")
+
+Actual (Unparsed): [[[[0.9921801, 0.7086817], [1.0708681, 0.7626347], [1.2934396, 0.9197775]], [[1.1456780, 0.8136445], [1.6614376, 1.1767812], [1.9725784, 1.4098631]], [[1.6197580, 1.1562449], [1.7229772, 1.2283776], [1.5232423, 1.0957529]]]]
+
+Expected (Unparsed): [[[[0.99218012,0.70868165],[1.0708680350000002,0.7626347050000001],[1.293439635,0.9197775100000001]],[[1.14567798,0.8136444700000001],[1.661437625,1.176781155],[1.97257842,1.4098631249999998]],[[1.6197580089099999,1.1562449444165002],[1.7229772317345,1.228377570932],[1.52324231,1.09575286]]]]
+
+Actual:   [[[[0.9922, 0.7087], [1.0709, 0.7627], [1.2935, 0.9198]], [[1.1457, 0.8137], [1.6615, 1.1768], [1.9726, 1.4099]], [[1.6198, 1.1563], [1.723, 1.2284], [1.5233, 1.0958]]]]
+
+Expected: [[[[0.9922, 0.7087], [1.0709, 0.7627], [1.2935, 0.9198]], [[1.1457, 0.8137], [1.6615, 1.1768], [1.9726, 1.4099]], [[1.6198, 1.1563], [1.723, 1.2284], [1.5233, 1.0958]]]]

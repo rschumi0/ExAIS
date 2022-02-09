@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Dot58099 = tf.keras.layers.Input(shape=([3, 3]))
+in1Dot58099 = tf.keras.layers.Input(shape=([3, 3]))
+in0PRe44447 = tf.keras.layers.Input(shape=([1, 2]))
+
+Dot58099 = keras.layers.Dot(axes=(1, 1), name = 'Dot58099', )([in0Dot58099,in1Dot58099])
+Res22338 = keras.layers.Reshape((3, 3, 1), name = 'Res22338', )(Dot58099)
+Res36964 = keras.layers.Reshape((3, 3, 1, 1), name = 'Res36964', )(Res22338)
+Glo25872 = keras.layers.GlobalMaxPool3D(name = 'Glo25872', )(Res36964)
+Res94575 = keras.layers.Reshape((1, 1), name = 'Res94575', )(Glo25872)
+Res44817 = keras.layers.Reshape((1, 1, 1), name = 'Res44817', )(Res94575)
+PRe44447 = keras.layers.PReLU(name = 'PRe44447', input_shape=(1, 2))(in0PRe44447)
+Res42501 = keras.layers.Reshape((1, 2, 1), name = 'Res42501', )(PRe44447)
+Ave13080 = keras.layers.AveragePooling2D(pool_size=(1, 1), strides=(1, 6), padding='same', name = 'Ave13080', )(Res42501)
+Sub35707 = keras.layers.Subtract(name = 'Sub35707', )([Res44817,Ave13080])
+model = tf.keras.models.Model(inputs=[in0Dot58099,in1Dot58099,in0PRe44447], outputs=Sub35707)
+w = model.get_layer('PRe44447').get_weights() 
+w[0] = np.array([[0.3213, 0.7943]])
+model.get_layer('PRe44447').set_weights(w) 
+in0Dot58099 = tf.constant([[[0.8395, 0.4275, 0.1576], [0.7329, 0.9308, 0.4542], [0.3142, 0.2182, 0.5561]]])
+in1Dot58099 = tf.constant([[[0.0251, 0.3942, 0.0546], [0.6996, 0.4666, 0.578], [0.4815, 0.3156, 0.6231]]])
+in0PRe44447 = tf.constant([[[0.5891, 0.1264]]])
+print (np.array2string(model.predict([in0Dot58099,in1Dot58099,in0PRe44447],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sub35707.png')
+
+LDot58099 = dot_layer([[[0.8395, 0.4275, 0.1576], [0.7329, 0.9308, 0.4542], [0.3142, 0.2182, 0.5561]]], [[[0.0251, 0.3942, 0.0546], [0.6996, 0.4666, 0.578], [0.4815, 0.3156, 0.6231]]], 1, 1, Dot58099), 
+LRes22338 = reshape_layer(Dot58099, [3, 3, 1], Res22338), 
+LRes36964 = reshape_layer(Res22338, [3, 3, 1, 1], Res36964), 
+LGlo25872 = global_max_pool3D_layer(Res36964, Glo25872), 
+LRes94575 = reshape_layer(Glo25872, [1, 1], Res94575), 
+LRes44817 = reshape_layer(Res94575, [1, 1, 1], Res44817), 
+LPRe44447 = prelu_layer([[[0.5891, 0.1264]]], [[0.3213, 0.7943]], PRe44447), 
+LRes42501 = reshape_layer(PRe44447, [1, 2, 1], Res42501), 
+LAve13080 = average_pooling2D_layer(Res42501, 1, 1, 1, 6, true, Ave13080), 
+LSub35707 = subtract_layer(Res44817,Ave13080, Sub35707), 
+exec_layers([LDot58099,LRes22338,LRes36964,LGlo25872,LRes94575,LRes44817,LPRe44447,LRes42501,LAve13080,LSub35707],["Dot58099","Res22338","Res36964","Glo25872","Res94575","Res44817","PRe44447","Res42501","Ave13080","Sub35707"],Sub35707,"Sub35707")
+
+Actual (Unparsed): [[[[0.1829636]]]]
+
+Expected (Unparsed): [[[[0.18296356000000014]]]]
+
+Actual:   [[[[0.183]]]]
+
+Expected: [[[[0.183]]]]

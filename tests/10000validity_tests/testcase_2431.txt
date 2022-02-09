@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Thr53144 = tf.keras.layers.Input(shape=([1, 1, 2]))
+in0Add83322 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in1Add83322 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Con90682 = tf.keras.layers.Input(shape=([2, 2, 1]))
+in0Up_94571 = tf.keras.layers.Input(shape=([3, 1, 1, 1]))
+
+Thr53144 = keras.layers.ThresholdedReLU(theta=1.1101581370059497, name = 'Thr53144', input_shape=(1, 1, 2))(in0Thr53144)
+Zer9622 = keras.layers.ZeroPadding2D(padding=((1, 0), (1, 0)), name = 'Zer9622', )(Thr53144)
+Add83322 = keras.layers.Add(name = 'Add83322', )([in0Add83322,in1Add83322])
+Res77682 = keras.layers.Reshape((2, 1, 1), name = 'Res77682', )(Add83322)
+Up_13970 = keras.layers.UpSampling2D(size=(1, 2), name = 'Up_13970', )(Res77682)
+Con90682 = keras.layers.Concatenate(axis=3, name = 'Con90682', )([Up_13970,in0Con90682])
+Ave51201 = keras.layers.Average(name = 'Ave51201', )([Zer9622,Con90682])
+Res94668 = keras.layers.Reshape((2, 2, 2, 1), name = 'Res94668', )(Ave51201)
+Zer90437 = keras.layers.ZeroPadding3D(padding=((1, 0), (1, 0), (1, 0)), name = 'Zer90437', )(Res94668)
+Up_94571 = keras.layers.UpSampling3D(size=(1, 1, 1), name = 'Up_94571', )(in0Up_94571)
+Zer73253 = keras.layers.ZeroPadding3D(padding=((0, 0), (2, 0), (2, 0)), name = 'Zer73253', )(Up_94571)
+Min91933 = keras.layers.Minimum(name = 'Min91933', )([Zer90437,Zer73253])
+model = tf.keras.models.Model(inputs=[in0Thr53144,in0Add83322,in1Add83322,in0Con90682,in0Up_94571], outputs=Min91933)
+in0Thr53144 = tf.constant([[[[0.7476, 0.1451]]]])
+in0Add83322 = tf.constant([[[[[0.5602]]], [[[0.3153]]]]])
+in1Add83322 = tf.constant([[[[[0.0542]]], [[[0.4795]]]]])
+in0Con90682 = tf.constant([[[[0.2225], [0.4723]], [[0.941], [0.5494]]]])
+in0Up_94571 = tf.constant([[[[[1.1979]]], [[[1.0662]]], [[[1.9061]]]]])
+print (np.array2string(model.predict([in0Thr53144,in0Add83322,in1Add83322,in0Con90682,in0Up_94571],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Min91933.png')
+
+LThr53144 = thresholded_relu_layer([[[[0.7476, 0.1451]]]], 1.1101581370059497, Thr53144), 
+LZer9622 = zero_padding2D_layer(Thr53144, 1, 0, 1, 0, Zer9622), 
+LAdd83322 = add_layer([[[[[[0.5602]]], [[[0.3153]]]]], [[[[[0.0542]]], [[[0.4795]]]]]], Add83322), 
+LRes77682 = reshape_layer(Add83322, [2, 1, 1], Res77682), 
+LUp_13970 = up_sampling2D_layer(Res77682, 1, 2, Up_13970), 
+LCon90682 = concatenate_layer([Up_13970,[[[[0.2225], [0.4723]], [[0.941], [0.5494]]]]], 3, Con90682), 
+LAve51201 = average_layer([Zer9622,Con90682], Ave51201), 
+LRes94668 = reshape_layer(Ave51201, [2, 2, 2, 1], Res94668), 
+LZer90437 = zero_padding3D_layer(Res94668, 1, 0, 1, 0, 1, 0, Zer90437), 
+LUp_94571 = up_sampling3D_layer([[[[[1.1979]]], [[[1.0662]]], [[[1.9061]]]]], 1, 1, 1, Up_94571), 
+LZer73253 = zero_padding3D_layer(Up_94571, 0, 0, 2, 0, 2, 0, Zer73253), 
+LMin91933 = minimum_layer([Zer90437,Zer73253], Min91933), 
+exec_layers([LThr53144,LZer9622,LAdd83322,LRes77682,LUp_13970,LCon90682,LAve51201,LRes94668,LZer90437,LUp_94571,LZer73253,LMin91933],["Thr53144","Zer9622","Add83322","Res77682","Up_13970","Con90682","Ave51201","Res94668","Zer90437","Up_94571","Zer73253","Min91933"],Min91933,"Min91933")
+
+Actual (Unparsed): [[[[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.2361500]]], [[[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.0000000]], [[0.0000000], [0.0000000], [0.2747000]]]]]
+
+Expected (Unparsed): [[[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0]]],[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0.23615]]],[[[0],[0],[0]],[[0],[0],[0]],[[0],[0],[0.2747]]]]]
+
+Actual:   [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.2362]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.2747]]]]]
+
+Expected: [[[[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.2362]]], [[[0], [0], [0]], [[0], [0], [0]], [[0], [0], [0.2747]]]]]

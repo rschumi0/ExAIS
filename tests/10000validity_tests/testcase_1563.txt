@@ -1,0 +1,48 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sep89504 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con83117 = tf.keras.layers.Input(shape=([4, 2]))
+in0Up_39211 = tf.keras.layers.Input(shape=([4, 4]))
+
+Sep89504 = keras.layers.SeparableConv1D(2, (1),strides=(1), padding='valid', name = 'Sep89504', )(in0Sep89504)
+Zer33984 = keras.layers.ZeroPadding1D(padding=((3, 0)), name = 'Zer33984', )(Sep89504)
+Con83117 = keras.layers.Concatenate(axis=2, name = 'Con83117', )([Zer33984,in0Con83117])
+Up_39211 = keras.layers.UpSampling1D(size=(1), name = 'Up_39211', )(in0Up_39211)
+Ave26458 = keras.layers.Average(name = 'Ave26458', )([Con83117,Up_39211])
+Loc89991 = keras.layers.LocallyConnected1D(2, (1),strides=(1), name = 'Loc89991', )(Ave26458)
+model = tf.keras.models.Model(inputs=[in0Sep89504,in0Con83117,in0Up_39211], outputs=Loc89991)
+w = model.get_layer('Sep89504').get_weights() 
+w[0] = np.array([[[0.9852], [0.5757]]])
+w[1] = np.array([[[0.2636, 0.8333], [0.702, 0.5608]]])
+w[2] = np.array([0, 0])
+model.get_layer('Sep89504').set_weights(w) 
+w = model.get_layer('Loc89991').get_weights() 
+w[0] = np.array([[[0.0188, 0.7026], [0.6629, 0.2389], [0.0415, 0.2199], [0.6844, 0.8838]], [[0.9592, 0.6195], [0.6888, 0.0536], [0.4919, 0.4637], [0.4347, 0.4051]], [[0.7035, 0.2134], [0.457, 0.2625], [0.671, 0.3451], [0.0089, 0.2803]], [[0.6869, 0.2116], [0.1133, 0.0407], [0.1788, 0.9585], [0.4122, 0.1069]]])
+w[1] = np.array([[0, 0], [0, 0], [0, 0], [0, 0]])
+model.get_layer('Loc89991').set_weights(w) 
+in0Sep89504 = tf.constant([[[0.9331, 0.2221]]])
+in0Con83117 = tf.constant([[[0.7183, 0.0752], [0.5136, 0.4079], [0.9369, 0.1968], [0.8673, 0.8722]]])
+in0Up_39211 = tf.constant([[[1.7533, 1.3365, 1.3714, 1.3992], [1.9995, 1.8381, 1.2267, 1.1224], [1.4837, 1.9404, 1.1965, 1.2525], [1.2721, 1.7203, 1.182, 1.9871]]])
+print (np.array2string(model.predict([in0Sep89504,in0Con83117,in0Up_39211],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Loc89991.png')
+
+LSep89504 = separable_conv1D_layer([[[0.9331, 0.2221]]], 1,[[[[0.9852], [0.5757]]],[[[0.2636, 0.8333], [0.702, 0.5608]]]],[0, 0], 1, false, Sep89504), 
+LZer33984 = zero_padding1D_layer(Sep89504, 3, 0, Zer33984), 
+LCon83117 = concatenate_layer([Zer33984,[[[0.7183, 0.0752], [0.5136, 0.4079], [0.9369, 0.1968], [0.8673, 0.8722]]]], 2, Con83117), 
+LUp_39211 = up_sampling1D_layer([[[1.7533, 1.3365, 1.3714, 1.3992], [1.9995, 1.8381, 1.2267, 1.1224], [1.4837, 1.9404, 1.1965, 1.2525], [1.2721, 1.7203, 1.182, 1.9871]]], 1, Up_39211), 
+LAve26458 = average_layer([Con83117,Up_39211], Ave26458), 
+LLoc89991 = locally_connected1D_layer(Ave26458, 1,[[[0.0188, 0.7026], [0.6629, 0.2389], [0.0415, 0.2199], [0.6844, 0.8838]], [[0.9592, 0.6195], [0.6888, 0.0536], [0.4919, 0.4637], [0.4347, 0.4051]], [[0.7035, 0.2134], [0.457, 0.2625], [0.671, 0.3451], [0.0089, 0.2803]], [[0.6869, 0.2116], [0.1133, 0.0407], [0.1788, 0.9585], [0.4122, 0.1069]]],[[0, 0], [0, 0], [0, 0], [0, 0]], 1, Loc89991), 
+exec_layers([LSep89504,LZer33984,LCon83117,LUp_39211,LAve26458,LLoc89991],["Sep89504","Zer33984","Con83117","Up_39211","Ave26458","Loc89991"],Loc89991,"Loc89991")
+
+Actual (Unparsed): [[[1.0073649, 1.6568791], [2.3526393, 1.3820570], [1.6874780, 0.9842259], [1.4683799, 1.3567357]]]
+
+Expected (Unparsed): [[[1.0073649,1.6568790899999999],[2.35263933,1.382057025],[1.68747796,0.984225855],[1.4683799116413572,1.3567356669196577]]]
+
+Actual:   [[[1.0074, 1.6569], [2.3527, 1.3821], [1.6875, 0.9843], [1.4684, 1.3568]]]
+
+Expected: [[[1.0074, 1.6569], [2.3527, 1.3821], [1.6875, 0.9843], [1.4684, 1.3568]]]

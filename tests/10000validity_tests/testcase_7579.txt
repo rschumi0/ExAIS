@@ -1,0 +1,70 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Min50955 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in1Min50955 = tf.keras.layers.Input(shape=([1, 1, 1, 2]))
+in0LST3562 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con8720 = tf.keras.layers.Input(shape=([1, 1, 2]))
+
+Min50955 = keras.layers.Minimum(name = 'Min50955', )([in0Min50955,in1Min50955])
+Res59690 = keras.layers.Reshape((1, 1, 2), name = 'Res59690', )(Min50955)
+Res87031 = keras.layers.Reshape((1, 2), name = 'Res87031', )(Res59690)
+Fla3302 = keras.layers.Flatten(name = 'Fla3302', )(Res87031)
+LST3562 = keras.layers.LSTM(1,recurrent_activation='sigmoid', name = 'LST3562', )(in0LST3562)
+Res42708 = keras.layers.Reshape((1, 1), name = 'Res42708', )(LST3562)
+Res40442 = keras.layers.Reshape((1, 1, 1), name = 'Res40442', )(Res42708)
+Con14375 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con14375', )(Res40442)
+Res42895 = keras.layers.Reshape((1, 2), name = 'Res42895', )(Con14375)
+Fla94535 = keras.layers.Flatten(name = 'Fla94535', )(Res42895)
+Con8720 = keras.layers.Conv2DTranspose(2, (1, 1),strides=(1, 1), padding='valid', name = 'Con8720', )(in0Con8720)
+Glo34360 = keras.layers.GlobalAveragePooling2D(name = 'Glo34360', )(Con8720)
+Min25058 = keras.layers.Minimum(name = 'Min25058', )([Fla94535,Glo34360])
+Add739 = keras.layers.Add(name = 'Add739', )([Fla3302,Min25058])
+model = tf.keras.models.Model(inputs=[in0Min50955,in1Min50955,in0LST3562,in0Con8720], outputs=Add739)
+w = model.get_layer('LST3562').get_weights() 
+w[0] = np.array([[5, 5, 7, 8], [6, 8, 1, 2]])
+w[1] = np.array([[10, 3, 7, 6]])
+w[2] = np.array([8, 6, 9, 10])
+model.get_layer('LST3562').set_weights(w) 
+w = model.get_layer('Con14375').get_weights() 
+w[0] = np.array([[[[0.7922], [0.1457]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con14375').set_weights(w) 
+w = model.get_layer('Con8720').get_weights() 
+w[0] = np.array([[[[0.1626, 0.9466], [0.5805, 0.8905]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con8720').set_weights(w) 
+in0Min50955 = tf.constant([[[[[0.8179, 0.7984]]]]])
+in1Min50955 = tf.constant([[[[[0.0477, 0.3203]]]]])
+in0LST3562 = tf.constant([[[3, 8]]])
+in0Con8720 = tf.constant([[[[0.1021, 0.3337]]]])
+print (np.array2string(model.predict([in0Min50955,in1Min50955,in0LST3562,in0Con8720],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Add739.png')
+
+LMin50955 = minimum_layer([[[[[[0.8179, 0.7984]]]]], [[[[[0.0477, 0.3203]]]]]], Min50955), 
+LRes59690 = reshape_layer(Min50955, [1, 1, 2], Res59690), 
+LRes87031 = reshape_layer(Res59690, [1, 2], Res87031), 
+LFla3302 = flatten_layer(Res87031, Fla3302), 
+LLST3562 = lstm_layer([[[3, 8]]],[[5, 5, 7, 8], [6, 8, 1, 2]],[[10, 3, 7, 6]],[8, 6, 9, 10], LST3562), 
+LRes42708 = reshape_layer(LST3562, [1, 1], Res42708), 
+LRes40442 = reshape_layer(Res42708, [1, 1, 1], Res40442), 
+LCon14375 = conv2D_transpose_layer(Res40442, 1, 1,[[[[0.7922], [0.1457]]]],[0, 0], 1, 1, false, Con14375), 
+LRes42895 = reshape_layer(Con14375, [1, 2], Res42895), 
+LFla94535 = flatten_layer(Res42895, Fla94535), 
+LCon8720 = conv2D_transpose_layer([[[[0.1021, 0.3337]]]], 1, 1,[[[[0.1626, 0.9466], [0.5805, 0.8905]]]],[0, 0], 1, 1, false, Con8720), 
+LGlo34360 = global_average_pooling2D_layer(Con8720, Glo34360), 
+LMin25058 = minimum_layer([Fla94535,Glo34360], Min25058), 
+LAdd739 = add_layer([Fla3302,Min25058], Add739), 
+exec_layers([LMin50955,LRes59690,LRes87031,LFla3302,LLST3562,LRes42708,LRes40442,LCon14375,LRes42895,LFla94535,LCon8720,LGlo34360,LMin25058,LAdd739],["Min50955","Res59690","Res87031","Fla3302","LST3562","Res42708","Res40442","Con14375","Res42895","Fla94535","Con8720","Glo34360","Min25058","Add739"],Add739,"Add739")
+
+Actual (Unparsed): [[0.3801819, 0.4312643]]
+
+Expected (Unparsed): [[0.38018188,0.4312642685227549]]
+
+Actual:   [[0.3802, 0.4313]]
+
+Expected: [[0.3802, 0.4313]]

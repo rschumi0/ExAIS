@@ -1,0 +1,50 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Sim24849 = tf.keras.layers.Input(shape=([1, 2]))
+in0Con54585 = tf.keras.layers.Input(shape=([1]))
+in0Glo98550 = tf.keras.layers.Input(shape=([1, 2, 2]))
+
+Sim24849 = keras.layers.SimpleRNN(3,name = 'Sim24849', )(in0Sim24849)
+Res8627 = keras.layers.Reshape((3, 1), name = 'Res8627', )(Sim24849)
+Glo27833 = keras.layers.GlobalAveragePooling1D(name = 'Glo27833', )(Res8627)
+Res55767 = keras.layers.Reshape((1, 1), name = 'Res55767', )(Glo27833)
+Glo39337 = keras.layers.GlobalAveragePooling1D(name = 'Glo39337', )(Res55767)
+Lea95623 = keras.layers.LeakyReLU(alpha=8.279965910694692, name = 'Lea95623', )(Glo39337)
+Con54585 = keras.layers.Concatenate(axis=1, name = 'Con54585', )([Lea95623,in0Con54585])
+Glo98550 = keras.layers.GlobalMaxPool2D(name = 'Glo98550', )(in0Glo98550)
+Mul29637 = keras.layers.Multiply(name = 'Mul29637', )([Con54585,Glo98550])
+model = tf.keras.models.Model(inputs=[in0Sim24849,in0Con54585,in0Glo98550], outputs=Mul29637)
+w = model.get_layer('Sim24849').get_weights() 
+w[0] = np.array([[4, 9, 1], [4, 6, 4]])
+w[1] = np.array([[7, 4, 1], [9, 8, 3], [6, 1, 5]])
+w[2] = np.array([10, 10, 9])
+model.get_layer('Sim24849').set_weights(w) 
+in0Sim24849 = tf.constant([[[2, 4]]])
+in0Con54585 = tf.constant([[0.2018]])
+in0Glo98550 = tf.constant([[[[1.0716, 1.4331], [1.6749, 1.019]]]])
+print (np.array2string(model.predict([in0Sim24849,in0Con54585,in0Glo98550],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Mul29637.png')
+
+LSim24849 = simple_rnn_layer([[[2, 4]]],[[4, 9, 1], [4, 6, 4]],[[7, 4, 1], [9, 8, 3], [6, 1, 5]],[10, 10, 9], Sim24849), 
+LRes8627 = reshape_layer(Sim24849, [3, 1], Res8627), 
+LGlo27833 = global_average_pooling1D_layer(Res8627, Glo27833), 
+LRes55767 = reshape_layer(Glo27833, [1, 1], Res55767), 
+LGlo39337 = global_average_pooling1D_layer(Res55767, Glo39337), 
+LLea95623 = leaky_relu_layer(Glo39337, 8.279965910694692, Lea95623), 
+LCon54585 = concatenate_layer([Lea95623,[[0.2018]]], 1, Con54585), 
+LGlo98550 = global_max_pool2D_layer([[[[1.0716, 1.4331], [1.6749, 1.019]]]], Glo98550), 
+LMul29637 = multiply_layer([Con54585,Glo98550], Mul29637), 
+exec_layers([LSim24849,LRes8627,LGlo27833,LRes55767,LGlo39337,LLea95623,LCon54585,LGlo98550,LMul29637],["Sim24849","Res8627","Glo27833","Res55767","Glo39337","Lea95623","Con54585","Glo98550","Mul29637"],Mul29637,"Mul29637")
+
+Actual (Unparsed): [[1.6749001, 0.2891996]]
+
+Expected (Unparsed): [[1.6749,0.28919958]]
+
+Actual:   [[1.675, 0.2892]]
+
+Expected: [[1.6749, 0.2892]]

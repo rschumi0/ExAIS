@@ -1,0 +1,61 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Con86036 = tf.keras.layers.Input(shape=([2, 1, 1, 1]))
+in0Ave57719 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave57719 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sof89280 = tf.keras.layers.Input(shape=([1, 1, 1]))
+
+Con86036 = keras.layers.Conv3D(2, (2, 1, 1),strides=(1, 1, 1), padding='valid', dilation_rate=(1, 1, 1), name = 'Con86036', )(in0Con86036)
+Res24337 = keras.layers.Reshape((1, 1, 2), name = 'Res24337', )(Con86036)
+Ave57719 = keras.layers.Average(name = 'Ave57719', )([in0Ave57719,in1Ave57719])
+Res65045 = keras.layers.Reshape((1, 1, 2), name = 'Res65045', )(Ave57719)
+Sub30116 = keras.layers.Subtract(name = 'Sub30116', )([Res24337,Res65045])
+Res86406 = keras.layers.Reshape((1, 1, 2, 1), name = 'Res86406', )(Sub30116)
+Con31912 = keras.layers.Conv3D(4, (1, 1, 2),strides=(1, 1, 1), padding='same', dilation_rate=(1, 1, 1), name = 'Con31912', )(Res86406)
+Res22685 = keras.layers.Reshape((1, 1, 8), name = 'Res22685', )(Con31912)
+Res44019 = keras.layers.Reshape((1, 8), name = 'Res44019', )(Res22685)
+Sof89280 = keras.layers.Softmax(axis=1, name = 'Sof89280', input_shape=(1, 1, 1))(in0Sof89280)
+Res29340 = keras.layers.Reshape((1, 1), name = 'Res29340', )(Sof89280)
+Dot43259 = keras.layers.Dot(axes=(1, 2), name = 'Dot43259', )([Res44019,Res29340])
+model = tf.keras.models.Model(inputs=[in0Con86036,in0Ave57719,in1Ave57719,in0Sof89280], outputs=Dot43259)
+w = model.get_layer('Con86036').get_weights() 
+w[0] = np.array([[[[[0.0602, 0.2806]]]], [[[[0.1473, 0.9691]]]]])
+w[1] = np.array([0, 0])
+model.get_layer('Con86036').set_weights(w) 
+w = model.get_layer('Con31912').get_weights() 
+w[0] = np.array([[[[[0.9549, 0.9724, 0.8667, 0.92]], [[0.2632, 0.2932, 0.0274, 0.2753]]]]])
+w[1] = np.array([0, 0, 0, 0])
+model.get_layer('Con31912').set_weights(w) 
+in0Con86036 = tf.constant([[[[[0.7946]]], [[[0.6225]]]]])
+in0Ave57719 = tf.constant([[[0.4185, 0.9235]]])
+in1Ave57719 = tf.constant([[[0.5755, 0.0815]]])
+in0Sof89280 = tf.constant([[[[0.3293]]]])
+print (np.array2string(model.predict([in0Con86036,in0Ave57719,in1Ave57719,in0Sof89280],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Dot43259.png')
+
+LCon86036 = conv3D_layer([[[[[0.7946]]], [[[0.6225]]]]], 2, 1, 1,[[[[[0.0602, 0.2806]]]], [[[[0.1473, 0.9691]]]]],[0, 0], 1, 1, 1, false, 1, 1, 1, Con86036), 
+LRes24337 = reshape_layer(Con86036, [1, 1, 2], Res24337), 
+LAve57719 = average_layer([[[[0.4185, 0.9235]]], [[[0.5755, 0.0815]]]], Ave57719), 
+LRes65045 = reshape_layer(Ave57719, [1, 1, 2], Res65045), 
+LSub30116 = subtract_layer(Res24337,Res65045, Sub30116), 
+LRes86406 = reshape_layer(Sub30116, [1, 1, 2, 1], Res86406), 
+LCon31912 = conv3D_layer(Res86406, 1, 1, 2,[[[[[0.9549, 0.9724, 0.8667, 0.92]], [[0.2632, 0.2932, 0.0274, 0.2753]]]]],[0, 0, 0, 0], 1, 1, 1, true, 1, 1, 1, Con31912), 
+LRes22685 = reshape_layer(Con31912, [1, 1, 8], Res22685), 
+LRes44019 = reshape_layer(Res22685, [1, 8], Res44019), 
+LSof89280 = softmax_layer([[[[0.3293]]]], 1, Sof89280), 
+LRes29340 = reshape_layer(Sof89280, [1, 1], Res29340), 
+LDot43259 = dot_layer(Res44019,Res29340, 1, 2, Dot43259), 
+exec_layers([LCon86036,LRes24337,LAve57719,LRes65045,LSub30116,LRes86406,LCon31912,LRes22685,LRes44019,LSof89280,LRes29340,LDot43259],["Con86036","Res24337","Ave57719","Res65045","Sub30116","Res86406","Con31912","Res22685","Res44019","Sof89280","Res29340","Dot43259"],Dot43259,"Dot43259")
+
+Actual (Unparsed): [[[-0.2561433], [-0.2526871], [-0.3009498], [-0.2397504], [0.3091293], [0.3147946], [0.2805764], [0.2978312]]]
+
+Expected (Unparsed): [[[-0.25614328853499996],[-0.25268714276],[-0.300949779787],[-0.239750429497],[0.30912930909900005],[0.3147945755240001],[0.28057636631700006],[0.2978311492000001]]]
+
+Actual:   [[[-0.2561], [-0.2526], [-0.3009], [-0.2397], [0.3092], [0.3148], [0.2806], [0.2979]]]
+
+Expected: [[[-0.2561], [-0.2526], [-0.3009], [-0.2397], [0.3092], [0.3148], [0.2806], [0.2979]]]

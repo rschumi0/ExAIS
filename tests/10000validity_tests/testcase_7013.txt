@@ -1,0 +1,55 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Ave68854 = tf.keras.layers.Input(shape=([1, 2]))
+in1Ave68854 = tf.keras.layers.Input(shape=([1, 2]))
+in0Sim92601 = tf.keras.layers.Input(shape=([2, 1]))
+in0Con94131 = tf.keras.layers.Input(shape=([1]))
+
+Ave68854 = keras.layers.Average(name = 'Ave68854', )([in0Ave68854,in1Ave68854])
+Fla85041 = keras.layers.Flatten(name = 'Fla85041', )(Ave68854)
+Sim92601 = keras.layers.SimpleRNN(1,name = 'Sim92601', )(in0Sim92601)
+Con94131 = keras.layers.Concatenate(axis=1, name = 'Con94131', )([Sim92601,in0Con94131])
+Max70393 = keras.layers.Maximum(name = 'Max70393', )([Fla85041,Con94131])
+Res16803 = keras.layers.Reshape((2, 1), name = 'Res16803', )(Max70393)
+Res22445 = keras.layers.Reshape((2, 1, 1), name = 'Res22445', )(Res16803)
+Sep77355 = keras.layers.SeparableConv2D(3, (2, 1),strides=(2, 2), padding='valid', name = 'Sep77355', )(Res22445)
+model = tf.keras.models.Model(inputs=[in0Ave68854,in1Ave68854,in0Sim92601,in0Con94131], outputs=Sep77355)
+w = model.get_layer('Sim92601').get_weights() 
+w[0] = np.array([[1]])
+w[1] = np.array([[2]])
+w[2] = np.array([4])
+model.get_layer('Sim92601').set_weights(w) 
+w = model.get_layer('Sep77355').get_weights() 
+w[0] = np.array([[[[0.8854]]], [[[0.3514]]]])
+w[1] = np.array([[[[0.1828, 0.3146, 0.8074]]]])
+w[2] = np.array([0, 0, 0])
+model.get_layer('Sep77355').set_weights(w) 
+in0Ave68854 = tf.constant([[[0.6588, 0.1191]]])
+in1Ave68854 = tf.constant([[[0.1158, 0.2282]]])
+in0Sim92601 = tf.constant([[[5], [6]]])
+in0Con94131 = tf.constant([[0.6677]])
+print (np.array2string(model.predict([in0Ave68854,in1Ave68854,in0Sim92601,in0Con94131],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Sep77355.png')
+
+LAve68854 = average_layer([[[[0.6588, 0.1191]]], [[[0.1158, 0.2282]]]], Ave68854), 
+LFla85041 = flatten_layer(Ave68854, Fla85041), 
+LSim92601 = simple_rnn_layer([[[5], [6]]],[[1]],[[2]],[4], Sim92601), 
+LCon94131 = concatenate_layer([Sim92601,[[0.6677]]], 1, Con94131), 
+LMax70393 = maximum_layer([Fla85041,Con94131], Max70393), 
+LRes16803 = reshape_layer(Max70393, [2, 1], Res16803), 
+LRes22445 = reshape_layer(Res16803, [2, 1, 1], Res22445), 
+LSep77355 = separable_conv2D_layer(Res22445, 2, 1,[[[[[0.8854]]], [[[0.3514]]]],[[[[0.1828, 0.3146, 0.8074]]]]],[0, 0, 0], 2, 2, false, Sep77355), 
+exec_layers([LAve68854,LFla85041,LSim92601,LCon94131,LMax70393,LRes16803,LRes22445,LSep77355],["Ave68854","Fla85041","Sim92601","Con94131","Max70393","Res16803","Res22445","Sep77355"],Sep77355,"Sep77355")
+
+Actual (Unparsed): [[[[0.2047414, 0.3523614, 0.9043120]]]]
+
+Expected (Unparsed): [[[[0.20474144377177977,0.35236136876696894,0.9043120443180253]]]]
+
+Actual:   [[[[0.2048, 0.3524, 0.9044]]]]
+
+Expected: [[[[0.2048, 0.3524, 0.9044]]]]

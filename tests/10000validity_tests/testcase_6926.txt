@@ -1,0 +1,62 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0PRe5064 = tf.keras.layers.Input(shape=([1, 1]))
+in0Con59437 = tf.keras.layers.Input(shape=([2, 3]))
+in0Loc598 = tf.keras.layers.Input(shape=([2, 1]))
+
+PRe5064 = keras.layers.PReLU(name = 'PRe5064', input_shape=(1, 1))(in0PRe5064)
+Den35060 = keras.layers.Dense(4,name = 'Den35060', )(PRe5064)
+Res25451 = keras.layers.Reshape((1, 4, 1), name = 'Res25451', )(Den35060)
+Glo63929 = keras.layers.GlobalMaxPool2D(name = 'Glo63929', )(Res25451)
+Res6494 = keras.layers.Reshape((1, 1), name = 'Res6494', )(Glo63929)
+Zer87486 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer87486', )(Res6494)
+Con59437 = keras.layers.Concatenate(axis=2, name = 'Con59437', )([Zer87486,in0Con59437])
+Loc598 = keras.layers.LocallyConnected1D(4, (1),strides=(1), name = 'Loc598', )(in0Loc598)
+Min42379 = keras.layers.Minimum(name = 'Min42379', )([Con59437,Loc598])
+Res67756 = keras.layers.Reshape((2, 4, 1), name = 'Res67756', )(Min42379)
+Res64298 = keras.layers.Reshape((2, 4, 1, 1), name = 'Res64298', )(Res67756)
+Glo47380 = keras.layers.GlobalMaxPool3D(name = 'Glo47380', )(Res64298)
+model = tf.keras.models.Model(inputs=[in0PRe5064,in0Con59437,in0Loc598], outputs=Glo47380)
+w = model.get_layer('PRe5064').get_weights() 
+w[0] = np.array([[0.3039]])
+model.get_layer('PRe5064').set_weights(w) 
+w = model.get_layer('Den35060').get_weights() 
+w[0] = np.array([[0.6839, 0.3112, 0.6373, 0.0998]])
+w[1] = np.array([0.8161, 0.3123, 0.7137, 0.3803])
+model.get_layer('Den35060').set_weights(w) 
+w = model.get_layer('Loc598').get_weights() 
+w[0] = np.array([[[0.4631, 0.4009, 0.8346, 0.7569]], [[0.9817, 0.6635, 0.366, 0.9788]]])
+w[1] = np.array([[0, 0, 0, 0], [0, 0, 0, 0]])
+model.get_layer('Loc598').set_weights(w) 
+in0PRe5064 = tf.constant([[[0.0848]]])
+in0Con59437 = tf.constant([[[0.262, 0.7528, 0.1026], [0.9804, 0.0813, 0.2259]]])
+in0Loc598 = tf.constant([[[0.7991], [0.276]]])
+print (np.array2string(model.predict([in0PRe5064,in0Con59437,in0Loc598],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Glo47380.png')
+
+LPRe5064 = prelu_layer([[[0.0848]]], [[0.3039]], PRe5064), 
+LDen35060 = dense_layer(PRe5064, [[0.6839, 0.3112, 0.6373, 0.0998]],[0.8161, 0.3123, 0.7137, 0.3803], Den35060), 
+LRes25451 = reshape_layer(Den35060, [1, 4, 1], Res25451), 
+LGlo63929 = global_max_pool2D_layer(Res25451, Glo63929), 
+LRes6494 = reshape_layer(Glo63929, [1, 1], Res6494), 
+LZer87486 = zero_padding1D_layer(Res6494, 1, 0, Zer87486), 
+LCon59437 = concatenate_layer([Zer87486,[[[0.262, 0.7528, 0.1026], [0.9804, 0.0813, 0.2259]]]], 2, Con59437), 
+LLoc598 = locally_connected1D_layer([[[0.7991], [0.276]]], 1,[[[0.4631, 0.4009, 0.8346, 0.7569]], [[0.9817, 0.6635, 0.366, 0.9788]]],[[0, 0, 0, 0], [0, 0, 0, 0]], 1, Loc598), 
+LMin42379 = minimum_layer([Con59437,Loc598], Min42379), 
+LRes67756 = reshape_layer(Min42379, [2, 4, 1], Res67756), 
+LRes64298 = reshape_layer(Res67756, [2, 4, 1, 1], Res64298), 
+LGlo47380 = global_max_pool3D_layer(Res64298, Glo47380), 
+exec_layers([LPRe5064,LDen35060,LRes25451,LGlo63929,LRes6494,LZer87486,LCon59437,LLoc598,LMin42379,LRes67756,LRes64298,LGlo47380],["PRe5064","Den35060","Res25451","Glo63929","Res6494","Zer87486","Con59437","Loc598","Min42379","Res67756","Res64298","Glo47380"],Glo47380,"Glo47380")
+
+Actual (Unparsed): [[0.6669288]]
+
+Expected (Unparsed): [[0.6669288600000001]]
+
+Actual:   [[0.667]]
+
+Expected: [[0.667]]

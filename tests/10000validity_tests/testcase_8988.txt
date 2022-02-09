@@ -1,0 +1,49 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import numpy as np
+np.set_printoptions(suppress=True,threshold=np.inf,formatter={'float_kind':'{:16.7f}'.format})
+tf.keras.backend.set_floatx('float64')
+in0Glo64694 = tf.keras.layers.Input(shape=([1, 2, 2, 2]))
+in0Con36292 = tf.keras.layers.Input(shape=([2, 1]))
+in0Add47721 = tf.keras.layers.Input(shape=([2, 2]))
+in1Add47721 = tf.keras.layers.Input(shape=([2, 2]))
+
+Glo64694 = keras.layers.GlobalMaxPool3D(name = 'Glo64694', )(in0Glo64694)
+Res31862 = keras.layers.Reshape((2, 1), name = 'Res31862', )(Glo64694)
+Zer33945 = keras.layers.ZeroPadding1D(padding=((1, 1)), name = 'Zer33945', )(Res31862)
+Glo41377 = keras.layers.GlobalMaxPool1D(name = 'Glo41377', )(Zer33945)
+Res17281 = keras.layers.Reshape((1, 1), name = 'Res17281', )(Glo41377)
+Zer24749 = keras.layers.ZeroPadding1D(padding=((1, 0)), name = 'Zer24749', )(Res17281)
+Con36292 = keras.layers.Concatenate(axis=2, name = 'Con36292', )([Zer24749,in0Con36292])
+Add47721 = keras.layers.Add(name = 'Add47721', )([in0Add47721,in1Add47721])
+Ave22896 = keras.layers.Average(name = 'Ave22896', )([Con36292,Add47721])
+Per52405 = keras.layers.Permute((2,1), name = 'Per52405',)(Ave22896)
+model = tf.keras.models.Model(inputs=[in0Glo64694,in0Con36292,in0Add47721,in1Add47721], outputs=Per52405)
+in0Glo64694 = tf.constant([[[[[1.4713, 1.9322], [1.9014, 1.8833]], [[1.3806, 1.9063], [1.9241, 1.5299]]]]])
+in0Con36292 = tf.constant([[[0.0853], [0.0831]]])
+in0Add47721 = tf.constant([[[0.4906, 0.6724], [0.6115, 0.379]]])
+in1Add47721 = tf.constant([[[0.9392, 0.7158], [0.6298, 0.5437]]])
+print (np.array2string(model.predict([in0Glo64694,in0Con36292,in0Add47721,in1Add47721],steps=1), separator=', '))
+from tensorflow.keras.utils import plot_model
+plot_model(model, to_file='Per52405.png')
+
+LGlo64694 = global_max_pool3D_layer([[[[[1.4713, 1.9322], [1.9014, 1.8833]], [[1.3806, 1.9063], [1.9241, 1.5299]]]]], Glo64694), 
+LRes31862 = reshape_layer(Glo64694, [2, 1], Res31862), 
+LZer33945 = zero_padding1D_layer(Res31862, 1, 1, Zer33945), 
+LGlo41377 = global_max_pool1D_layer(Zer33945, Glo41377), 
+LRes17281 = reshape_layer(Glo41377, [1, 1], Res17281), 
+LZer24749 = zero_padding1D_layer(Res17281, 1, 0, Zer24749), 
+LCon36292 = concatenate_layer([Zer24749,[[[0.0853], [0.0831]]]], 2, Con36292), 
+LAdd47721 = add_layer([[[[0.4906, 0.6724], [0.6115, 0.379]]], [[[0.9392, 0.7158], [0.6298, 0.5437]]]], Add47721), 
+LAve22896 = average_layer([Con36292,Add47721], Ave22896), 
+LPer52405 = permute_layer(Ave22896, 2,1, Per52405), 
+exec_layers([LGlo64694,LRes31862,LZer33945,LGlo41377,LRes17281,LZer24749,LCon36292,LAdd47721,LAve22896,LPer52405],["Glo64694","Res31862","Zer33945","Glo41377","Res17281","Zer24749","Con36292","Add47721","Ave22896","Per52405"],Per52405,"Per52405")
+
+Actual (Unparsed): [[[0.7149000, 1.5867500], [0.7367500, 0.5029000]]]
+
+Expected (Unparsed): [[[0.7149,1.5867499999999999],[0.7367499999999999,0.5029]]]
+
+Actual:   [[[0.7149, 1.5868], [0.7368, 0.5029]]]
+
+Expected: [[[0.7149, 1.5868], [0.7368, 0.5029]]]
