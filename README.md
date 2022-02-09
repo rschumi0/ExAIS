@@ -1,4 +1,4 @@
-# ExAIS Executable AI Semantics
+# ExAIS: Executable AI Semantics
 This project aims to provide a Prolog specification of TensorFlow layers. Most layers are specified assuming statically given weights. Taking these weights as input parameter enables a deterministic computation of outputs for given inputs.
 The specification is executable and can run singular layers as well as complex graph models.
 
