@@ -13,6 +13,7 @@ public class TimeDistributedGen extends Gen {
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape,
 			LinkedHashMap<String, Object> config) {
+		config = fillParams(config);
 		// TODO Auto-generated method stub
 		Layer layer = GenUtils.genLayer(rand);
 		if(inputShape == null) {

@@ -12,11 +12,19 @@ import util.ListHelper;
 
 public class ConvGen extends Gen {
 
+	public ConvGen() {
+		super();
+		paramAliases.put("kernelSizes", Arrays.asList("kernelsizes", "kernel_sizes", "kernel", "kernels"));
+		paramAliases.put("nodeNumber", Arrays.asList("nodenumber", "node_number","node","node"));
+		paramAliases.put("strides", Arrays.asList("strides", "stride"));
+		paramAliases.put("dilation_rates", Arrays.asList("dilationrates", "dilationrate","dilation_rates", "dilation_rate","dilation", "dilations"));
+		paramAliases.put("padding", Arrays.asList("padding"));
+	}
 
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
 		//String[] names = {"Conv3D_Transpose","Conv2D_Transpose"};// "Separable_Conv", "Conv","Locally_Connected"};//,"Conv2DTranspose"};//
 		//String name = names[rand.nextInt(names.length)];
-		
+		config = fillParams(config);
 		int dimensions = 0;
 		if(inputShape != null) {
 			dimensions = inputShape.size() -1; 
@@ -44,15 +52,25 @@ public class ConvGen extends Gen {
 		if(config != null && !config.isEmpty() && config.containsKey("kernelSizes")){
 			kernelSizes = (List<Integer>)config.get("kernelSizes");
 		}
+		else if(config != null && !config.isEmpty() && config.containsKey("weights")){
+			List<Integer> tempshape = ListHelper.getShape(((Object[])config.get("weights")));
+			for(int i = 0; i < dimensions; i++) {
+				kernelSizes.add(tempshape.get(i));
+			}
+		}
 		else {
 			for(int i = 0; i < dimensions; i++) {
 				kernelSizes.add(rand.nextInt(inputShape.get(i))+1);
 			}
 		}
 		int nodeNumber = rand.nextInt(3)+2;//1;//rand.nextInt(3)+1;
+		if(config != null && !config.isEmpty() && config.containsKey("bias")){
+			nodeNumber = ((Object[])config.get("bias")).length;
+		}
 		if(config != null && !config.isEmpty() && config.containsKey("nodeNumber")){
 			nodeNumber = (int)config.get("nodeNumber");
 		}
+
 		
 		
 		List<Integer> strides = new ArrayList<>();
@@ -91,9 +109,15 @@ public class ConvGen extends Gen {
 		}
 		if(config != null && !config.isEmpty() && config.containsKey("strides")){
 			strides = (List<Integer>)config.get("strides");
+			while(strides.size() < dimensions) {
+				strides.add(strides.get(0));
+			}
 		}
 		if(config != null && !config.isEmpty() && config.containsKey("dilation_rates")){
 			dilation_rates = (List<Integer>)config.get("dilation_rates");
+			while(dilation_rates.size() < dimensions) {
+				dilation_rates.add(dilation_rates.get(0));
+			}
 		}
 		String stride = Arrays.toString(strides.toArray()).replace("[", "(").replace("]", ")");
 		params.put("strides", stride);

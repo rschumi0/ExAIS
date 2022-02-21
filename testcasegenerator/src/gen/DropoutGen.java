@@ -10,11 +10,18 @@ import layer.DropoutLayer;
 import layer.Layer;
 
 public class DropoutGen extends Gen {
+	
+	public DropoutGen() {
+		super();
+		paramAliases.put("rate", Arrays.asList("rate"));
+		paramAliases.put("seed", Arrays.asList("seed"));
+		paramAliases.put("stddev", Arrays.asList("stddev"));
+	}
 
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape,
 			LinkedHashMap<String, Object> config) {
-		
+		config = fillParams(config);
 		int dimensions;
 		if(inputShape != null) {
 			dimensions = inputShape.size()-1; 
@@ -33,7 +40,7 @@ public class DropoutGen extends Gen {
 			for(int i = 0; i < dimensions; i++) {
 				inputShape.add(rand.nextInt(3)+3);
 			}
-			inputShape.add(rand.nextInt(10)+100);
+			inputShape.add(rand.nextInt(10)+50);
 		}
 		LinkedHashMap<String, String> params = new LinkedHashMap<>();
 		

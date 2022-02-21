@@ -36,6 +36,13 @@ public class ModelError {
 	public String toString() {
 		return "Error " + message+ ", Badness: " + badness + ", Expected: "+this.getExpected();
 	}
+	
+	public String toFormattedString(String location) {
+		return "Model invalid due to: " + message.split("Input Shape")[0]+ " (Badness: " + badness + "),\n"+
+				(message.contains("Input Shape") ? "Input Shape"+message.split("Input Shape")[1]+",\n" : "")+
+				"Expected: "+this.getExpected()+",\n"+
+				"At Layer: "+ location;
+	}
 
 	public String getExpected() {
 		return expected;

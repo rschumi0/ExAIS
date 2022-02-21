@@ -7,32 +7,32 @@ import util.ListHelper;
 
 public class NodeLayer extends Layer {
 	protected int nodeNumber;
-	Object inputWeights;
-	Object outputWeights;
-	Object inputWeights1 = null;
+	protected Object inputWeights;
+	protected Object outputWeights;
+	protected Object inputWeights1 = null;
 	
 	public NodeLayer(int nodeNumber, Object inputWeights, Object outputWeights, List<Integer> inputShape, LinkedHashMap<String, String> params) {
 		super(inputShape,params);
 		this.nodeNumber = nodeNumber;
-		this.inputWeights = inputWeights;
-		this.outputWeights = outputWeights;
+		this.setInputWeights(inputWeights);
+		this.setOutputWeights(outputWeights);
 		
 	}
 	
 	public NodeLayer(int nodeNumber, Object inputWeights, Object inputWeights1, Object outputWeights, List<Integer> inputShape, LinkedHashMap<String, String> params) {
 		super(inputShape,params);
 		this.nodeNumber = nodeNumber;
-		this.inputWeights = inputWeights;
-		this.outputWeights = outputWeights;
-		this.inputWeights1 = inputWeights1;
+		this.setInputWeights(inputWeights);
+		this.setOutputWeights(outputWeights);
+		this.setInputWeights1(inputWeights1);
 	}
 	
 	public NodeLayer(NodeLayer l) {
 		super(l);
 		this.nodeNumber = l.nodeNumber;
-		this.inputWeights = l.inputWeights;
-		this.outputWeights = l.outputWeights;
-		this.inputWeights1 = l.inputWeights1;
+		this.setInputWeights(l.getInputWeights());
+		this.setOutputWeights(l.getOutputWeights());
+		this.setInputWeights1(l.getInputWeights1());
 	}
 	
 	
@@ -53,8 +53,8 @@ public class NodeLayer extends Layer {
 			par += ", ";
 			par = par.replace("(", "").replace(")", "");
 		}
-		String inW = ListHelper.printList(inputWeights);
-		return name.toLowerCase().replaceAll("(\\d)[d]", "$1D")+"_layer("+ListHelper.printList(in)+", "+inW+","+ListHelper.printList(outputWeights)+", "+par+"X)";
+		String inW = ListHelper.printList(getInputWeights());
+		return name.toLowerCase().replaceAll("(\\d)[d]", "$1D")+"_layer("+ListHelper.printList(in)+", "+inW+","+ListHelper.printList(getOutputWeights())+", "+par+"X)";
 	}
 	
 //	public static String weightString(Object weights) {
@@ -69,12 +69,12 @@ public class NodeLayer extends Layer {
 //	}
 
 	public String getWeightString(int index) {
-		return "w["+(index++)+"] = np.array("+ ListHelper.printList(inputWeights) +")\n"+
-    			((this.inputWeights1 == null) ?
-    			"w["+(index++)+"] = np.array("+ ListHelper.printList(outputWeights) +")\n" 
+		return "w["+(index++)+"] = np.array("+ ListHelper.printList(getInputWeights()) +")\n"+
+    			((this.getInputWeights1() == null) ?
+    			"w["+(index++)+"] = np.array("+ ListHelper.printList(getOutputWeights()) +")\n" 
     			:
-    			"w["+(index++)+"] = np.array("+ ListHelper.printList(inputWeights1)+")\n"+
-    			"w["+(index++)+"] = np.array("+ ListHelper.printList(outputWeights) +")\n");
+    			"w["+(index++)+"] = np.array("+ ListHelper.printList(getInputWeights1())+")\n"+
+    			"w["+(index++)+"] = np.array("+ ListHelper.printList(getOutputWeights()) +")\n");
 	}
 	@Override
 	public Layer copy() {
@@ -106,5 +106,29 @@ public class NodeLayer extends Layer {
 			this.outputWeights = ListHelper.parseList(w);
 		}
 		
+	}
+
+	public Object getInputWeights() {
+		return inputWeights;
+	}
+
+	public void setInputWeights(Object inputWeights) {
+		this.inputWeights = inputWeights;
+	}
+
+	public Object getOutputWeights() {
+		return outputWeights;
+	}
+
+	public void setOutputWeights(Object outputWeights) {
+		this.outputWeights = outputWeights;
+	}
+
+	public Object getInputWeights1() {
+		return inputWeights1;
+	}
+
+	public void setInputWeights1(Object inputWeights1) {
+		this.inputWeights1 = inputWeights1;
 	}
 }

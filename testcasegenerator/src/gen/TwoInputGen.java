@@ -11,10 +11,15 @@ import util.ListHelper;
 
 public class TwoInputGen extends MultiInputGen {
 	
+	public TwoInputGen() {
+		super();
+		paramAliases.put("axes", Arrays.asList("axes","axis"));
+	}
 	
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
-//		String[] names = {"Subtract"};
+		config = fillParams(config);
+		//		String[] names = {"Subtract"};
 //		String name = names[rand.nextInt(names.length)];
 		
 		int dimensions;
@@ -36,7 +41,10 @@ public class TwoInputGen extends MultiInputGen {
 			List<Integer> axes = new ArrayList<>();
 //			axes.add(rand.nextInt(dimensions)+1);
 //			axes.add(rand.nextInt(dimensions)+1);
-
+			if(config != null && !config.isEmpty() && config.containsKey("axes")){
+				axes = (List<Integer>)config.get("axes");
+			}
+			else {
 			axes.add(0);axes.add(0);
 			do {
 				inputShape1 = new ArrayList<>();
@@ -63,7 +71,7 @@ public class TwoInputGen extends MultiInputGen {
 			} while(!(inputShape.get(axes.get(0)-1) == inputShape1.get(axes.get(1)-1) 
 					&&
 					inputShape.get((axes.get(0) % dimensions)) == inputShape1.get((axes.get(1)% dimensions))));
-
+			}
 //			
 //			outerLoop: while(true) {
 //				for(int i = 0; i < inputShape.size(); i++) {

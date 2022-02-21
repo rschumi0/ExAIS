@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import gen.GraphGen;
+import util.Config;
 import util.GenUtils;
 import util.ListHelper;
 import util.ModelError;
@@ -15,10 +16,10 @@ import util.ScriptProlog;
 public class LayerGraph extends Layer {
 
 	private Layer root = null;
-	Map<String, Layer> graphLayerMap = null;
-	Map<String,Object> lastInput = null;
+	public Map<String, Layer> graphLayerMap = null;
+	public Map<String,Object> lastInput = null;
 	private Layer lastModel = null;
-	public static boolean ShowDebugInfo = true;
+	
 	
 	
 	public LayerGraph(Layer layer) {
@@ -78,8 +79,33 @@ public class LayerGraph extends Layer {
 		ret += weightStr;
 		ret += inSet;
 		ret += "print (np.array2string(model.predict("+ins+",steps=1), separator=', '))\n";
-//		ret += "from tensorflow.keras.utils import plot_model\n" + 
-//				"plot_model(model, to_file='"+root.getUniqueName()+".png')";
+		if(Config.plotPath != null && !Config.plotPath.isEmpty()) {
+			String replMap = "";
+			for (String key : graphLayerMap.keySet()) {
+				Layer l = graphLayerMap.get(key);
+				if(this.errorMode && l.hasError){
+					replMap +="('label=\""+key+"', 'style=filled, fillcolor=\"lightred\",label=\""+key+"'),";
+				}
+				else if(l.isModified || l.isNewlyAdded) {
+					replMap +="('label=\""+key+"', 'style=filled, fillcolor=\"lightgreen\",label=\""+key+"'),";
+				}
+			}
+			if(replMap.length()>2) {
+				replMap = replMap.substring(0,replMap.length()-1);
+			}
+			
+			ret += "from tensorflow.keras.utils import plot_model, model_to_dot\n" + 
+				   "plot_model(model, to_file='"+Config.plotPath+root.getUniqueName()+".png')\n"+
+					"graph = model_to_dot(model)\n" + 
+					"#graph.write('adsf.dot', prog=None, format=\"raw\")\n" + 
+					"dot = graph.to_string()\n" + 
+					"repmapping = ["+replMap+"]\n" + 
+					"for k, v in repmapping:\n" + 
+					"    dot = dot.replace(k, v)\n" + 
+					"import pydot\n" + 
+					"graphs = pydot.graph_from_dot_data(dot)\n" + 
+					"graphs[0].write_png('"+Config.plotPath+root.getUniqueName()+"Changed.png')";
+		}
 		return ret;
 	}
 	
@@ -239,7 +265,7 @@ public class LayerGraph extends Layer {
 		}
 		else if(l.getChildLayers().size() == 1) {
 			if(l.getChildLayers().isEmpty()) {
-				if(ShowDebugInfo) {System.out.println(l.getName() + l.getUniqueName());}
+				if(Config.ShowDebugInfo) {System.out.println(l.getName() + l.getUniqueName());}
 			}
 			in1 = l.getChildLayers().get(0).getUniqueName();
 		}
@@ -298,7 +324,7 @@ public class LayerGraph extends Layer {
 		}
 		else if(l.getChildLayers().size() == 1) {
 			if(l.getChildLayers().isEmpty()) {
-				if(ShowDebugInfo) {System.out.println(l.getName() + l.getUniqueName());}
+				if(Config.ShowDebugInfo) {System.out.println(l.getName() + l.getUniqueName());}
 			}
 			in1 = l.getChildLayers().get(0).getUniqueName();
 		}
@@ -417,34 +443,34 @@ public class LayerGraph extends Layer {
 		for(int i = 1;i< maxTries;i++) {
 			Map<String,ModelError> errors = new HashMap<>();
 			Object in = this.generateInput(rand);
-			if(ShowDebugInfo) {
+			if(Config.ShowDebugInfo) {
 		    System.out.println("-------------------------------------------------------------------------------------");
 		    System.out.println("Prolog Script for Model " + root.getUniqueName());
 		    System.out.println("-------------------------------------------------------------------------------------");
 	    	System.out.println(this.toPrologString(in));
 	    	System.out.println("-------------------------------------------------------------------------------------");}
 	    	try {
-	    		if(ShowDebugInfo) {
+	    		if(Config.ShowDebugInfo) {
 				System.out.println("########################################################################################");
 				System.out.println("Testing model: " + root.getUniqueName() +" TryIndex: "+i);
 				System.out.println("########################################################################################");}
 		    	String expected = ScriptProlog.runScript(
 		    			this.toPrologString(in),
 		    			this.root.getUniqueName(),errors);
-		    	if(ShowDebugInfo) {
+		    	if(Config.ShowDebugInfo) {
 		    	System.out.println();
 				System.out.println("Expected (Unparsed): " + expected);
 		    	}
 				boolean succFix = true;
 				if(!errors.isEmpty())
 				{
-					if(ShowDebugInfo) {
+					if(Config.ShowDebugInfo) {
 					System.out.println("########################################################################################");
 					System.out.println("Trying to fix model! " + root.getUniqueName());
 					System.out.println("########################################################################################");}
 					succFix = tryfixGraph(rand, errors,maxFixTries);
 					if(succFix) {
-						if(ShowDebugInfo) {
+						if(Config.ShowDebugInfo) {
 						System.out.println("########################################################################################");
 						System.out.println("Graph model validation successful! " + root.getUniqueName());
 						System.out.println("########################################################################################");}
@@ -453,7 +479,7 @@ public class LayerGraph extends Layer {
 				}
 				if(!succFix || expected == "" || expected.contains("error") || expected.contains("invalid") || !expected.contains("[") || !expected.contains("]") || expected.trim().endsWith("false.")){
 			    	//i--;
-					if(true) {//ShowDebugInfo) {
+					if(true) {//Config.ShowDebugInfo) {
 					System.out.println("########################################################################################");
 					System.out.println("Unfixable Model! ");
 					if(!errors.isEmpty())
@@ -472,7 +498,7 @@ public class LayerGraph extends Layer {
 			    	continue;
 				}
 				else {
-					if(ShowDebugInfo) {
+					if(Config.ShowDebugInfo) {
 					System.out.println("########################################################################################");
 					System.out.println("Graph model validation successful! " + root.getUniqueName());
 					System.out.println("########################################################################################");}
@@ -495,13 +521,13 @@ public class LayerGraph extends Layer {
 			for (String location : errors.keySet()) {
 				ModelError e = errors.get(location);
 				Layer l = graphLayerMap.get(location);
-				if(ShowDebugInfo) {
+				if(Config.ShowDebugInfo) {
 				System.out.println("########################################################################################");
 				System.out.println("TryFix " + location + " -- " + e.toString() + " FixTry: "+i +" #Es "+errors.size());
 				System.out.println("########################################################################################");}
 				
 				if(l == null) {
-					if(ShowDebugInfo) {
+					if(Config.ShowDebugInfo) {
 					System.out.println("########################################################################################");
 					System.out.println("Layer " + location + "not found for " + e.toString());
 					System.out.println("########################################################################################");}
@@ -678,7 +704,7 @@ public class LayerGraph extends Layer {
 //					String tempShape = e.getMessage().split(", Input Shape")[1].trim();
 //					//System.out.println(tempShape);
 //					tempShape = tempShape.replace("[", "").replace("]", "");
-//					if(ShowDebugInfo) {System.out.println(tempShape);}
+//					if(Config.ShowDebugInfo) {System.out.println(tempShape);}
 //					List<Integer> shape = new ArrayList<>();
 //					String[] tempShapeParts = tempShape.split(",");
 //					for (int i1 = 0; i1 < tempShapeParts.length; i1++) {
@@ -713,7 +739,7 @@ public class LayerGraph extends Layer {
 //					String tempShape = e.getMessage().split(", Input Shape")[1].trim();
 //					//System.out.println(tempShape);
 //					tempShape = tempShape.replace("[", "").replace("]", "");
-//					if(ShowDebugInfo) {System.out.println(tempShape);}
+//					if(Config.ShowDebugInfo) {System.out.println(tempShape);}
 //					List<Integer> shape = new ArrayList<>();
 //					String[] tempShapeParts = tempShape.split(",");
 //					
@@ -770,7 +796,7 @@ public class LayerGraph extends Layer {
 			}
 			
 			Object in = this.generateInput(r);
-			if(ShowDebugInfo) {
+			if(Config.ShowDebugInfo) {
 		    System.out.println("-------------------------------------------------------------------------------------");
 		    System.out.println("Prolog Script for Model " + this.root.getUniqueName());
 		    System.out.println("-------------------------------------------------------------------------------------");
@@ -783,7 +809,7 @@ public class LayerGraph extends Layer {
 	    	String expected = ScriptProlog.runScript(
 	    			this.toPrologString(in),
 	    			this.getUniqueName(),errors);
-	    	if(ShowDebugInfo) {
+	    	if(Config.ShowDebugInfo) {
 	    	System.out.println();
 			System.out.println("Expected (Unparsed): " + expected);}
 			useSameLastChild = false;
@@ -791,7 +817,7 @@ public class LayerGraph extends Layer {
 
 				String lel = (String)lastErrors.keySet().toArray()[0];
 				String el = (String)errors.keySet().toArray()[0];
-				if(ShowDebugInfo) {
+				if(Config.ShowDebugInfo) {
 				System.out.println("########################################################################################");
 				System.out.println("NewError " + el + " -- " + errors.get(el).toString() + " FixTry: "+i);
 				System.out.println("########################################################################################");}
@@ -804,7 +830,7 @@ public class LayerGraph extends Layer {
 //					System.out.println("Math.abs(lastErrors.get(lel).getBadness())" +Math.abs(lastErrors.get(lel).getBadness()));
 //					System.out.println("Math.abs(errors.get(el).getBadness())" +Math.abs(errors.get(el).getBadness()));
 //					
-					if(ShowDebugInfo) {System.out.println("######################restore Model####################################");}
+					if(Config.ShowDebugInfo) {System.out.println("######################restore Model####################################");}
 					this.root = lastModel.copy();
 					recursiveBuildMap(this.root);
 					errors = new HashMap<>(lastErrors);
@@ -817,7 +843,7 @@ public class LayerGraph extends Layer {
 					{
 						useSameLastChild = true;
 					}
-					if(ShowDebugInfo) {System.out.println("######################keep Fix####################################");}
+					if(Config.ShowDebugInfo) {System.out.println("######################keep Fix####################################");}
 					lastModel = this.root.copy();
 					lastErrors = new HashMap<>(errors);
 					lastlastInput = new HashMap<>(lastInput);
@@ -825,13 +851,13 @@ public class LayerGraph extends Layer {
 				
 			}
 			else if(expected == "" || expected.contains("error") || expected.contains("invalid") || !expected.contains("[") || !expected.contains("]") || expected.trim().endsWith("false.")){
-				if(ShowDebugInfo) {System.out.println("########################################################################################");
+				if(Config.ShowDebugInfo) {System.out.println("########################################################################################");
 				System.out.println("Unfixable Model! " + root.getUniqueName());
 				System.out.println("########################################################################################");}
 				return false;
 			}
 			else {
-				if(ShowDebugInfo) {System.out.println("########################################################################################");
+				if(Config.ShowDebugInfo) {System.out.println("########################################################################################");
 				System.out.println("Model fixed! " + root.getUniqueName());
 				System.out.println("########################################################################################");}
 				return true;
@@ -889,7 +915,7 @@ public class LayerGraph extends Layer {
 		else
 		{
 			if(l.getParentLayer() == null) {
-				if(ShowDebugInfo) {System.out.println("" +root.getUniqueName());
+				if(Config.ShowDebugInfo) {System.out.println("" +root.getUniqueName());
 				System.out.println("" +l.getUniqueName());
 				System.out.println("" +lNew.getUniqueName());}
 			}
@@ -956,12 +982,14 @@ public class LayerGraph extends Layer {
 	public void removeLayer(Random r, Layer l) {
 		if(l == root)
 		{
-			root = l.getChildLayers().get(r.nextInt(l.getChildLayers().size()));
+			if(l.getChildLayers().size() > 0) {
+				root = l.getChildLayers().get(r.nextInt(l.getChildLayers().size()));
+			}
 			root.setParentLayer(null);
 		}
 		else {
 			if(l.getParentLayer() == null) {
-				if(ShowDebugInfo) {System.out.println("" +root.getUniqueName());
+				if(Config.ShowDebugInfo) {System.out.println("" +root.getUniqueName());
 				System.out.println("" +l.getUniqueName());}
 			}
 			
@@ -974,7 +1002,7 @@ public class LayerGraph extends Layer {
 			}
 		}
 		buildGraphLayerMap(getRoot());
-		if(l.getChildLayers().isEmpty()) {
+		if(l.getChildLayers().isEmpty() && lastInput !=null) {
 			lastInput.remove(l.getUniqueName());
 			if(l.getParentLayer() != null && l.getParentLayer().getChildLayers().isEmpty()) {
 				lastInput.put(l.getParentLayer().getUniqueName(), l.getParentLayer().generateInput(r));
@@ -985,7 +1013,7 @@ public class LayerGraph extends Layer {
 	public void regenerateLayerArgs(Random r, Layer l, List<Integer> inputShape) {
 		Layer l1 = GenUtils.genLayer(r,l.getName(),inputShape);
 		if(l1 == null){
-			if(ShowDebugInfo) {System.out.println("Arg Regeneration failed.");}
+			if(Config.ShowDebugInfo) {System.out.println("Arg Regeneration failed.");}
 			return;
 		}
 		l1.isModified = true;
@@ -1031,7 +1059,7 @@ public class LayerGraph extends Layer {
 		String tempShape = e.getMessage().split(", Input Shape")[1].trim();
 		//System.out.println(tempShape);
 		tempShape = tempShape.replace("[", "").replace("]", "");
-		if(ShowDebugInfo) {System.out.println(tempShape);}
+		if(Config.ShowDebugInfo) {System.out.println(tempShape);}
 		List<Integer> shape = new ArrayList<>();
 		String[] tempShapeParts = tempShape.split(",");
 		boolean isConcatenate = false;
@@ -1184,7 +1212,7 @@ public class LayerGraph extends Layer {
 //		String tempShape = e.getMessage().split(", Input Shape")[1].trim();
 //		//System.out.println(tempShape);
 //		tempShape = tempShape.replace("[", "").replace("]", "");
-//		if(ShowDebugInfo) {System.out.println(tempShape);}
+//		if(Config.ShowDebugInfo) {System.out.println(tempShape);}
 		List<Integer> shape = e.getInputShape(false);
 //		String[] tempShapeParts = tempShape.split(",");
 //		

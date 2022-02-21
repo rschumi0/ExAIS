@@ -12,9 +12,36 @@ import util.ListHelper;
 
 public class HelperLayerGen extends Gen {
 
+	public HelperLayerGen() {
+		super();
+		paramAliases.put("croppingSizes", Arrays.asList("croppingsizes", "croppingsize", "size", "sizes"));
+		paramAliases.put("upSamplingSize", Arrays.asList("upsamplingsize","sizes", "size"));
+		paramAliases.put("paddingSizes", Arrays.asList("padding","sizes", "size"));
+		paramAliases.put("Repeat_Vector_N", Arrays.asList("repeat_vector_v","repeat", "size","n","number"));
+		paramAliases.put("Permute_Dims", Arrays.asList("permute_dims","permutations","dims","dimensions"));
+		paramAliases.put("Reshape_Sizes", Arrays.asList("reshape_sizes", "reshape_size","reshapesizes", "reshapesize", "newshape", "size", "sizes","reshape"));
+		paramAliases.put("axis", Arrays.asList("axis"));
+		//TODO finish parameter assignment
+		paramAliases.put("epsilon", Arrays.asList("epsilon","e"));
+		paramAliases.put("gammas", Arrays.asList("gammas","gamma"));
+		paramAliases.put("betas", Arrays.asList("betas","beta"));
+		paramAliases.put("means", Arrays.asList("means","mean"));
+		paramAliases.put("variances", Arrays.asList("variances","variance"));
+		paramAliases.put("mask_value", Arrays.asList("mask_value","maskvalue","mask","value"));
+		
+		paramAliases.put("shape", Arrays.asList("shape"));
+		paramAliases.put("batch_size", Arrays.asList("batch_size"));
+		paramAliases.put("dtype", Arrays.asList("dtype"));
+		paramAliases.put("ragged", Arrays.asList("ragged"));
+		paramAliases.put("ndim", Arrays.asList("ndim"));
+		paramAliases.put("max_ndim", Arrays.asList("max_ndim"));
+		paramAliases.put("min_ndim", Arrays.asList("min_ndim"));
+		paramAliases.put("allow_last_axis_squeeze", Arrays.asList("allow_last_axis_squeeze"));
+	}
+	
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
-		
+		config = fillParams(config);
 		int dimensions;
 		if(inputShape != null) {
 			dimensions = inputShape.size() -1; 
@@ -50,7 +77,6 @@ public class HelperLayerGen extends Gen {
 		
 		LinkedHashMap<String, String> params = new LinkedHashMap<>();
 		if(name.startsWith("Cropping")) {
-			
 			List<Object> sizes = new ArrayList<>();
 			if(config != null && !config.isEmpty() && config.containsKey("croppingSizes")){
 				sizes = (List<Object>)config.get("croppingSizes");
@@ -68,16 +94,21 @@ public class HelperLayerGen extends Gen {
 			params.put("cropping", size);
 		}
 		else if(name.startsWith("Up_Sampling")) {
-			List<Integer> sizes = new ArrayList<>();
-			
-			for(int i = 0; i < dimensions; i++) {
-//				if(i<2) {
-//					sizes.add(1);
-//				}
-//				else {
-				//sizes.add(rand.nextInt(inputShape.get(i)-1)+1);
-				sizes.add(rand.nextInt(2)+1);
-//				}
+			List<Object> sizes = new ArrayList<>();
+			if(config != null && !config.isEmpty() && config.containsKey("upSamplingSize")){
+				sizes = (List<Object>)config.get("upSamplingSize");
+			}
+			else {
+				for(int i = 0; i < dimensions; i++) {
+	//				if(i<2) {
+	//					sizes.add(1);
+	//				}
+	//				else {
+					//sizes.add(rand.nextInt(inputShape.get(i)-1)+1);
+					sizes.add(rand.nextInt(2)+1);
+	//				}
+				}
+
 			}
 			String size = Arrays.toString(sizes.toArray());
 			size = size.replace("[", "(").replace("]", ")");
@@ -85,59 +116,81 @@ public class HelperLayerGen extends Gen {
 		}
 		else if(name.startsWith("Zero_Padding")) {
 			List<Object> sizes = new ArrayList<>();
-			for(int i = 0; i < dimensions; i++) {
-				int s1 = rand.nextInt(1)+1;
-				int s2 = rand.nextInt(1)+1;
-				Object[] o = {s1,s2};
-				sizes.add(o);
+			if(config != null && !config.isEmpty() && config.containsKey("paddingSizes")){
+				sizes = (List<Object>)config.get("paddingSizes");
+			}
+			else {
+				for(int i = 0; i < dimensions; i++) {
+					int s1 = rand.nextInt(1)+1;
+					int s2 = rand.nextInt(1)+1;
+					Object[] o = {s1,s2};
+					sizes.add(o);
+				}
 			}
 			String size = ListHelper.printList(sizes.toArray());
 			size = size.replace("[", "(").replace("]", ")");
 			params.put("padding", size);
 		}
 		else if(name.equals("Repeat_Vector")) {
-			params.put("Repeat_Vector_N", ""+(rand.nextInt(3)+1));
+			if(config != null && !config.isEmpty() && config.containsKey("Repeat_Vector_N")){
+				params.put("Repeat_Vector_N", ""+config.get("Repeat_Vector_N"));
+			}
+			else {
+				params.put("Repeat_Vector_N", ""+(rand.nextInt(3)+1));
+			}
 		}
 		else if(name.equals("Permute")) {
-			int d1 = rand.nextInt(2) + 1;
-			int d2 = 0;
-			do {
-				d2 = rand.nextInt(2) + 1;	
-			} while(d1 == d2);
-			params.put("Permute_Dims","("+d1 + ","+d2+")");
+			if(config != null && !config.isEmpty() && config.containsKey("Permute_Dims")){
+				String size = ListHelper.printList(config.get("Permute_Dims"));
+				size = size.replace("[", "(").replace("]", ")");
+				params.put("Permute_Dims", ""+config.get("Repeat_Vector_N"));
+			}
+			else {
+				int d1 = rand.nextInt(2) + 1;
+				int d2 = 0;
+				do {
+					d2 = rand.nextInt(2) + 1;	
+				} while(d1 == d2);
+				params.put("Permute_Dims","("+d1 + ","+d2+")");
+			}
+
 		}
 		else if(name.equals("Reshape"))
 		{
-			
 			List<Integer> sizes = new ArrayList<>();
-			do {
-				inputShape.clear();
-				inputShape.add(rand.nextInt(33)*2+2);
-				sizes.clear();
-				if(rand.nextBoolean())
-				{
-					sizes.add(rand.nextInt(4)+1);
-					sizes.add((int)inputShape.get(0)/sizes.get(0));
-				}
-				else if(rand.nextBoolean()){
-					sizes.add(rand.nextInt(4)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add((int)inputShape.get(0)/listProduct(sizes));
-				}
-				else if(rand.nextBoolean()){
-					sizes.add(rand.nextInt(4)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add((int)inputShape.get(0)/listProduct(sizes));
-				}
-				else if(rand.nextBoolean()){
-					sizes.add(rand.nextInt(4)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add(rand.nextInt(3)+1);
-					sizes.add((int)inputShape.get(0)/listProduct(sizes));
-				}
-			}while(listProduct(inputShape) != listProduct(sizes));
+			if(config != null && !config.isEmpty() && config.containsKey("Reshape_Sizes")){
+				sizes = (List<Integer>)config.get("Reshape_Sizes");
+			}
+			else {
+				do {
+					inputShape.clear();
+					inputShape.add(rand.nextInt(33)*2+2);
+					sizes.clear();
+					if(rand.nextBoolean())
+					{
+						sizes.add(rand.nextInt(4)+1);
+						sizes.add((int)inputShape.get(0)/sizes.get(0));
+					}
+					else if(rand.nextBoolean()){
+						sizes.add(rand.nextInt(4)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add((int)inputShape.get(0)/listProduct(sizes));
+					}
+					else if(rand.nextBoolean()){
+						sizes.add(rand.nextInt(4)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add((int)inputShape.get(0)/listProduct(sizes));
+					}
+					else if(rand.nextBoolean()){
+						sizes.add(rand.nextInt(4)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add(rand.nextInt(3)+1);
+						sizes.add((int)inputShape.get(0)/listProduct(sizes));
+					}
+				}while(listProduct(inputShape) != listProduct(sizes));
+			}
 			String size = ListHelper.printList(sizes.toArray());
 			size = size.replace("[", "(").replace("]", ")");
 			params.put("Reshape_Sizes",size);

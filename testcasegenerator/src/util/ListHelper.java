@@ -2,8 +2,11 @@ package util;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import org.bytedeco.onnx.TensorProto;
 
 public class ListHelper {
 	static String sep = ",";
@@ -19,6 +22,13 @@ public class ListHelper {
 			return null;
 		}
 		index = 0;
+		if(!list.contains("[")){
+			Object[] tmp = (Object[]) recursiveParse("["+list+"]");
+			if(tmp.length == 0) {
+				return tmp;
+			}
+			return tmp[0];
+		}
 		return recursiveParse(list);
 	}
 	
@@ -308,4 +318,47 @@ public class ListHelper {
 		}
 		return shapes;
 	}
+	public static Object flatten(Object o) {
+		List<Object> res = new ArrayList<Object>();
+		for (Object o1 : (Object[])o) {
+			if(o1 instanceof Object[])
+			{
+				Object[] o2 = (Object[])flatten(o1);
+				for (Object o3 : o2) {
+					res.add(o3);
+				}
+			}
+			else {
+				res.add(o1);
+			}
+		}
+		return res.toArray();
+	}
+	
+	public static Object transposeList(Object o) {
+		List<Integer> shape = getShape(o);
+		Object tmpO = flatten(o);
+		Collections.reverse(shape);
+		dataIndex = 0;
+		return buildObjectArrayStructue(shape,(Object[])tmpO);
+	}
+	
+    private static int dataIndex = 0;
+    private static Object buildObjectArrayStructue(List<Integer> shape, Object[] data) {
+		ArrayList<Object> list = new ArrayList<Object>();
+		ArrayList<Integer> dimensions = new ArrayList<>(shape);
+		if(dimensions.size() == 1){
+			for(int i = 0; i < dimensions.get(0);i++) {
+				list.add(data[dataIndex++]);
+			}
+		}
+		else {
+			int d0 = dimensions.get(0);
+			dimensions.remove(0);
+			for(int i = 0; i < d0;i++) {
+				list.add(buildObjectArrayStructue(dimensions,data));
+			}
+		}
+		return (Object)list.toArray();
+    }
 }

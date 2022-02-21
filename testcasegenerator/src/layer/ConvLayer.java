@@ -74,20 +74,20 @@ public class ConvLayer extends NodeLayer {
 	
 		String kernelS = Arrays.toString(kernelShape.toArray());
 		kernelS = kernelS.substring(1,kernelS.length()-1) +",";
-		String inW = ListHelper.printList(inputWeights);
-		if(this.inputWeights1 != null) {
+		String inW = ListHelper.printList(getInputWeights());
+		if(this.getInputWeights1() != null) {
 			if(name.startsWith("Conv_LSTM")) {
-				inW = inW+"," + ListHelper.printList(inputWeights1);
+				inW = inW+"," + ListHelper.printList(getInputWeights1());
 			}
 			else {
-				inW = "["+inW+"," + ListHelper.printList(inputWeights1)+"]";
+				inW = "["+inW+"," + ListHelper.printList(getInputWeights1())+"]";
 			}
 		}
 		if(name.startsWith("Conv_LSTM")) {
 			par = "";
 			kernelS = "";
 		}
-		return name.toLowerCase().replaceAll("(\\d)[d]", "$1D")+"_layer("+ListHelper.printList(in)+", "+kernelS+inW+","+ListHelper.printList(outputWeights)+", "+par+"X)";
+		return name.toLowerCase().replaceAll("(\\d)[d]", "$1D")+"_layer("+ListHelper.printList(in)+", "+kernelS+inW+","+ListHelper.printList(getOutputWeights())+", "+par+"X)";
 	}
 	
 	public Object generateInput(Random r) {

@@ -13,7 +13,7 @@ public class ScriptProlog {
 	public static String prologMainFile = "/home/admin1/Documents/GitHub/TensorFlowPrologSpec/src/main.pl";
 	//public static String prologCommand = "/Applications/SWI-Prolog.app/Contents/MacOS/swipl -q -s";
 	//public static String prologMainFile = "/Users/ayeshasadiq/eclipse-workspace/TensorFlowPrologSpec/src/main.pl";
-	public static boolean ShowDebugInfo = true;
+	//public static boolean Config.ShowDebugInfo = true;
 	
 	public static String runScript(String script){
 		return runScript(script,null,new HashMap<String, ModelError>());
@@ -61,9 +61,9 @@ public class ScriptProlog {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if(ShowDebugInfo) {System.out.println(ret);}
+		if(Config.ShowDebugInfo) {System.out.println(ret);}
 		if(ret.contains("Invalid Model")) {
-			if(ShowDebugInfo) {System.out.println("########################################################################################");
+			if(Config.ShowDebugInfo) {System.out.println("########################################################################################");
 			System.out.println("Invalid model detected!");
 			System.out.println("########################################################################################");}
 			String[] retParts = ret.split("Badness Value:");

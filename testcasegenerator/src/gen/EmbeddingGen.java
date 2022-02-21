@@ -11,11 +11,11 @@ import layer.Layer;
 import util.ListHelper;
 
 public class EmbeddingGen extends Gen {
-
+	
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape,
 			LinkedHashMap<String, Object> config) {
-		
+		config = fillParams(config);
 		int input_dim = rand.nextInt(4)+1;
 		int output_dim = rand.nextInt(4)+1;
 		

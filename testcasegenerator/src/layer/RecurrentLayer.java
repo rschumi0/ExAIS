@@ -64,12 +64,12 @@ public class RecurrentLayer extends NodeLayer {
 	
 	
 	public String getWeightString(int index) {
-		return "w["+(index++)+"] = np.array("+ ListHelper.printList(inputWeights) +")\n"+
+		return "w["+(index++)+"] = np.array("+ ListHelper.printList(getInputWeights()) +")\n"+
     			((this.recurrentWeights == null) ?
-    			"w["+(index++)+"] = np.array("+ ListHelper.printList(outputWeights) +")\n" 
+    			"w["+(index++)+"] = np.array("+ ListHelper.printList(getOutputWeights()) +")\n" 
     			:
     			"w["+(index++)+"] = np.array("+ ListHelper.printList(recurrentWeights)+")\n"+
-    			"w["+(index++)+"] = np.array("+ ListHelper.printList(outputWeights) +")\n");
+    			"w["+(index++)+"] = np.array("+ ListHelper.printList(getOutputWeights()) +")\n");
 	}
 	
 	public String toPrologString(Object in) {
@@ -87,9 +87,9 @@ public class RecurrentLayer extends NodeLayer {
 		if(par.length() <= 2) {
 			par = "";
 		}
-		String W = ListHelper.printList(inputWeights)+"," + 
+		String W = ListHelper.printList(getInputWeights())+"," + 
 				   ListHelper.printList(recurrentWeights) +"," + 
-				   ListHelper.printList(outputWeights);
+				   ListHelper.printList(getOutputWeights());
 
 		return name.toLowerCase().replaceAll("(\\d)[d]", "$1D")+"_layer("+ListHelper.printList(in)+","+W+", "+par+"X)";
 	}

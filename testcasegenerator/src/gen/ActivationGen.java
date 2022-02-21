@@ -1,6 +1,8 @@
 package gen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -10,9 +12,31 @@ import layer.Layer;
 import util.ListHelper;
 
 public class ActivationGen extends Gen {
+	
+	public ActivationGen() {
+		super();
+		paramAliases.put("max_value", Arrays.asList("max_value", "maxvalue", "max"));
+		paramAliases.put("negative_slope", Arrays.asList("negative_slope", "negativeslope"));
+		paramAliases.put("threshold", Arrays.asList("threshold"));
+		paramAliases.put("theta", Arrays.asList("theta"));
+		paramAliases.put("alpha", Arrays.asList("alpha"));
+		paramAliases.put("axis", Arrays.asList("axis"));
+		
+		HashMap<String, String> reluDefaults = new HashMap<>();
+		reluDefaults.put("max_value", Float.MAX_VALUE+"");
+		reluDefaults.put("negative_slope", "0");
+		reluDefaults.put("threshold", "0");
+		defaultValues.put("ReLU",reluDefaults);
+		
+		HashMap<String, String> leaky_ReLUDefaults = new HashMap<>();
+		leaky_ReLUDefaults.put("alpha", "0.3");
+		defaultValues.put("Leaky_ReLU",reluDefaults);
+		
+	}
 
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
+		config = fillParams(config);
 		//String[] names = {"PReLU"};//{"ReLU","Thresholded_ReLU","ELU"};//,"Softmax"};//,"Leaky_ReLU"
 		int dimensions;
 		if(inputShape != null) {
@@ -67,5 +91,7 @@ public class ActivationGen extends Gen {
 		
 		return new ActivationLayer(name,inputShape,alphas,params);
 	}
+
+
 
 }

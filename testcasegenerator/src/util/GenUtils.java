@@ -10,6 +10,8 @@ import gen.Gen;
 import gen.MultiInputGen;
 import gen.TwoInputGen;
 import layer.Layer;
+import layer.NodeLayer;
+import layer.PlaceHolderLayer;
 
 public class GenUtils {
 
@@ -20,6 +22,7 @@ public class GenUtils {
 	public static List<String> singleInputLayers = new ArrayList<String>();
 		
 	public static Map<String,String> dimensionLayerMap = new HashMap<>();
+	public static Map<String,String> layerNameAliase = new HashMap<>();
 	
 	public static int regenerationCounter = 0;
 	public static int totalFixIterations = 0;
@@ -29,6 +32,10 @@ public class GenUtils {
 	public static void init() {
 		if(!initilised) {
 			if(layers == null) {
+				layers = new ArrayList<>(layerGenMap.keySet());
+				for(String l : layers){
+					layerNameAliase.put(l.toLowerCase().replace("_", ""), l);
+				}
 				layers = new ArrayList<>(layerGenMap.keySet());
 			}
 			for (String l : layers) {
@@ -136,4 +143,58 @@ public class GenUtils {
 		return l;
 	}
 	
+	
+	public static Layer genLayer(Random rand, String name, String layer, List<Integer> inputShape, LinkedHashMap<String, Object> config, Object weights, Object bias) {
+		init();
+		if(!layerGenMap.containsKey(layer)) {
+			
+			int dimensions = inputShape == null ? 0 :  inputShape.size() -1; 
+			if(layerGenMap.containsKey(layer+dimensions+"D")){
+				layer = layer+dimensions+"D";
+			}
+			else {
+				Layer l = new PlaceHolderLayer(layer,inputShape,new LinkedHashMap<>());
+				l.setInputShape(inputShape);
+				l.setUniqueName(name);
+				//l.setParams(config);
+				return l;
+			}
+		}
+		System.out.println(layer+" "+ name);
+		Layer l = layerGenMap.get(layer).generateLayer(rand, layer,null,null);//, inputShape);//,config);
+		l.setUniqueName(name);
+//		if(weights != null) {
+//			((NodeLayer)l).setInputWeights(weights);
+//			((NodeLayer)l).setOutputWeights(bias);
+//		}
+	    return l;
+	}
+	
+	public static Layer genLayer(Random rand, String layer, List<Integer> inputShape, LinkedHashMap<String, Object> config, Object weights, Object bias) {
+		init();
+		if(!layerGenMap.containsKey(layer)) {
+			int dimensions = inputShape == null ? 0 :  inputShape.size() -1; 
+			if(layerGenMap.containsKey(layer+dimensions+"D")){
+				layer = layer+dimensions+"D";
+			}
+			else if(layerNameAliase.containsKey(layer)) {
+				layer = layerNameAliase.get(layer);
+			}
+			else {
+				System.out.println(layer + " not found");
+				Layer l = new PlaceHolderLayer(layer,inputShape,new LinkedHashMap<>());
+				l.setInputShape(inputShape);
+				//l.setParams(config);
+				return l;
+			}
+		}
+		System.out.println(layer+  " "+"found");
+		Layer l = layerGenMap.get(layer).generateLayerwithDefaultValues(rand, layer,null,config);//, inputShape);//,config);
+		if(weights != null) {
+			((NodeLayer)l).setInputWeights(weights);
+			((NodeLayer)l).setOutputWeights(bias);
+		}
+		
+	    return l;
+	}
 }

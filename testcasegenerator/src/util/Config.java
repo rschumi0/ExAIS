@@ -5,10 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-public class ConfigUtil {
+public class Config {
+	
+	public static boolean ShowDebugInfo = true;
 	
 	public static int testNumber = 10;
 	public static String testMode = "normal";
+	public static String plotPath = "";
+	public static String testCaseOutputPath = "";
 	
 	public static void readConfig() {
 		Properties prop = new Properties();
@@ -42,6 +46,10 @@ public class ConfigUtil {
 		testNumber = Integer.parseInt(prop.getProperty("testNumber"));
 		System.out.println("test mode: "+prop.getProperty("testMode"));
 		testMode = prop.getProperty("testMode");
+		System.out.println("Path to save Plots: "+prop.getProperty("plotPath"));
+		plotPath = prop.getProperty("plotPath");
+		System.out.println("TestCase Output (Save) Path: "+prop.getProperty("testCaseOutputPath"));
+		testCaseOutputPath = prop.getProperty("testCaseOutputPath");
 	}
 	
 

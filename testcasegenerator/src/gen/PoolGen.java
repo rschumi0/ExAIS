@@ -11,12 +11,19 @@ import layer.PoolLayer;
 
 public class PoolGen extends Gen {
 
+	public PoolGen() {
+		super();
+		paramAliases.put("poolSizes", Arrays.asList("poolsizes","poolsize", "pool_sizes","pool_size","size","sizes"));
+		paramAliases.put("strides", Arrays.asList("strides","stride"));
+		paramAliases.put("padding", Arrays.asList("padding"));
+	}
+	
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
 //		String[] names = { "Global_Max_Pool", "Global_Average_Pooling", "Average_Pooling","Max_Pool"};//, 
 //		String name = names[rand.nextInt(names.length)];
 		//int dimensions = 3;//rand.nextInt(3)+1;
-		
+		config = fillParams(config);
 		int dimensions = 0;
 		if(inputShape != null) {
 			dimensions = inputShape.size()-1; 

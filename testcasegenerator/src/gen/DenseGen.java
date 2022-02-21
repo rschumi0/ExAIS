@@ -1,6 +1,7 @@
 package gen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -11,12 +12,21 @@ import util.ListHelper;
 
 public class DenseGen extends Gen {
 
+	public DenseGen() {
+		super();
+		paramAliases.put("nodeNumber", Arrays.asList("nodenumber", "node_number","node","node"));
+	}
+	
 	@Override
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape,
 			LinkedHashMap<String, Object> config) {
-		
-		
+		config = fillParams(config);
 		int nodeNumber = rand.nextInt(4)+1;
+		//System.out.println(Arrays.toString(config.keySet().toArray()));
+		if(config != null && !config.isEmpty() && config.containsKey("bias")){
+			nodeNumber = ((Object[])config.get("bias")).length;
+		}
+		
 		if(config != null && !config.isEmpty() && config.containsKey("nodeNumber")){
 			nodeNumber = (int)config.get("nodeNumber");
 		}

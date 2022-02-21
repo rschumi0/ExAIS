@@ -2,9 +2,6 @@ package layer;
 
 import java.util.List;
 import java.util.Random;
-
-import org.omg.CORBA.PolicyError;
-
 import util.ListHelper;
 
 import java.util.ArrayList;

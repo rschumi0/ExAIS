@@ -10,20 +10,13 @@ public class ScriptPython {
 	public static String pythonCommand = "python3";//"python -W ignore";
 	public static String tempPythonFilePath = System.getProperty("user.dir")+"/temp.py";
 	//public static String tempPythonFilePath ="/home/admin1/Documents/GitHub/TensorFlowPrologSpecTest/temp.py";
-	
-	public static void writeToFile(String filename, String content){
-		try (FileWriter fileWriter = new FileWriter(filename,false)){
-			fileWriter.write(content);
-		}catch (IOException e){
-			System.out.println(e.getMessage());
-		}
-	}      
+	     
 	public static String runScript(String script){
 		return runScript(script, null);
 	}
 	public static String runScript(String script, ArrayList<String> errors){
 		String ret = "";
-		writeToFile("temp.py", script);
+		Util.writeFile("temp.py", script);
 		String err ="";
 		Process p;
 		try {

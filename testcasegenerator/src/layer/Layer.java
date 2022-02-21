@@ -11,11 +11,14 @@ import util.ListHelper;
 
 public abstract class Layer {
 	
-	protected boolean isNonDetLayer = false;
+	public boolean isNonDetLayer = false;
 	
-	protected boolean isNewlyAdded = false;
+	public boolean isNewlyAdded = false;
 	
-	protected boolean isModified = false;
+	public boolean isModified = false;
+	
+	public boolean hasError = false;
+	public boolean errorMode = false;
 	
 	public int getLayerCount() {
 		int r = 1;

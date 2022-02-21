@@ -1,6 +1,7 @@
 package gen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -10,9 +11,16 @@ import layer.RecurrentLayer;
 import util.ListHelper;
 
 public class RecurrentGen extends Gen {
+	
+	public RecurrentGen() {
+		super();
+		paramAliases.put("reset_after", Arrays.asList("reset_after","resetafter", "reset"));
+		paramAliases.put("strides", Arrays.asList("strides","stride"));
+		paramAliases.put("padding", Arrays.asList("padding"));
+	}
 
 	public Layer generateLayer(Random rand, String name, List<Integer> inputShape, LinkedHashMap<String, Object> config) {
-		
+		config = fillParams(config);
 		int dimensions;
 		if(inputShape != null) {
 			dimensions = inputShape.size(); 
@@ -33,6 +41,24 @@ public class RecurrentGen extends Gen {
 		
 		LinkedHashMap<String, String> params = new LinkedHashMap<>();
 		int nodeNumber = rand.nextInt(3)+1;
+		if(config != null && !config.isEmpty() && config.containsKey("bias")){
+			if(name.startsWith("GRU")) {
+				nodeNumber = ((Object[])config.get("bias")).length/3;
+			}
+			else if(name.startsWith("LSTM")) {
+				nodeNumber = ((Object[])config.get("bias")).length/4;
+			}
+			else {
+				nodeNumber = ((Object[])config.get("bias")).length;
+			}
+			
+		}
+		if(config != null && !config.isEmpty() && config.containsKey("weights")){
+			inputShape.set(inputShape.size()-1,((Object[])config.get("weights")).length);
+		}
+		if(config != null && !config.isEmpty() && config.containsKey("nodeNumber")){
+			nodeNumber = (int)config.get("nodeNumber");
+		}
 	
 		
 		ArrayList<Integer> inWS = null;
@@ -89,7 +115,13 @@ public class RecurrentGen extends Gen {
 		}
 
 		Object inputWeights = ListHelper.genList(rand, "int", inWS, 1,10);//(rand, inWS, 1,10);
-		Object recurrentWeights = ListHelper.genList(rand, "int", recurrentWS, 1,10);//(rand, recurrentWS);
+		Object recurrentWeights;
+		if(config != null && !config.isEmpty() && config.containsKey("h0")){
+			recurrentWeights = ListHelper.genList(rand, "int", recurrentWS, 0);//(rand, recurrentWS);
+		}
+		else {
+			recurrentWeights = ListHelper.genList(rand, "int", recurrentWS, 1,10);//(rand, recurrentWS);
+		}
 		Object outputWeights = ListHelper.genList(rand, "int", outWS, 1,10);//(rand, outWS);
 
 		return new RecurrentLayer(name,nodeNumber,inputWeights,recurrentWeights,outputWeights,inputShape,params);
