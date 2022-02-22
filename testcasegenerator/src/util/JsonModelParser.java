@@ -137,6 +137,9 @@ public class JsonModelParser {
 	}
 	
 	private static String combinePaths(String p1, String p2) {
+		if(p1.endsWith(".json")) {
+			p1 = p1.substring(0,p1.lastIndexOf("/"));
+		}
 		String p = "";
 		String[] p1s = p1.split("/");
 		String[] p2s = p2.split("/");
