@@ -9,24 +9,24 @@ public class Main {
 	public static void main(String[] args) {
 		Random rand = new Random();
 		TestCaseGenerator.initLayerGenMap();
-		Config.readConfig();
-		switch (Config.testMode) {
-			case "normal":TestCaseGenerator.regularTests();
-				break;
-			case "nodeterministic":TestCaseGenerator.nondeterminicTests();
-				break;
-			case "semanticruntime":TestCaseGenerator.runtimeTest();
-				break;
-			case "gui":new Gui().start(rand);
-				break;
-			case "parse":parseModelsTest(rand);
-				break;
-			default:TestCaseGenerator.regularTests();
-			break;
-		}
+		// Config.readConfig();
+		// switch (Config.testMode) {
+		// 	case "normal":TestCaseGenerator.regularTests();
+		// 		break;
+		// 	case "nodeterministic":TestCaseGenerator.nondeterminicTests();
+		// 		break;
+		// 	case "semanticruntime":TestCaseGenerator.runtimeTest();
+		// 		break;
+		// 	case "gui":new Gui().start(rand);
+		// 		break;
+		// 	case "parse":parseModelsTest(rand);
+		// 		break;
+		// 	default:TestCaseGenerator.regularTests();
+		// 	break;
+		// }
 		//new Gui().start();
 		//TestCaseGenerator.twoLayerSeqTestWithInputShape1();
-		//TestCaseGenerator.singleLayerTest();
+		TestCaseGenerator.singleLayerTest();
 		//TestCaseGenerator.singleLayerTest();
 		//TestCaseGenerator.nondeterminicTests();
 		//TestCaseGenerator.croppingTest1();
