@@ -829,9 +829,9 @@ Expected: [[[[[[0.0724], [0.5743]]], [[[0.874], [0.7279]]]], [[[[0.7218], [0.272
 
 
 concatenate_layer(Is,Axis,Os) :- 
-	depth(Is,D),
-	%Axis < D - 1,
-	(Axis > D - 2-> (writeln("Invalid Axis!"),abort);true),
+	%depth(Is,D),
+	%(Axis > D - 2-> (writeln("Invalid Axis!"),abort);true),
+        check_valid_concatenate(Is,Axis),
 	concatenate_layer(Is,Axis,[],OsT),
 	((Axis =:=  0) -> remove_inner_nesting(OsT,Os); keep(OsT,Os)).
 concatenate_layer([],_,Os,Os).
