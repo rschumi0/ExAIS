@@ -672,7 +672,8 @@ public class TestCaseGenerator {
 		int testNumber = 3;
 		int failCnt = 0;
 		for(int i = 0; i < testNumber; i++) {
-			Layer l0 = GenUtils.genLayer(rand, "Conv_LSTM2D");
+			//Layer l0 = GenUtils.genLayer(rand, "Conv_LSTM2D");
+			Layer l0 = GenUtils.genLayer(rand, "Conv2D");
 			l0.initUniqueName(rand);
 			LayerGraph l = new LayerGraph(l0);
 			
@@ -1501,7 +1502,7 @@ public class TestCaseGenerator {
 		layerGenMap.put("Locally_Connected1D",new ConvGen());
 		layerGenMap.put("Locally_Connected2D",new ConvGen());
 		layerGenMap.put("Depthwise_Conv2D",new ConvGen());
-		layerGenMap.put("Conv_LSTM2D",new ConvGen());
+		//layerGenMap.put("Conv_LSTM2D",new ConvGen());
 	
 		layerGenMap.put("Permute",new HelperLayerGen());
 		layerGenMap.put("Repeat_Vector",new HelperLayerGen());
