@@ -50,6 +50,9 @@ insert(X,[Y|_],[X,Y|_]) :- X =< Y.
 %  Sum1 is Sum0 + X,
 %  sum_list(Xs, Sum1, Sum).
 
+sum_list_catch_overflow(Is,Sum) :-
+	catch(sum_list(Is,Sum), _, (Sum is 1.7976931348623157e+308)).
+
 invert_2Dlist(Xs,Ys) :- invert_2Dlist(Xs,[],Ys).
 invert_2Dlist([],Ys,Ys).
 invert_2Dlist(Xs,Ys1,Ys) :-
@@ -145,6 +148,18 @@ divide_each_list_element_by([X|Xs],A,[Y|Ys]) :-
 	Y is X / A,
 	divide_each_list_element_by(Xs,A,Ys).
 	
+	
+divide_each_list_element_by_keep_zero([],_,[]).
+divide_each_list_element_by_keep_zero([0.0|Xs],0.0,[1.0|Ys]) :-
+	divide_each_list_element_by_keep_zero(Xs,0.0,Ys).
+divide_each_list_element_by_keep_zero([X|Xs],0.0,[X|Ys]) :-
+	X =\= 0.0,
+	divide_each_list_element_by_keep_zero(Xs,0.0,Ys).
+divide_each_list_element_by_keep_zero([X|Xs],A,[Y|Ys]) :-
+	A =\= 0.0,
+	Y is X / A,
+	divide_each_list_element_by_keep_zero(Xs,A,Ys).
+	
 concatinate_sub_lists([],[],[]).
 concatinate_sub_lists([],Ys,Ys).
 concatinate_sub_lists(Xs,[],Xs).
@@ -155,7 +170,16 @@ concatinate_sub_lists([X|Xs],[Y|Ys],[Z|Zs]):-
 exp_list([],[]).
 exp_list(X,Y) :-
 	atomic(X),
-	Y is exp(X).
+	X > 709,
+	Y is exp(709).
+exp_list(X,0.0) :-
+	atomic(X),
+	X < -709.
+exp_list(X,Y) :-
+	atomic(X),
+	X =< 709,
+	X >= -709,
+	Y is exp(709).
 exp_list([X|Xs],[Y|Ys]) :-
 	is_list([X|Xs]),
 	exp_list(X,Y),

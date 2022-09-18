@@ -6,16 +6,39 @@
 
 
 
+check_simple_rnn_weight_shape(Is,Ws,RWs,Bs) :-
+	sub_length(Ws, LW),
+	length(RWs,LRW1),
+	(LW =\= LRW1 -> (write("Invalid Model, Badness Value: 99"),
+			S1 = "Weight Shape Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS),
+			throw(RS));true),
+	sub_length(RWs,LRW2),
+	(LW =\= LRW2 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+	length(Bs,LB),
+	(LW =\= LB -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true).
+
 simple_rnncell_layer(Is,Ws,RWs,Bs,Os) :-
 	simple_rnn_layer(Is,Ws,RWs,Bs,Os).
-
-
 
 simple_rnn_layer(Is,Ws,RWs,Bs,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
+	check_simple_rnn_weight_shape(Is,Ws,RWs,Bs),
 	simple_rnn(Is,Ws,RWs,Bs,Os).
 
 simple_rnn([[I|Is0]|Is],Ws,RWs,Bs,Os) :- 
@@ -64,17 +87,89 @@ mult_recurrent_weight([I|Is],[RW|RWs],Os0,Os) :-
 	mult_recurrent_weight(Is,RWs,Os1,Os).
 */
 
+divisible(I, X) :- I mod X =:= 0.
+
+
+check_gru_weight_shape(Is,Ws,RWs,Bs,false) :-
+	sub_length(Ws, LW),
+	(not(divisible(LW,3)) -> (write("Invalid Model, Badness Value: 99"),
+			S1 = "Weight Shape Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS),
+			throw(RS));true),
+	length(RWs,LRW1),
+	NodeNumber is LW / 3,
+	(NodeNumber =\= LRW1 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+		length(RWs,LRW1),
+	sub_length(RWs,LRW2),
+	(LW =\= LRW2 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+	length(Bs,LB),
+		(LW =\= LB -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true).
+check_gru_weight_shape(Is,Ws,RWs,Bs,true) :-
+	sub_length(Ws, LW),
+	(not(divisible(LW,3)) -> (write("Invalid Model, Badness Value: 99"),
+			S1 = "Weight Shape Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS),
+			throw(RS));true),
+	length(RWs,LRW1),
+	NodeNumber is LW / 3,
+	(NodeNumber =\= LRW1 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+		length(RWs,LRW1),
+	sub_length(RWs,LRW2),
+	(LW =\= LRW2 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+	length(Bs,LBT),
+	(LBT =\= 2 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+	sub_length(Bs,LB),
+		(LW =\= LB -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true).
+	
 
 grucell_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
 	gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os).
-
-
 
 gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
+	check_gru_weight_shape(Is,Ws,RWs,Bs,ResetAfter),
 	gru(Is,Ws,RWs,Bs,ResetAfter,Os).
 
 gru([[I|Is0]|Is],Ws,RWs,Bs,ResetAfter,Os) :- 
@@ -278,17 +373,47 @@ Expected: [[0.1186]]
 */
 
 
+check_lstm_weight_shape(Is,Ws,RWs,Bs) :-
+	sub_length(Ws, LW),
+	(not(divisible(LW,4)) -> (write("Invalid Model, Badness Value: 99"),
+			S1 = "Weight Shape Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS),
+			throw(RS));true),
+	length(RWs,LRW1),
+	NodeNumber is LW / 4,
+	(NodeNumber =\= LRW1 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+		length(RWs,LRW1),
+	sub_length(RWs,LRW2),
+	(LW =\= LRW2 -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true),
+	length(Bs,LB),
+		(LW =\= LB -> (write("Invalid Model, Badness Value: 99"),
+		S1 = "Weight Shape Error, Input Shape ",
+		shape(Is,Shape),
+		term_string(Shape,S2),
+		string_concat(S1,S2,RS),
+		throw(RS));true).
 
 lstmcell_layer(Is,Ws,Us,Bs,Os) :- 
 	lstm_layer(Is,Ws,Us,Bs,Os).
-
-
 
 lstm_layer(Is,Ws,Us,Bs,Os) :- 
 	check_dimensions(Is,3),
 	sub_sub_length(Is,L),	
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
+	check_lstm_weight_shape(Is,Ws,Us,Bs),
 	lstm(Is,Ws,Us,Bs,Os).
 	
 lstm([[I|Is0]|Is],Ws,Us,Bs,Os) :- 

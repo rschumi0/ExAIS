@@ -65,7 +65,7 @@ sigmoid_comp([I|Is],Y0,Y):-
 	append(Y0,[0.0],Ys),
 	sigmoid_comp(Is,Ys,Y).
 sigmoid_comp([I|Is],Y0,Y):-
-	I > -710,
+	I >= -709,
 	I1 is I * -1,
 	E is 1 + exp(I1), 
 	O is rdiv(1, rational(E)),
@@ -139,8 +139,10 @@ softmax_layer([I|Is],[O|Os]) :-
 softmax([],_).
 softmax(Is, Os):-
 	exp_list(Is, Y), 
-	sum_list(Y,Sum), %calc_sum_SL([I|Is], 0, Sum),	%  calc sum of exponential values for all the list elements
-	divide_each_list_element_by(Y,Sum,Os).%reduce_sum_SL(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
+	sum_list_catch_overflow(Y,Sum), %calc_sum_SL([I|Is], 0, Sum),	%  calc sum of exponential values for all the list elements
+	divide_each_list_element_by_keep_zero(Y,Sum,Os).%reduce_sum_SL(Y, Sum, [], R2). % dividing by the normalization to get the valid probabilities.
+
+
 
 /*
  % calculate exponential sum of a one-dimension list

@@ -459,7 +459,7 @@ check_same_shape_lists(Shape1,Shape2) :-
 						throw(S));true).
 
 
-check_valid_axis_for_dot([I1|Is1],[I2|_],Axis1,Axis2) :-
+check_valid_axis_for_dot([I1|Is1],[I2|Is2],Axis1,Axis2) :-
 		A1 is Axis1 - 1,
 		A2 is Axis2 - 1,
 		shape(I1,Shape1),
@@ -475,7 +475,7 @@ check_valid_axis_for_dot([I1|Is1],[I2|_],Axis1,Axis2) :-
 			throw(S));true),
 		nth0(A1,Shape1,D1),
 		nth0(A2,Shape2,D2),
-		(D1 =\= D2 -> (write("Invalid Model, Badness Value: "),
+		(D1 < D2 -> (write("Invalid Model, Badness Value: "),
 			depth([I1|Is1],DT),
 			D is DT - Axis1,
 			pow(100,D-1,Factor),
@@ -487,6 +487,22 @@ check_valid_axis_for_dot([I1|Is1],[I2|_],Axis1,Axis2) :-
 			string_concat(S1,S2,RS),
 			S3 = ", Expected Shape ",
 			replace(Shape,Axis1,D2,Shape3),
+			term_string(Shape3,S22),
+			string_concat(S3,S22,RS1),
+			string_concat(RS,RS1,S),
+			throw(S));true),
+		(D1 > D2 -> (write("Invalid Model, Badness Value: "),
+			depth([I1|Is1],DT),
+			D is DT - Axis1,
+			pow(100,D-1,Factor),
+			Badness is Factor*abs(D1-D2),
+			writeln(Badness),
+			S1 = "Dot Axis Error, Input Shape ",
+			shape([I2|Is2],Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS),
+			S3 = ", Expected Shape ",
+			replace(Shape,Axis2,D1,Shape3),
 			term_string(Shape3,S22),
 			string_concat(S3,S22,RS1),
 			string_concat(RS,RS1,S),
