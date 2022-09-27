@@ -403,9 +403,18 @@ check_smaller_arguments(Is, A1,A2) :-
 			string_concat(S1,S2,S),
 			throw(S));true).
 			
+check_equal_weight_shape(Is, A1,A2) :-
+	(A1 =\= A2 -> (write("Invalid Model, Badness Value: "),
+			BV is A1-A2, writeln(BV),  
+			S1 = "Weight Shape Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,S),
+			throw(S));true).			
+			
 check_valid_weight_shape(_, [],[]).
 check_valid_weight_shape(Is, [S|Shape],[S1|WsShape]) :-
-	check_valid_arguments(Is,S,S1),
+	check_equal_weight_shape(Is,S,S1),
 	check_valid_weight_shape(Is,Shape,WsShape).
 
 
