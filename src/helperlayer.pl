@@ -162,7 +162,7 @@ padding1D([[I|I0s]|Is],PadSym,LeftP,RightP,Os1,Os) :-
 	append(Os1,[O],Os2),
 	padding1D([[I|I0s]|Is],PadSym,LeftP,RightP1,Os2,Os).
 
-
+place_holder_layer(Is,Is).
 
 %zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
 %zero_padding2D_layer([[[[1,2],[3,4]],[[1,2],[3,4]]],[[[1,2],[3,4]],[[1,2],[3,4]]]],1,X).
@@ -343,12 +343,18 @@ multiply_sub_entries([I|Is],N,Os0,Os) :-
 
 
 
-embedding_layer(Is,Ws,Os) :- 
-	check_max_dimensions(Is,2), embedding_layer(Is,Ws,[],Os).
+embedding_layer(Is,InputDim,OutputDim,Ws,Os) :- 
+	check_max_dimensions(Is,2), 
+	check_weight_dimensions(Is,Ws,2),
+	length(Ws,L1),
+	sub_length(Ws,L2),
+	check_equal_weight_shape(Is,InputDim,L1),
+	check_equal_weight_shape(Is,OutputDim,L2),
+	embedding_layer(Is,Ws,[],Os).
 embedding_layer([],_,Os,Os).
 embedding_layer([I|Is],Ws,Os0,Os) :- 
 	is_list(I),
-	embedding_layer(I,Ws,O),
+	embedding_layer(I,Ws,[],O),
 	append(Os0,[O],Os1),
 	embedding_layer(Is,Ws,Os1,Os).
 embedding_layer([I|Is],Ws,Os0,Os) :- 

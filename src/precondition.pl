@@ -18,7 +18,7 @@ check_dimensions(Is, D) :-
 	%writeln(D),
 	(D1 =\= D -> (write("Invalid Model, Badness Value: "),
 			BV is D1-D,BV1 is BV*100000000000000000, writeln(BV1),
-			S1 = "Dimension error, Input Shape ",
+			S1 = "Dimension Error, Input Shape ",
 			shape(Is,Shape),
 			term_string(Shape,S2),
 			string_concat(S1,S2,RS),
@@ -32,7 +32,7 @@ check_max_dimensions(Is, D) :-
 	depth(Is,D1),
 	(D1 > D -> (write("Invalid Model, Badness Value: "),
 			BV is D1-D,BV1 is BV*100000000000000000, writeln(BV1),
-			S1 = "Dimension error, Input Shape ",
+			S1 = "Dimension Error, Input Shape ",
 			shape(Is,Shape),
 			term_string(Shape,S2),
 			string_concat(S1,S2,RS),
@@ -45,7 +45,7 @@ check_min_dimensions(Is, D) :-
 	depth(Is,D1),
 	(D1 < D -> (write("Invalid Model, Badness Value: "),
 			BV is D1-D,BV1 is BV*100000000000000000, writeln(BV1),  
-			S1 = "Dimension error, Input Shape ",
+			S1 = "Dimension Error, Input Shape ",
 			shape(Is,Shape),
 			term_string(Shape,S2),
 			string_concat(S1,S2,RS),
@@ -77,7 +77,7 @@ check_same_and_max_dimensions(I1,I2,Max) :-
 	(D1 > Max -> 
 		(D2 > Max->(write("Invalid Model, Badness Value: "),
 				BV is (D1-Max)+(D2-Max),BV1 is BV*210000000000000000, writeln(BV1),  
-				S1 = "Dimension error, Input Shape ",
+				S1 = "Dimension Error, Input Shape ",
 				shape(I1,Shape),
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
@@ -87,7 +87,7 @@ check_same_and_max_dimensions(I1,I2,Max) :-
 				throw(S));
 				(write("Invalid Model, Badness Value: "),
 				BV is (D1-Max),BV1 is BV*230000000000000000, writeln(BV1),  
-				S1 = "Dimension error, Input Shape ",
+				S1 = "Dimension Error, Input Shape ",
 				shape(I1,Shape),
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
@@ -97,7 +97,7 @@ check_same_and_max_dimensions(I1,I2,Max) :-
 				throw(S)));
 		 (D2 > Max->(write("Invalid Model, Badness Value: "),
 				BV is (D2-Max),BV1 is BV*210000000000000000, writeln(BV1),  
-				S1 = "Dimension error, Input Shape ",
+				S1 = "Dimension Error, Input Shape ",
 				shape(I2,Shape),
 				term_string(Shape,S2),
 				string_concat(S1,S2,RS),
@@ -403,6 +403,26 @@ check_smaller_arguments(Is, A1,A2) :-
 			string_concat(S1,S2,S),
 			throw(S));true).
 			
+			
+check_weight_dimensions(Is, Ws, D) :-
+	depth(Ws,D1), 
+	(D1 =\= D -> (write("Invalid Model, Badness Value: "),
+			BV is D1-D,BV1 is BV*10000000000000000, writeln(BV1),
+			S1 = "Weight Dimension Error, Input Shape ",
+			shape(Is,Shape),
+			term_string(Shape,S2),
+			string_concat(S1,S2,RS1),
+			S3 = ", Weight Shape ",
+			shape(Ws,Shape1),
+			term_string(Shape1,S4),
+			string_concat(S3,S4,RS2),
+			string_concat(RS1,RS2,RS),
+			S5 = ", Expected Weight Dimensions ",
+			string_concat(S5,D,RS3),
+			string_concat(RS,RS3,S),
+			throw(S));true).
+					
+
 check_equal_weight_shape(Is, A1,A2) :-
 	(A1 =\= A2 -> (write("Invalid Model, Badness Value: "),
 			BV is A1-A2, writeln(BV),  

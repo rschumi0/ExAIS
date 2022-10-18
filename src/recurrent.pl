@@ -35,6 +35,9 @@ simple_rnncell_layer(Is,Ws,RWs,Bs,Os) :-
 
 simple_rnn_layer(Is,Ws,RWs,Bs,Os) :- 
 	check_dimensions(Is,3),
+	check_weight_dimensions(Is,Ws,2),
+	check_weight_dimensions(Is,RWs,2),
+	check_weight_dimensions(Is,Bs,1),
 	sub_sub_length(Is,L),
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
@@ -166,6 +169,9 @@ grucell_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :-
 
 gru_layer(Is,Ws,RWs,Bs,ResetAfter,Os) :- 
 	check_dimensions(Is,3),
+	check_weight_dimensions(Is,Ws,2),
+	check_weight_dimensions(Is,RWs,2),
+	(ResetAfter -> (check_weight_dimensions(Is,Bs,2));(check_weight_dimensions(Is,Bs,1))),
 	sub_sub_length(Is,L),
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
@@ -410,6 +416,9 @@ lstmcell_layer(Is,Ws,Us,Bs,Os) :-
 
 lstm_layer(Is,Ws,Us,Bs,Os) :- 
 	check_dimensions(Is,3),
+	check_weight_dimensions(Is,Ws,2),
+	check_weight_dimensions(Is,Us,2),
+	check_weight_dimensions(Is,Bs,1),
 	sub_sub_length(Is,L),	
 	length(Ws,L1),
 	check_valid_arguments(Is,L,L1),
